@@ -1,0 +1,17 @@
+# Godot cache (re-imported on the build machine)
+.godot/
+build/
+*.tmp
+.DS_Store
+*.log
+# Local tooling / large working files not needed for the game
+.venv-model/
+renders/
+diagnostics/
+references/
+research/
+tools/
+assets/blender/
+assets/models/source/
+assets/models/generated/
+assets/animations/
