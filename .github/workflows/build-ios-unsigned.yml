@@ -1,0 +1,94 @@
+name: Build iOS (unsigned IPA)
+
+# Dead Frontier (Godot 4.7.2) -> unsigned DeadFrontier.ipa for sideloading.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+  TEMPLATE_DIR: 4.7.2.stable
+  IOS_PRESET: iOS          # export preset name in export_presets.cfg
+  NAME: DeadFrontier       # Xcode project / scheme / ipa name
+  HOMEBREW_NO_AUTO_UPDATE: 1
+
+jobs:
+  build-ios:
+    runs-on: macos-15
+    timeout-minutes: 90
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download Godot (macOS)
+      run: |
+        curl -fL "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_macos.universal.zip" -o godot.zip
+        unzip -q godot.zip -d godot
+        ls godot
+
+    # Pull only the iOS template out of the official export templates package.
+    - name: Install iOS export template
+      run: |
+        curl -fL "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz" -o templates.tpz
+        unzip -q -j templates.tpz "templates/ios.zip" "templates/version.txt" -d ios_template
+        dest="$HOME/Library/Application Support/Godot/export_templates/${TEMPLATE_DIR}"
+        mkdir -p "$dest"
+        cp ios_template/ios.zip ios_template/version.txt "$dest/"
+        rm templates.tpz
+
+    # .godot/ is not committed, so import all assets once before exporting.
+    - name: Import project
+      run: godot/Godot.app/Contents/MacOS/Godot --headless --path . --import || true
+
+    - name: Export to Xcode project
+      run: |
+        mkdir -p build/ios
+        godot/Godot.app/Contents/MacOS/Godot --headless --path . \
+          --export-release "${IOS_PRESET}" build/ios/${NAME}.ipa 2>&1 | tee export.log
+        ls -la build/ios
+        test -d build/ios/${NAME}.xcodeproj
+
+    - name: xcodebuild archive (unsigned)
+      run: |
+        set -o pipefail
+        xcodebuild archive \
+          -project build/ios/${NAME}.xcodeproj \
+          -scheme "${NAME}" \
+          -archivePath build/ios/App.xcarchive \
+          -configuration Release \
+          -destination "generic/platform=iOS" \
+          CODE_SIGN_STYLE=Manual \
+          CODE_SIGN_IDENTITY="" \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          DEVELOPMENT_TEAM="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO 2>&1 | tee xcodebuild.log | grep -E "error:|warning: .*(missing|not found)|\*\* ARCHIVE" || true
+        test -d build/ios/App.xcarchive/Products/Applications
+
+    - name: Package IPA
+      run: |
+        cd build/ios
+        mkdir -p Payload
+        cp -R App.xcarchive/Products/Applications/*.app Payload/
+        zip -qry "${NAME}.ipa" Payload
+        mv "${NAME}.ipa" ../../
+        ls -la ../../${NAME}.ipa
+
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DeadFrontier-unsigned-ipa
+        path: DeadFrontier.ipa
+        retention-days: 14
+
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs
+        path: |
+          export.log
+          xcodebuild.log
+        if-no-files-found: ignore
