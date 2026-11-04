@@ -1,0 +1,158 @@
+extends Node3D
+## Weapon crate: a locked supply case in a lane with a hit counter on its face and the
+## weapon it holds spinning above it. Shoot it down to 0 and the weapon flies to the player.
+
+const TRUCK_PATH := "res://assets/models/supply_truck.glb"
+const CRATE_SCALE := 2.9
+const FLIGHT_TIME := 0.55
+const WEAPON_SCALES := {"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95}
+const WEAPON_NAMES := {"PISTOL":"PISTOL","SMG":"SMG","SHOTGUN":"SHOTGUN","SNIPER":"SNIPER","LAUNCHER":"GRENADE LAUNCHER","RIFLE":"RIFLE"}
+const GLOW := Color("49b8ff")
+
+static var crate_mesh: Mesh
+static var latch_mesh: Mesh
+
+var weapon_id := "SMG"
+var hits_left := 10
+var max_hits := 10
+var half_extents := Vector2(0.72,0.64) # x / z, same convention as road obstacles
+var broken := false
+var dead := false # aim code treats targets uniformly
+var arrived := false
+var flight := 0.0
+var spin := 0.0
+var punch := 0.0
+var flight_start := Vector3.ZERO
+
+var body: Node3D
+var weapon_pivot: Node3D
+var weapon_model: Node3D
+var glow_ring: MeshInstance3D
+var light: OmniLight3D
+var counter: Label3D
+
+static func _cache_meshes() -> void:
+	if crate_mesh != null: return
+	var truck := (load(TRUCK_PATH) as PackedScene).instantiate()
+	var crate := truck.find_child("Crate",true,false) as MeshInstance3D
+	var latch := truck.find_child("CrateLatch",true,false) as MeshInstance3D
+	if crate: crate_mesh = crate.mesh
+	if latch: latch_mesh = latch.mesh
+	truck.free()
+
+func setup(id: String,hits: int) -> void:
+	weapon_id = id
+	hits_left = maxi(1,hits)
+	max_hits = hits_left
+
+func _ready() -> void:
+	_cache_meshes()
+	body = Node3D.new(); body.name = "Body"; add_child(body)
+	var s := CRATE_SCALE
+	if crate_mesh:
+		var c := MeshInstance3D.new(); c.mesh = crate_mesh; c.scale = Vector3.ONE*s
+		c.position = Vector3(0,0.15*s,0); body.add_child(c)
+		if latch_mesh:
+			var l := MeshInstance3D.new(); l.mesh = latch_mesh; l.scale = Vector3.ONE*s
+			l.position = Vector3(0,0.15*s,0.22*s); body.add_child(l)
+	else:
+		var fallback := MeshInstance3D.new(); var box := BoxMesh.new(); box.size = Vector3(1.22,0.76,1.07)
+		fallback.mesh = box; fallback.position = Vector3(0,0.38,0); body.add_child(fallback)
+	# Red danger band so the crate reads as "shoot me" from the chase camera.
+	var band := MeshInstance3D.new(); var band_mesh := BoxMesh.new()
+	band_mesh.size = Vector3(0.48*s+0.02,0.075*s,0.42*s+0.02); band.mesh = band_mesh
+	var band_mat := StandardMaterial3D.new(); band_mat.albedo_color = Color("b3241c"); band_mat.roughness = 0.7
+	band.material_override = band_mat; band.position = Vector3(0,0.255*s,0); body.add_child(band)
+	# Hit counter on the face that looks at the chase camera.
+	counter = Label3D.new(); counter.font_size = 150; counter.pixel_size = 0.0054
+	counter.outline_size = 26; counter.modulate = Color("fbfbf6"); counter.outline_modulate = Color("1a0d0b")
+	counter.position = Vector3(0,0.17*s,0.21*s+0.03); counter.double_sided = false
+	var font = load("res://assets/fonts/hud_condensed_bold.otf")
+	if font: counter.font = font
+	# Always drawn on top so the floating gun can never hide a digit.
+	counter.no_depth_test = true; counter.render_priority = 10; counter.outline_render_priority = 9
+	body.add_child(counter)
+	# Weapon on display above the crate, lit blue like a loot drop.
+	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85,0); add_child(weapon_pivot)
+	var path := "res://assets/models/rifle.glb" if weapon_id=="RIFLE" else "res://assets/models/weapons/"+weapon_id.to_lower()+".glb"
+	if ResourceLoader.exists(path):
+		weapon_model = (load(path) as PackedScene).instantiate() as Node3D
+		weapon_model.scale = Vector3.ONE*float(WEAPON_SCALES.get(weapon_id,0.6))
+		weapon_pivot.add_child(weapon_model)
+		_center_model(weapon_model)
+	glow_ring = MeshInstance3D.new(); var torus := TorusMesh.new()
+	torus.inner_radius = 0.56; torus.outer_radius = 0.68; torus.rings = 32; torus.ring_segments = 8; glow_ring.mesh = torus
+	var glow_mat := StandardMaterial3D.new(); glow_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	glow_mat.albedo_color = Color(GLOW.r,GLOW.g,GLOW.b,0.75); glow_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	glow_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	glow_ring.material_override = glow_mat; glow_ring.position = Vector3(0,-0.42,0); weapon_pivot.add_child(glow_ring)
+	light = OmniLight3D.new(); light.light_color = GLOW; light.light_energy = 1.6; light.omni_range = 2.6
+	light.position = Vector3(0,0.1,0.35); weapon_pivot.add_child(light)
+	_refresh_counter()
+
+func _center_model(m: Node3D) -> void:
+	# Weapon glbs are authored around the grip; shift so the spin axis runs through the middle.
+	var box := AABB(); var first := true
+	for mi in m.find_children("*","MeshInstance3D",true,false):
+		var local: Transform3D = m.transform.affine_inverse()*_relative(mi as Node3D,m.get_parent())
+		var b: AABB = local*(mi as MeshInstance3D).get_aabb()
+		box = b if first else box.merge(b); first = false
+	if not first: m.position = -(m.transform.basis*box.get_center())
+
+func _relative(n: Node3D,ancestor: Node) -> Transform3D:
+	var t := Transform3D.IDENTITY; var cur: Node = n
+	while cur != null and cur != ancestor:
+		if cur is Node3D: t = (cur as Node3D).transform*t
+		cur = cur.get_parent()
+	return t
+
+func _refresh_counter() -> void:
+	if counter: counter.text = str(hits_left)
+
+func overlaps(point: Vector3) -> bool:
+	return not broken and absf(point.x-position.x)<half_extents.x+0.40 and absf(point.z-position.z)<half_extents.y+0.25
+
+func bullet_hits(point: Vector3) -> bool:
+	return not broken and point.y<2.4 and absf(point.x-position.x)<half_extents.x+0.12 and absf(point.z-position.z)<half_extents.y+0.12
+
+## Returns true on the hit that breaks the crate.
+func take_hit(amount: int=1) -> bool:
+	if broken: return false
+	hits_left = maxi(0,hits_left-maxi(1,amount))
+	punch = 1.0
+	_refresh_counter()
+	if hits_left<=0:
+		broken = true; dead = true
+		body.visible = false
+		flight_start = weapon_pivot.global_position
+		weapon_pivot.top_level = true
+		weapon_pivot.global_position = flight_start
+		return true
+	return false
+
+func tick(delta: float,player_target: Vector3) -> void:
+	spin += delta
+	if not broken:
+		position.z += 3.5*delta
+		punch = maxf(0.0,punch-delta*7.0)
+		body.scale = Vector3.ONE*(1.0+0.08*punch)
+		counter.modulate = Color("fbfbf6").lerp(Color("ff4a3a"),punch)
+		weapon_pivot.position.y = 1.85+sin(spin*2.6)*0.07
+		weapon_pivot.rotation.y = spin*1.9
+		if glow_ring: glow_ring.rotation.x = 0.0
+		if light: light.light_energy = 1.4+0.4*sin(spin*5.0)
+		return
+	# Broken: the weapon arcs into the player's hands.
+	flight += delta
+	var t := clampf(flight/FLIGHT_TIME,0.0,1.0)
+	var e := t*t*(3.0-2.0*t)
+	var peak := flight_start.lerp(player_target,0.5)+Vector3(0,1.6,0)
+	var a := flight_start.lerp(peak,e); var b := peak.lerp(player_target,e)
+	weapon_pivot.global_position = a.lerp(b,e)
+	weapon_pivot.rotation.y = spin*9.0
+	weapon_pivot.scale = Vector3.ONE*lerpf(1.0,0.55,e)
+	if light: light.light_energy = 2.4*(1.0-e)+0.4
+	if t>=1.0: arrived = true
+
+func display_name() -> String:
+	return String(WEAPON_NAMES.get(weapon_id,weapon_id))

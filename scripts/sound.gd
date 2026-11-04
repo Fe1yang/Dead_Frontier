@@ -1,0 +1,141 @@
+extends Node
+
+var streams: Dictionary = {}
+var voices: Array[AudioStreamPlayer] = []
+var stop_times: Array[float] = []
+var cursor := 0
+var muted := false
+var last_id := ""
+var music: AudioStreamPlayer
+var music_state_name := ""
+# Chase music for the intro and the run itself; the two tracks alternate.
+const CHASE_TRACKS := ["res://assets/audio/chase_survival_pulse.mp3","res://assets/audio/chase_track_2.mp3"]
+var chase: AudioStreamPlayer
+var chase_streams: Array = []
+var chase_index := -1
+
+func _ready() -> void:
+	streams["rifle"] = load("res://assets/audio/rifle.mp3")
+	streams["smg"] = load("res://assets/audio/smg.mp3")
+	streams["sniper"] = load("res://assets/audio/sniper.mp3")
+	streams["shotgun"] = load("res://assets/audio/shotgun.mp3")
+	streams["pistol_near"] = load("res://assets/audio/pistol_near.mp3")
+	streams["pistol_far"] = load("res://assets/audio/pistol_far.mp3")
+	streams["reload"] = load("res://assets/audio/reload.mp3")
+	streams["explosion"] = load("res://assets/audio/explosion.mp3")
+	streams["zombie"] = load("res://assets/audio/zombie_growl.mp3")
+	streams["game_over"] = load("res://assets/audio/game_over.mp3")
+	streams["thunder"] = _tone(2.2, 70.0, 28.0, 0.55, true)
+	streams["shot"] = streams["rifle"]
+	streams["hit"] = _tone(0.055, 95.0, 58.0, 0.24, true)
+	streams["kill"] = _tone(0.11, 180.0, 65.0, 0.30, true)
+	streams["hurt"] = _tone(0.22, 85.0, 42.0, 0.45, true)
+	streams["gate"] = _tone(0.28, 330.0, 880.0, 0.28, false)
+	streams["pickup"] = _tone(0.20, 520.0, 940.0, 0.24, false)
+	for i in range(16):
+		var voice := AudioStreamPlayer.new()
+		add_child(voice)
+		voices.append(voice)
+		stop_times.append(0.0)
+	var theme:=load("res://assets/audio/dead_run_theme.wav") as AudioStreamWAV
+	if theme:
+		theme.loop_mode=AudioStreamWAV.LOOP_FORWARD
+		theme.loop_begin=0
+		theme.loop_end=int(theme.get_length()*theme.mix_rate)
+		music=AudioStreamPlayer.new()
+		music.stream=theme
+		music.volume_db=-13.0
+		add_child(music)
+	for path in CHASE_TRACKS:
+		var st = load(path)
+		if st: chase_streams.append(st)
+	chase=AudioStreamPlayer.new(); chase.volume_db=-12.0; add_child(chase)
+	chase.finished.connect(_next_chase_track)
+	music_state("menu")
+
+func _process(delta: float) -> void:
+	for i in range(voices.size()):
+		if stop_times[i]>0:
+			stop_times[i]-=delta
+			if stop_times[i]<=0: voices[i].stop()
+
+func music_state(state: String) -> void:
+	var previous:=music_state_name
+	music_state_name=state
+	if is_instance_valid(music):
+		var should_play:=not muted and state in ["menu","language","settings","character_select","shop"]
+		if should_play and not music.playing: music.play()
+		elif not should_play and music.playing: music.stop()
+	if is_instance_valid(chase) and not chase_streams.is_empty():
+		if muted or not state in ["intro","playing","paused"]:
+			chase.stop(); chase.stream_paused=false
+		elif state=="paused":
+			chase.stream_paused=true # silent while paused, resumes from the same spot
+		elif chase.stream_paused:
+			chase.stream_paused=false
+		elif not chase.playing:
+			_next_chase_track()
+
+func _next_chase_track() -> void:
+	if chase_streams.is_empty() or not music_state_name in ["intro","playing","paused"]: return
+	chase_index=(chase_index+1)%chase_streams.size()
+	chase.stream=chase_streams[chase_index]; chase.stream_paused=false; chase.play()
+
+func play(id: String) -> void:
+	last_id=id
+	if muted or not streams.has(id) or voices.is_empty() or streams[id]==null: return
+	var voice := voices[cursor % voices.size()]
+	cursor += 1
+	voice.stream = streams[id]
+	voice.pitch_scale = randf_range(0.92,1.08) if id=="zombie" else 1.0
+	voice.volume_db = -1.0
+	if id in ["rifle","smg"]: voice.volume_db=-8.0
+	elif id=="pistol_near": voice.volume_db=-16.0 # close-range pistol crack was startling
+	elif id=="pistol_far": voice.volume_db=-15.0
+	elif id=="shotgun": voice.volume_db=-5.0
+	elif id=="sniper": voice.volume_db=-3.0
+	elif id=="zombie": voice.volume_db=-6.0
+	if id=="explosion": voice.volume_db-=0.92 # Ten percent lower linear amplitude.
+	voice.play()
+	stop_times[voice.get_index()] = 0.0
+	if id=="smg": stop_times[voice.get_index()]=minf(0.65,streams[id].get_length())
+	elif id in ["rifle","pistol_near","pistol_far"]: stop_times[voice.get_index()]=0.38
+	elif id=="shotgun": stop_times[voice.get_index()]=0.70
+	elif id=="sniper": stop_times[voice.get_index()]=0.85
+	elif id in ["explosion","zombie"]: stop_times[voice.get_index()]=2.4
+
+func stop_all() -> void:
+	for voice in voices:
+		voice.stop()
+		voice.stream = null
+
+func _exit_tree() -> void:
+	stop_all()
+	if is_instance_valid(music):
+		music.stop()
+		music.stream=null
+	if is_instance_valid(chase):
+		chase.stop()
+		chase.stream=null
+
+func _tone(duration: float, start_hz: float, end_hz: float, volume: float, noisy: bool) -> AudioStreamWAV:
+	var rate := 22050
+	var count := int(duration * rate)
+	var bytes := PackedByteArray()
+	bytes.resize(count * 2)
+	var phase := 0.0
+	var rng := RandomNumberGenerator.new()
+	rng.seed = count + int(start_hz * 10)
+	for i in range(count):
+		var t := float(i) / float(count)
+		var hz := lerpf(start_hz, end_hz, t)
+		phase += TAU * hz / rate
+		var envelope := pow(1.0-t, 2.0)
+		var sample := sin(phase) * 0.65 + (rng.randf_range(-1,1) * 0.55 if noisy else sin(phase*2.0)*0.18)
+		bytes.encode_s16(i*2, int(clampf(sample*envelope*volume,-1,1)*32767))
+	var stream := AudioStreamWAV.new()
+	stream.format = AudioStreamWAV.FORMAT_16_BITS
+	stream.mix_rate = 22050
+	stream.stereo = false
+	stream.data = bytes
+	return stream
