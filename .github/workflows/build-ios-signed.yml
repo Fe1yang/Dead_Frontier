@@ -108,7 +108,7 @@ jobs:
     - name: Install App Store provisioning profile
       run: |
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-        echo -n "${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}" | base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_NAME}.mobileprovision
+        echo -n "${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}" | base64 -D -o "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_NAME}.mobileprovision"
         ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
 
     - name: xcodebuild archive (signed)
