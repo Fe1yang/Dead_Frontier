@@ -111,6 +111,13 @@ jobs:
         echo -n "${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}" | base64 -D -o "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_NAME}.mobileprovision"
         ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
 
+    - name: Select latest Xcode (Godot 4.7.2 templates need the new iOS SDK symbols)
+      run: |
+        LATEST_XCODE=$(ls -d /Applications/Xcode_*.app | sort -t_ -k2 -V | tail -1)
+        echo "Selecting $LATEST_XCODE"
+        sudo xcode-select -s "$LATEST_XCODE/Contents/Developer"
+        xcodebuild -version
+
     - name: xcodebuild archive (signed)
       run: |
         set -o pipefail
