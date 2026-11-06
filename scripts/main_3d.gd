@@ -321,6 +321,13 @@ func _ready() -> void:
 	hud=HudScript.new(); hud.game=self; hud.mouse_filter=Control.MOUSE_FILTER_IGNORE; layer.add_child(hud)
 	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_menu_zombies(); _set_menu_scene(); _update_mouse_aim()
+	# Legal gate: on a real player's first launch the Terms of Use must be accepted before
+	# anything else is reachable. Test/capture runs skip it so the scripts keep working.
+	if not terms_accepted:
+		var skip_terms:=false
+		for f in ["--smoke-test","--soak-test","--lootbox-test","--stamina-test","--capture","--capture-medic","--capture-bike"]:
+			if f in OS.get_cmdline_user_args(): skip_terms=true; break
+		if not skip_terms: state="terms"
 	if "--capture" in OS.get_cmdline_user_args(): call_deferred("_capture")
 	elif "--capture-medic" in OS.get_cmdline_user_args(): call_deferred("_capture_medic")
 	elif "--capture-bike" in OS.get_cmdline_user_args(): call_deferred("_capture_bike")
@@ -1010,6 +1017,14 @@ func close_lootbox() -> void:
 const WALLET_LOBBY:=Vector2(12,16)
 const LOBBY_WALLET_SCALE:=0.78  # the lobby's balances are drawn smaller than in the shop / store
 const LOBBY_GEAR:=Rect2(488,8,46,46)
+## First-launch gate: the Terms of Use & Disclaimer must be accepted before the game unlocks.
+const TERMS_TEXT_AREA:=Rect2(30,130,480,630)   # scrollable document area
+const TERMS_AGREE:=Rect2(272,830,202,58)
+const TERMS_DISAGREE:=Rect2(66,830,190,58)
+var terms_accepted:=false
+var terms_scroll:=0.0
+var terms_press:=Vector2(-1,-1)
+var terms_dragged:=false
 ## The red cross beside the health strip is a real button: it offers a rewarded ad for 4 cells back.
 const HEALTH_AD_PANEL:=Rect2(70,360,400,270)
 const HEALTH_AD_WATCH:=Rect2(94,524,352,54)
@@ -1089,6 +1104,10 @@ static func store_price_rect(card: Rect2,_bundle: bool) -> Rect2:
 func _store_drag(pos: Vector2,rel: Vector2) -> void:
 	if not store_dragged and pos.distance_to(store_press)>10.0: store_dragged=true
 	if store_dragged: store_scroll=clampf(store_scroll-rel.y,0.0,store_max_scroll())
+
+func _terms_drag(pos: Vector2,rel: Vector2) -> void:
+	if not terms_dragged and pos.distance_to(terms_press)>10.0: terms_dragged=true
+	if terms_dragged: terms_scroll=clampf(terms_scroll-rel.y,0.0,hud.terms_max_scroll())
 
 ## A tap (no slide) on a card buys it.
 func _store_release(pos: Vector2) -> void:
@@ -2363,7 +2382,7 @@ func _hurt_player(amount: float) -> void:
 func _ram_zombie(z: Node3D) -> void:
 	# Ram power scales the wear: a harder-hitting vehicle (e.g. a future car) spends less
 	# durability per zombie run down — it plows through more of them before breaking.
-	var cost:=float(BIKE_RAM_COST.get(String(z.kind),8.0))/player.vehicle_ram()
+	var cost: float=float(BIKE_RAM_COST.get(String(z.kind),8.0))/player.vehicle_ram()
 	_hit_zombie(z,1e9,"torso",z.position+Vector3(0,1.0,0))
 	_burst(z.position+Vector3(0,0.6,0),Color("ffb14d"),5)
 	shake=maxf(shake,0.3)
@@ -3131,6 +3150,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed): _letter_release(event.position)
 		elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN] and mail_open>=0:
 			mail_scroll=clampf(mail_scroll+(-60.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 60.0),0.0,letter_max_scroll())
+		if state=="terms":
+			if (event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) and not touch_controls)) and terms_press.x>=0:
+				_terms_drag(event.position,event.relative)
+			elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
+				terms_scroll=clampf(terms_scroll+(-60.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 60.0),0.0,hud.terms_max_scroll())
 	if state=="map":
 		if (event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) and not touch_controls)) and map_press.x>=0:
 			if not map_dragged and event.position.distance_to(map_press)>10.0: map_dragged=true
@@ -3171,6 +3195,11 @@ func _release_touches() -> void:
 	left_origin=STICK_LEFT; right_origin=STICK_RIGHT; left_knob=left_origin; right_knob=right_origin
 
 func _pointer_down(pos: Vector2) -> bool:
+	if state=="terms":
+		# 不同意 = 退出游戏，下次打开还会弹出；同意 = 存档并进入游戏。
+		if TERMS_AGREE.has_point(pos): terms_accepted=true; _save(); state="cover"; return true
+		if TERMS_DISAGREE.has_point(pos): get_tree().quit(); return true
+		terms_press=pos; terms_dragged=false; return true
 	if state=="intro":
 		_finish_intro()
 		return true
@@ -3330,6 +3359,7 @@ func _load_save() -> void:
 	if not isolated and c.load("user://dead_run.cfg")==OK:
 		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2)
 		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
+		terms_accepted=bool(c.get_value("legal","terms_v1",false))
 		# A locked survivor can never stay selected (e.g. an old save from before the store).
 		if not character_owned(character_choice): character_choice=0
 		if is_instance_valid(player): player.set_character(character_choice,character_asset(character_choice))
@@ -3351,7 +3381,7 @@ func _read_muted() -> bool:
 func _save() -> void:
 	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--lootbox-test" in OS.get_cmdline_user_args() or "--stamina-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-medic" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args(): return # test and capture runs must never touch the player's real save
 	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size)
-	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","iap_ledger",iap_ledger.keys())
+	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","iap_ledger",iap_ledger.keys()); c.set_value("legal","terms_v1",terms_accepted)
 	c.set_value("can_ads","day",can_ad_day); c.set_value("can_ads","count",can_ad_count)
 	c.set_value("offer","id",offer_id); c.set_value("offer","expires",offer_expires); c.set_value("offer","next",next_offer_at); c.set_value("offer","play_day",play_day); c.set_value("offer","play_seconds",play_seconds_today)
 	c.set_value("signin","last",signin_last); c.set_value("signin","index",signin_index); c.set_value("signin","shown",signin_shown_day)
@@ -3724,6 +3754,12 @@ func _smoke_test() -> void:
 	bank_coins=coins_before; bank_vouchers=v_before; store_owned.clear()
 	# IAP: only a verified transaction grants; cancel / pending / failure grant nothing; one grant per transaction
 	assert(iap.mode=="sim" and IapScript.sim_allowed())
+	# Catalog <-> App Store product IDs stay in sync: every purchasable pack resolves to a
+	# product ID and back, and every registered product ID belongs to a real pack.
+	for p in StoreCatalog.PACKS+StoreCatalog.OFFERS:
+		assert(iap.product_id(p.id)!="" and iap.pack_for(iap.product_id(p.id))==p.id)
+	for k in iap.PRODUCTS:
+		assert(not pack_by_id(k).is_empty())
 	var ic: int=bank_coins
 	iap.sim_next="cancelled"; buy_pack("coins_2"); assert(bank_coins==ic)
 	iap.sim_next="pending"; buy_pack("coins_2"); assert(bank_coins==ic)
@@ -3737,6 +3773,8 @@ func _smoke_test() -> void:
 	assert(not buy_pack("removeads"))
 	iap.restore(); assert(remove_ads)
 	remove_ads=false
+	# unlockable survivor: non-consumable bought once through the same store flow
+	assert(not character_owned(2)); buy_pack("char_darius"); assert(character_owned(2) and pack_owned("char_darius"))
 	bank_coins=coins_before; bank_vouchers=v_before
 	# Limited offer: not before the gap, not after a long day, pops and can be bought once.
 	var keep_state: String=state

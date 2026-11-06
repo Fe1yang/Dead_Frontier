@@ -131,6 +131,7 @@ func _draw() -> void:
 	if game.state in ["playing","paused","health_ad"]: _draw_hud()
 	elif game.state=="intro": _draw_intro()
 	elif game.state=="cover": _draw_cover()
+	elif game.state=="terms": _draw_terms()
 	elif game.state=="gameover": _draw_hud(); clean_ops.clear(); _draw_gameover()
 	elif game.state=="shop": _draw_shop()
 	elif game.state=="lootbox": _draw_lootbox()
@@ -1908,3 +1909,52 @@ func _draw_payfail() -> void:
 		clean_ops.append(["text",font,Vector2(c.x-lw/2,p.position.y+206+i*(size+8)),lines[i],size,Color(1,1,1,0.75)])
 	_store_price(game.PAYFAIL_RETRY,StoreCatalog.text(lang,"retry"),true)
 	_ghost_button(game.PAYFAIL_CLOSE,StoreCatalog.text(lang,"close"))
+
+
+var _terms_lines_cache: PackedStringArray
+
+## Wrapped text lines of the legal disclaimer (markdown '#' stripped, word-wrapped to 480px).
+func _terms_lines() -> PackedStringArray:
+	if _terms_lines_cache != null: return _terms_lines_cache
+	var txt: String = FileAccess.get_file_as_string("res://assets/legal/terms.txt").replace("#","")
+	var size: int = _scaled(15)
+	var maxw: float = 480.0
+	var out: PackedStringArray = []
+	for raw_line in txt.split("\n", false):
+		var line: String = raw_line.strip_edges(false, true)
+		if line.is_empty():
+			out.append("")
+			continue
+		var cur: String = ""
+		for w in line.split(" "):
+			var trial: String = w if cur.is_empty() else cur + " " + w
+			if font.get_string_size(trial, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x > maxw and not cur.is_empty():
+				out.append(cur); cur = w
+			else: cur = trial
+		if not cur.is_empty(): out.append(cur)
+	_terms_lines_cache = out
+	return _terms_lines_cache
+
+## Pixels of scrollable overflow in the terms text area; the game clamps terms_scroll to this.
+func terms_max_scroll() -> float:
+	var lh: int = _scaled(21)
+	return maxf(0.0, _terms_lines().size() * lh - game.TERMS_TEXT_AREA.size.y)
+
+## First-launch legal gate: full-screen terms, scrollable, Agree / Disagree.
+func _draw_terms() -> void:
+	var zh: bool = game.language_code.begins_with("zh")
+	_box(Rect2(0, 0, 540, 960), Color("0d0f10"))
+	_section(Vector2(-1, 64), "DEAD FRONTIER · TERMS OF USE & DISCLAIMER", 22)
+	var area: Rect2 = game.TERMS_TEXT_AREA
+	var size: int = _scaled(15)
+	var lh: int = _scaled(21)
+	var y0: float = area.position.y - game.terms_scroll
+	var lines: PackedStringArray = _terms_lines()
+	for i in range(lines.size()):
+		var y: float = y0 + i * lh
+		if y + lh < area.position.y or y > area.end.y: continue
+		if not lines[i].is_empty():
+			clean_ops.append(["text", font, Vector2(area.position.x + 4, y), lines[i], size, Color(1, 1, 1, 0.82)])
+	_frame(area, Color(1, 1, 1, 0.14), 1.0)
+	_button(game.TERMS_DISAGREE, "不同意 · 退出" if zh else "DISAGREE · EXIT", false)
+	_button(game.TERMS_AGREE, "同意并继续" if zh else "I AGREE", true)

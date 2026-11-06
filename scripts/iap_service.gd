@@ -20,8 +20,9 @@ signal purchase_finished(pack_id: String, status: String)
 
 const SINGLETON:="IOSInAppPurchase"
 const PREFIX:="com.deadfrontier."
-## Product IDs in App Store Connect. Coins / vouchers / bundles / offers are Consumable;
-## removeads is Non-Consumable. Keep this table in sync with App Store Connect.
+## Product IDs in App Store Connect. Coins / vouchers / cans / bundles / offers are Consumable;
+## removeads / characters / skins / pets are Non-Consumable (see NON_CONSUMABLE). Keep this
+## table in sync with App Store Connect and docs/app-store-connect-setup.md.
 const PRODUCTS:={
 	"bundle_starter":"com.deadfrontier.bundle.starter",
 	"bundle_supply":"com.deadfrontier.bundle.supply",
@@ -38,6 +39,9 @@ const PRODUCTS:={
 	"coins_4":"com.deadfrontier.coins.7400",
 	"coins_5":"com.deadfrontier.coins.19500",
 	"coins_6":"com.deadfrontier.coins.41000",
+	"coins_7":"com.deadfrontier.coins.5000",
+	"coins_8":"com.deadfrontier.coins.50000",
+	"coins_9":"com.deadfrontier.coins.500000",
 	"vouchers_1":"com.deadfrontier.vouchers.1",
 	"vouchers_2":"com.deadfrontier.vouchers.5",
 	"vouchers_3":"com.deadfrontier.vouchers.10",
@@ -49,8 +53,19 @@ const PRODUCTS:={
 	"offer_hoard":"com.deadfrontier.offer.hoard",
 	"offer_cans":"com.deadfrontier.offer.cans.150",
 	"removeads":"com.deadfrontier.removeads",
+	# Unlockable survivors / outfits / companions: one-time (Non-Consumable) purchases.
+	"char_darius":"com.deadfrontier.char.darius",
+	"char_maya":"com.deadfrontier.char.maya",
+	"skin_maya_tactical":"com.deadfrontier.skin.maya.tactical",
+	"pet_0":"com.deadfrontier.pet.0",
+	"pet_1":"com.deadfrontier.pet.1",
+	"pet_2":"com.deadfrontier.pet.2",
+	"pet_3":"com.deadfrontier.pet.3",
 }
-const NON_CONSUMABLE:=["removeads"]
+## Non-Consumable ids: restore re-applies these from Transaction.currentEntitlements;
+## consumables must NOT be listed here (re-granting them on restore would duplicate rewards).
+const NON_CONSUMABLE:=["removeads","char_darius","char_maya","skin_maya_tactical",
+	"pet_0","pet_1","pet_2","pet_3"]
 
 var mode:="none"            # "storekit", "sim" (editor / debug only) or "none"
 var plugin: Object

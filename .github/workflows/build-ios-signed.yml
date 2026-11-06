@@ -1,0 +1,183 @@
+name: Build iOS (signed) and upload to TestFlight
+
+# Signed iOS build for Dead Frontier (Godot 4.7.2), built on a macOS runner with no local Mac.
+# Builds the StoreKit 2 IAP plugin from source (includes PR #21 deliver-then-finish, required by
+# scripts/iap_service.gd), exports the Godot project, signs with the distribution certificate,
+# and uploads the IPA to TestFlight via an App Store Connect API key.
+#
+# Before first run:
+#   1. Fill in APPLE_TEAM_ID and BUNDLE_ID below (env block).
+#   2. Make BUNDLE_ID match export_presets.cfg application/bundle_identifier and the provisioning profile.
+#   3. Create the repository secrets (see docs/app-store-connect-setup.md):
+#        BUILD_CERTIFICATE_BASE64, P12_PASSWORD, BUILD_PROVISION_PROFILE_BASE64, KEYCHAIN_PASSWORD,
+#        ASC_KEY_ID, ASC_ISSUER_ID, ASC_AUTH_KEY
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main]   # uncomment after the secrets above are configured
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+  TEMPLATE_DIR: 4.7.2.stable
+  IOS_PRESET: iOS
+  NAME: DeadFrontier
+  HOMEBREW_NO_AUTO_UPDATE: 1
+  # --- real values to fill in (not secrets, but keep them accurate) ---
+  APPLE_TEAM_ID: "ABCDE12345"              # 10-character App Store Team ID
+  BUNDLE_ID: "com.nightfall.deadrun"       # must match export_presets.cfg + provisioning profile
+  PROFILE_NAME: "DeadFrontier App Store"   # provisioning profile name as shown in Apple Developer portal
+  # IAP plugin: pinned to main @ 2026-11-03 = PR #21 merge (setAutoFinish/finishTransaction)
+  PLUGIN_REPO: hrk4649/godot_ios_plugin_iap
+  PLUGIN_REF: b04ffbfe1c620947e1268a507d0f07a3991ede87
+
+jobs:
+  build-ios-signed:
+    runs-on: macos-15
+    timeout-minutes: 120
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Verify signing secrets are configured
+      run: |
+        missing=0
+        for s in BUILD_CERTIFICATE_BASE64 P12_PASSWORD BUILD_PROVISION_PROFILE_BASE64 KEYCHAIN_PASSWORD ASC_KEY_ID ASC_ISSUER_ID ASC_AUTH_KEY; do
+          if [ -z "${!s}" ]; then echo "::error::Repository secret '$s' is not set. See docs/app-store-connect-setup.md."; missing=1; fi
+        done
+        if [ "$missing" != "0" ]; then exit 1; fi
+
+    - name: Checkout IAP plugin source (deliver-then-finish)
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ env.PLUGIN_REPO }}
+        ref: ${{ env.PLUGIN_REF }}
+        path: iap-plugin-src
+
+    # The 0.4.0 release binary predates PR #21, so the plugin is built from source here.
+    # Documented build flow of hrk4649/godot_ios_plugin_iap (README: build from source).
+    - name: Build IAP plugin from source
+      working-directory: iap-plugin-src
+      run: |
+        pip3 install --quiet scons
+        script/build.sh -g          # clean godot header dir
+        script/build.sh -G 4.7      # download godot 4.7 source
+        script/build.sh -Ht 600     # generate godot headers (waits up to 600 s for scons)
+        ./generate_static_library.sh
+        ./copy_plugin.sh "$GITHUB_WORKSPACE"
+
+    - name: Download Godot (macOS)
+      run: |
+        curl -fL "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_macos.universal.zip" -o godot.zip
+        unzip -q godot.zip -d godot
+
+    - name: Install iOS export template
+      run: |
+        curl -fL "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz" -o templates.tpz
+        unzip -q -j templates.tpz "templates/ios.zip" "templates/version.txt" -d ios_template
+        dest="$HOME/Library/Application Support/Godot/export_templates/${TEMPLATE_DIR}"
+        mkdir -p "$dest"
+        cp ios_template/ios.zip ios_template/version.txt "$dest/"
+        rm templates.tpz
+
+    - name: Import project
+      run: godot/Godot.app/Contents/MacOS/Godot --headless --path . --import || true
+
+    - name: Export to Xcode project
+      run: |
+        mkdir -p build/ios
+        godot/Godot.app/Contents/MacOS/Godot --headless --path . \
+          --export-release "${IOS_PRESET}" build/ios/${NAME}.xcodeproj 2>&1 | tee export.log
+        test -d build/ios/${NAME}.xcodeproj
+
+    # --- signing ---
+    - name: Install Apple distribution certificate
+      uses: apple-actions/import-codesign-certs@v3
+      with:
+        p12-file-base64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+        p12-password: ${{ secrets.P12_PASSWORD }}
+
+    - name: Install App Store provisioning profile
+      run: |
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        echo -n "${{ secrets.BUILD_PROVISION_PROFILE_BASE64 }}" | base64 -D -o ~/Library/MobileDevice/Provisioning\ Profiles/${PROFILE_NAME}.mobileprovision
+        ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+
+    - name: xcodebuild archive (signed)
+      run: |
+        set -o pipefail
+        xcodebuild archive \
+          -project build/ios/${NAME}.xcodeproj \
+          -scheme "${NAME}" \
+          -archivePath build/ios/App.xcarchive \
+          -configuration Release \
+          -destination "generic/platform=iOS" \
+          CODE_SIGN_STYLE=Manual \
+          DEVELOPMENT_TEAM="${APPLE_TEAM_ID}" \
+          PROVISIONING_PROFILE_SPECIFIER="${PROFILE_NAME}" \
+          CODE_SIGNING_REQUIRED=YES \
+          CODE_SIGNING_ALLOWED=YES 2>&1 | tee xcodebuild.log | grep -E "error:|\*\* ARCHIVE" || true
+        test -d build/ios/App.xcarchive/Products/Applications
+
+    - name: Write App Store export options
+      run: |
+        cat > ExportOptions.plist <<EOF
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>method</key><string>app-store</string>
+          <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+          <key>signingStyle</key><string>manual</string>
+          <key>provisioningProfiles</key>
+          <dict>
+            <key>${BUNDLE_ID}</key><string>${PROFILE_NAME}</string>
+          </dict>
+          <key>compileBitcode</key><false/>
+          <key>uploadSymbols</key><true/>
+        </dict>
+        </plist>
+        EOF
+        cat ExportOptions.plist
+
+    - name: Export signed IPA
+      run: |
+        xcodebuild -exportArchive \
+          -archivePath build/ios/App.xcarchive \
+          -exportPath build/ios/export \
+          -exportOptionsPlist ExportOptions.plist 2>&1 | tee exportarchive.log
+        test -f build/ios/export/${NAME}.ipa
+
+    # --- upload ---
+    - name: Upload to TestFlight (App Store Connect)
+      env:
+        ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        ASC_AUTH_KEY: ${{ secrets.ASC_AUTH_KEY }}
+      run: |
+        mkdir -p ~/.private_keys
+        echo -n "$ASC_AUTH_KEY" | base64 -D -o ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8
+        chmod 600 ~/.private_keys/AuthKey_${ASC_KEY_ID}.p8
+        xcrun altool --upload-app \
+          -f build/ios/export/${NAME}.ipa \
+          --type ios \
+          --apiKey "$ASC_KEY_ID" \
+          --apiIssuer "$ASC_ISSUER_ID"
+
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DeadFrontier-signed-ipa
+        path: build/ios/export/${{ env.NAME }}.ipa
+        retention-days: 14
+
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-signed
+        path: |
+          export.log
+          xcodebuild.log
+          exportarchive.log
+        if-no-files-found: ignore
