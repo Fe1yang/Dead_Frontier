@@ -65,7 +65,7 @@ jobs:
     # The 0.4.0 release binary predates PR #21, so the plugin is built from source here.
     # Documented build flow of hrk4649/godot_ios_plugin_iap (README: build from source).
     - name: Build IAP plugin from source
-      working-directory: iap-plugin-src
+      working-directory: iap-plugin-src/godot_ios_plugin_iap
       run: |
         brew install --quiet scons
         script/build.sh -g          # clean godot header dir
