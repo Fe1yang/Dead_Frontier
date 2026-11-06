@@ -67,7 +67,7 @@ jobs:
     - name: Build IAP plugin from source
       working-directory: iap-plugin-src
       run: |
-        pip3 install --quiet scons
+        brew install --quiet scons
         script/build.sh -g          # clean godot header dir
         script/build.sh -G 4.7      # download godot 4.7 source
         script/build.sh -Ht 600     # generate godot headers (waits up to 600 s for scons)
