@@ -2,3 +2,7 @@
 build/
 *.tmp
 .DS_Store
+
+# Blender sources & model backups (import on CI has no Blender; game uses .glb)
+assets/blender/
+backup_models_*/
