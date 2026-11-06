@@ -5,10 +5,14 @@ const ZombieScript=preload("res://scripts/zombie_3d.gd")
 const BulletScript=preload("res://scripts/bullet_3d.gd")
 const OrdnanceScript=preload("res://scripts/ordnance_projectile_3d.gd")
 const GateScript=preload("res://scripts/gate_3d.gd")
+const BuffCatalog=preload("res://scripts/buff_catalog.gd")
+const ExtraText=preload("res://scripts/extra_text.gd")
+const RunText=preload("res://scripts/run_text.gd")
+const IapScript=preload("res://scripts/iap_service.gd")
 const BarrelScript=preload("res://scripts/barrel_3d.gd")
 const WeaponCrateScript=preload("res://scripts/weapon_crate_3d.gd")
 const CRATE_WEAPONS:=["SMG","SHOTGUN","SNIPER","PISTOL","LAUNCHER","RIFLE"]
-const CRATE_TIER:={"PISTOL":0.7,"RIFLE":0.9,"SMG":1.0,"SHOTGUN":1.1,"SNIPER":1.25,"LAUNCHER":1.5}
+const CRATE_TIER:={"HELMET":0.9,"ARMOR":1.0,"PISTOL":0.7,"RIFLE":0.9,"SMG":1.0,"SHOTGUN":1.1,"SNIPER":1.25,"LAUNCHER":1.5,"BIKE":1.2}
 const RoadObstacleScript=preload("res://scripts/road_obstacle_3d.gd")
 const PickupScript=preload("res://scripts/pickup_3d.gd")
 const EffectScript=preload("res://scripts/effect_3d.gd")
@@ -18,8 +22,13 @@ const HudScript=preload("res://scripts/hud.gd")
 const RevivalAdsScript=preload("res://scripts/revival_ads.gd")
 const Localization=preload("res://scripts/localization.gd")
 const ShopCatalog=preload("res://scripts/shop_catalog.gd")
+const StoreCatalog=preload("res://scripts/store_catalog.gd")
+const StaminaScript=preload("res://scripts/stamina_system.gd")
+const ProgressCatalog=preload("res://scripts/progress_catalog.gd")
 const ShopText=preload("res://scripts/shop_text.gd")
 const ShopSceneScript=preload("res://scripts/shop_scene_3d.gd")
+const LootboxSceneScript=preload("res://scripts/lootbox_scene_3d.gd")
+const MapTableScript=preload("res://scripts/map_table_3d.gd")
 const LobbySceneScript=preload("res://scripts/lobby_scene_3d.gd")
 const DisasterDressing=preload("res://scripts/disaster_dressing_3d.gd") # Kimi: blood, drag marks, rubble, idle watchers on every block
 const BloodPoolScript=preload("res://scripts/blood_pool_3d.gd")
@@ -32,7 +41,7 @@ const SKY_SHADER=preload("res://shaders/sky_clouds.gdshader")
 # Binbun-style stylised skies: saturated gradient, bright puffy cloud layers with parallax.
 # "mix" is the pack's day/sunset blend (1 = full day, ~0.1 = golden hour).
 const SKY_PRESETS:={
-	"clear":{"sky":Color("0838c4"),"horizon":Color("5aa8e6"),"cloud":Color("ffffff"),"density":1.0,"depth":3.0,"wind":Vector2(0.35,0.18),"mix":1.0,"energy":1.0,"tiling":0.75},
+	"clear":{"sky":Color("3988c4"),"horizon":Color("b9d9e8"),"sunset_sky":Color("303b68"),"sunset_horizon":Color("d9956c"),"cloud":Color("f4f2e9"),"density":0.96,"depth":2.4,"wind":Vector2(0.35,0.18),"mix":1.0,"energy":0.96,"tiling":0.75},
 	"sunset":{"sky":Color("2a3f8f"),"horizon":Color("ff8a3d"),"sunset_sky":Color("2c2f7a"),"sunset_horizon":Color("ff6a2a"),"cloud":Color("ffb57a"),"density":1.0,"depth":3.0,"wind":Vector2(0.3,0.15),"mix":0.12,"energy":1.0,"tiling":0.75},
 	"rain":{"sky":Color("3d4a58"),"horizon":Color("7f8d99"),"cloud":Color("6e7984"),"density":1.6,"depth":3.5,"wind":Vector2(0.7,0.35),"mix":1.0,"energy":1.05,"tiling":0.9},
 	"storm":{"sky":Color("141b26"),"horizon":Color("394556"),"cloud":Color("2c3440"),"density":2.3,"depth":4.0,"wind":Vector2(1.3,0.6),"mix":1.0,"energy":0.95,"tiling":1.0},
@@ -43,24 +52,134 @@ const ROAD_SEGMENT:=16.0
 const ROAD_COUNT:=24
 const ROAD_LOOP:=ROAD_SEGMENT*ROAD_COUNT
 const ROAD_BEHIND:=56.0 # city blocks kept behind the player for intro/chase shots
+const DAY_NIGHT_CYCLE_METRES:=20000.0 # day at 0 m, night at 10 km, day again at 20 km
+var night_amount:=0.0
+var night_announced:=false   # the night song has played for the current dark stretch
 
-var state:="menu"
+var state:="cover"
 var intro_time:=0.0
 var intro_horde_offsets: Array[Vector3]=[]
 var chaser: Node3D # the giant Chaser that leads the opening pursuit
 const CHASER_OFFSET:=Vector3(0,0,8.2)
+## Mid-run chase segments: every few hundred metres the Abomination bursts out of the horde
+## and runs the survivor down for a stretch. It gains steadily; every hit the survivor takes
+## is a stumble that lets it closer, and if it gets within reach it mauls. Outlast the timer
+## to shake it — a clean escape pays coins.
+var chase_active:=false
+var chase_cam_weight:=0.0  # 0 = normal runner camera, 1 = framed for the pursuer behind
+var chase_time:=0.0          # seconds left in the current segment
+var chase_gap:=0.0           # metres between the beast and the survivor
+var chase_growl:=0.0
+var next_chase_at:=8000.0    # run distance of the next ambush (none early in a run)
+const CHASE_DURATION:=13.0
+const CHASE_START_GAP:=16.0
+const CHASE_CATCH:=2.6       # within reach: it starts mauling
+const CHASE_CLOSE_RATE:=1.05 # metres per second it gains on an even runner
+const CHASE_STUMBLE:=2.6     # metres lost per hit taken during the chase
+const CHASE_MAUL_DPS:=11.0
+const CHASE_REWARD:=25
 var character_choice:=0
+var skin_choice:={} # char index -> index into lobby.SKINS (outfit override, stats unchanged)
+var pet_choice:=0
 var language_code:="zh_CN"
 var player: Node3D
+var companion_pet: Node3D
 var sound: Node
 var hud: Control
 var revival_ads: Node
 var camera: Camera3D
 var shop_truck: Node3D
+var lootbox_scene: Node3D
+var map_scene: Node3D
 var lobby: Node3D
-var settings_return_state:="menu"
+var settings_return_state:="cover"
 var text_size:=1 # 0 small, 1 medium (default), 2 large: for players who need bigger text
 var lobby_toast:=0.0
+## Second currency (券), bought in the store; nothing spends it yet.
+var bank_vouchers:=0
+## Cans are run energy: 10 per run, one restored naturally every three minutes.
+var stamina: Node
+## A dog only comes along (intro chase and runs) once the player has picked one in the pet tab;
+## tapping the equipped dog again sends it home.
+var pet_equipped:=false
+## Dogs are locked until won from a case (then owned for good). In a run a locked dog can still
+## turn up on a platform: shoot it free and it runs with you for that run only.
+var owned_pets:={}            # pet index -> true
+## Mason and Riley are free; Darius, Maya and the outfit skins are one-time store purchases.
+var owned_characters:={}      # char index -> true
+var owned_skins:={}           # lobby.SKINS index -> true
+var lobby_toast_key:="coming" # ShopText key the lobby toast shows
+const PET_CRATE_CHANCE:=0.08
+const GEAR_CRATE_CHANCE:=0.22 # helmet / armour on a platform instead of a gun
+const BIKE_CRATE_CHANCE:=0.14  # a motorcycle: ride it, ram zombies, until it breaks apart
+## Durability lost per zombie run down on the bike, by kind.
+const BIKE_RAM_COST:={"walker":8.0,"runner":6.0,"brute":22.0,"jockey":10.0,"banshee":18.0,"bomber_male":30.0,"bomber_female":30.0}
+const BIKE_DECAY:=1.8           # durability per second — a careful ride lasts about a minute
+## District 14's missile crater is a real hole in the road: it blocks the survivor and
+## the horde instead of being a floor decal. Must match build_city_districts.py.
+const CRATER_RADIUS:=1.70
+const CRATER_X:=-0.65
+## Real-money store page (state "store"), opened from the + next to a balance.
+var store_return_state:="character_select"
+var store_scroll:=0.0
+var store_press:=Vector2(-1,-1)
+var store_dragged:=false
+var store_toast:=0.0
+var store_toast_text:=""
+## Store rewarded ads: +5 cans per completed view, at most ten per local calendar day.
+const CAN_AD_REWARD:=5
+const CAN_AD_DAILY_LIMIT:=10
+var can_ad_day:=""
+var can_ad_count:=0
+var store_owned:={}  # once-only packs already bought
+## In-app purchases (StoreKit 2 on iOS, a simulator in the editor): see iap_service.gd.
+var iap: Node
+var iap_ledger:={}        # StoreKit transaction IDs already granted (saved)
+var remove_ads:=false     # non-consumable: rewarded ads are skipped, the reward is given directly
+const REMOVE_ADS_PACK:={"id":"removeads","kind":"bundle","name":"removeads","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"red","rays":10}
+var store_currency:=""
+## "Top-up failed" popup (state "payfail"): shown whenever a purchase doesn't go through, with
+## Retry (same pack again) and Close. Opens over the store or the limited-offer popup.
+var payfail_pack:=""
+var payfail_return_state:="store"
+const PAYFAIL_PANEL:=Rect2(50,300,440,360)
+const PAYFAIL_RETRY:=Rect2(74,572,186,60)
+const PAYFAIL_CLOSE:=Rect2(280,572,186,60)
+## Measured widths of the can, coin and voucher numbers (hud.gd updates them while drawing)
+## so the + buttons sit right after the numbers however long they get.
+var wallet_text_w:=Vector3(72,92,64)
+## Limited-time offer (限时礼包). Shown at most every 2-3 days, and not to someone who has
+## already played a long time today. While one is running it also sits in the lobby and the
+## store with its countdown.
+const OFFER_GAP_HOURS:=Vector2(48,72)
+const OFFER_SKIP_AFTER_MINUTES:=40.0
+var offer_id:=""
+var offer_expires:=0
+var next_offer_at:=0
+var play_day:=""
+var play_seconds_today:=0.0
+var offer_return_state:="character_select"
+## Resource-shortage packs are separate from limited offers: they open only after a failed spend.
+var resource_pack_id:=""
+var resource_pack_return_state:="character_select"
+## Check-in and missions (see "Check-in and missions" below).
+var signin_last:=""          # date of the last check-in claim
+var signin_index:=0          # next day of the 7-day cycle (0-6)
+var signin_shown_day:=""     # the check-in pops up by itself once a day
+var signin_return_state:="character_select"
+var daily_day:=""
+var daily_stats:={}
+var daily_claimed:={}
+## Missions swapped out by watching an ad: slot index -> replacement mission id (reset with the day / event).
+var daily_swaps:={}
+var event_swaps:={}
+var event_window:=-1
+var event_stats:={}
+var event_claimed:={}
+var tasks_tab:=0
+var tasks_return_state:="character_select"
+var run_counted_distance:=0.0
+var run_counted:=false
 # Weather: each run randomly rolls clear, rain or fog (no snow on this city map).
 const RainShader=preload("res://shaders/rain_and_snow.gdshader")
 var weather:="clear"
@@ -69,6 +188,8 @@ var runs_this_launch:=0 # the first run after launching is always clear weather 
 var world_env: Environment
 var sky_material: ShaderMaterial
 var sun_light: DirectionalLight3D
+var fill_light: DirectionalLight3D # soft sky fill by day, readable moonlight after dark
+var street_lamps: Array[Dictionary]=[]
 var rain_overlay: ColorRect
 var rain_material: ShaderMaterial
 var lightning_flash: ColorRect
@@ -77,13 +198,21 @@ var lightning_t:=-1.0      # time since the current strike started (<0: none)
 var thunder_delay:=-1.0
 var weather_base:={}
 var force_sunset:=false # preview/testing only       # exposure / sun / ambient of the current weather, restored after a flash
-var shop_return_state:="menu"
+var shop_return_state:="cover"
 var shop_items: Array=[]
 var bank_coins:=0
 var run_coins:=0
+## Rewarded-ad doubles: extra coins already paid for this run's result, and which ad is playing.
+var run_double_bonus:=0
+var ad_pending:=""
+## A single rewarded ad can start one run without cans; cancelled ads do not consume it.
+var ad_run_used:=false
 var last_reward:=0
 var survival_bonus:=0
-var revive_used:=false
+var revive_used:=false   # true once every revive of this run is spent (the HUD reads this)
+## Ad revives per run: the first gives back more health and longer invincibility.
+const REVIVES:=[{"hp":0.5,"invuln":10.0},{"hp":0.3,"invuln":8.0}]
+var revive_count:=0
 var revive_pending:=false
 var revive_invulnerable:=0.0
 var jockey_introduced:=false
@@ -111,8 +240,22 @@ var rng:=RandomNumberGenerator.new()
 var run_time:=0.0
 var distance:=0.0
 var kills:=0
-var wave:=1
+var wave:=0
+## Zombies arrive in pulses, not a flat trickle: a dense surge, then a breather, repeat.
+## Early surges are short; deep into a run they stretch long with only brief lulls between.
+var surge:=false
+var phase_timer:=0.0
 var best_distance:=0
+## The opening chase plays once; after that (saved locally) runs start straight away.
+var intro_seen:=false
+## New personal best on the death screen: the best before this run, whether it was beaten, and a
+## clock for the celebration animation.
+var run_start_best:=0
+var new_record:=false
+var gameover_time:=0.0
+## In-run record moment: banner timer once the old best is passed.
+var record_banner:=0.0
+const RECORD_HINT_METRES:=150.0  # start showing "x m to your best" this close
 var spawn_timer:=0.0
 var gate_timer:=7.0
 var barrel_timer:=5.0
@@ -146,22 +289,32 @@ const BTN_FIRE_MODE:=Vector2(414,640)
 const BTN_SWAP:=Vector2(490,556)
 const BTN_RADIUS:=36.0
 const PAUSE_BUTTON:=Rect2(476,8,58,58)
+## The classic start screen (state "cover"): the title poster greets every launch, and any
+## tap starts the run right away. Characters, shop and the rest live in the lobby side bar.
 var left_origin:=STICK_LEFT
 var right_origin:=STICK_RIGHT
 var left_knob:=Vector2(92,820)
 var right_knob:=Vector2(448,820)
 
 func _ready() -> void:
-	rng.randomize(); _load_save(); _setup_world(); _build_road()
+	rng.randomize()
+	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
+	_setup_world(); _build_road()
 	touch_controls=OS.has_feature("mobile")
 	sound=SoundScript.new(); sound.muted=_read_muted(); add_child(sound)
 	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args(): sound.muted=true
+	iap=IapScript.new(); iap.ledger=iap_ledger; iap.grant=_iap_grant; add_child(iap)
+	iap.purchase_finished.connect(_on_purchase_finished)
 	revival_ads=RevivalAdsScript.new(); add_child(revival_ads)
 	revival_ads.revive_rewarded.connect(_revive_after_reward)
 	revival_ads.revive_cancelled.connect(_revive_ad_cancelled)
+	revival_ads.ad_rewarded.connect(_on_ad_rewarded)
+	revival_ads.ad_cancelled.connect(_on_ad_cancelled)
 	player=PlayerScript.new(); player.character=character_choice; add_child(player); player.reset()
 	shop_truck=ShopSceneScript.new()
 	add_child(shop_truck); shop_truck.visible=false; shop_items=ShopCatalog.items()
+	lootbox_scene=LootboxSceneScript.new(); add_child(lootbox_scene); lootbox_scene.visible=false
+	map_scene=MapTableScript.new(); add_child(map_scene); map_scene.visible=false
 	lobby=LobbySceneScript.new(); add_child(lobby); lobby.visible=false
 	_setup_weather_overlay()
 	var layer:=CanvasLayer.new(); add_child(layer)
@@ -169,6 +322,9 @@ func _ready() -> void:
 	hud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_menu_zombies(); _set_menu_scene(); _update_mouse_aim()
 	if "--capture" in OS.get_cmdline_user_args(): call_deferred("_capture")
+	elif "--capture-medic" in OS.get_cmdline_user_args(): call_deferred("_capture_medic")
+	elif "--capture-bike" in OS.get_cmdline_user_args(): call_deferred("_capture_bike")
+	elif "--lootbox-test" in OS.get_cmdline_user_args(): call_deferred("_lootbox_test")
 	elif "--smoke-test" in OS.get_cmdline_user_args(): call_deferred("_smoke_test")
 	elif "--soak-test" in OS.get_cmdline_user_args(): call_deferred("_soak_test")
 
@@ -183,24 +339,26 @@ func _setup_world() -> void:
 	sky_mat.set_shader_parameter("night_noise_01",load("res://assets/sky/clouds/clouds_07.png"))
 	sky_mat.set_shader_parameter("night_noise_02",load("res://assets/sky/clouds/clouds_03.png"))
 	sky_mat.set_shader_parameter("cloud_tiling",Vector2(1.4,1.4))
-	sky_mat.set_shader_parameter("sun_scale",0.035)
-	# Fixed daytime palette (the weather presets set the colours); the sky doesn't follow the sun angle.
-	sky_mat.set_shader_parameter("use_directional_light",false); sky_mat.set_shader_parameter("day_night_mix",1.0)
+	sky_mat.set_shader_parameter("sun_scale",0.018)
+	sky_mat.set_shader_parameter("sun_strength",4.0); sky_mat.set_shader_parameter("sun_color",Color("fff8ec"))
+	# The visible solar disc and the shadow-casting sun use the same direction.
+	sky_mat.set_shader_parameter("use_directional_light",true)
 	sky_mat.set_shader_parameter("cloud_shape_exponent",1.35)
-	sky_mat.set_shader_parameter("horizon_exponent",5.0) # thinner pale horizon band, deeper blue above
+	sky_mat.set_shader_parameter("horizon_exponent",4.0)
 	sky_material=sky_mat; sky.sky_material=sky_mat; env.background_mode=Environment.BG_SKY; env.sky=sky; env.sky_rotation=Vector3(0,deg_to_rad(25),0)
-	env.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR; env.ambient_light_color=Color("b8c7d1"); env.ambient_light_energy=0.48
+	env.ambient_light_source=Environment.AMBIENT_SOURCE_COLOR; env.ambient_light_color=Color("bdc7ca"); env.ambient_light_energy=0.46
 	env.reflected_light_source=1
-	env.tonemap_mode=Environment.TONE_MAPPER_ACES; env.tonemap_exposure=0.88
-	env.fog_enabled=true; env.fog_light_color=Color("b7c9d0"); env.fog_density=0.0032; env.fog_sky_affect=0.08
+	env.tonemap_mode=Environment.TONE_MAPPER_ACES; env.tonemap_exposure=0.82
+	env.fog_enabled=true; env.fog_light_color=Color("c9c8b8"); env.fog_density=0.0040; env.fog_sky_affect=0.015
 	we.environment=env; add_child(we); world_env=env
-	var sun:=DirectionalLight3D.new(); sun.rotation_degrees=Vector3(-52,-32,0)
-	sun.light_color=Color("fff0d9"); sun.light_energy=0.64; sun.shadow_enabled=true; sun.directional_shadow_max_distance=135
-	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS
+	var sun:=DirectionalLight3D.new(); sun.rotation_degrees=Vector3(-34,-155,0)
+	sun.light_color=Color("ffe4b5"); sun.light_energy=0.95; sun.shadow_enabled=true; sun.directional_shadow_max_distance=95
+	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS; sun.directional_shadow_blend_splits=true
+	sun.shadow_opacity=0.76; sun.shadow_blur=1.45; sun.shadow_bias=0.035; sun.shadow_normal_bias=0.65
 	add_child(sun); sun_light=sun
-	var rim:=DirectionalLight3D.new(); rim.rotation_degrees=Vector3(-28,145,0); rim.light_color=Color("c2d9e7"); rim.light_energy=0.12
+	var rim:=DirectionalLight3D.new(); rim.rotation_degrees=Vector3(-38,145,0); rim.light_color=Color("d0dbe2"); rim.light_energy=0.14
 	rim.sky_mode=DirectionalLight3D.SKY_MODE_LIGHT_ONLY # the sky shader's sun follows the main sun only
-	add_child(rim)
+	add_child(rim); fill_light=rim
 	camera=Camera3D.new(); camera.position=Vector3(0,6.4,13.5); camera.fov=52; camera.near=0.1; camera.far=390; add_child(camera)
 	camera.current=true; camera.look_at(Vector3(0,1.0,-8))
 	var ground:=MeshInstance3D.new(); var plane:=PlaneMesh.new(); plane.size=Vector2(700,700); ground.mesh=plane
@@ -236,50 +394,134 @@ func _rock() -> Node3D:
 	var m:=StandardMaterial3D.new(); m.albedo_color=Color("777b72"); m.roughness=1.0; rock.material_override=m; root.add_child(rock)
 	return root
 
+## Zebra crossings stay rare and random: a recycled block shows its crossing only about
+## one pass in six, so crossings appear roughly every 350–700 m instead of at every corner.
+func _randomize_zebra(road: Node3D) -> void:
+	var z:=road.find_child("CITY_zebra_paint",true,false) as Node3D
+	if z: z.visible=rng.randf()<0.16
+
 func _build_road() -> void:
-	# A 384 m city loop with twelve unique blocks; all surfaces retain full PBR detail.
+	# A 384 m city loop using all 24 authored districts; palette and architecture both vary.
 	for i in range(ROAD_COUNT):
-		var asset: String="city_hd_%02d"%(i%12)
+		var asset: String="city_hd_%02d"%(i%24)
 		var path: String="res://assets/models/environment/"+asset+".glb"
 		if not ResourceLoader.exists(path): path="res://assets/models/environment/city_hd_00.glb"
 		var road:=load(path).instantiate() as Node3D
 		road.position=Vector3(0,0,ROAD_BEHIND-i*ROAD_SEGMENT); add_child(road)
-		EnvironmentMaterials.apply(road); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
+		EnvironmentMaterials.apply(road,i); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
+		_randomize_zebra(road)
+		_setup_streetlamp(road,i)
 		if road.has_meta("watcher"): watchers.append(road.get_meta("watcher"))
+
+func _setup_streetlamp(road: Node3D,variant: int) -> void:
+	# These are the exact positions of the modelled lamps in build_city_districts.py.
+	# Only districts that actually contain a lamp receive a light; no floating light rows.
+	if variant%6==5 or variant%2!=0: return
+	var side: float=-1.0 if variant%4==0 else 1.0
+	var lamp:=SpotLight3D.new(); lamp.position=Vector3(side*4.20,5.24,4.8)
+	lamp.rotation_degrees=Vector3(-90,0,0); lamp.light_color=Color("ffdca3"); lamp.spot_range=11.5
+	lamp.spot_angle=53.0; lamp.spot_angle_attenuation=1.4; lamp.spot_attenuation=1.25
+	lamp.light_energy=0.0; lamp.visible=false; road.add_child(lamp)
+	var mat:=StandardMaterial3D.new()
+	var diffuser:=road.find_child("CITY_lamp",true,false) as MeshInstance3D
+	if diffuser and diffuser.mesh:
+		var source: Material=diffuser.get_surface_override_material(0)
+		if source==null: source=diffuser.mesh.surface_get_material(0)
+		if source is StandardMaterial3D: mat=(source as StandardMaterial3D).duplicate() as StandardMaterial3D
+		for surface in range(diffuser.mesh.get_surface_count()): diffuser.set_surface_override_material(surface,mat)
+	mat.emission_enabled=true; mat.emission=Color("ffd78e"); mat.emission_energy_multiplier=0.0
+	street_lamps.append({"light":lamp,"material":mat})
+
+## While paused the frame should be a photograph: freeze every animation player and the
+## zombies' fire particles, so nothing on screen keeps moving. Re-checked every frame, so
+## it catches all the ways the run can enter or leave the paused state.
+var _visuals_frozen:=false
+func _freeze_visuals(frozen: bool) -> void:
+	if frozen==_visuals_frozen: return
+	_visuals_frozen=frozen
+	var actors: Array=[player,companion_pet]+zombies
+	for a in actors:
+		if not is_instance_valid(a): continue
+		var ap: AnimationPlayer=a.get("animation_player")
+		if ap==null: ap=a.find_child("AnimationPlayer",true,false) as AnimationPlayer
+		# Godot 4 AnimationPlayer has no `paused` property — freeze via speed_scale.
+		if ap: ap.speed_scale=0.0 if frozen else 1.0
+		var flames_node: CPUParticles3D=a.get("flames")
+		if is_instance_valid(flames_node): flames_node.speed_scale=0.0 if frozen else 1.0
+		var embers_node: CPUParticles3D=a.get("embers")
+		if is_instance_valid(embers_node): embers_node.speed_scale=0.0 if frozen else 1.0
 
 func _process(delta: float) -> void:
 	elapsed+=delta
-	sound.music_state(state)
+	var from_pause: bool=state=="settings" and settings_return_state=="paused"
+	if (state=="paused" or from_pause)!=_visuals_frozen: _freeze_visuals(state=="paused" or from_pause)
+	if state=="gameover": gameover_time+=delta
+	sound.music_state(payfail_return_state if state=="payfail" else (map_return_state if state=="map" else state))  # popups keep the music underneath
 	damage_flash=maxf(0,damage_flash-delta); shake=maxf(0,shake-delta*3.0)
 	banshee_warning=maxf(0,banshee_warning-delta)
-	var world_speed:=3.5 if state in ["playing","intro"] else (0.25 if state=="menu" else 0.0)
+	var world_speed: float=(3.5*(player.effective_move_mult() if state=="playing" else 1.0)) if state in ["playing","intro"] else (0.25 if state=="cover" else 0.0)
 	for road in roads:
 		road.position.z+=world_speed*delta
 		if road.position.z>ROAD_BEHIND+ROAD_SEGMENT:
 			road.position.z-=ROAD_LOOP
 			_refresh_watcher(road)
+			_randomize_zebra(road)
 	_tick_lightning(delta)
+	_apply_day_night()
 	if state=="intro":
 		_tick_intro(delta)
 		return
-	if state=="shop":
+	var scene_state:=state
+	if scene_state=="payfail": scene_state=payfail_return_state
+	if scene_state=="resource_pack": scene_state=resource_pack_return_state
+	if scene_state=="offer": scene_state=offer_return_state
+	if scene_state in ["cover","language"] or (scene_state=="settings" and settings_return_state!="paused"):
+		camera.fov=52; _set_menu_scene(); return
+	if scene_state=="shop":
 		camera.fov=shop_truck.camera_fov(); camera.position=shop_truck.camera_position(); camera.look_at(shop_truck.camera_target()); return
-	lobby.visible=state=="character_select"
-	lobby_toast=maxf(0.0,lobby_toast-delta)
-	if state=="character_select":
-		lobby.show_character(character_choice)
+	if scene_state=="lootbox":
+		camera.fov=lootbox_scene.camera_fov(); camera.h_offset=0; camera.v_offset=0
+		camera.position=lootbox_scene.camera_position(); camera.look_at(lootbox_scene.camera_target()); return
+	if scene_state=="map":
+		camera.fov=map_scene.camera_fov(); camera.h_offset=0; camera.v_offset=0
+		camera.position=map_scene.camera_position(); camera.look_at(map_scene.camera_target(),Vector3(0,0,-1))
+		map_toast=maxf(0.0,map_toast-delta); return
+	lobby.visible=lobby_behind()
+	RunText.lang=language_code
+	lobby_toast=maxf(0.0,lobby_toast-delta); share_toast=maxf(0.0,share_toast-delta); store_toast=maxf(0.0,store_toast-delta)
+	if state in ["playing","intro","paused"]: _track_play_time(delta)
+	if state=="offer" and not offer_active(): close_offer()
+	if lobby_behind():
+		lobby.show_character(character_choice,character_asset(character_choice))
 		camera.fov=lobby.CAMERA_FOV; camera.h_offset=0; camera.v_offset=0
 		camera.position=lobby.camera_position(); camera.look_at(lobby.camera_target()); return
-	if state in ["menu","language","settings"]:
+	if state in ["cover","language"] or (state=="settings" and settings_return_state!="paused"):
 		camera.fov=52; _set_menu_scene(); return
 	camera.position.x=lerpf(camera.position.x,player.position.x*0.12,delta*3.0)
+	# While the beast is on the road the camera eases up and back so the pursuer rises
+	# into the lower frame as it closes in — and settles again once it loses the trail.
+	chase_cam_weight=move_toward(chase_cam_weight,1.0 if (chase_active and is_instance_valid(chaser)) else 0.0,delta*1.8)
+	# Speed feel: the view stretches with the vehicle — a proper sprint on the bike, more in a car.
+	camera.fov=52.0+5.0*chase_cam_weight+(2.0*player.vehicle_speed() if (is_instance_valid(player) and player.vehicle!="") else 0.0)
+	camera.position.y=6.4+0.9*chase_cam_weight
+	camera.position.z=13.5+1.8*chase_cam_weight
 	camera.h_offset=rng.randf_range(-0.12,0.12)*shake; camera.v_offset=rng.randf_range(-0.1,0.1)*shake
-	camera.look_at(Vector3(player.position.x*0.08,1.0,-8))
+	camera.look_at(Vector3(player.position.x*0.08,1.0+0.25*chase_cam_weight,lerpf(-8.0,player.position.z+1.5,chase_cam_weight)))
 	if state!="playing": return
-	run_time+=delta; distance+=delta*10.5; hint_time=maxf(0,hint_time-delta); wave_banner=maxf(0,wave_banner-delta)
+	run_time+=delta; distance+=delta*10.5*player.effective_move_mult(); _check_record(delta); hint_time=maxf(0,hint_time-delta); wave_banner=maxf(0,wave_banner-delta)
 	revive_invulnerable=maxf(0.0,revive_invulnerable-delta)
-	var next_wave:=int(run_time/22.0)+1
-	if next_wave!=wave: wave=next_wave; wave_banner=2.0; sound.play("gate")
+	# Road events ramp up over the run: an almost empty street at the start, busier later,
+	# and never two things on the same stretch of road (see _road_clear).
+	var ramp: float=_pace()
+	# 尸潮节奏：密集潮 -> 喘息 -> 更密的潮。前期潮短、后期潮长，给玩家明确的松紧节奏。
+	phase_timer-=delta
+	if phase_timer<=0:
+		surge=not surge
+		if surge:
+			wave+=1; wave_banner=2.0; sound.play("gate")
+			phase_timer=lerpf(9.0,26.0,ramp)*rng.randf_range(0.85,1.15)
+		else:
+			phase_timer=lerpf(7.0,10.5,ramp)*rng.randf_range(0.85,1.15)
 	growl_timer-=delta
 	if growl_timer<=0:
 		if not zombies.is_empty(): sound.play("zombie")
@@ -288,7 +530,7 @@ func _process(delta: float) -> void:
 	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT): axis-=1
 	if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT): axis+=1
 	if touch_controls: axis=clampf(axis+left_stick.x,-1,1)
-	if axis!=0: player.target_x=clampf(player.target_x+axis*5.0*delta,-3.15,3.15)
+	if axis!=0: player.target_x=clampf(player.target_x+axis*5.0*player.effective_move_mult()*delta,-3.15,3.15)
 	if right_stick.length()>0.16:
 		aim_direction=Vector3(right_stick.x,0,right_stick.y).normalized()
 	elif not touch_controls:
@@ -306,10 +548,9 @@ func _process(delta: float) -> void:
 			request_reload()
 	spawn_timer-=delta
 	if spawn_timer<=0:
-		_spawn_zombie(); spawn_timer=maxf(0.30,1.55-run_time*0.008)*rng.randf_range(0.82,1.16)
-	# Road events ramp up over the run: an almost empty street at the start, busier later,
-	# and never two things on the same stretch of road (see _road_clear).
-	var ramp: float=_pace()
+		_spawn_zombie()
+		# 潮期 ~1s 一只压到 0.32s 一只；喘息期稀疏得多，给玩家喘口气。
+		spawn_timer=(maxf(0.32,0.95-run_time*0.0022) if surge else maxf(1.5,2.9-run_time*0.004))*rng.randf_range(0.82,1.16)
 	gate_timer-=delta
 	if gate_timer<=0:
 		if _road_clear(-40.0): _spawn_gate(); gate_timer=lerpf(11.0,7.5,ramp)*rng.randf_range(0.9,1.15)
@@ -330,14 +571,17 @@ func _process(delta: float) -> void:
 	if pickup_timer<=0:
 		var roll:=rng.randf()
 		var pickup_kind := "ammo"
-		if roll<0.08: pickup_kind="helmet"
-		elif roll<0.16: pickup_kind="armor"
-		elif roll<0.23: pickup_kind="grenade"
-		elif roll<0.29: pickup_kind="flashbang"
-		elif roll<0.41: pickup_kind="fire_round"
-		elif roll<0.64: pickup_kind="medkit"
+		# helmet and armour now stand on platforms (see _spawn_crates), not on the ground
+		if roll<0.09: pickup_kind="grenade"
+		elif roll<0.16: pickup_kind="flashbang"
+		elif roll<0.30: pickup_kind="fire_round"
+		elif roll<0.58: pickup_kind="medkit"
 		_spawn_pickup(pickup_kind); pickup_timer=lerpf(15.0,9.0,_pace())*rng.randf_range(0.85,1.2)
-	_tick_bullets(delta); _tick_ordnance(delta); _tick_barrels(delta); _tick_crates(delta); _tick_blood(delta); _tick_watchers(delta); _tick_zombies(delta); _resolve_barrel_collision(); _tick_obstacles(delta); _tick_gates(delta); _tick_pickups(delta); _tick_effects(delta)
+	if is_instance_valid(companion_pet): companion_pet.tick(delta)
+	_scroll_extra(delta)
+	_tick_bullets(delta); _tick_ordnance(delta); _tick_barrels(delta); _tick_crates(delta); _tick_blood(delta); _tick_watchers(delta); _tick_zombies(delta); _resolve_barrel_collision(); _resolve_crater_collision(); _tick_obstacles(delta); _tick_gates(delta); _tick_pickups(delta); _tick_effects(delta); _tick_vehicle(delta)
+	_tick_buffs(delta)
+	_tick_chase(delta)
 	if player.health<=0: _end_run()
 
 func _menu_zombies() -> void:
@@ -349,22 +593,43 @@ func _set_menu_scene() -> void:
 	player.position=Vector3(1.05,0,3.0); player.target_x=1.05; player.model.rotation.y=0
 	camera.position=Vector3(3.0,2.65,8.4); camera.h_offset=0; camera.v_offset=0; camera.look_at(Vector3(-0.35,1.05,3.0))
 
-func start_run() -> void:
-	_clear_world(); state="playing"; run_time=0; distance=0; kills=0; wave=1; run_coins=0; last_reward=0; survival_bonus=0
-	kill_counts.clear(); kill_coins.clear()
+func start_run(free_with_ad:=false,no_cost:=false) -> void:
+	var automated:="--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args()
+	if not automated and not free_with_ad and not no_cost and not stamina.consume():
+		store_toast_text=StoreCatalog.text(language_code,"no_cans"); store_toast=2.4
+		# Never force the pack popup: the toast explains it, and the wallet's little "+"
+		# icons stay on screen for anyone who actually WANTS to buy or watch an ad.
+		if state=="cover": enter_lobby()
+		return
+	_clear_world(); state="playing"; run_time=0; distance=0; kills=0; wave=0; run_coins=0; run_double_bonus=0; ad_pending=""; last_reward=0; survival_bonus=0
+	kill_counts.clear(); kill_coins.clear(); run_counted_distance=0.0; run_counted=false
 	for road in roads: _refresh_watcher(road)
-	revive_used=false; revive_pending=false; revive_invulnerable=0.0; jockey_introduced=false; banshee_introduced=false; banshee_warning=0.0
-	spawn_timer=1.6; gate_timer=9.0; barrel_timer=32.0; crate_timer=20.0; obstacle_timer=24.0; pickup_timer=12.0; shot_timer=0; growl_timer=3.5; hint_time=7; damage_flash=0; new_gate_index=0
+	revive_used=false; revive_count=0; revive_pending=false; revive_invulnerable=0.0; jockey_introduced=false; banshee_introduced=false; banshee_warning=0.0
+	_chase_reset()
+	spawn_timer=1.6; gate_timer=9.0; barrel_timer=32.0; crate_timer=20.0; obstacle_timer=24.0; pickup_timer=12.0; shot_timer=0; growl_timer=3.5; hint_time=7; damage_flash=0; new_gate_index=0; gates_since_epic=0
+	surge=false; phase_timer=4.5  # a calm opening before the first 尸潮
 	aim_direction=Vector3.FORWARD; aim_target=null; left_stick=Vector2.ZERO; right_stick=Vector2.ZERO; _release_touches()
 	shop_truck.visible=false; player.visible=true; camera.fov=52; camera.position=Vector3(0,6.4,13.5)
-	runs_this_launch+=1
+	runs_this_launch+=1; run_start_best=best_distance; new_record=false; record_banner=0.0
 	set_weather("clear" if runs_this_launch==1 else _roll_weather())
 	player.reset(); player.apply_meta(meta_upgrades); player.set_aim(aim_direction)
-	var automated:="--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args()
 	if automated:
-		_spawn_zombie(-18); _spawn_zombie(-32)
+		_spawn_zombie(-18); _spawn_zombie(-32); _spawn_companion()
 	else:
+		# Every run opens with the chase shot (the horde and the hunter behind the survivor),
+		# like Temple Run; it has a dog only if the player has equipped one (pet tab).
 		_begin_intro()
+
+func _spawn_companion() -> void:
+	if is_instance_valid(companion_pet) or not pet_equipped or not pet_owned(pet_choice): return
+	_recruit_pet(pet_choice,player.position+(load("res://scripts/pet_companion_3d.gd") as GDScript).follow_offset(pet_choice))
+
+## Puts a dog at the survivor's side (equipped one at the start, or one freed from a platform).
+func _recruit_pet(index: int,at: Vector3) -> void:
+	if is_instance_valid(companion_pet): companion_pet.queue_free()
+	companion_pet=(load("res://scripts/pet_companion_3d.gd") as GDScript).new() as Node3D
+	companion_pet.game=self; add_child(companion_pet); companion_pet.setup(index)
+	companion_pet.position=at
 
 func _begin_intro() -> void:
 	_clear_world(); intro_horde_offsets.clear(); intro_time=0.0; state="intro"
@@ -394,13 +659,19 @@ func _begin_intro() -> void:
 		var offset: Vector3=entry[1]
 		z.position=player.position+offset
 		intro_horde_offsets.append(offset); zombies.append(z)
+	_spawn_companion()
+	if is_instance_valid(companion_pet): companion_pet.position=player.position+INTRO_PET_OFFSET
 	camera.fov=50; camera.h_offset=0; camera.v_offset=0
 	camera.position=Vector3(2.2,1.05,6.6); camera.look_at(player.position+CHASER_OFFSET+Vector3(0,2.3,0))
 	sound.play("zombie")
 
+## In the opening shot the dog runs level with the survivor on the far side from the camera.
+const INTRO_PET_OFFSET:=Vector3(-1.15,0,0.15)
+
 func _tick_intro(delta: float) -> void:
 	intro_time+=delta
 	player.set_aim(Vector3.FORWARD); player.tick(delta)
+	if is_instance_valid(companion_pet): companion_pet.run_beside(player.position+INTRO_PET_OFFSET,delta)
 	for i in range(zombies.size()):
 		var z=zombies[i]
 		if not is_instance_valid(z): continue
@@ -424,11 +695,73 @@ func _tick_intro(delta: float) -> void:
 
 func _finish_intro() -> void:
 	if state!="intro": return
+	if not intro_seen: intro_seen=true; _save()
+	# Keep the dog where it is so it carries on from the intro instead of popping in.
+	var pet_position:=companion_pet.position if is_instance_valid(companion_pet) else Vector3.INF
 	_clear_world(); intro_horde_offsets.clear(); state="playing"; camera.v_offset=0
 	player.position=Vector3(0,0,4.5); player.target_x=0.0; player.set_aim(Vector3.FORWARD)
 	camera.position=Vector3(0,6.4,13.5); camera.fov=52; camera.look_at(Vector3(0,1.0,-8))
 	spawn_timer=1.6; shot_timer=0.2; hint_time=7.0
+	_spawn_companion()
+	if is_instance_valid(companion_pet) and pet_position!=Vector3.INF: companion_pet.position=pet_position
 	_spawn_zombie(-18); _spawn_zombie(-32)
+
+## ---- Mid-run chase segments ---------------------------------------------------------------
+## Every few hundred metres the Abomination ambushes from behind. It gains ground steadily;
+## taking a hit is a stumble that lets it closer (see _hurt_player), and inside arm's reach
+## it mauls. Survive the timer and it loses the trail — that pays a coin bonus.
+
+func _chase_begin() -> void:
+	if chase_active or state!="playing": return
+	if not ResourceLoader.exists(BossChaserScript.MODEL_PATH): return
+	chase_active=true; chase_time=CHASE_DURATION; chase_gap=CHASE_START_GAP; chase_growl=0.0
+	if is_instance_valid(chaser): chaser.queue_free()
+	chaser=BossChaserScript.new(); add_child(chaser)
+	chaser.position=player.position+Vector3(0,0,chase_gap)
+	sound.play("zombie"); shake=maxf(shake,0.5)
+
+func _tick_chase(delta: float) -> void:
+	if not chase_active:
+		if distance>=next_chase_at: _chase_begin()
+		return
+	if not is_instance_valid(chaser): chase_active=false; return
+	chase_time-=delta
+	# It gains on an even runner; a survivor with speed buffs (or Maya's adrenaline) holds
+	# the gap open a little longer.
+	var gain: float=CHASE_CLOSE_RATE-(player.effective_move_mult()-1.0)*1.6
+	chase_gap=maxf(0.0,chase_gap-gain*delta)
+	chaser.position.z=player.position.z+chase_gap
+	chaser.position.x=lerpf(chaser.position.x,player.position.x,minf(1.0,delta*2.2))
+	shake=maxf(shake,0.10+0.20*(1.0-minf(1.0,chase_gap/CHASE_START_GAP)))
+	chase_growl-=delta
+	if chase_growl<=0.0: sound.play("zombie"); chase_growl=3.2
+	if chase_gap<=CHASE_CATCH:
+		# Inside reach: it swipes the survivor's back — raw damage over time until it
+		# loses interest, so the last seconds of a chase always hurt.
+		if revive_invulnerable<=0.0 and player.vehicle=="":
+			player.health=maxf(0.0,player.health-CHASE_MAUL_DPS*delta)
+			damage_flash=maxf(damage_flash,0.25); shake=maxf(shake,0.6)
+	if chase_time<=0.0: _chase_escape()
+
+func _chase_escape() -> void:
+	chase_active=false
+	next_chase_at=distance+rng.randf_range(7600.0,8400.0) # roughly every 8000 m
+	run_coins+=CHASE_REWARD
+	sound.play("gate")
+	_popup(player.position+Vector3(0,3.1,0),RunText.text("escaped")+"  +%d"%CHASE_REWARD,Color("c9f54a"))
+	if is_instance_valid(chaser):
+		var beast:=chaser; chaser=null
+		# It slides back into the horde instead of popping out of existence.
+		var tween:=create_tween()
+		tween.tween_property(beast,"position:z",beast.position.z+22.0,1.6)
+		tween.tween_callback(beast.queue_free)
+
+func _chase_reset() -> void:
+	chase_active=false; chase_time=0.0; chase_gap=0.0; next_chase_at=8000.0
+
+## A hit during the chase is a stumble: the beast eats the lost ground at once.
+func _chase_stumble() -> void:
+	if chase_active: chase_gap=maxf(0.0,chase_gap-CHASE_STUMBLE)
 
 func _setup_weather_overlay() -> void:
 	var weather_layer:=CanvasLayer.new(); add_child(weather_layer)
@@ -460,37 +793,38 @@ func _roll_weather() -> String:
 
 func set_weather(kind: String) -> void:
 	weather=kind
+	if is_instance_valid(sound): sound.storm=kind=="storm"
 	if world_env==null: return
-	# Clear-day baseline (matches the original look).
-	var exposure:=0.88; var ambient:=Color("b8c7d1"); var ambient_energy:=0.48
-	var fog_color:=Color("b7c9d0"); var fog_density:=0.0032; var fog_sky:=0.08
-	var sun_energy:=0.64; var sky_energy:=1.0; var sun_color:=Color("fff0d9")
+	# Neutral daytime key light; the distance cycle, not a random sunset, changes the hour.
+	var exposure:=0.82; var ambient:=Color("bdc7ca"); var ambient_energy:=0.46
+	var fog_color:=Color("c9c8b8"); var fog_density:=0.0040; var fog_sky:=0.015
+	var sun_energy:=0.95; var sky_energy:=0.96; var sun_color:=Color("ffe4b5")
 	var depth_fog:=false; var fog_begin:=0.0; var fog_end:=100.0
 	match kind:
 		"rain":
-			# Overcast storm: everything pressed darker and colder.
 			exposure=0.76; ambient=Color("95a2ac"); ambient_energy=0.54
 			fog_color=Color("74808a"); fog_density=0.012; fog_sky=0.22
 			sun_energy=0.34; sky_energy=0.62; sun_color=Color("d3dce3")
 		"storm":
-			# Thunderstorm: much darker, cold blue-grey, heavy slanted rain; lightning lights it up.
 			exposure=0.62; ambient=Color("7c8a99"); ambient_energy=0.50
 			fog_color=Color("4a5663"); fog_density=0.018; fog_sky=0.30
 			sun_energy=0.18; sky_energy=0.42; sun_color=Color("b8c6d6")
 		"fog":
-			# Thick fog that thickens with distance, like real fog: the survivor and the road
-			# right around them stay crisp, the street ahead fades into white.
 			exposure=0.86; ambient=Color("b9c2c7"); ambient_energy=0.62
 			fog_color=Color("b4bdc2"); fog_density=0.96; fog_sky=0.7
 			sun_energy=0.30; sky_energy=0.70; sun_color=Color("e6ebee")
 			depth_fog=true; fog_begin=12.5; fog_end=46.0
-	world_env.tonemap_exposure=exposure
-	world_env.ambient_light_color=ambient; world_env.ambient_light_energy=ambient_energy
+	var preset_name: String=kind
+	if kind=="clear" and force_sunset: preset_name="sunset" # explicit preview only
+	var preset: Dictionary=SKY_PRESETS.get(preset_name,SKY_PRESETS["clear"])
+	sky_energy=float(preset.energy)
+	if preset_name=="sunset":
+		sun_color=Color("ffb06a"); sun_energy=0.75; ambient=Color("d8b8a8"); fog_color=Color("e0b49a")
 	# Mode first: switching fog mode resets the density in this Godot version.
 	world_env.fog_mode=Environment.FOG_MODE_DEPTH if depth_fog else Environment.FOG_MODE_EXPONENTIAL
 	world_env.fog_depth_begin=fog_begin; world_env.fog_depth_end=fog_end; world_env.fog_depth_curve=1.35
-	world_env.fog_light_color=fog_color; world_env.fog_density=fog_density; world_env.fog_sky_affect=fog_sky
-	weather_base={"exposure":exposure,"sun":sun_energy,"sun_color":sun_color,"ambient":ambient_energy}
+	world_env.fog_density=fog_density; world_env.fog_sky_affect=fog_sky
+	weather_base={"exposure":exposure,"sun":sun_energy,"sun_color":sun_color,"ambient":ambient_energy,"ambient_color":ambient,"fog_color":fog_color,"sky_energy":sky_energy,"cloud_color":preset.cloud,"flash":0.0}
 	lightning_t=-1.0; thunder_delay=-1.0; lightning_timer=rng.randf_range(3.0,6.0)
 	if lightning_flash: lightning_flash.color.a=0.0
 	if rain_material:
@@ -502,28 +836,54 @@ func set_weather(kind: String) -> void:
 		rain_material.set_shader_parameter("near_rain_transparency",0.75 if storm else 0.55)
 		rain_material.set_shader_parameter("near_rain_length",0.16 if storm else 0.11)
 	if sky_material:
-		# Clear weather is either a bright midday or a golden-hour sky.
-		var preset_name: String=kind
-		if kind=="clear" and runs_this_launch>1 and (rng.randf()<0.4 or force_sunset): preset_name="sunset"
-		var preset: Dictionary=SKY_PRESETS.get(preset_name,SKY_PRESETS["clear"])
 		sky_material.set_shader_parameter("sky_day",preset.sky); sky_material.set_shader_parameter("horizon_day",preset.horizon)
 		sky_material.set_shader_parameter("sky_sunset",preset.get("sunset_sky",preset.sky)); sky_material.set_shader_parameter("horizon_sunset",preset.get("sunset_horizon",preset.horizon))
 		sky_material.set_shader_parameter("day_night_mix",preset.mix)
-		sky_material.set_shader_parameter("cloud_color",preset.cloud); sky_material.set_shader_parameter("cloud_density",preset.density)
+		sky_material.set_shader_parameter("cloud_density",preset.density)
 		sky_material.set_shader_parameter("cloud_depth",preset.depth); sky_material.set_shader_parameter("wind_speed",preset.wind)
 		sky_material.set_shader_parameter("cloud_tiling",Vector2(preset.tiling,preset.tiling)); sky_material.set_shader_parameter("flash",0.0)
-		world_env.background_energy_multiplier=preset.energy
-		if preset_name=="sunset":
-			sun_color=Color("ffb06a"); sun_energy=0.75
-			world_env.ambient_light_color=Color("d8b8a8"); world_env.fog_light_color=Color("e0b49a")
-	if sun_light: sun_light.light_energy=sun_energy; sun_light.light_color=sun_color
 	if rain_overlay: rain_overlay.visible=kind in ["rain","storm"] and state!="shop"
+	_apply_day_night()
 
-## Lightning for the storm weather: a double flicker (strike, dip, re-strike) that spikes the
-## exposure and sunlight and washes the screen white, then thunder rolls in a moment later.
+## A complete day-night-day cycle takes 20 km. The sun crosses the horizon at 5 km and
+## 15 km, reaches night at 10 km, and returns to the original daylight at 20 km.
+func _apply_day_night() -> void:
+	if world_env==null or weather_base.is_empty(): return
+	var cycle_distance: float=distance if state in ["playing","intro","paused","gameover"] else 0.0
+	var phase: float=fposmod(cycle_distance,DAY_NIGHT_CYCLE_METRES)/DAY_NIGHT_CYCLE_METRES
+	night_amount=0.5-0.5*cos(phase*TAU)
+	# The first song of every night: starts the moment the sky turns dark.
+	if night_amount>0.5 and not night_announced and state=="playing":
+		night_announced=true
+		if is_instance_valid(sound): sound.night_fell()
+	elif night_amount<0.4: night_announced=false
+	var flash: float=float(weather_base.get("flash",0.0))
+	world_env.tonemap_exposure=float(weather_base.exposure)*lerpf(1.0,0.96,night_amount)+flash*2.4
+	world_env.ambient_light_color=(weather_base.ambient_color as Color).lerp(Color("657c9c"),night_amount*0.68)
+	world_env.ambient_light_energy=float(weather_base.ambient)*lerpf(1.0,0.62,night_amount)+flash*1.2
+	world_env.fog_light_color=(weather_base.fog_color as Color).lerp(Color("172335"),night_amount*0.88)
+	world_env.background_energy_multiplier=float(weather_base.sky_energy)*lerpf(1.0,0.58,night_amount)
+	if sun_light:
+		sun_light.rotation_degrees=Vector3(lerpf(-34.0,34.0,night_amount),-155,0)
+		sun_light.light_energy=float(weather_base.sun)*(1.0-night_amount)+flash*2.4
+		sun_light.light_color=(weather_base.sun_color as Color).lerp(Color("a9c4e4"),night_amount).lerp(Color("e8f0ff"),flash)
+	if fill_light:
+		fill_light.light_energy=lerpf(0.14,0.32,night_amount)+flash*1.4
+		fill_light.light_color=Color("d0dbe2").lerp(Color("8caed6"),night_amount)
+	if sky_material:
+		sky_material.set_shader_parameter("daylight_blend",1.0-2.0*night_amount)
+		sky_material.set_shader_parameter("cloud_color",(weather_base.cloud_color as Color).lerp(Color("26364b"),night_amount*0.88))
+		sky_material.set_shader_parameter("sun_strength",4.0*(1.0-night_amount))
+		sky_material.set_shader_parameter("moon_strength",2.2*night_amount)
+	if is_instance_valid(player): player.set_night(night_amount)
+	for entry in street_lamps:
+		var lamp: SpotLight3D=entry.light
+		lamp.visible=night_amount>0.04; lamp.light_energy=3.1*night_amount
+		(entry.material as StandardMaterial3D).emission_energy_multiplier=2.4*night_amount
+
+## Lightning only supplies a flash; _apply_day_night combines it with the current hour.
 func _tick_lightning(delta: float) -> void:
-	if weather!="storm" or state!="playing" or weather_base.is_empty():
-		return
+	if weather!="storm" or state!="playing" or weather_base.is_empty(): return
 	if lightning_t<0.0:
 		lightning_timer-=delta
 		if lightning_timer<=0.0:
@@ -537,11 +897,7 @@ func _tick_lightning(delta: float) -> void:
 	if thunder_delay>=0.0:
 		thunder_delay-=delta
 		if thunder_delay<0.0: sound.play("thunder"); shake=maxf(shake,0.25)
-	world_env.tonemap_exposure=float(weather_base.exposure)+flash*2.4
-	if sun_light:
-		sun_light.light_energy=float(weather_base.sun)+flash*2.4
-		sun_light.light_color=(weather_base.sun_color as Color).lerp(Color("e8f0ff"),flash)
-	world_env.ambient_light_energy=float(weather_base.ambient)+flash*1.2
+	weather_base.flash=flash
 	if lightning_flash: lightning_flash.color.a=flash*0.42
 	if sky_material: sky_material.set_shader_parameter("flash",flash)
 
@@ -566,25 +922,894 @@ func close_shop() -> void:
 func open_language() -> void:
 	state="language"
 
-## Case opening (CS:GO style). Only the entry point exists so far; the opening scene is built
-## separately and should hook in here.
-var lootbox_return_state:="menu"
+## DF-07 case opening: 100 earned coins for one permanent upgrade. Purchases commit
+## immediately, so leaving during the animation can never duplicate or lose a reward.
+const LOOTBOX_COST:=100
+var lootbox_return_state:="cover"
+var lootbox_message:=""
+var lootbox_reward_title:=""
+
+## ---- War-room map table -------------------------------------------------------------------
+## The lobby's map button opens the 3D map table. Only the city is a real destination; every
+## other pinned photo answers "coming soon". Tapping the city photo starts a run right away.
+var map_return_state:="character_select"
+var map_toast:=0.0
+var map_toast_text:=""
+var map_press:=Vector2(-1,-1)
+var map_dragged:=false
+func open_map() -> void:
+	if state=="map": return
+	map_return_state=state; map_toast=0.0
+	state="map"; _release_touches()
+	map_scene.visible=true; lobby.visible=false; shop_truck.visible=false; player.visible=false
+
+func close_map() -> void:
+	map_scene.visible=false; state=map_return_state
+	map_press=Vector2(-1,-1); map_dragged=false
+	shop_truck.visible=state=="shop"; player.visible=state in ["playing","paused","gameover","intro","cover","health_ad"]
+
+## A tap on the map table (press and release without a drag) either leaves, starts a run at
+## the city photo, or answers "coming soon" for the locked districts.
+func _map_release(pos: Vector2) -> void:
+	if state=="map" and not map_dragged:
+		if Rect2(24,24,100,48).has_point(pos): close_map()
+		else:
+			var pick: String=map_scene.pick_photo(camera,pos)
+			if pick=="city":
+				# The city is where the run already happens — no teleporting to yourself.
+				map_toast=1.8; map_toast_text=ExtraText.text(language_code,"already_here")
+			elif not pick.is_empty():
+				map_toast=1.6; map_toast_text=pick.to_upper()+" · "+ExtraText.text(language_code,"stay_tuned")
+	map_press=Vector2(-1,-1); map_dragged=false
+
 func open_lootbox() -> void:
-	lootbox_return_state=state
-	state="lootbox"; _release_touches()
+	if state=="lootbox": return
+	lootbox_return_state=state; lootbox_message=""; lootbox_reward_title=""
+	state="lootbox"; _release_touches(); lootbox_scene.reset_case()
+	lootbox_scene.visible=true; lobby.visible=false; shop_truck.visible=false; player.visible=false
+
+func buy_lootbox() -> bool:
+	if state!="lootbox" or lootbox_scene.opening: return false
+	var candidates: Array=[]
+	for item in shop_items:
+		if int(meta_upgrades.get(item.id,0))<int(item.max_level): candidates.append(item)
+	var pet_candidates: Array=[]
+	for i in range(lobby.PETS.size()):
+		if not pet_owned(i): pet_candidates.append({"id":"pet_%d"%i,"pet":i})
+	if candidates.is_empty() and pet_candidates.is_empty(): lootbox_message=ShopText.text(language_code,"case_maxed"); return false
+	if bank_coins<LOOTBOX_COST:
+		lootbox_message=ShopText.text(language_code,"case_no_coins")
+		open_resource_pack("coins"); return false
+	# Dogs are a 1% jackpot: a case almost always pays an upgrade — a specific dog is bought in
+	# the store. When every upgrade is maxed the case pays a dog, else it would have nothing to give.
+	var item: Dictionary
+	if not pet_candidates.is_empty() and (candidates.is_empty() or rng.randf()<0.01):
+		item=pet_candidates[rng.randi_range(0,pet_candidates.size()-1)]
+	else:
+		item=candidates[rng.randi_range(0,candidates.size()-1)]
+	bank_coins-=LOOTBOX_COST
+	if item.has("pet"):
+		owned_pets[int(item.pet)]=true
+		lootbox_reward_title=pet_name(int(item.pet))+"  ✓"
+	else:
+		meta_upgrades[item.id]=int(meta_upgrades.get(item.id,0))+1
+		lootbox_reward_title=ShopText.text(language_code,String(item.name_key))+"  +1"
+	lootbox_message=""; lootbox_scene.open_case(String(item.id)); sound.play("gate"); _save()
+	# the fanfare lands when the reward rises out of the case: level-up for a dog, tada otherwise
+	var fanfare:="level_up" if item.has("pet") else "tada"
+	get_tree().create_timer(1.15).timeout.connect(func(): if state=="lootbox": sound.play(fanfare))
+	return true
 
 func close_lootbox() -> void:
-	state=lootbox_return_state
+	lootbox_scene.visible=false; state=lootbox_return_state
+	shop_truck.visible=state=="shop"; player.visible=state in ["playing","paused","gameover","intro","cover","health_ad"]
 
-const LOBBY_SLOTS:=4
-const LOBBY_TOP:=150.0
-const LOBBY_STEP:=124.0
-const LOBBY_CARD:=Vector2(96,112)
-const LOBBY_LEFT_X:=14.0
-const LOBBY_RIGHT_X:=430.0
+## ---- Wallet row and the real-money store -------------------------------------------------
+## The can, coin and voucher balances, each with a + that opens the store. hud.gd draws them
+## from the same layout so the buttons line up with what is on screen.
+const WALLET_LOBBY:=Vector2(12,16)
+const LOBBY_WALLET_SCALE:=0.78  # the lobby's balances are drawn smaller than in the shop / store
+const LOBBY_GEAR:=Rect2(488,8,46,46)
+## The red cross beside the health strip is a real button: it offers a rewarded ad for 4 cells back.
+const HEALTH_AD_PANEL:=Rect2(70,360,400,270)
+const HEALTH_AD_WATCH:=Rect2(94,524,352,54)
+const HEALTH_AD_CANCEL:=Rect2(94,586,352,44)
+const HEALTH_AD_CELLS:=4
+## Filled every frame by hud._draw_hearts so _pointer_down can hit-test the cross.
+var health_plus_rect:=Rect2()
+const WALLET_SHOP:=Vector2(96,598)
+const WALLET_STORE:=Vector2(150,78)
+func wallet_layout(origin: Vector2,k:=1.0) -> Dictionary:
+	var sw: float=wallet_text_w.x; var cw: float=wallet_text_w.y; var vw: float=wallet_text_w.z
+	var can_plus:=Rect2(origin+Vector2(42*k+sw+8*k,3*k),Vector2(28,28)*k)
+	var coin_icon:=Rect2(Vector2(can_plus.end.x+14*k,origin.y),Vector2(34,34)*k)
+	var coin_plus:=Rect2(Vector2(coin_icon.end.x+8*k+cw+8*k,origin.y+3*k),Vector2(28,28)*k)
+	var v_icon:=Rect2(Vector2(coin_plus.end.x+14*k,origin.y+2*k),Vector2(50,31)*k)
+	var v_plus:=Rect2(Vector2(v_icon.end.x+6*k+vw+8*k,origin.y+3*k),Vector2(28,28)*k)
+	return {"can_icon":Rect2(origin,Vector2(34,34)*k),"can_text":origin+Vector2(42,26)*k,"can_plus":can_plus,
+		"coin_icon":coin_icon,"coin_text":Vector2(coin_icon.end.x+8*k,origin.y+26*k),"coin_plus":coin_plus,
+		"v_icon":v_icon,"v_text":Vector2(v_icon.end.x+6*k,origin.y+26*k),"v_plus":v_plus}
+
+func _wallet_plus_hit(origin: Vector2,pos: Vector2,k:=1.0) -> bool:
+	var w:=wallet_layout(origin,k)
+	for key in ["can_plus","coin_plus","v_plus"]:
+		if (w[key] as Rect2).grow(10).has_point(pos): open_store(); return true
+	return false
+
+func open_store() -> void:
+	if state=="store": return
+	store_return_state=state; state="store"; store_scroll=0.0; store_press=Vector2(-1,-1)
+	if store_currency.is_empty(): store_currency=StoreCatalog.device_currency()
+	_release_touches()
+
+func close_store() -> void:
+	state=store_return_state; store_press=Vector2(-1,-1)
+
+## Layout of the store list in content coordinates (before scrolling): section headers, then
+## full-width bundle cards, then two-column coin and voucher cards.
+const STORE_TOP:=124.0
+const STORE_BOTTOM:=930.0
+func store_view_rect() -> Rect2:
+	return Rect2(0,STORE_TOP,540,STORE_BOTTOM-STORE_TOP)
+
+func store_layout() -> Array:
+	# One full-width row per pack (list layout); grey caps label above each group.
+	var items:=[]; var y:=6.0
+	if offer_active():
+		items.append({"pack":StoreCatalog.offer(offer_id),"rect":Rect2(22,y,496,160)}); y+=172.0
+	for section in ["bundle","character","pet","skin","cans","coins","vouchers"]:
+		items.append({"header":section,"rect":Rect2(22,y,496,30)}); y+=32.0
+		if section=="cans":
+			items.append({"can_ad":true,"rect":Rect2(22,y,496,74)}); y+=84.0
+		for p in StoreCatalog.PACKS:
+			if p.kind!=section: continue
+			var h:=138.0 if section=="bundle" else 112.0
+			items.append({"pack":p,"rect":Rect2(22,y,496,h)}); y+=h+10.0
+		if section=="bundle": items.append({"pack":REMOVE_ADS_PACK,"rect":Rect2(22,y,496,112)}); y+=122.0
+		y+=10.0
+	return items
+
+func store_content_height() -> float:
+	var h:=0.0
+	for it in store_layout(): h=maxf(h,(it.rect as Rect2).end.y)
+	return h+60.0  # room for the price note at the end
+
+func store_max_scroll() -> float:
+	return maxf(0.0,store_content_height()-(STORE_BOTTOM-STORE_TOP))
+
+## Where an item sits on screen right now.
+func store_screen_rect(item: Dictionary) -> Rect2:
+	var r: Rect2=item.rect
+	return Rect2(r.position+Vector2(0,STORE_TOP-store_scroll),r.size)
+
+## The price button inside a pack card.
+static func store_price_rect(card: Rect2,_bundle: bool) -> Rect2:
+	return Rect2(card.end.x-132,card.get_center().y-24,116,48)
+
+func _store_drag(pos: Vector2,rel: Vector2) -> void:
+	if not store_dragged and pos.distance_to(store_press)>10.0: store_dragged=true
+	if store_dragged: store_scroll=clampf(store_scroll-rel.y,0.0,store_max_scroll())
+
+## A tap (no slide) on a card buys it.
+func _store_release(pos: Vector2) -> void:
+	if store_press.x<0: return
+	var tapped: bool=not store_dragged
+	store_press=Vector2(-1,-1)
+	if not tapped or not store_view_rect().has_point(pos): return
+	for it in store_layout():
+		if not store_screen_rect(it).has_point(pos): continue
+		if it.has("can_ad"): request_reward_ad("can_refill"); return
+		if it.has("pack"): buy_pack(it.pack.id); return
+
+## Buying a pack. Real charging needs the App Store (StoreKit in-app purchases) hooked in here;
+## until that is connected, running from the Godot editor grants the pack so the flow can be
+## tested, and an exported game only says payments are not connected yet.
+func pack_by_id(id: String) -> Dictionary:
+	if id=="removeads": return REMOVE_ADS_PACK
+	var p: Dictionary=StoreCatalog.pack(id)
+	return p if not p.is_empty() else StoreCatalog.offer(id)
+
+func pack_owned(id: String) -> bool:
+	return remove_ads if id=="removeads" else bool(store_owned.get(id,false))
+
+## Price shown on a pack: the App Store's localized price on device; the old price table only in
+## the editor simulator (development only). "…" while prices are still loading.
+func pack_price(p: Dictionary,cur: String) -> String:
+	if iap and iap.mode=="storekit":
+		var t: String=iap.price(String(p.id))
+		return t if t!="" else "…"
+	if iap and iap.mode=="sim": return StoreCatalog.price_text(cur,int(p.tier))
+	return "—"
+
+## The struck-through "was" price of an offer is only known from our own table, so it is shown
+## in the simulator only; on device the discount percentage carries the message.
+func pack_was_price(p: Dictionary,cur: String) -> String:
+	if iap and iap.mode=="sim": return StoreCatalog.price_text(cur,int(p.get("was",p.tier)))
+	return ""
+
+## Buying a pack opens Apple's native purchase sheet (StoreKit 2). Nothing is granted here:
+## rewards come only from _iap_grant, after the App Store reports a verified transaction.
+func buy_pack(id: String) -> bool:
+	var p: Dictionary=pack_by_id(id)
+	if p.is_empty(): return false
+	var lang:=language_code
+	if bool(p.get("once",false)) and pack_owned(id):
+		store_toast_text=StoreCatalog.text(lang,"owned"); store_toast=1.6; return false
+	if iap==null or iap.mode=="none": purchase_failed(id); return false
+	# In the editor, hold Shift while tapping a pack to see the failure popup.
+	if iap.mode=="sim" and OS.has_feature("editor") and Input.is_key_pressed(KEY_SHIFT): iap.sim_next="failed"
+	if iap.busy.has(id): return false
+	store_toast_text=ExtraText.text(lang,"iap_busy"); store_toast=1.2
+	return iap.buy(id)
+
+## Grants a verified transaction (called by iap_service exactly once per transaction ID, before
+## the transaction is finished). Returns true once the reward is saved.
+func _iap_grant(id: String,_tx: String) -> bool:
+	var p: Dictionary=pack_by_id(id)
+	if p.is_empty(): return false
+	if id=="removeads": remove_ads=true
+	else:
+		bank_coins+=int(p.coins); bank_vouchers+=int(p.vouchers); stamina.add(int(p.get("cans",0)))
+		if p.has("char"): owned_characters[int(p.char)]=true
+		if p.has("skin"): owned_skins[int(p.skin)]=true
+		if p.has("pet"): owned_pets[int(p.pet)]=true
+		if bool(p.get("once",false)): store_owned[id]=true
+		if id==offer_id: offer_id=""; offer_expires=0
+	_save(); return true
+
+func _on_purchase_finished(id: String,status: String) -> void:
+	var lang:=language_code
+	match status:
+		"purchased":
+			store_toast_text=ExtraText.text(lang,"iap_ok"); store_toast=1.8; sound.play("pickup")
+			if state=="offer": close_offer()
+			elif state=="resource_pack": close_resource_pack()
+		"restored":
+			if id=="removeads": remove_ads=true; _save()
+			store_toast_text=ExtraText.text(lang,"restored" if id!="" else "nothing_restore"); store_toast=1.8
+		"revoked":
+			if id=="removeads": remove_ads=false; _save()
+		"pending": store_toast_text=ExtraText.text(lang,"iap_pending"); store_toast=2.4
+		"cancelled": store_toast_text=ExtraText.text(lang,"iap_cancelled"); store_toast=1.4
+		_: purchase_failed(id)
+
+const STORE_RESTORE:=Rect2(392,28,132,40)
+func restore_purchases() -> void:
+	if iap: iap.restore()
+
+## Called whenever a purchase doesn't complete (not connected, cancelled, network error, or a
+## StoreKit failure once real payments are hooked up): nothing is granted, the popup explains.
+func purchase_failed(id: String) -> void:
+	payfail_pack=id
+	if state!="payfail": payfail_return_state=state
+	state="payfail"; store_toast=0.0; _release_touches()
+
+func close_payfail() -> void:
+	state=payfail_return_state; payfail_pack=""
+
+func retry_payfail() -> void:
+	var id:=payfail_pack
+	close_payfail()
+	if buy_pack(id):
+		if state=="offer": close_offer()
+		elif state=="resource_pack": close_resource_pack()
+
+static func now_unix() -> int:
+	return int(Time.get_unix_time_from_system())
+
+func offer_active() -> bool:
+	return not offer_id.is_empty() and now_unix()<offer_expires
+
+func offer_seconds_left() -> int:
+	return maxi(0,offer_expires-now_unix())
+
+## Counts today's play time (resets at midnight) for the "already played a lot today" rule.
+func _track_play_time(delta: float) -> void:
+	var today:=Time.get_date_string_from_system()
+	if today!=play_day: play_day=today; play_seconds_today=0.0
+	play_seconds_today+=delta
+
+## Called whenever the player lands in the lobby. Pops an offer only if the gap since the last
+## one has passed and today's play time is still short; otherwise does nothing.
+func maybe_show_offer(force:=false) -> bool:
+	if "--smoke-test" in OS.get_cmdline_user_args() and not force: return false
+	if offer_active(): return false
+	var now:=now_unix()
+	if next_offer_at==0 and not force:
+		next_offer_at=now+24*3600; _save(); return false  # brand-new players get a day first
+	if not force:
+		if now<next_offer_at: return false
+		var today:=Time.get_date_string_from_system()
+		if today==play_day and play_seconds_today>OFFER_SKIP_AFTER_MINUTES*60.0: return false
+	var o: Dictionary=StoreCatalog.OFFERS[rng.randi()%StoreCatalog.OFFERS.size()]
+	offer_id=o.id; offer_expires=now+StoreCatalog.OFFER_HOURS*3600
+	next_offer_at=now+int(rng.randf_range(OFFER_GAP_HOURS.x,OFFER_GAP_HOURS.y)*3600.0)
+	_save(); open_offer(); return true
+
+func open_offer() -> void:
+	if not offer_active() or state=="offer": return
+	offer_return_state=state; state="offer"; _release_touches()
+
+func close_offer() -> void:
+	state=offer_return_state
+
+const RESOURCE_PACKS:={"coins":"coins_1","vouchers":"vouchers_1","cans":"cans_1"}
+func open_resource_pack(kind: String) -> void:
+	if not RESOURCE_PACKS.has(kind): return
+	resource_pack_id=String(RESOURCE_PACKS[kind])
+	resource_pack_return_state=state
+	state="resource_pack"; _release_touches()
+
+func close_resource_pack() -> void:
+	state=resource_pack_return_state
+
+## Voucher spending uses the same shortage popup. Spending exactly the balance is a success,
+## not a shortage; only a failed purchase opens the pack.
+func spend_vouchers(cost: int) -> bool:
+	if cost<=0: return true
+	if bank_vouchers<cost:
+		open_resource_pack("vouchers"); return false
+	bank_vouchers-=cost; _save(); return true
+
+## Popup layout, shared with hud.gd.
+const OFFER_PANEL:=Rect2(36,150,468,646)
+const OFFER_CLOSE:=Rect2(452,156,44,44)
+const OFFER_BUY:=Rect2(96,714,348,62)
+## The small offer badge on the right of the lobby.
+const OFFER_BADGE:=Rect2(2,246,92,104)    # left column, under the airdrop
+
+## ---- Check-in and missions ----------------------------------------------------------------
+## Lobby side buttons.
+const SIDE_MAP:=Rect2(462,118,70,76)    # map select (more maps coming) — right-hand column
+
+## ---- Daily airdrop -------------------------------------------------------------------------
+## Once a day the lobby's airdrop can be opened for free by watching one rewarded ad.
+const AIRDROP_RECT:=Rect2(16,118,90,118)   # slightly left, while keeping a visible screen-edge margin
+var airdrop_day:=""
+var airdrop_reward:={}   # what the last drop held, shown on the reveal screen
+var airdrop_return_state:="character_select"
+
+func airdrop_available() -> bool:
+	return airdrop_day!=today()
+
+func _roll_airdrop() -> Dictionary:
+	var r:=rng.randf()
+	if r<0.60: return {"coins":rng.randi_range(8,20)*10,"vouchers":0}
+	if r<0.90: return {"coins":rng.randi_range(5,12)*10,"vouchers":1}
+	return {"coins":0,"vouchers":2}
+
+func _open_airdrop() -> void:
+	airdrop_day=today(); airdrop_reward=_roll_airdrop()
+	_grant(int(airdrop_reward.coins),int(airdrop_reward.vouchers)); _save()
+	airdrop_return_state=state if state!="airdrop" else airdrop_return_state; state="airdrop"; sound.play("gate"); _release_touches()
+
+## ---- Share the result ------------------------------------------------------------------------
+## On the phone this opens the system share sheet (Facebook, WhatsApp, Messages, X ...) with a
+## screenshot of the results and a line of text, through an iOS share plugin singleton if one is
+## installed. Without one (editor / desktop) the text is copied to the clipboard instead.
+const SHARE_RECT:=Rect2(66,832,408,54)   # same width/height as the shop button, same 20 px gap
+const SHARE_SINGLETONS:=["GodotShare","Share","NativeShare"]
+var share_toast:=0.0
+func share_text() -> String:
+	return ExtraText.text(language_code,"share_text").replace("%m",str(int(distance))).replace("%k",str(kills))
+
+func share_result() -> String:
+	var text:=share_text()
+	var img_path:=OS.get_user_data_dir().path_join("dead_frontier_result.png")
+	var vp:=get_viewport()
+	if vp and vp.get_texture(): vp.get_texture().get_image().save_png(img_path)
+	for name in SHARE_SINGLETONS:
+		if Engine.has_singleton(name):
+			var sh=Engine.get_singleton(name)
+			if sh.has_method("share_image"): sh.share_image(img_path,"Dead Frontier",text,""); return "native"
+			if sh.has_method("sharePic"): sh.sharePic(img_path,"Dead Frontier","Dead Frontier",text); return "native"
+			if sh.has_method("share"): sh.share(text,"Dead Frontier",img_path); return "native"
+			if sh.has_method("shareText"): sh.shareText("Dead Frontier","Dead Frontier",text); return "native"
+	DisplayServer.clipboard_set(text); share_toast=2.2
+	return "clipboard"
+const SIDE_BAG:=Rect2(462,198,70,76)    # backpack
+const SIDE_SIGNIN:=Rect2(462,278,70,76)
+const SIDE_TASKS:=Rect2(462,358,70,76)
+const SIDE_SHOP:=Rect2(462,438,70,76)   # supply truck (upgrades)
+const SIDE_STORE:=Rect2(462,518,70,76)  # real-money store
+const SIDE_MAIL:=Rect2(462,598,70,76)   # mailbox
+
+## ---- Backpack --------------------------------------------------------------------------------
+## Everything the player holds. For now coins and vouchers (vouchers only when there are any);
+## gifts with other item types can be added to bag_items() later.
+var bag_return_state:="character_select"
+func bag_items() -> Array:
+	var items:=[{"id":"coins","count":bank_coins}]
+	if bank_vouchers>0: items.append({"id":"vouchers","count":bank_vouchers})
+	return items
+
+static func bag_slot(i: int) -> Rect2:
+	return Rect2(36+(i%4)*120,150+(i/4)*140,108,128)
+
+func open_bag() -> void:
+	bag_return_state=state; state="bag"; _release_touches()
+
+func close_bag() -> void:
+	state=bag_return_state
+
+## ---- Mailbox ---------------------------------------------------------------------------------
+## Gifts for players. A welcome mail is built in; more come from MAIL_URL, a JSON file you host
+## anywhere (fetched each time the lobby opens):
+##   {"mails":[{"id":"launch_gift","title":{"en":"Launch gift","zh_CN":"上线福利"},
+##              "body":{"en":"...","zh_CN":"..."},"coins":300,"vouchers":2,"until":"2026-12-31"}]}
+## Titles / bodies may also be plain strings. Each id can be claimed once per player.
+const MAIL_URL:=""
+const MAIL_TOP:=150.0
+const MAIL_ROW:=128.0
+var mails: Array=[]
+var mail_claimed:={}
+var mail_return_state:="character_select"
+var mail_http: HTTPRequest
+
+func _builtin_mail() -> Array:
+	return [{"id":"welcome_v1","title":ExtraText.text(language_code,"welcome_title"),"body":ExtraText.text(language_code,"welcome_body"),"coins":200,"vouchers":3,"cans":50}]
+
+func _mail_text(v,fallback:="") -> String:
+	if v is Dictionary: return String(v.get(language_code,v.get("en",fallback)))
+	return String(v) if v!=null else fallback
+
+func refresh_mail() -> void:
+	var list:=_builtin_mail()
+	for m in remote_mail:
+		if m is Dictionary and m.has("id"):
+			if m.has("until") and String(m.until)<Time.get_date_string_from_system(): continue
+			list.append({"id":String(m.id),"title":_mail_text(m.get("title")),"body":_mail_text(m.get("body")),
+				"coins":int(m.get("coins",0)),"vouchers":int(m.get("vouchers",0)),"cans":int(m.get("cans",0))})
+	mails=list
+
+var remote_mail: Array=[]
+func fetch_mail() -> void:
+	if MAIL_URL=="" or "--smoke-test" in OS.get_cmdline_user_args(): return
+	if not is_instance_valid(mail_http):
+		mail_http=HTTPRequest.new(); add_child(mail_http)
+		mail_http.request_completed.connect(func(_r,code,_h,body):
+			if code!=200: return
+			var data=JSON.parse_string(body.get_string_from_utf8())
+			if data is Dictionary and data.get("mails") is Array: remote_mail=data.mails; refresh_mail())
+	mail_http.request(MAIL_URL)
+
+func mail_unclaimed() -> int:
+	var n:=0
+	for m in mails:
+		if not mail_claimed.has(String(m.id)) and (int(m.coins)>0 or int(m.vouchers)>0 or int(m.get("cans",0))>0): n+=1
+	return n
+
+func open_mail() -> void:
+	refresh_mail(); mail_return_state=state; state="mail"; mail_open=-1; _release_touches()
+
+func close_mail() -> void:
+	state=mail_return_state
+
+func mail_row(i: int) -> Rect2:
+	return Rect2(30,MAIL_TOP+i*MAIL_ROW,480,MAIL_ROW-12)
+
+static func mail_claim_rect(row: Rect2) -> Rect2:
+	return Rect2(row.end.x-138,row.end.y-54,124,42)
+
+## Reading a letter: the full text scrolls; rewards and the claim button sit at its end.
+const LETTER_VIEW:=Rect2(24,96,492,840)
+var mail_open:=-1
+var mail_scroll:=0.0
+var mail_press:=Vector2(-1,-1)
+var mail_dragged:=false
+var mail_text_h:=0.0  # height of the wrapped letter text, measured by the HUD while drawing
+
+func letter_content_h() -> float:
+	return mail_text_h+(190.0 if mail_open>=0 and mail_open<mails.size() and (int(mails[mail_open].coins)>0 or int(mails[mail_open].vouchers)>0 or int(mails[mail_open].get("cans",0))>0) else 40.0)
+
+func letter_max_scroll() -> float:
+	return maxf(0.0,letter_content_h()-LETTER_VIEW.size.y)
+
+## Claim button at the end of the letter, in screen coordinates (moves as the letter scrolls).
+func letter_claim_rect() -> Rect2:
+	return Rect2(150,LETTER_VIEW.position.y+mail_text_h+110.0-mail_scroll,240,58)
+
+func open_letter(i: int) -> void:
+	mail_open=i; mail_scroll=0.0; mail_press=Vector2(-1,-1); mail_text_h=0.0
+
+func _letter_release(pos: Vector2) -> void:
+	if mail_press.x<0: return
+	var tapped:=not mail_dragged; mail_press=Vector2(-1,-1)
+	if not tapped: return
+	if mail_open<0:
+		for i in range(mini(mails.size(),5)):
+			if mail_row(i).has_point(pos): open_letter(i); return
+	elif letter_claim_rect().has_point(pos) and LETTER_VIEW.has_point(pos):
+		claim_mail(String(mails[mail_open].id))
+
+func claim_mail(id: String) -> bool:
+	if mail_claimed.has(id): return false
+	for m in mails:
+		if String(m.id)==id:
+			mail_claimed[id]=true; _grant(int(m.coins),int(m.vouchers)); stamina.add(int(m.get("cans",0))); _save(); return true
+	return false
+## In the supply truck: a plain way into the store next to the coin balance.
+const SHOP_STORE_BTN:=Rect2(430,590,92,48)
+## Check-in popup.
+const SIGNIN_PANEL:=Rect2(30,170,480,520)
+const SIGNIN_CLOSE:=Rect2(458,180,44,44)
+const SIGNIN_CLAIM:=Rect2(56,600,200,64)
+const SIGNIN_DOUBLE:=Rect2(268,600,216,64)
+## Missions page.
+const TASK_TOP:=196.0
+func lobby_behind() -> bool:
+	if state=="character_select": return true
+	if state=="offer": return offer_return_state=="character_select"
+	if state=="resource_pack": return resource_pack_return_state=="character_select"
+	if state=="store": return false
+	if state=="mail": return mail_return_state=="character_select"
+	if state=="bag": return bag_return_state=="character_select"
+	if state=="airdrop": return airdrop_return_state=="character_select"
+	if state=="tasks": return tasks_return_state=="character_select"
+	if state=="signin": return signin_return_state=="character_select"
+	if state=="payfail":
+		if payfail_return_state=="offer": return offer_return_state=="character_select"
+		if payfail_return_state=="resource_pack": return resource_pack_return_state=="character_select"
+		return payfail_return_state=="character_select"
+	return false
+
+func today() -> String:
+	return Time.get_date_string_from_system()
+
+## Starts a fresh day / event window when the date has moved on.
+func _roll_progress() -> void:
+	if daily_day!=today(): daily_day=today(); daily_stats.clear(); daily_claimed.clear(); daily_swaps.clear()
+	var w:=int(now_unix()/(ProgressCatalog.EVENT_DAYS*86400))
+	if w!=event_window: event_window=w; event_stats.clear(); event_claimed.clear(); event_swaps.clear()
+
+func _progress(stat: String,amount: int) -> void:
+	if amount<=0: return
+	_roll_progress()
+	daily_stats[stat]=int(daily_stats.get(stat,0))+amount
+	event_stats[stat]=int(event_stats.get(stat,0))+amount
+
+func daily_missions() -> Array:
+	_roll_progress()
+	return _apply_swaps(ProgressCatalog.pick(ProgressCatalog.DAILY_POOL,ProgressCatalog.DAILY_COUNT,"daily"+daily_day),ProgressCatalog.DAILY_POOL,daily_swaps)
+
+func event_missions() -> Array:
+	_roll_progress()
+	return _apply_swaps(ProgressCatalog.pick(ProgressCatalog.EVENT_POOL,ProgressCatalog.EVENT_COUNT,"event"+str(event_window)),ProgressCatalog.EVENT_POOL,event_swaps)
+
+func _apply_swaps(list: Array,pool: Array,swaps: Dictionary) -> Array:
+	for slot in swaps:
+		var i: int=int(slot)
+		if i<0 or i>=list.size(): continue
+		for m in pool:
+			if String(m.id)==String(swaps[slot]): list[i]=m
+	return list
+
+## A mission can be swapped by ad while it is still open (not done, not claimed) and the pool
+## has another mission that is not already shown, done or claimed.
+func can_swap_mission(slot: int,daily: bool) -> bool:
+	var list: Array=daily_missions() if daily else event_missions()
+	if slot<0 or slot>=list.size(): return false
+	var m: Dictionary=list[slot]
+	if mission_claimed(m,daily) or mission_ready(m,daily): return false
+	return not _swap_candidates(list,daily).is_empty()
+
+func _swap_candidates(list: Array,daily: bool) -> Array:
+	var shown:={}
+	for m in list: shown[String(m.id)]=true
+	var out:=[]
+	for m in (ProgressCatalog.DAILY_POOL if daily else ProgressCatalog.EVENT_POOL):
+		if shown.has(String(m.id)) or mission_claimed(m,daily) or mission_value(m,daily)>=int(m.goal): continue
+		out.append(m)
+	return out
+
+func swap_mission(slot: int,daily: bool) -> bool:
+	if not can_swap_mission(slot,daily): return false
+	var list: Array=daily_missions() if daily else event_missions()
+	var options: Array=_swap_candidates(list,daily)
+	var pick: Dictionary=options[rng.randi_range(0,options.size()-1)]
+	(daily_swaps if daily else event_swaps)[slot]=String(pick.id); _save(); return true
+
+func mission_value(m: Dictionary,daily: bool) -> int:
+	return mini(int(m.goal),int((daily_stats if daily else event_stats).get(String(m.stat),0)))
+
+func mission_claimed(m: Dictionary,daily: bool) -> bool:
+	return (daily_claimed if daily else event_claimed).has(String(m.id))
+
+func mission_ready(m: Dictionary,daily: bool) -> bool:
+	return mission_value(m,daily)>=int(m.goal) and not mission_claimed(m,daily)
+
+func claim_mission(m: Dictionary,daily: bool) -> bool:
+	if not mission_ready(m,daily): return false
+	(daily_claimed if daily else event_claimed)[String(m.id)]=true
+	_grant(int(m.coins),int(m.vouchers)); return true
+
+func missions_ready_count() -> int:
+	var n:=0
+	for m in daily_missions(): if mission_ready(m,true): n+=1
+	for m in event_missions(): if mission_ready(m,false): n+=1
+	return n
+
+func _grant(coins: int,vouchers: int) -> void:
+	bank_coins+=coins; bank_vouchers+=vouchers
+	var parts:=[]
+	if coins>0: parts.append("+%d %s"%[coins,StoreCatalog.text(language_code,"coin_packs")])
+	if vouchers>0: parts.append("+%d %s"%[vouchers,StoreCatalog.text(language_code,"voucher_packs")])
+	store_toast_text=" ".join(parts) if not parts.is_empty() else ""; store_toast=1.6
+	sound.play("pickup"); _save()
+
+## Seconds until the daily missions reset (local midnight) and until the event window ends.
+func seconds_to_midnight() -> int:
+	var t:=Time.get_datetime_dict_from_system()
+	return 86400-(int(t.hour)*3600+int(t.minute)*60+int(t.second))
+
+func event_seconds_left() -> int:
+	_roll_progress()
+	return maxi(0,(event_window+1)*ProgressCatalog.EVENT_DAYS*86400-now_unix())
+
+func signin_available() -> bool:
+	return signin_last!=today()
+
+func claim_signin(times:=1) -> bool:
+	if not signin_available(): return false
+	var r: Dictionary=ProgressCatalog.SIGNIN[signin_index]
+	signin_last=today(); signin_index=(signin_index+1)%ProgressCatalog.SIGNIN.size()
+	_grant(int(r.coins)*times,int(r.vouchers)*times); return true
+
+func can_ads_left() -> int:
+	return maxi(0,CAN_AD_DAILY_LIMIT-clampi(can_ad_count,0,CAN_AD_DAILY_LIMIT)) if can_ad_day==today() else CAN_AD_DAILY_LIMIT
+
+## Rewarded ads besides revive: double today's check-in, double run coins, or refill cans.
+func request_reward_ad(purpose: String) -> bool:
+	if not ad_pending.is_empty() or not is_instance_valid(revival_ads): return false
+	if purpose=="signin_double" and not signin_available(): return false
+	if purpose in ["free_run","can_refill"] and not _reward_ad_allowed(purpose): return false
+	if remove_ads and _reward_ad_allowed(purpose): _on_ad_rewarded(purpose); return true
+	if purpose=="run_double" and not can_double_run(): return false
+	if purpose=="airdrop" and not airdrop_available(): return false
+	if purpose.begins_with("swap:"):
+		var a: PackedStringArray=purpose.split(":")
+		if not can_swap_mission(int(a[2]),a[1]=="daily"): return false
+	if revival_ads.show_reward_ad(purpose): ad_pending=purpose
+	return not ad_pending.is_empty()
+
+func _on_ad_rewarded(purpose: String) -> void:
+	ad_pending=""
+	match purpose:
+		"signin_double": claim_signin(2)
+		"airdrop": if airdrop_available(): _open_airdrop()
+		_ when purpose.begins_with("swap:"):
+			var a: PackedStringArray=purpose.split(":"); swap_mission(int(a[2]),a[1]=="daily")
+		"run_double":
+			if state=="gameover" and run_double_bonus==0 and last_reward>0:
+				run_double_bonus=last_reward; bank_coins+=run_double_bonus; _save(); sound.play("gate")
+		"free_run":
+			if _reward_ad_allowed(purpose):
+				ad_run_used=true; _save(); start_run(true)
+		"can_refill":
+			if _reward_ad_allowed(purpose):
+				can_ad_day=today(); can_ad_count+=1; stamina.add(CAN_AD_REWARD)
+				store_toast_text="+%d %s"%[CAN_AD_REWARD,StoreCatalog.text(language_code,"can_packs")]; store_toast=1.6
+				_save(); sound.play("pickup")
+		"health_refill":
+			if _reward_ad_allowed(purpose):
+				var heal_cells: float=HEALTH_AD_CELLS*(100.0/3.0)   # one heart cell = 100/3 HP
+				player.health=minf(player.max_health,player.health+heal_cells)
+				var zh_ad: bool=language_code.begins_with("zh")
+				_popup(player.position+Vector3(0,2.5,0),"+%d %s"%[int(heal_cells),"血量" if zh_ad else "HP"],Color("c9f54a"))
+				sound.play("pickup")
+			if state=="health_ad": state="playing"
+	_release_touches()
+
+func _reward_ad_allowed(purpose: String) -> bool:
+	if purpose=="run_double": return can_double_run()
+	if purpose=="airdrop": return airdrop_available()
+	if purpose=="free_run": return not ad_run_used and stamina.value<stamina.RUN_COST and state=="character_select"
+	if purpose=="can_refill": return state=="store" and can_ads_left()>0
+	if purpose=="health_refill": return state=="health_ad" and player.health<player.max_health-0.01
+	if purpose.begins_with("swap:"):
+		var a: PackedStringArray=purpose.split(":"); return can_swap_mission(int(a[2]),a[1]=="daily")
+	return true
+
+func _on_ad_cancelled(_purpose: String) -> void:
+	ad_pending=""
+	if state=="health_ad": state="playing"
+
+func can_double_run() -> bool:
+	return state=="gameover" and run_double_bonus==0 and last_reward>0
+
+## Results screen: the ×2 button sits beside the total, under the kill breakdown.
+func gameover_double_rect() -> Rect2:
+	var y:=340.0
+	for kind in ["banshee","brute","jockey","runner","walker"]:
+		if int(kill_counts.get(kind,0))>0: y+=22.0
+	return Rect2(262,y+30,196,58)
+
+func open_signin() -> void:
+	if state=="signin": return
+	signin_return_state=state; state="signin"; _release_touches()
+
+func close_signin() -> void:
+	state=signin_return_state
+
+func open_tasks() -> void:
+	tasks_return_state=state; state="tasks"; _release_touches()
+
+func close_tasks() -> void:
+	state=tasks_return_state
+
+## Tile rectangles of the 7 check-in days (4 on top, then 3 with a wide day 7).
+func signin_tile(i: int) -> Rect2:
+	if i<4: return Rect2(46+i*114,262,106,150)
+	if i<6: return Rect2(46+(i-4)*114,424,106,150)
+	return Rect2(274,424,220,150)
+
+## Mission rows on the missions page for the open tab.
+func task_rows() -> Array:
+	var rows:=[]; var daily: bool=tasks_tab==0
+	var list: Array=daily_missions() if daily else event_missions()
+	for i in range(list.size()):
+		rows.append({"m":list[i],"daily":daily,"slot":i,"rect":Rect2(30,TASK_TOP+i*124,480,112)})
+	return rows
+
+static func task_button(row: Rect2) -> Rect2:
+	return Rect2(row.end.x-138,row.position.y+60,124,40)
+
+## Small "swap by ad" button left of the mission's main button.
+static func task_swap_button(row: Rect2) -> Rect2:
+	return Rect2(row.end.x-194,row.position.y+60,46,40)
+
+static func tasks_tab_rect(t: int) -> Rect2:
+	return Rect2(30+t*246,92,234,46)
+
+## Survivor / pet picker: a horizontal strip above the start button (swipe sideways to scroll).
+const LOBBY_SLOTS:=8   # cards per tab; slots past the real survivors / dogs read "coming soon"
+## Start button: the gap above it (to the picker) equals the gap below it (to the screen edge).
+const LOBBY_START:=Rect2(66,860,408,76)
+const LOBBY_AD_RUN:=Rect2(482,860,48,76)
+const LOBBY_STRIP_Y:=732.0   # strip ends exactly where the start button begins (836)
+const LOBBY_STEP:=96.0
+const LOBBY_CARD:=Vector2(88,104)
+const LOBBY_LEFT_X:=12.0
+const LOBBY_BAND_TOP:=684.0   # the dark band behind tabs, strip and start button
+## Main screen list: one column on the left with 角色 / 宠物 tabs; it scrolls vertically.
+var lobby_tab:=0          # 0 = survivors, 1 = pets, 2 = skins (none yet: every slot locked)
+var lobby_scroll:=0.0
+var lobby_press:=Vector2(-1,-1)
+var lobby_dragged:=false
+
+## The two big switch arrows: symmetric about the centre, halfway down the 3D area.
+func lobby_arrow_rect(side: int) -> Rect2:
+	var cy: float=(62.0+LOBBY_BAND_TOP)*0.5
+	return Rect2(270.0+side*150.0-32.0,cy-44.0,64,88)
+
+## Page arrows at the two ends of the picker strip (shown only when there is more that way).
+func lobby_page_rect(side: int) -> Rect2:
+	return Rect2(0.0 if side<0 else 540.0-30.0,LOBBY_STRIP_Y,30,LOBBY_CARD.y)
+
+func lobby_page_visible(side: int) -> bool:
+	return lobby_scroll>1.0 if side<0 else lobby_scroll<lobby_max_scroll()-1.0
+
+func lobby_page(side: int) -> void:
+	lobby_scroll=clampf(lobby_scroll+side*LOBBY_STEP*4.0,0.0,lobby_max_scroll())
+
+func lobby_tab_rect(t: int) -> Rect2:
+	return Rect2(LOBBY_LEFT_X+t*72.0,LOBBY_BAND_TOP+4,68,40)
+
+func lobby_view_rect() -> Rect2:
+	return Rect2(LOBBY_LEFT_X-6,LOBBY_STRIP_Y,540-2*(LOBBY_LEFT_X-6),LOBBY_CARD.y)
+
+func lobby_item_count() -> int:
+	if lobby_tab==2: return maxi(LOBBY_SLOTS,lobby.SKINS.size())
+	return maxi(LOBBY_SLOTS,lobby.CHARACTERS.size()) if lobby_tab==0 else maxi(LOBBY_SLOTS,lobby.PETS.size())
+
+func lobby_max_scroll() -> float:
+	return maxf(0.0,lobby_item_count()*LOBBY_STEP-(LOBBY_STEP-LOBBY_CARD.x)+12.0-lobby_view_rect().size.x)
+
+func lobby_card_rect(i: int) -> Rect2:
+	return Rect2(LOBBY_LEFT_X+i*LOBBY_STEP-lobby_scroll,LOBBY_STRIP_Y,LOBBY_CARD.x,LOBBY_CARD.y)
+
+func set_lobby_tab(t: int) -> void:
+	if t==lobby_tab: return
+	lobby_tab=t; lobby_scroll=0.0
+	lobby.focus_pets=t==1
+
+## A finger lifted without sliding picks the card under it; a slide only scrolls the list.
+func _lobby_release(pos: Vector2) -> void:
+	if lobby_press.x<0: return
+	var was_drag:=lobby_dragged; lobby_press=Vector2(-1,-1); lobby_dragged=false
+	if was_drag or not lobby_view_rect().has_point(pos): return
+	for i in range(lobby_item_count()):
+		if lobby_card_rect(i).has_point(pos):
+			if lobby_tab==2:
+				if i<lobby.SKINS.size(): select_skin(i)
+				else: lobby_toast=1.6; lobby_toast_key="coming"
+			elif lobby_tab==1:
+				if i<lobby.PETS.size(): select_pet(i)
+				else: lobby_toast=1.6; lobby_toast_key="coming"
+			elif i<lobby.CHARACTERS.size(): select_character(i)
+			else: lobby_toast=1.6; lobby_toast_key="coming"
+			return
+
+func _lobby_drag(pos: Vector2,rel: Vector2) -> void:
+	if not lobby_dragged and pos.distance_to(lobby_press)>10.0: lobby_dragged=true
+	if lobby_dragged: lobby_scroll=clampf(lobby_scroll-rel.x,0.0,lobby_max_scroll())
+
+func _lobby_tap(pos: Vector2) -> void:
+	_pointer_down(pos); _lobby_release(pos)
 
 func select_character(index: int) -> void:
-	character_choice=posmod(index,lobby.CHARACTERS.size()); player.set_character(character_choice); lobby.show_character(character_choice); sound.play("gate"); _save()
+	index=posmod(index,lobby.CHARACTERS.size())
+	if not character_owned(index):
+		# Locked survivor: a tap still shows their model on the platform (preview only);
+		# character_choice is untouched, so they can never be taken into a run.
+		lobby.show_character(index,"")
+		lobby_toast=1.8; lobby_toast_key="char_locked"; return
+	character_choice=index; player.set_character(character_choice,character_asset(character_choice)); lobby.show_character(character_choice,character_asset(character_choice)); _save()
+
+## ---- Outfit skins --------------------------------------------------------------------------
+func default_skin_index(char_index: int) -> int:
+	for i in range(lobby.SKINS.size()):
+		if int(lobby.SKINS[i].get("char",-1))==char_index: return i
+	return -1
+
+func selected_skin_index(char_index: int=-1) -> int:
+	if char_index<0: char_index=character_choice
+	return int(skin_choice.get(char_index,default_skin_index(char_index)))
+
+func character_asset(char_index: int) -> String:
+	# Only an explicit skin pick overrides the body; every other character uses the
+	# default model from player.CHARACTER_ASSETS / lobby.CHARACTERS ("" = no override).
+	if skin_choice.has(char_index):
+		var si:=int(skin_choice[char_index])
+		if si>=0 and si<lobby.SKINS.size(): return String(lobby.SKINS[si].asset)
+	return ""
+
+func select_skin(i: int) -> void:
+	if i<0 or i>=lobby.SKINS.size(): return
+	var char_index:=int(lobby.SKINS[i].get("char",-1))
+	if char_index<0: return
+	if not character_owned(char_index):
+		# Locked owner: preview their default model on the platform, never select.
+		lobby.show_character(char_index,"")
+		lobby_toast=1.8; lobby_toast_key="char_locked"; return
+	if not skin_owned(i):
+		# Locked outfit: preview the owner wearing it on the platform, never select.
+		lobby.show_character(char_index,String(lobby.SKINS[i].asset))
+		lobby_toast=1.8; lobby_toast_key="skin_locked"; return
+	skin_choice[char_index]=i; character_choice=char_index
+	player.set_character(char_index,character_asset(char_index))
+	lobby.show_character(char_index,character_asset(char_index))
+	_save()
+
+func character_name(i: int) -> String:
+	return RunText.text(String(lobby.CHARACTERS[i].name).to_lower(),language_code)
+
+func pet_name(i: int) -> String:
+	return RunText.text("dog_%d"%i,language_code)
+
+func pet_owned(index: int) -> bool:
+	return owned_pets.has(index) or owned_pets.has(str(index))
+
+## Mason (0) and Riley (1) are free forever; everyone else is bought once in the store.
+func character_owned(index: int) -> bool:
+	return index<=1 or owned_characters.has(index) or owned_characters.has(str(index))
+
+## A character's default look comes with the character; only the extra outfits cost money.
+func skin_owned(index: int) -> bool:
+	if index<0 or index>=lobby.SKINS.size(): return false
+	if index==default_skin_index(int(lobby.SKINS[index].get("char",-1))): return true
+	return owned_skins.has(index) or owned_skins.has(str(index))
+
+func select_pet(index: int) -> void:
+	index=posmod(index,lobby.PETS.size())
+	if not pet_owned(index):
+		# Locked: show it off on the platform, but it can't be taken into a run.
+		lobby.show_pet(lobby.PETS[index].asset); lobby_toast=1.8; lobby_toast_key="pet_locked"
+		if pet_equipped and pet_choice!=index: pass
+		return
+	if pet_equipped and index==pet_choice:
+		pet_equipped=false; lobby.show_pet(""); _save(); return
+	pet_choice=index; pet_equipped=true; lobby.show_pet(lobby.PETS[pet_choice].asset); _save()
 
 ## Every finished run lands back in the character lobby.
 func go_to_lobby() -> void:
@@ -592,7 +1817,16 @@ func go_to_lobby() -> void:
 	enter_lobby()
 
 func enter_lobby() -> void:
-	state="character_select"; lobby.visible=true; lobby.show_character(character_choice)
+	if pet_equipped and not pet_owned(pet_choice): pet_equipped=false
+	# Locked content can never stay selected (old saves predate the store).
+	if not character_owned(character_choice): character_choice=0
+	if skin_choice.has(character_choice) and not skin_owned(int(skin_choice[character_choice])): skin_choice.erase(character_choice)
+	refresh_mail(); fetch_mail()
+	state="character_select"; lobby.visible=true; lobby.show_character(character_choice,character_asset(character_choice)); lobby.show_pet(lobby.PETS[pet_choice].asset if pet_equipped else "")
+	var today:=Time.get_date_string_from_system()
+	if signin_available() and signin_shown_day!=today and not "--smoke-test" in OS.get_cmdline_user_args():
+		signin_shown_day=today; open_signin(); return
+	maybe_show_offer()
 
 ## Swap button / E / Tab: switch between the crate gun and the pistol (unlimited ammo).
 func swap_weapon(out_of_ammo:=false) -> bool:
@@ -606,7 +1840,7 @@ func swap_weapon(out_of_ammo:=false) -> bool:
 
 func select_shop_item(index: int) -> void:
 	if shop_items.is_empty(): return
-	shop_index=posmod(index,shop_items.size()); shop_truck.focus(shop_items[shop_index].id); sound.play("hit")
+	shop_index=posmod(index,shop_items.size()); shop_truck.focus(shop_items[shop_index].id)
 
 func item_cost(item: Dictionary) -> int:
 	return int(item.cost)+int(meta_upgrades.get(item.id,0))*20
@@ -615,12 +1849,15 @@ func buy_item(id: String) -> bool:
 	for item in shop_items:
 		if item.id!=id: continue
 		var level: int=meta_upgrades.get(id,0); var cost: int=item_cost(item)
-		if level>=int(item.max_level) or bank_coins<cost: return false
+		if level>=int(item.max_level): return false
+		if bank_coins<cost:
+			open_resource_pack("coins"); return false
 		bank_coins-=cost; meta_upgrades[id]=level+1; sound.play("pickup"); _save(); return true
 	return false
 
 func _clear_world() -> void:
 	if is_instance_valid(chaser): chaser.queue_free(); chaser=null
+	if is_instance_valid(companion_pet): companion_pet.queue_free(); companion_pet=null
 	for collection in [zombies,bullets,ordnance,gates,barrels,crates,blood_pools,obstacles,pickups,effects]:
 		for node in collection:
 			if is_instance_valid(node): node.queue_free()
@@ -632,11 +1869,36 @@ func _end_run() -> void:
 	var total_reward:=run_coins+survival_bonus
 	bank_coins+=maxi(0,total_reward-last_reward)
 	last_reward=total_reward
-	state="gameover"; revive_pending=false; _release_touches(); best_distance=maxi(best_distance,int(distance)); _save()
+	# missions: count the run once, and only the new metres after a revival
+	if not run_counted: run_counted=true; _progress("runs",1)
+	_progress("distance",int(distance-run_counted_distance)); run_counted_distance=distance
+	state="gameover"; revive_pending=false; _release_touches(); gameover_time=0.0
+	chase_active=false # a run that ends mid-chase keeps the beast standing as a corpse shot
+	# A new personal best (not on the very first run, which has nothing to beat).
+	if run_start_best>0 and int(distance)>run_start_best: new_record=true
+	best_distance=maxi(best_distance,int(distance)); _save()
 	sound.play("game_over")
+	if new_record: sound.play("gate")
+
+## The moment the survivor passes their old best mid-run: banner, confetti burst, sound.
+func _check_record(delta: float) -> void:
+	record_banner=maxf(0.0,record_banner-delta)
+	if new_record or run_start_best<=0 or int(distance)<=run_start_best: return
+	new_record=true; record_banner=3.0; sound.record_fanfare()
+
+func record_metres_left() -> int:
+	return maxi(0,run_start_best-int(distance))
+
+## Tapping the red cross beside the health strip offers a rewarded ad for 4 health cells back.
+func _tap_health_plus() -> void:
+	if player.health>=player.max_health-0.01:
+		var full: bool=language_code.begins_with("zh")
+		_popup(player.position+Vector3(0,2.5,0),"血量已满" if full else "HP FULL",Color("ffd275")); return
+	state="health_ad"; _release_touches()
 
 func request_revival() -> bool:
 	if state!="gameover" or revive_used or revive_pending: return false
+	if remove_ads: _revive_after_reward(); return true
 	if not is_instance_valid(revival_ads): return false
 	revive_pending=revival_ads.show_revival_ad()
 	return revive_pending
@@ -646,14 +1908,19 @@ func _revive_ad_cancelled() -> void:
 
 func _revive_after_reward() -> void:
 	if state!="gameover" or revive_used or player.health>0.0: return
-	revive_used=true; revive_pending=false; revive_invulnerable=3.0
-	player.health=maxf(1.0,player.max_health*0.5)
+	var r: Dictionary=REVIVES[revive_count]
+	revive_count+=1; revive_used=revive_count>=REVIVES.size(); revive_pending=false
+	revive_invulnerable=float(r.invuln)
+	player.health=maxf(1.0,player.max_health*float(r.hp))
 	for z in zombies.duplicate():
 		if is_instance_valid(z) and _flat_distance(z.position,player.position)<13.0:
 			_burst(z.position+Vector3(0,1.0,0),Color("ff9b55"),8)
 			zombies.erase(z); z.queue_free()
 	state="playing"; damage_flash=0.0; spawn_timer=1.8; shot_timer=0.25
-	_release_touches(); _popup(player.position+Vector3(0,2.5,0),"REVIVED",Color("c9f54a"))
+	# Back on your feet: the beast loses your trail for a moment before the next ambush.
+	if is_instance_valid(chaser) and not chase_active: chaser.queue_free(); chaser=null
+	next_chase_at=maxf(next_chase_at,distance+150.0)
+	_release_touches(); _popup(player.position+Vector3(0,2.5,0),RunText.text("revived"),Color("c9f54a"))
 
 func _count_zombie_kind(type: String) -> int:
 	var count:=0
@@ -670,8 +1937,12 @@ func _spawn_zombie(at_z:=-48.0,forced_kind:="") -> void:
 			kind="walker"
 			if run_time>20 and roll<minf(0.34,0.12+run_time*0.0015): kind="runner"
 			if run_time>45 and roll>maxf(0.80,0.94-run_time*0.0008): kind="brute"
+			# Bomber only joins deep into a run: never before 5000 m.
+			if distance>=5000.0 and roll>0.10 and roll<0.16 and _count_zombie_kind("bomber")+_count_zombie_kind("bomber_female")<2:
+				kind="bomber" if rng.randf()<0.5 else "bomber_female"
 			if run_time>30 and roll>0.36 and roll<0.43 and _count_zombie_kind("jockey")<2: kind="jockey"
-			elif run_time>70 and roll>0.90 and _count_zombie_kind("banshee")<1: kind="banshee"
+			# 女妖在稀疏期几乎不露面：同一只 roll 门槛，喘息期高得多。
+			elif run_time>70 and roll>(0.90 if surge else 0.985) and _count_zombie_kind("banshee")<1: kind="banshee"
 	if kind=="jockey": jockey_introduced=true
 	elif kind=="banshee":
 		banshee_introduced=true
@@ -730,6 +2001,7 @@ func _fire() -> bool:
 	for i in range(count):
 		var b:=BulletScript.new(); b.position=origin; b.velocity=base.rotated(Vector3.UP,(i-(count-1)/2.0)*0.075)*player.bullet_speed
 		b.damage=player.damage; b.pierce=player.pierce
+		if player.crit_chance>0.0 and rng.randf()<player.crit_chance: b.damage*=player.crit_mult; b.set_meta("crit",true)
 		# Shots aimed at the Banshee punch through two zombies in the way, so she can be reached.
 		if is_instance_valid(aim_target) and zombies.has(aim_target) and aim_target.kind=="banshee": b.pierce+=2
 		add_child(b); bullets.append(b)
@@ -757,7 +2029,7 @@ func toggle_fire_mode() -> bool:
 	if player.weapon!="LAUNCHER" or player.fire_ammo<=0: return false
 	player.fire_mode=not player.fire_mode
 	sound.play("gate")
-	_popup(player.position+Vector3(0,2.5,0),"INCENDIARY" if player.fire_mode else "FRAG GRENADE",Color("ff7547") if player.fire_mode else Color("ffd275"))
+	_popup(player.position+Vector3(0,2.5,0),RunText.text("incendiary") if player.fire_mode else RunText.text("frag_mode"),Color("ff7547") if player.fire_mode else Color("ffd275"))
 	return true
 
 func _throw_ordnance(kind: String) -> bool:
@@ -794,7 +2066,10 @@ func _tick_bullets(delta: float) -> void:
 			var local_y: float=b.position.y-zp.y
 			var height: float=z.collision_height()
 			if not z.dead and not b.hit_targets.has(z) and local_y>0.05 and local_y<height and _flat_distance(b.position,zp)<z.radius+0.24:
-				b.hit_targets.append(z); _hit_zombie(z,b.damage,_body_part(z,b.position),b.position)
+				b.hit_targets.append(z); var hit_at: Vector3=b.position
+				if b.has_meta("crit"): _popup(hit_at+Vector3(0,0.9,0),RunText.text("crit"),Color("ffd84a"))
+				_hit_zombie(z,b.damage,_body_part(z,b.position),b.position)
+				_on_bullet_hit(z,b,hit_at)
 				if b.pierce>0: b.pierce-=1
 				else: consumed=true
 				break
@@ -802,7 +2077,7 @@ func _tick_bullets(delta: float) -> void:
 			for crate in crates:
 				if crate.bullet_hits(b.position):
 					consumed=true
-					if crate.take_hit(maxi(1,roundi(b.damage/22.0))): _break_crate(crate)
+					if crate.take_hit(maxi(1,roundi(b.damage))): _break_crate(crate)
 					break
 		if not consumed:
 			for barrel in barrels:
@@ -865,7 +2140,7 @@ func _detonate_ordnance(projectile: Node3D) -> void:
 		if is_instance_valid(barrel) and not barrel.dead and _flat_distance(barrel.position,center)<radius and kind!="flash": _explode(barrel)
 	if kind!="flash":
 		for crate in crates:
-			if not crate.broken and _flat_distance(crate.position,center)<radius and crate.take_hit(8): _break_crate(crate)
+			if not crate.broken and _flat_distance(crate.position,center)<radius and crate.take_hit(99999): _break_crate(crate)
 
 func _tick_zombies(delta: float) -> void:
 	for i in range(zombies.size()-1,-1,-1):
@@ -884,7 +2159,7 @@ func _tick_zombies(delta: float) -> void:
 					_burst(other.position+Vector3(0,1.0,0),Color("ff7138"),8)
 					ignited+=1
 			if ignited>0:
-				_popup(z.position+Vector3(0,2.8,0),"BANSHEE: FIRE FRENZY",Color("ff8a4f"))
+				_popup(z.position+Vector3(0,2.8,0),RunText.text("banshee_frenzy"),Color("ff8a4f"))
 		for other in zombies:
 			if other==z or not is_instance_valid(other): continue
 			var dx: float=z.position.x-other.position.x
@@ -894,8 +2169,18 @@ func _tick_zombies(delta: float) -> void:
 				z.position.x=clampf(z.position.x+(1.0 if dx>=0 else -1.0)*(spacing-absf(dx))*delta*2.2,-3.05,3.05)
 		_avoid_barrels(z,delta)
 		_avoid_obstacles(z,delta)
+		_avoid_crater(z,delta)
+		if String(z.kind).begins_with("bomber") and _flat_distance(z.position,player.position)<2.4:
+			# The bomber never melee-swings: close to the survivor it simply bursts.
+			_hit_zombie(z,1e9,"torso",z.position+Vector3(0,1.0,0))
+			continue
 		if z.position.z>player.position.z-0.6 and z.position.z<player.position.z+0.8 and absf(z.position.x-player.position.x)<z.radius+0.38:
-			_hurt_player(z.damage); _burst(z.position+Vector3(0,1,0),Color("91a85c"),8); zombies.remove_at(i); z.queue_free()
+			if player.vehicle!="":
+				# Riding: the survivor runs the zombie down instead of getting bitten.
+				# _ram_zombie kills via _hit_zombie, which already erases and frees it.
+				_ram_zombie(z)
+			else:
+				_hurt_player(z.damage); _burst(z.position+Vector3(0,1,0),Color("91a85c"),8); zombies.remove_at(i); z.queue_free()
 		elif z.position.z>13: zombies.remove_at(i); z.queue_free()
 
 func _avoid_barrels(z: Node3D,delta: float) -> void:
@@ -956,18 +2241,43 @@ func _hit_zombie(z: Node3D,amount: float,part:="torso",hit_position:=Vector3.ZER
 	if actual_damage>0.0:
 		_damage_number(z,actual_damage,DAMAGE_RED)
 	if z.take_hit(amount*multiplier):
-		# Coins scale with how dangerous the zombie was (walker 1 ... banshee 8).
-		var reward: int=int(z.reward)
-		kills+=1; run_coins+=reward; sound.play("kill")
-		kill_counts[z.kind]=int(kill_counts.get(z.kind,0))+1; kill_coins[z.kind]=int(kill_coins.get(z.kind,0))+reward
+		# The kill creates a physical coin pile; coins are earned only on contact pickup.
+		var reward: int=int(round(float(z.reward)*player.coin_mult))
+		kills+=1; sound.play("kill")
+		_drop_coins(z.global_position,reward,String(z.kind))
+		if player.kill_heal>0.0: player.health=minf(player.max_health,player.health+player.kill_heal*player.heal_scale())
+		if player.drop_chance>0.0 and rng.randf()<player.drop_chance: _drop_pickup(z.global_position)
+		_progress("kills",1)
+		if z.kind in ["brute","banshee"]: _progress(String(z.kind)+"_kills",1)
+		kill_counts[z.kind]=int(kill_counts.get(z.kind,0))+1
 		var zp: Vector3=z.global_position
-		_blood_spray(hit_position,28 if part=="head" else 20); _burst(hit_position,Color("78935c"),5); _dismember(z,part)
-		_blood_splatter(Vector3(zp.x,0.0,zp.z),rng.randf_range(2.2,3.2)*(1.4 if z.kind=="brute" else 1.0),true)
-		_popup(zp+Vector3(0,2.3,0),"+%d"%reward,Color("ffd25e"))
+		if String(z.kind).begins_with("bomber"):
+			_bomber_blast(zp)
+		else:
+			_blood_spray(hit_position,28 if part=="head" else 20); _burst(hit_position,Color("78935c"),5); _dismember(z,part)
+			_blood_splatter(Vector3(zp.x,0.0,zp.z),rng.randf_range(2.2,3.2)*(1.4 if z.kind=="brute" else 1.0),true)
 		zombies.erase(z); watchers.erase(z); z.queue_free()
 	else:
 		sound.play("hit"); _blood_spray(hit_position,7)
 		if rng.randf()<0.5: _blood_splatter(Vector3(z.global_position.x,0.0,z.global_position.z),rng.randf_range(0.7,1.2),false)
+
+## The bomber bursts in a shower of blood: huge spray, layered ground splatter, a shock
+## blast, heavy damage to the survivor if it got close, and a chain reaction into the horde.
+func _bomber_blast(zp: Vector3) -> void:
+	shake=maxf(shake,0.8); sound.play("explosion")
+	if OS.get_name()=="iOS": Input.vibrate_handheld(120,0.7)
+	var center:=zp+Vector3(0,1.1,0)
+	_blast_sphere(center,Color("8e1d12"),0.75,false)
+	_blast_sphere(center,Color("3f0c06"),1.15,true)
+	_blood_spray(center,48)
+	_burst(center,Color("7a1a10"),26)
+	_blood_splatter(Vector3(zp.x,0.0,zp.z),rng.randf_range(3.6,4.6),true)
+	_blood_splatter(Vector3(zp.x,0.0,zp.z),rng.randf_range(2.2,3.2),true)
+	if _flat_distance(player.position,zp)<2.9:
+		_hurt_player(30.0)
+	for z in zombies.duplicate():
+		if is_instance_valid(z) and not z.dead and _flat_distance(z.position,zp)<3.2:
+			_hit_zombie(z,120.0,"torso",z.position+Vector3(0,1.1,0),Color("ff8a5c"))
 
 func _damage_number(z: Node3D,amount: float,_color: Color) -> void:
 	var e:=EffectScript.new()
@@ -1034,7 +2344,63 @@ func _spawn_part(source: Node3D,names: Array,pos: Vector3,force: Vector3) -> voi
 
 func _hurt_player(amount: float) -> void:
 	if revive_invulnerable>0.0: return
+	_chase_stumble() # a hit is a stumble — the beast eats the lost ground
+	if player.vehicle!="":
+		# The bike soaks the hit: durability drops instead of health until it breaks apart.
+		player.vehicle_durability-=amount
+		_burst(player.position+Vector3(0,0.6,0.2),Color("ffb14d"),6)
+		shake=maxf(shake,0.45); sound.play("hurt")
+		if player.vehicle_durability<=0.0: _vehicle_breakdown()
+		return
+	var before: float=player.instinct_boost
 	player.take_damage(amount); damage_flash=0.42; shake=0.75; sound.play("hurt")
+	# Maya's adrenaline: her instinct flashes on screen when a fresh burst kicks in.
+	if player.is_maya() and before<=0.5 and player.instinct_boost>before:
+		_popup(player.position+Vector3(0,2.8,0),RunText.text("instinct"),Color("7fd2ff"))
+
+## Running a zombie down on the bike: it dies (coins, kills, blood and all) but the
+## impact wears the bike out — brutes and bombers cost far more than walkers.
+func _ram_zombie(z: Node3D) -> void:
+	# Ram power scales the wear: a harder-hitting vehicle (e.g. a future car) spends less
+	# durability per zombie run down — it plows through more of them before breaking.
+	var cost:=float(BIKE_RAM_COST.get(String(z.kind),8.0))/player.vehicle_ram()
+	_hit_zombie(z,1e9,"torso",z.position+Vector3(0,1.0,0))
+	_burst(z.position+Vector3(0,0.6,0),Color("ffb14d"),5)
+	shake=maxf(shake,0.3)
+	player.vehicle_durability-=cost
+	if player.vehicle_durability<=0.0: _vehicle_breakdown()
+
+func _vehicle_breakdown() -> void:
+	# The bike dies under the survivor: sparks, black smoke, and they're running again.
+	var center:=player.position+Vector3(0,0.55,0.15)
+	_burst(center,Color("ffb14d"),14); _burst(center+Vector3(0,0.3,0),Color("3a3a38"),10)
+	sound.play("explosion"); shake=maxf(shake,0.55)
+	player.dismount_vehicle()
+	_popup(player.position+Vector3(0,2.5,0),RunText.text("bike_down"),Color("ffad72"))
+
+## Wear and the warning smoke. Under 30 durability the engine coughs gray puffs and sparks.
+var vehicle_smoke:=0.0
+var vehicle_dust:=0.0
+func _tick_vehicle(delta: float) -> void:
+	if player.vehicle=="": return
+	player.vehicle_durability-=BIKE_DECAY*delta
+	# Speed trail: the wheels kick up dust the whole ride — the bike is faster than feet.
+	vehicle_dust-=delta
+	if vehicle_dust<=0.0:
+		vehicle_dust=0.05
+		var d:=EffectScript.new(); d.position=player.position+Vector3(rng.randf_range(-0.22,0.22),0.08,0.75)
+		d.velocity=Vector3(rng.randf_range(-0.5,0.5),rng.randf_range(0.6,1.5),rng.randf_range(2.4,3.8)); d.gravity=-1.2
+		d.life=0.55; d.total_life=0.55; add_child(d)
+		d.make_blast(Color("8a7f68"),rng.randf_range(0.05,0.12),true); effects.append(d)
+	if player.vehicle_durability<30.0:
+		vehicle_smoke-=delta
+		if vehicle_smoke<=0.0:
+			vehicle_smoke=0.14
+			var e:=EffectScript.new(); e.position=player.position+Vector3(rng.randf_range(-0.12,0.12),0.5,0.55)
+			e.velocity=Vector3(rng.randf_range(-0.4,0.4),1.7,rng.randf_range(0.3,0.9)); e.gravity=0.9
+			e.life=0.7; e.total_life=0.7; add_child(e)
+			e.make_spark(Color("ffb14d") if rng.randf()<0.3 else Color("5a5a58"),rng.randf_range(0.03,0.07)); effects.append(e)
+	if player.vehicle_durability<=0.0: _vehicle_breakdown()
 
 ## 0 at the start of a run, 1 after three minutes: drives how busy the road gets.
 ## Puts a fresh roadside zombie back on a block that lost its one (shot on an earlier pass).
@@ -1108,21 +2474,160 @@ func _spawn_gate() -> void:
 		if is_instance_valid(o) and absf(o.position.z-(-40.0))<o.half_extents.y+3.0: gate_timer=1.0; return
 	for c in crates:
 		if is_instance_valid(c) and absf(c.position.z-(-40.0))<3.0: gate_timer=1.0; return
-	var damage:={"id":"damage","title":"HEAVY ROUNDS","detail":"+8% DMG","color":Color("ff9e51")}
-	var rate:={"id":"rate","title":"FAST TRIGGER","detail":"+6% RPM","color":Color("62dfe1")}
-	var split:={"id":"split","title":"SPLIT BARREL","detail":"+1 BULLET","color":Color("cf9bff")}
-	var heal:={"id":"heal","title":"FIELD MEDIC","detail":"+15 HP","color":Color("c9f54a")}
-	# Small buffs, many gates. The big one (an extra bullet) only turns up once every eight gates.
-	var sets:=[[damage,rate],[rate,heal],[damage,heal],[rate,damage],[heal,damage],[damage,rate],[heal,rate],[split,damage]]
-	var pair: Array=sets[new_gate_index%sets.size()]; new_gate_index+=1
-	var gate:=GateScript.new(); gate.position=Vector3(0,0,-40); gate.setup(pair[0],pair[1],language_code); add_child(gate); gates.append(gate)
+	var opts: Array=_roll_gate_options()
+	new_gate_index+=1
+	var gate:=GateScript.new(); gate.position=Vector3(0,0,-40); gate.setup(opts,language_code); add_child(gate); gates.append(gate)
+	var best:=0
+	for o in opts: best=maxi(best,int(o.rarity))
+	if best>=2: sound.play("gate") # an epic or legendary gate announces itself
+
+## Roguelike gate roll. Most buffs are common and small; rare, epic and legendary ones are
+## increasingly unlikely and much stronger. Two choices early on, three past THREE_GATE_DISTANCE.
+## Pity: after PITY_GATES gates without an epic or better, one is guaranteed.
+const THREE_GATE_DISTANCE:=500.0
+const PITY_GATES:=8
+const RARITY_WEIGHTS:=[64.0,25.0,9.0,2.0]
+var gates_since_epic:=0
+
+func _roll_rarity() -> int:
+	var w: Array=RARITY_WEIGHTS.duplicate()
+	var late: float=clampf(distance/1500.0,0.0,1.0) # a little luckier deeper into a run
+	w[2]+=3.0*late; w[3]+=2.0*late
+	var total:=0.0
+	for x in w: total+=x
+	var r:=rng.randf()*total
+	for i in range(w.size()):
+		r-=w[i]
+		if r<=0.0: return i
+	return 0
+
+func _gate_option(id: String,rarity: int) -> Dictionary:
+	var v: float=BuffCatalog.value_of(id,rarity)
+	return {"id":id,"rarity":rarity,"value":v,"label":BuffCatalog.label(language_code,id,v),
+		"title":BuffCatalog.label("en",id,v)[0],"detail":BuffCatalog.label("en",id,v)[1]}
+
+## Never offer a buff that would do nothing right now (or is already at its cap).
+func _buff_useful(id: String,rarity: int) -> bool:
+	if rarity<int(BuffCatalog.BUFFS[id].min): return false
+	match id:
+		"heal": return player.health<player.max_health*0.9
+		"crit_damage": return player.crit_chance>0.0
+		"crit_chance": return player.crit_chance<0.6
+		"reserve": return player.can_use_reserve()
+		"dmg_reduce": return player.dmg_reduce<0.6
+		"move": return player.move_mult<1.4
+		"reload": return player.reload_scale>0.3
+		"shield": return player.shield<200.0
+		"explode": return player.explode_chance<0.6
+		"shock": return player.shock_chance<0.6
+		"ammo_return": return player.ammo_return<0.6
+		"drop": return player.drop_chance<0.4
+		"multishot": return player.projectile_count<(9 if player.weapon=="SHOTGUN" else 5)
+	return true
+
+func _roll_gate_options() -> Array:
+	# The very first gate is always the plain damage / fire-rate pair, to teach the idea.
+	if new_gate_index==0: return [_gate_option("damage",0),_gate_option("rate",0)]
+	var count:=3 if distance>=THREE_GATE_DISTANCE else 2
+	var opts:=[]; var used:={}
+	for k in range(count):
+		var rarity:=_roll_rarity()
+		var ids: Array=BuffCatalog.BUFFS.keys().filter(func(i): return not used.has(i) and _buff_useful(i,rarity))
+		if ids.is_empty(): ids=["damage","rate"].filter(func(i): return not used.has(i))
+		if ids.is_empty(): ids=["damage"]
+		var id: String=ids[rng.randi_range(0,ids.size()-1)]
+		used[id]=true; opts.append(_gate_option(id,rarity))
+	var best:=0
+	for o in opts: best=maxi(best,int(o.rarity))
+	if best>=2: gates_since_epic=0
+	else:
+		gates_since_epic+=1
+		if gates_since_epic>=PITY_GATES:
+			var k:=rng.randi_range(0,opts.size()-1)
+			var forced:=3 if rng.randf()<0.25 else 2
+			var id2: String=opts[k].id if _buff_useful(String(opts[k].id),forced) else "damage"
+			opts[k]=_gate_option(id2,forced); gates_since_epic=0
+	return opts
+
+## ---- Gate buff effects ---------------------------------------------------------------------
+## Called after a bullet hits a zombie (the zombie may already be dead and freed).
+func _on_bullet_hit(z: Node3D,b: Node3D,at: Vector3) -> void:
+	var p=player
+	if p.ammo_return>0.0 and rng.randf()<p.ammo_return and p.ammo<p.magazine_size: p.ammo+=1
+	if b.has_meta("fragment"): return # fragments don't chain further
+	var alive: bool=is_instance_valid(z) and not z.dead
+	if alive and p.burn_dps>0.0: z.set_meta("burn",[p.burn_dps,2.5])
+	if alive and p.poison_dps>0.0: z.set_meta("poison",[p.poison_dps,5.0])
+	if p.explode_chance>0.0 and rng.randf()<p.explode_chance:
+		_burst(at,Color("ffb347"),10); shake=maxf(shake,0.18)
+		for o in zombies.duplicate():
+			if is_instance_valid(o) and not o.dead and o!=z and _flat_distance(o.position,at)<1.8: _hit_zombie(o,b.damage*0.6)
+	if p.shock_chance>0.0 and rng.randf()<p.shock_chance:
+		var arcs:=0
+		for o in zombies.duplicate():
+			if arcs>=2: break
+			if is_instance_valid(o) and not o.dead and o!=z and _flat_distance(o.position,at)<3.2:
+				_burst(o.global_position+Vector3(0,1.2,0),Color("8fd8ff"),6); _hit_zombie(o,b.damage*0.5); arcs+=1
+	if p.bullet_split>0:
+		var dir: Vector3=b.velocity.normalized()
+		for i in range(p.bullet_split):
+			var f:=BulletScript.new(); f.position=at+dir*0.3
+			var ang: float=(i-(p.bullet_split-1)/2.0)*0.55+(0.35 if p.bullet_split==1 else 0.0)
+			f.velocity=dir.rotated(Vector3.UP,ang)*p.bullet_speed*0.8; f.damage=b.damage*0.4; f.pierce=0
+			f.set_meta("fragment",true); if is_instance_valid(z): f.hit_targets.append(z)
+			add_child(f); bullets.append(f)
+
+## Movement-speed buff: everything on the road also slides toward the survivor faster, by the
+## amount the run speed exceeds the normal 3.5 m/s (zombies included, so they keep pace).
+func _scroll_extra(delta: float) -> void:
+	var extra: float=(player.effective_move_mult()-1.0)*3.5*delta
+	if extra<=0.0: return
+	for list in [zombies,barrels,crates,gates,pickups,obstacles,blood_pools]:
+		for n in list:
+			if is_instance_valid(n): n.position.z+=extra
+
+## Per-frame buffs: health regen and burning / poisoned zombies (damage applied twice a second).
+var buff_tick:=0.0
+func _tick_buffs(delta: float) -> void:
+	if player.regen>0.0: player.health=minf(player.max_health,player.health+player.regen*player.heal_scale()*delta)
+	# Maya's field instinct: slow self-repair while she is below 60% health.
+	var instinct: float=player.instinct_regen_rate()
+	if instinct>0.0: player.health=minf(player.max_health*player.INSTINCT_REGEN_CAP,player.health+instinct*delta)
+	buff_tick+=delta
+	if buff_tick<0.5: return
+	var step:=buff_tick; buff_tick=0.0
+	for z in zombies.duplicate():
+		if not is_instance_valid(z) or z.dead: continue
+		var dmg:=0.0
+		for key in ["burn","poison"]:
+			if not z.has_meta(key): continue
+			var st: Array=z.get_meta(key)
+			dmg+=float(st[0])*minf(step,float(st[1])); st[1]=float(st[1])-step
+			if float(st[1])<=0.0: z.remove_meta(key)
+			else: z.set_meta(key,st)
+		if dmg>0.0:
+			_burst(z.global_position+Vector3(0,1.1,0),Color("ff7a2e") if z.has_meta("burn") else Color("8fe35a"),3)
+			_hit_zombie(z,dmg)
+
+func _drop_coins(at: Vector3,amount: int,zombie_kind: String) -> void:
+	var pickup:=PickupScript.new(); pickup.kind="coin"; pickup.value=maxi(1,amount); pickup.source_kind=zombie_kind
+	pickup.position=Vector3(clampf(at.x,-2.75,2.75),0,at.z); add_child(pickup); pickups.append(pickup)
+
+## A kill can drop a pickup where the zombie fell (drop-chance buff).
+func _drop_pickup(at: Vector3) -> void:
+	var kinds:=["medkit","ammo","grenade"]
+	if player.weapon=="PISTOL" and player.stowed.is_empty(): kinds=["medkit","grenade"]
+	var pickup:=PickupScript.new(); pickup.kind=kinds[rng.randi_range(0,kinds.size()-1)]
+	pickup.position=Vector3(clampf(at.x,-2.6,2.6),0,at.z); add_child(pickup); pickups.append(pickup)
 
 func _tick_gates(delta: float) -> void:
 	for i in range(gates.size()-1,-1,-1):
 		var g=gates[i]; var old_z: float=g.position.z; g.tick(delta)
 		if not g.resolved and old_z<player.position.z and g.position.z>=player.position.z:
 			var choice: Dictionary=g.choose(player.position.x)
-			if not choice.is_empty(): player.apply_upgrade(choice.id); sound.play("gate"); _popup(player.position+Vector3(0,2.6,0),choice.detail,g.SIDE_COLORS[g.selected].lightened(0.3))
+			if not choice.is_empty():
+				player.apply_upgrade(choice.id,float(choice.get("value",-1)))
+				sound.play("gate"); _popup(player.position+Vector3(0,2.6,0),String(choice.label[1]) if choice.has("label") else choice.detail,g.chosen_color().lightened(0.3))
 		if g.fade<=0 or g.position.z>14: gates.remove_at(i); g.queue_free()
 
 func _spawn_barrel() -> void:
@@ -1133,10 +2638,28 @@ func _spawn_barrel() -> void:
 	if _x_blocked_by_banshee(x,0.45): return # no room this time; skip rather than overlap her
 	var barrel:=BarrelScript.new(); barrel.position=Vector3(x,0,-45); add_child(barrel); barrels.append(barrel)
 
+## Crate health, shown on the crate. Each bullet takes off its real damage, so the number reads
+## like a health bar: 105 with 33-damage bullets breaks in 4 shots. Sized from the current gun so
+## a crate always takes about 3-8 shots (a little more late in a run / for better guns).
+func _crate_shots(id: String) -> float:
+	# A dog is worth more than a gun: its platform takes 5-10 shots instead of 3-8.
+	if id.begins_with("PET_"): return clampf((5.0+run_time*0.03)*1.0,5.0,10.0)
+	return clampf((3.0+run_time*0.025)*float(CRATE_TIER.get(id,1.0)),3.0,8.0)
+
+func _crate_per_shot() -> float:
+	return player.damage*maxf(1.0,player.projectile_count*0.6)
+
 func _crate_hits(id: String) -> int:
-	# Tougher crates the longer you survive and the better the gun inside.
-	var base: float=6.0+run_time*0.28
-	return clampi(roundi(base*float(CRATE_TIER.get(id,1.0))),5,75)
+	return maxi(10,int(round(_crate_per_shot()*_crate_shots(id)/5.0))*5)
+
+## Crate health follows the gun in hand: if the survivor loses a strong gun (or picks one up),
+## the remaining health is rescaled so it still takes the same number of shots to break.
+func _rescale_crate(c: Node3D) -> void:
+	if not c.has_meta("shots"): c.set_meta("shots",_crate_shots(String(c.weapon_id)))
+	var full: int=maxi(10,int(round(_crate_per_shot()*float(c.get_meta("shots"))/5.0))*5)
+	if full==int(c.max_hits): return
+	var left: int=maxi(1,int(ceil(float(c.hits_left)/maxf(1.0,float(c.max_hits))*full)))
+	c.max_hits=full; c.hits_left=left; c._refresh_counter()
 
 func _crate_spot_clear(x: float,z: float) -> bool:
 	if _x_blocked_by_banshee(x,0.75): return false
@@ -1152,17 +2675,43 @@ func _spawn_crates() -> void:
 	var choices: Array=CRATE_WEAPONS.duplicate(); choices.erase(player.weapon)
 	choices.shuffle()
 	var z:=-46.0
-	var spots: Array=[[-1.7,1.7],[-2.2,0.9],[-0.9,2.2]][rng.randi_range(0,2)] if rng.randf()<0.15+0.35*_pace() else [rng.randf_range(-2.2,2.2)]
+	# always one platform on the left and one on the right, never a cluster
+	var spots: Array=[-1.7,1.7]
 	var used:=0
-	for x in spots:
+	var dog_spot:=-1
+	if not is_instance_valid(companion_pet) and rng.randf()<PET_CRATE_CHANCE: dog_spot=rng.randi_range(0,spots.size()-1)
+	for si in range(spots.size()):
+		var x: float=spots[si]
 		if not _crate_spot_clear(x,z): continue
 		var crate:=WeaponCrateScript.new(); var id: String=choices[used%choices.size()]; used+=1
+		if si==dog_spot: id="PET_%d"%rng.randi_range(0,lobby.PETS.size()-1)
+		elif rng.randf()<GEAR_CRATE_CHANCE:
+			var gear:=[]
+			if not player.has_helmet: gear.append("HELMET")
+			if not player.has_armor: gear.append("ARMOR")
+			if not gear.is_empty(): id=gear[rng.randi_range(0,gear.size()-1)]
+		elif player.vehicle=="" and rng.randf()<BIKE_CRATE_CHANCE: id="BIKE"
 		crate.setup(id,_crate_hits(id)); crate.position=Vector3(x,0,z); add_child(crate); crates.append(crate)
 
 func _break_crate(crate: Node3D) -> void:
 	sound.play("pickup"); shake=maxf(shake,0.35)
 	var center: Vector3=crate.position+Vector3(0,0.55,0)
 	_burst(center,Color("8a6a3c"),16); _burst(center+Vector3(0,0.6,0),Color("6cc8ff"),10)
+	if String(crate.weapon_id).begins_with("PET_"):
+		# A dog on the platform: freed, it runs with the survivor for the rest of this run.
+		_recruit_pet(int(String(crate.weapon_id).trim_prefix("PET_")),crate.position)
+		crate.arrived=true; sound.play("gate")
+		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
+	if crate.weapon_id=="ARMOR":
+		player.set_armor(true); player.shield=minf(200.0,player.shield+50.0); sound.play("gate")
+		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("72d9e5")); return
+	if crate.weapon_id=="HELMET":
+		player.set_helmet(true); sound.play("gate")
+		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("b6d38a")); return
+	if crate.weapon_id=="BIKE":
+		# The motorcycle rolls off the platform and the survivor swings into the saddle.
+		player.mount_vehicle("BIKE"); sound.play("gate")
+		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
 	# Swap immediately on break; the flying gun is only the visual of it landing in your hands.
 	player.stowed={}; player.set_weapon(crate.weapon_id); sound.play("gate")
 	_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("7fd2ff"))
@@ -1171,6 +2720,7 @@ func _tick_crates(delta: float) -> void:
 	var hand: Vector3=player.position+Vector3(0,1.25,0.1)
 	for i in range(crates.size()-1,-1,-1):
 		var c=crates[i]; c.tick(delta,hand)
+		if not c.broken: _rescale_crate(c)
 		# Crates are not solid: the runner can run straight through them.
 		if c.arrived or (c.broken and c.flight>1.5):
 			crates.remove_at(i); c.queue_free(); continue
@@ -1197,20 +2747,110 @@ func _resolve_barrel_collision() -> void:
 			new_x=right if new_x==left else left
 		player.position.x=new_x; player.target_x=new_x
 
-func _spawn_obstacle(kind: String,lane_x: float,at_z: float=-48.0) -> Node3D:
+## Live z of district 14's missile crater (the tile scrolls with the city). INF when the
+## crater tile is not built. The 0.25 is the crater's offset inside its district mesh.
+func _crater_z() -> float:
+	for i in range(roads.size()):
+		if i%24==14: return roads[i].position.z-0.25
+	return INF
+
+## The crater is a hole, not a decal: the survivor is shoved around its nearest rim.
+func _resolve_crater_collision() -> void:
+	var cz: float=_crater_z()
+	if cz==INF: return
+	var dz: float=player.position.z-cz
+	var minimum: float=CRATER_RADIUS+0.32
+	if absf(dz)>=minimum or absf(player.position.x-CRATER_X)>=minimum: return
+	var clearance: float=sqrt(maxf(0.0,minimum*minimum-dz*dz))+0.025
+	var left: float=clampf(CRATER_X-clearance,-3.15,3.15)
+	var right: float=clampf(CRATER_X+clearance,-3.15,3.15)
+	var new_x: float=left if absf(player.position.x-left)<absf(player.position.x-right) else right
+	if absf(new_x-CRATER_X)<clearance-0.02:
+		new_x=right if new_x==left else left
+	player.position.x=new_x; player.target_x=new_x
+
+## Zombies know better than to wade into the blast hole: they pick the nearer rim early,
+## and a hard rim constraint keeps the stragglers out of the pit itself.
+func _avoid_crater(z: Node3D,delta: float) -> void:
+	var cz: float=_crater_z()
+	if cz==INF: return
+	var dz: float=z.position.z-cz
+	var clearance: float=CRATER_RADIUS+z.radius+0.10
+	if absf(dz)>=clearance+1.8: return
+	var dx: float=z.position.x-CRATER_X
+	if absf(dx)<clearance+0.45:
+		var side: float=(1.0 if dx>=0.0 else -1.0) if absf(dx)>0.05 else 1.0
+		var urgency: float=1.0-clampf(absf(dz)/(clearance+1.8),0.0,1.0)
+		var steer: float=maxf(2.0,z.speed*0.7)
+		z.position.x=clampf(z.position.x+side*steer*(0.45+urgency*0.55)*delta,-3.05,3.05)
+	if absf(dz)<clearance:
+		var push: float=sqrt(maxf(0.0,clearance*clearance-dz*dz))+0.02
+		var dx2: float=z.position.x-CRATER_X
+		if absf(dx2)<push:
+			var l: float=clampf(CRATER_X-push,-3.05,3.05)
+			var r: float=clampf(CRATER_X+push,-3.05,3.05)
+			z.position.x=l if absf(dx2+push)<absf(dx2-push) else r
+
+func _spawn_obstacle(kind: String,lane_x: float,at_z: float=-48.0,crosswise: bool=false,damage_tier_override: int=-1) -> Node3D:
 	var obstacle:=RoadObstacleScript.new()
 	obstacle.kind=kind
+	obstacle.police_crosswise=crosswise and kind=="police"
+	if kind=="car":
+		if damage_tier_override>=0:
+			obstacle.damage_tier=damage_tier_override
+		else:
+			# Damage belongs to a district: intact areas keep more usable cars,
+			# while rundown districts contain more stripped and burnt-out shells.
+			var district: int=int(distance/16.0)%24
+			var severity: float=[0.10,0.20,0.42,0.78,0.34,0.58][district/4]
+			var roll: float=rng.randf()
+			if roll<severity*0.32: obstacle.damage_tier=3
+			elif roll<severity: obstacle.damage_tier=2
+			elif roll<minf(0.95,severity+0.25): obstacle.damage_tier=1
+			else: obstacle.damage_tier=0
 	obstacle.position=Vector3(lane_x,0,at_z)
 	add_child(obstacle)
 	obstacles.append(obstacle)
 	return obstacle
 
+func _route_remains_open(kind: String,lane_x: float,at_z: float,crosswise: bool=false) -> bool:
+	# Merge the full blocked intervals of every longitudinally overlapping obstacle.
+	# At least one player-width corridor must remain across the entire playable road.
+	var half:=Vector2(1.15,0.34)
+	if kind=="police": half=Vector2(2.42,1.08) if crosswise else Vector2(1.08,2.42)
+	elif kind=="car": half=Vector2(1.02,2.08)
+	elif kind=="corpse_pile": half=Vector2(0.92,1.16)
+	const PLAYER_CLEARANCE: float=0.43
+	const REQUIRED_GAP: float=0.86
+	var intervals: Array=[]
+	for existing in obstacles:
+		if not is_instance_valid(existing): continue
+		if absf(existing.position.z-at_z)>=existing.half_extents.y+half.y+0.45: continue
+		intervals.append([existing.position.x-existing.half_extents.x-PLAYER_CLEARANCE,existing.position.x+existing.half_extents.x+PLAYER_CLEARANCE])
+	intervals.append([lane_x-half.x-PLAYER_CLEARANCE,lane_x+half.x+PLAYER_CLEARANCE])
+	intervals.sort_custom(func(a,b): return a[0]<b[0])
+	var cursor: float=-3.05
+	for interval in intervals:
+		if interval[0]-cursor>=REQUIRED_GAP: return true
+		cursor=maxf(cursor,float(interval[1]))
+	return 3.05-cursor>=REQUIRED_GAP
+
 func _spawn_obstacle_pattern() -> void:
+	# A crosswise police car is accepted only when its wide side really remains passable.
+	if rng.randf()<0.09 and not _x_blocked_by_banshee(0.0,2.6):
+		var open_side: float=-1.0 if rng.randf()<0.5 else 1.0
+		var police_x: float=-open_side*0.85
+		if _route_remains_open("police",police_x,-48.0,true):
+			_spawn_obstacle("police",police_x,-48.0,true)
+			return
 	var lanes: Array=[-2.4,0.0,2.4]
 	var safe_lane:=rng.randi_range(0,2)
 	var blocked: Array=[0,1,2]
 	blocked.erase(safe_lane)
-	if rng.randf()<lerpf(0.85,0.5,_pace()): # early on usually just one lane is blocked
+	# Dense two-obstacle patterns are a late-run escalation, never an opening-run trap.
+	# 0–500 m: one obstacle only; afterwards the chance rises gradually to 58%.
+	var double_obstacle_chance: float=clampf((distance-500.0)/1800.0,0.0,1.0)*0.58
+	if rng.randf()>double_obstacle_chance:
 		blocked=[blocked[rng.randi_range(0,blocked.size()-1)]]
 	# Never block the lane a Banshee is walking in.
 	for lane_index in blocked.duplicate():
@@ -1218,7 +2858,22 @@ func _spawn_obstacle_pattern() -> void:
 	if blocked.is_empty(): return
 	var car_lane: int=blocked[rng.randi_range(0,blocked.size()-1)]
 	for lane_index in blocked:
-		_spawn_obstacle("car" if lane_index==car_lane else "fence",lanes[lane_index],-48.0-float(blocked.find(lane_index))*0.8)
+		var kind: String="fence"
+		if lane_index==car_lane:
+			var roll: float=rng.randf()
+			kind="police" if roll<0.14 else ("corpse_pile" if roll<0.27 else "car")
+		elif rng.randf()<0.12:
+			kind="corpse_pile"
+		var lane_x: float=lanes[lane_index]
+		# Both police and ordinary wrecks can mount the kerb into the pavement.
+		var shoulder_chance: float=0.28 if kind=="police" else (0.20 if kind=="car" else 0.0)
+		if rng.randf()<shoulder_chance:
+			var shoulder: float=signf(lane_x) if not is_zero_approx(lane_x) else (-1.0 if rng.randf()<0.5 else 1.0)
+			lane_x=shoulder*3.18
+		var at_z: float=-48.0-float(blocked.find(lane_index))*0.8
+		# A second obstacle must not seal the gap left by the first one. Skip it instead.
+		if _route_remains_open(kind,lane_x,at_z):
+			_spawn_obstacle(kind,lane_x,at_z)
 
 func _tick_obstacles(delta: float) -> void:
 	for i in range(obstacles.size()-1,-1,-1):
@@ -1238,7 +2893,8 @@ func _tick_obstacles(delta: float) -> void:
 				_hurt_player(obstacle.damage)
 				shake=maxf(shake,0.55)
 				_burst(player.position+Vector3(0,0.55,0),Color("f2a04d"),8)
-				_popup(player.position+Vector3(0,2.45,0),"WRECK -%d"%int(obstacle.damage) if obstacle.kind=="car" else "BARRIER -%d"%int(obstacle.damage),Color("ffad72"))
+				var label: String="POLICE" if obstacle.kind=="police" else ("WRECK" if obstacle.kind=="car" else ("CORPSES" if obstacle.kind=="corpse_pile" else "BARRIER"))
+				_popup(player.position+Vector3(0,2.45,0),"%s -%d"%[label,int(obstacle.damage)],Color("ffad72"))
 		if obstacle.position.z>13.0:
 			obstacles.remove_at(i)
 			obstacle.queue_free()
@@ -1281,9 +2937,9 @@ func _explode(barrel: Node3D) -> void:
 	_burst(center,Color("ffd275"),18); _fire_spray(center)
 	if _flat_distance(player.position,barrel.position)<3.25:
 		if player.has_armor:
-			_hurt_player(player.max_health*0.90); _popup(player.position+Vector3(0,2.6,0),"ARMOR: -90% HP",Color("72d9e5"))
+			_hurt_player(player.max_health*0.90); _popup(player.position+Vector3(0,2.6,0),RunText.text("armor_hit"),Color("72d9e5"))
 		else:
-			_hurt_player(player.max_health*2.0); _popup(player.position+Vector3(0,2.6,0),"NO ARMOR",Color("ff6547"))
+			_hurt_player(player.max_health*2.0); _popup(player.position+Vector3(0,2.6,0),RunText.text("no_armor"),Color("ff6547"))
 	for z in zombies.duplicate():
 		if is_instance_valid(z) and _flat_distance(z.position,barrel.position)<3.4: _hit_zombie(z,150,"torso",z.position+Vector3(0,1.1,0),Color("ffb15c"))
 
@@ -1309,26 +2965,42 @@ func _spawn_pickup(kind: String,at_z:=-38.0) -> void:
 	var lanes:=[-2.4,0.0,2.4]; pickup.position=Vector3(lanes[rng.randi_range(0,2)],0,at_z)
 	add_child(pickup); pickups.append(pickup)
 
+const COIN_MAGNET:=3.6   # metres; the pickup-range buff adds to it
+
 func _tick_pickups(delta: float) -> void:
 	for i in range(pickups.size()-1,-1,-1):
 		var p=pickups[i]; p.tick(delta)
-		if _flat_distance(p.position,player.position)<0.82:
-			if p.kind=="ammo":
-				player.reserve_ammo+=player.magazine_size*2; _popup(player.position+Vector3(0,2.4,0),"AMMO +%d"%(player.magazine_size*2),Color("ffd275"))
+		# Coin magnet: dropped coins within reach fly to the survivor, no need to run over them.
+		if p.kind=="coin":
+			var reach: float=COIN_MAGNET+player.pickup_bonus
+			var to_player: Vector3=Vector3(player.position.x,0,player.position.z)-Vector3(p.position.x,0,p.position.z)
+			if p.has_meta("pulled") or to_player.length()<reach:
+				var pull: float=float(p.get_meta("pulled",0.0))+delta; p.set_meta("pulled",pull)
+				var step: float=(6.0+pull*26.0)*delta
+				p.position+=to_player.normalized()*minf(step,to_player.length())
+		if _flat_distance(p.position,player.position)<0.82+player.pickup_bonus:
+			if p.kind=="coin":
+				run_coins+=p.value
+				if not p.source_kind.is_empty(): kill_coins[p.source_kind]=int(kill_coins.get(p.source_kind,0))+p.value
+				_popup(player.position+Vector3(0,2.4,0),RunText.text("l_coin")+" +%d"%p.value,Color("ffd25e"))
+			elif p.kind=="ammo":
+				player.reserve_ammo+=player.magazine_size*2; _popup(player.position+Vector3(0,2.4,0),RunText.fmt("ammo",player.magazine_size*2),Color("ffd275"))
 			elif p.kind=="armor":
-				player.set_armor(true); _popup(player.position+Vector3(0,2.4,0),"ARMOR EQUIPPED",Color("72d9e5"))
+				player.set_armor(true); player.shield=minf(200.0,player.shield+50.0); _popup(player.position+Vector3(0,2.4,0),RunText.fmt("shield",50),Color("72d9e5"))
 			elif p.kind=="helmet":
-				player.set_helmet(true); _popup(player.position+Vector3(0,2.4,0),"HELMET: +20% PROTECTION",Color("b6d38a"))
+				player.set_helmet(true); _popup(player.position+Vector3(0,2.4,0),RunText.text("helmet"),Color("b6d38a"))
 			elif p.kind=="grenade":
-				player.grenade_count=mini(8,player.grenade_count+2); _popup(player.position+Vector3(0,2.4,0),"FRAG +2",Color("b6d38a"))
+				player.grenade_count=mini(8,player.grenade_count+2); _popup(player.position+Vector3(0,2.4,0),RunText.fmt("frag",2),Color("b6d38a"))
 			elif p.kind=="flashbang":
-				player.flashbang_count=mini(5,player.flashbang_count+1); _popup(player.position+Vector3(0,2.4,0),"FLASH +1",Color("bdefff"))
+				player.flashbang_count=mini(5,player.flashbang_count+1); _popup(player.position+Vector3(0,2.4,0),RunText.fmt("flash",1),Color("bdefff"))
 			elif p.kind=="launcher":
-				player.set_weapon("LAUNCHER"); _popup(player.position+Vector3(0,2.4,0),"GRENADE LAUNCHER",Color("ff9b55"))
+				player.set_weapon("LAUNCHER"); _popup(player.position+Vector3(0,2.4,0),ShopText.text(language_code,"n_launcher"),Color("ff9b55"))
 			elif p.kind=="fire_round":
-				player.fire_ammo=mini(24,player.fire_ammo+4); _popup(player.position+Vector3(0,2.4,0),"INCENDIARY +4",Color("ff6547"))
+				player.fire_ammo=mini(24,player.fire_ammo+4); _popup(player.position+Vector3(0,2.4,0),RunText.fmt("incendiary_n",4),Color("ff6547"))
 			else:
-				player.health=minf(player.max_health,player.health+35); _popup(player.position+Vector3(0,2.4,0),"HEALTH +35",Color("c9f54a"))
+				# Darius (paramedic) doubles the medkit: 70 HP instead of 35.
+				var healed:=int(35.0*player.heal_scale())
+				player.health=minf(player.max_health,player.health+healed); _popup(player.position+Vector3(0,2.4,0),RunText.fmt("health",healed),Color("c9f54a"))
 			sound.play("pickup"); pickups.remove_at(i); p.queue_free()
 		elif p.position.z>13: pickups.remove_at(i); p.queue_free()
 
@@ -1427,18 +3099,49 @@ func _unhandled_input(event: InputEvent) -> void:
 		if state=="shop" and event.keycode in [KEY_ENTER,KEY_SPACE]:
 			if buy_item(shop_items[shop_index].id): shop_truck.celebrate_purchase(shop_items[shop_index].id)
 			return
-		if event.keycode in [KEY_ENTER,KEY_SPACE] and state in ["menu","gameover"]: start_run()
+		if event.keycode in [KEY_ENTER,KEY_SPACE] and state=="cover":
+			start_run()
+		elif event.keycode in [KEY_ENTER,KEY_SPACE] and state=="gameover": start_run()
 		elif event.keycode in [KEY_ESCAPE,KEY_P]:
 			if state=="playing": state="paused"; _release_touches()
 			elif state=="paused": state="playing"
 		elif event.keycode==KEY_R and state=="playing": request_reload()
+		elif event.keycode==KEY_O and state=="character_select" and OS.has_feature("editor"): maybe_show_offer(true)  # test the offer popup from the editor
 		elif event.keycode in [KEY_E,KEY_TAB] and state=="playing": swap_weapon()
 		elif event.keycode==KEY_G and state=="playing": _throw_ordnance("frag")
 		elif event.keycode==KEY_F and state=="playing": _throw_ordnance("flash")
 		elif event.keycode==KEY_Q and state=="playing": toggle_fire_mode()
 	if state=="character_select":
-		if event is InputEventScreenDrag and event.position.x>120 and event.position.x<420: lobby.drag(event.relative.x)
-		elif event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) and event.position.x>120 and event.position.x<420: lobby.drag(event.relative.x)
+		if event is InputEventScreenDrag:
+			if lobby_press.x>=0: _lobby_drag(event.position,event.relative)
+			elif event.position.x>100 and event.position.x<440 and event.position.y<LOBBY_BAND_TOP: lobby.drag(event.relative.x)
+		elif event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT):
+			# Touch screens also send emulated mouse motion; only the touch events scroll there.
+			if lobby_press.x>=0:
+				if not touch_controls: _lobby_drag(event.position,event.relative)
+			elif event.position.x>100 and event.position.x<440 and event.position.y<LOBBY_BAND_TOP: lobby.drag(event.relative.x)
+		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed):
+			_lobby_release(event.position)
+		elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN] and lobby_view_rect().has_point(event.position):
+			lobby_scroll=clampf(lobby_scroll+(-48.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 48.0),0.0,lobby_max_scroll())
+	if state=="mail":
+		if (event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) and not touch_controls)) and mail_press.x>=0:
+			if not mail_dragged and event.position.distance_to(mail_press)>10.0: mail_dragged=true
+			if mail_dragged and mail_open>=0: mail_scroll=clampf(mail_scroll-event.relative.y,0.0,letter_max_scroll())
+		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed): _letter_release(event.position)
+		elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN] and mail_open>=0:
+			mail_scroll=clampf(mail_scroll+(-60.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 60.0),0.0,letter_max_scroll())
+	if state=="map":
+		if (event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) and not touch_controls)) and map_press.x>=0:
+			if not map_dragged and event.position.distance_to(map_press)>10.0: map_dragged=true
+			if map_dragged: map_scene.pan(event.relative.x)
+		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed): _map_release(event.position)
+	if state=="store":
+		if event is InputEventScreenDrag and store_press.x>=0: _store_drag(event.position,event.relative)
+		elif event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) and store_press.x>=0 and not touch_controls: _store_drag(event.position,event.relative)
+		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed): _store_release(event.position)
+		elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
+			store_scroll=clampf(store_scroll+(-60.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 60.0),0.0,store_max_scroll())
 	if event is InputEventMouseMotion:
 		mouse_position=event.position
 		if state=="playing" and not touch_controls: _update_mouse_aim()
@@ -1471,37 +3174,104 @@ func _pointer_down(pos: Vector2) -> bool:
 	if state=="intro":
 		_finish_intro()
 		return true
-	if state=="menu":
-		if Rect2(466,10,70,70).has_point(pos): settings_return_state="menu"; state="settings"; return true
-		# The title goes straight into a run; the character lobby is where every run ends.
-		sound.play("gate"); start_run(); return true
-	elif state=="lootbox":
-		if Rect2(24,24,100,48).has_point(pos): close_lootbox()
+	# The cover (original title poster): the painted gear opens settings, any other tap
+	# starts the run right away — the classic login page flow.
+	if state=="cover":
+		if Rect2(466,10,70,70).has_point(pos): settings_return_state="cover"; state="settings"
+		else: start_run()
+		_release_touches(); return true
+	if state=="lootbox":
+		if Rect2(24,24,100,48).has_point(pos): close_lootbox(); return true
+		if Rect2(80,790,380,66).has_point(pos): buy_lootbox(); return true
+		return true
+	elif state=="map":
+		# Don't act on press: a swipe pans the table, only a clean tap picks a photo.
+		map_press=pos; map_dragged=false
+		return true
+	elif state=="offer":
+		if OFFER_CLOSE.grow(8).has_point(pos) or not OFFER_PANEL.has_point(pos): close_offer(); return true
+		if OFFER_BUY.has_point(pos):
+			if buy_pack(offer_id): close_offer()
+			return true
+		return true
+	elif state=="resource_pack":
+		if OFFER_CLOSE.grow(8).has_point(pos) or not OFFER_PANEL.has_point(pos): close_resource_pack(); return true
+		if OFFER_BUY.has_point(pos):
+			if buy_pack(resource_pack_id) and state=="resource_pack": close_resource_pack()
+			return true
+		return true
+	elif state=="signin":
+		if SIGNIN_CLOSE.grow(8).has_point(pos) or not SIGNIN_PANEL.has_point(pos): close_signin(); return true
+		if SIGNIN_CLAIM.has_point(pos): claim_signin()
+		elif SIGNIN_DOUBLE.has_point(pos): request_reward_ad("signin_double")
+		return true
+	elif state=="airdrop":
+		state=airdrop_return_state; return true
+	elif state=="bag":
+		if Rect2(24,24,100,48).has_point(pos): close_bag()
+		return true
+	elif state=="mail":
+		if Rect2(24,24,100,48).has_point(pos):
+			if mail_open>=0: mail_open=-1
+			else: close_mail()
+			return true
+		mail_press=pos; mail_dragged=false
+		return true
+	elif state=="tasks":
+		if Rect2(24,24,100,48).has_point(pos): close_tasks(); return true
+		for t in range(2):
+			if tasks_tab_rect(t).has_point(pos): tasks_tab=t; return true
+		for row in task_rows():
+			if task_swap_button(row.rect).grow(4).has_point(pos):
+				request_reward_ad("swap:%s:%d"%["daily" if row.daily else "event",int(row.slot)]); return true
+			if task_button(row.rect).grow(6).has_point(pos):
+				if mission_claimed(row.m,row.daily): return true
+				if mission_ready(row.m,row.daily): claim_mission(row.m,row.daily)
+				else: start_run()  # "Go": jump straight into a run
+				return true
 		return true
 	elif state=="character_select":
-		# Lobby layout (see hud._draw_lobby): characters left, pets right, survivor in the middle.
-		for i in range(LOBBY_SLOTS):
-			if Rect2(LOBBY_LEFT_X,LOBBY_TOP+i*LOBBY_STEP,LOBBY_CARD.x,LOBBY_CARD.y).has_point(pos):
-				if i<lobby.CHARACTERS.size(): select_character(i)
-				else: lobby_toast=1.6
-				return true
-			if Rect2(LOBBY_RIGHT_X,LOBBY_TOP+i*LOBBY_STEP,LOBBY_CARD.x,LOBBY_CARD.y).has_point(pos): lobby_toast=1.6; return true
-		if Rect2(118,430,56,84).has_point(pos): select_character(character_choice-1); return true
-		if Rect2(366,430,56,84).has_point(pos): select_character(character_choice+1); return true
-		if Rect2(66,836,408,76).has_point(pos): start_run(); return true
-		if Rect2(16,22,150,52).has_point(pos): open_shop(); return true
-		if Rect2(466,10,70,70).has_point(pos): settings_return_state="character_select"; state="settings"; return true
+		if _wallet_plus_hit(WALLET_LOBBY,pos,LOBBY_WALLET_SCALE): return true
+		if SIDE_SIGNIN.has_point(pos): open_signin(); return true
+		if SIDE_TASKS.has_point(pos): open_tasks(); return true
+		if SIDE_SHOP.has_point(pos): open_shop(); return true
+		if SIDE_STORE.has_point(pos): open_store(); return true
+		if SIDE_MAIL.has_point(pos): open_mail(); return true
+		if SIDE_BAG.has_point(pos): open_bag(); return true
+		if SIDE_MAP.has_point(pos): open_map(); return true
+		if AIRDROP_RECT.has_point(pos) and airdrop_available(): request_reward_ad("airdrop"); return true
+		if offer_active() and OFFER_BADGE.has_point(pos): open_offer(); return true
+		# Main screen (see hud._draw_character_select): one scrolling column on the left with
+		# 角色 / 宠物 tabs; the survivor and the pet stand together on the platform.
+		for t in range(3):
+			if lobby_tab_rect(t).has_point(pos): set_lobby_tab(t); return true
+		for side in [-1,1]:
+			if lobby_page_visible(side) and lobby_page_rect(side).has_point(pos): lobby_page(side); return true
+		if lobby_view_rect().has_point(pos): lobby_press=pos; lobby_dragged=false; return true
+		if lobby_arrow_rect(-1).has_point(pos): select_character(character_choice-1); return true
+		if lobby_arrow_rect(1).has_point(pos): select_character(character_choice+1); return true
+		if LOBBY_AD_RUN.grow(8).has_point(pos) and not ad_run_used and stamina.value<stamina.RUN_COST:
+			request_reward_ad("free_run"); return true
+		if LOBBY_START.has_point(pos):
+			if stamina.value>=stamina.RUN_COST: start_run()
+			else: store_toast_text=StoreCatalog.text(language_code,"no_cans"); store_toast=2.4
+			return true
+		if LOBBY_GEAR.grow(8).has_point(pos): settings_return_state="character_select"; state="settings"; return true
 		return true
 	elif state=="settings":
 		if Rect2(66,220,408,70).has_point(pos): sound.muted=not sound.muted; _save(); return true
 		if Rect2(66,316,408,70).has_point(pos): auto_reload=not auto_reload; _save(); return true
 		if Rect2(66,412,408,70).has_point(pos): open_language(); return true
-		if Rect2(66,508,408,70).has_point(pos): text_size=(text_size+1)%3; sound.play("hit"); _save(); return true
+		if Rect2(66,508,408,70).has_point(pos): text_size=(text_size+1)%3; _save(); return true
 		if Rect2(66,810,408,64).has_point(pos): state=settings_return_state; return true
+	if state=="gameover" and gameover_double_rect().has_point(pos): request_reward_ad("run_double"); return true
 	if state=="gameover" and Rect2(66,586,408,70).has_point(pos) and not revive_used: request_revival(); return true
 	if state=="gameover" and Rect2(66,672,408,66).has_point(pos): go_to_lobby(); return true
 	if state=="gameover" and Rect2(66,758,408,54).has_point(pos): open_shop(); return true
+	if state=="gameover" and SHARE_RECT.has_point(pos): share_result(); return true
 	if state=="shop":
+		if _wallet_plus_hit(WALLET_SHOP,pos): return true
+		if SHOP_STORE_BTN.has_point(pos): open_store(); return true
 		if Rect2(24,24,100,44).has_point(pos): close_shop(); return true
 		if Rect2(404,24,112,48).has_point(pos): open_lootbox(); return true
 		if Rect2(30,786,80,60).has_point(pos): select_shop_item(shop_index-1); return true
@@ -1513,55 +3283,103 @@ func _pointer_down(pos: Vector2) -> bool:
 			return true
 		for i in range(shop_items.size()):
 			if Rect2(30+i*60,862,56,44).has_point(pos): select_shop_item(i); return true
+	elif state=="payfail":
+		if PAYFAIL_RETRY.has_point(pos): retry_payfail()
+		elif PAYFAIL_CLOSE.has_point(pos) or not PAYFAIL_PANEL.has_point(pos): close_payfail()
+		return true
+	elif state=="store":
+		if Rect2(24,24,100,48).has_point(pos): close_store(); return true
+		if STORE_RESTORE.has_point(pos): restore_purchases(); return true
+		if store_view_rect().has_point(pos): store_press=pos; store_dragged=false
+		return true
 	elif state=="language":
 		for i in range(Localization.LANGUAGES.size()):
 			var rect:=Rect2(30+(i%2)*245,150+floori(i/2.0)*62,235,50)
-			if rect.has_point(pos): language_code=Localization.LANGUAGES[i].code; sound.play("gate"); _save(); return true
+			if rect.has_point(pos): language_code=Localization.LANGUAGES[i].code; _save(); return true
 		if Rect2(66,840,408,60).has_point(pos): state="settings"; return true
 	elif state=="playing":
 		if PAUSE_BUTTON.has_point(pos): state="paused"; _release_touches(); return true
+		if health_plus_rect.grow(8).has_point(pos): _tap_health_plus(); return true
 		if touch_controls and pos.distance_to(BTN_SWAP)<BTN_RADIUS+4: swap_weapon(); return true
 		if touch_controls and pos.distance_to(BTN_RELOAD)<BTN_RADIUS+6: request_reload(); return true
 		if touch_controls and pos.distance_to(BTN_FRAG)<BTN_RADIUS: _throw_ordnance("frag"); return true
 		if touch_controls and pos.distance_to(BTN_FLASH)<BTN_RADIUS: _throw_ordnance("flash"); return true
 		if touch_controls and player.weapon=="LAUNCHER" and pos.distance_to(BTN_FIRE_MODE)<BTN_RADIUS: toggle_fire_mode(); return true
+	elif state=="health_ad":
+		if HEALTH_AD_CANCEL.has_point(pos): state="playing"; return true
+		if HEALTH_AD_WATCH.has_point(pos): request_reward_ad("health_refill"); return true
+		return true
 	elif state=="paused":
-		if Rect2(66,468,408,58).has_point(pos): auto_reload=not auto_reload; _save(); return true
-		if Rect2(66,548,408,68).has_point(pos): state="playing"; return true
-		if Rect2(66,632,408,58).has_point(pos): open_shop(); return true
-		if Rect2(66,708,408,58).has_point(pos): start_run(); return true
-		if Rect2(66,784,408,58).has_point(pos):
+		if Rect2(66,468,408,58).has_point(pos): settings_return_state="paused"; state="settings"; return true
+		if Rect2(66,540,408,58).has_point(pos): auto_reload=not auto_reload; _save(); return true
+		if Rect2(66,620,408,68).has_point(pos): state="playing"; return true
+		if Rect2(66,704,408,58).has_point(pos): open_shop(); return true
+		# Restarting inside a run is free: retrying a failed run should never drain cans.
+		if Rect2(66,780,408,58).has_point(pos): start_run(false,true); return true
+		if Rect2(66,856,408,58).has_point(pos):
 			_release_touches(); go_to_lobby(); return true
 	return false
 
 func _load_save() -> void:
 	var c:=ConfigFile.new()
-	if c.load("user://dead_run.cfg")==OK:
-		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2)
-		language_code=str(c.get_value("ui","language",language_code)); bank_coins=int(c.get_value("wallet","coins",0))
+	# Test and capture runs must not inherit the player's real save: a purchased remove-ads
+	# or an already-claimed mailbox would break the scripted assertions.
+	var isolated:=false
+	for f in ["--smoke-test","--soak-test","--lootbox-test","--stamina-test","--capture","--capture-medic","--capture-bike"]:
+		if f in OS.get_cmdline_user_args(): isolated=true; break
+	if not isolated and c.load("user://dead_run.cfg")==OK:
+		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2)
+		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
+		# A locked survivor can never stay selected (e.g. an old save from before the store).
+		if not character_owned(character_choice): character_choice=0
+		if is_instance_valid(player): player.set_character(character_choice,character_asset(character_choice))
+		language_code=str(c.get_value("ui","language",language_code)); bank_coins=int(c.get_value("wallet","coins",0)); bank_vouchers=int(c.get_value("wallet","vouchers",0))
+		can_ad_day=str(c.get_value("can_ads","day","")); can_ad_count=clampi(int(c.get_value("can_ads","count",0)),0,CAN_AD_DAILY_LIMIT)
+		for id in c.get_value("store","owned",[]): store_owned[String(id)]=true
+		remove_ads=bool(c.get_value("store","remove_ads",false))
+		for tx in c.get_value("store","iap_ledger",[]): iap_ledger[String(tx)]=true
+		offer_id=str(c.get_value("offer","id","")); offer_expires=int(c.get_value("offer","expires",0)); next_offer_at=int(c.get_value("offer","next",0))
+		play_day=str(c.get_value("offer","play_day","")); play_seconds_today=float(c.get_value("offer","play_seconds",0.0))
+		signin_last=str(c.get_value("signin","last","")); signin_index=int(c.get_value("signin","index",0)); signin_shown_day=str(c.get_value("signin","shown",""))
+		daily_day=str(c.get_value("missions","day","")); daily_stats=c.get_value("missions","stats",{}); daily_claimed=c.get_value("missions","claimed",{}); daily_swaps=c.get_value("missions","swaps",{})
+		event_window=int(c.get_value("event","window",-1)); event_stats=c.get_value("event","stats",{}); event_claimed=c.get_value("event","claimed",{}); event_swaps=c.get_value("event","swaps",{})
 		for id in meta_upgrades.keys(): meta_upgrades[id]=int(c.get_value("upgrades",id,0))
+	stamina.load_config(c)
 func _read_muted() -> bool:
 	var c:=ConfigFile.new()
 	return bool(c.get_value("audio","muted",false)) if c.load("user://dead_run.cfg")==OK else false
 func _save() -> void:
-	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args(): return
-	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size)
-	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins)
+	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--lootbox-test" in OS.get_cmdline_user_args() or "--stamina-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-medic" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args(): return # test and capture runs must never touch the player's real save
+	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size)
+	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","iap_ledger",iap_ledger.keys())
+	c.set_value("can_ads","day",can_ad_day); c.set_value("can_ads","count",can_ad_count)
+	c.set_value("offer","id",offer_id); c.set_value("offer","expires",offer_expires); c.set_value("offer","next",next_offer_at); c.set_value("offer","play_day",play_day); c.set_value("offer","play_seconds",play_seconds_today)
+	c.set_value("signin","last",signin_last); c.set_value("signin","index",signin_index); c.set_value("signin","shown",signin_shown_day)
+	c.set_value("missions","day",daily_day); c.set_value("missions","stats",daily_stats); c.set_value("missions","claimed",daily_claimed); c.set_value("missions","swaps",daily_swaps)
+	c.set_value("event","window",event_window); c.set_value("event","stats",event_stats); c.set_value("event","claimed",event_claimed); c.set_value("event","swaps",event_swaps)
 	for id in meta_upgrades.keys(): c.set_value("upgrades",id,meta_upgrades[id])
+	stamina.save_config(c)
 	c.set_value("audio","muted",sound.muted if is_instance_valid(sound) else false); c.save("user://dead_run.cfg")
 
 func _capture() -> void:
+	# In-memory unlocks so the review shots can show every survivor, pet and skin; _save()
+	# ignores capture runs, so the player's real save is never touched by this.
+	for i in range(lobby.PETS.size()): owned_pets[i]=true
+	owned_characters[2]=true; owned_characters[3]=true; owned_skins[1]=true
 	await get_tree().create_timer(0.4).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://menu-3d.png")
 	open_shop(); await get_tree().create_timer(0.35).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://shop-3d.png")
 	close_shop(); open_language(); await get_tree().create_timer(0.15).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://languages-3d.png")
-	enter_lobby(); select_character(0); await get_tree().create_timer(0.4).timeout; await RenderingServer.frame_post_draw
+	enter_lobby(); select_character(0)
+	for i in range(lobby.PETS.size()):
+		select_pet(i); await get_tree().create_timer(0.4).timeout; await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://diagnostics/pets/lobby-"+str(i)+".png")
 	get_viewport().get_texture().get_image().save_png("res://lobby-mason.png")
 	select_character(1); await get_tree().create_timer(0.4).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://lobby-riley.png")
-	state="menu"; character_choice=1; player.set_character(1); start_run()
+	state="cover"; character_choice=1; player.set_character(1); start_run()
 	for i in range(4): _spawn_zombie(-7-i*6)
 	_spawn_gate(); gates[0].position.z=-12
 	_spawn_pickup("ammo",-5); pickups[0].position.x=-2.0
@@ -1595,7 +3413,7 @@ func _capture() -> void:
 	await get_tree().create_timer(0.12).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://armor-3d.png")
 	hud.visible=false
-	state="menu"
+	state="cover"
 	for p in pickups: p.visible=false
 	for g in gates: g.visible=false
 	for z in zombies: z.visible=false
@@ -1630,7 +3448,7 @@ func _capture() -> void:
 	player.set_weapon("LAUNCHER"); player.fire_ammo=4; player.fire_mode=true
 	await get_tree().create_timer(0.12).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://diagnostics/ordnance/launcher-held.png")
-	hud.visible=false; state="menu"; camera.position=Vector3(2.8,2.35,8.0); camera.look_at(player.position+Vector3(0,1.05,0))
+	hud.visible=false; state="cover"; camera.position=Vector3(2.8,2.35,8.0); camera.look_at(player.position+Vector3(0,1.05,0))
 	await get_tree().create_timer(0.08).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://diagnostics/ordnance/launcher-closeup.png")
 	hud.visible=true; state="playing"; camera.position=Vector3(0,6.4,13.5); camera.look_at(Vector3(0,1.0,-8))
@@ -1663,9 +3481,56 @@ func _capture() -> void:
 	_tick_zombies(0.05)
 	await get_tree().create_timer(0.18).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://diagnostics/monsters/gameplay-specials.png")
+	# Bomber showcase: the pair waddling in, then the blood blast when one bursts.
+	start_run(); _clear_world(); state="playing"; shot_timer=999; spawn_timer=999; hint_time=0; touch_controls=false
+	player.position.x=0; player.target_x=0
+	_spawn_zombie(-7,"bomber"); zombies[-1].position.x=-1.3
+	_spawn_zombie(-11,"bomber_female"); zombies[-1].position.x=1.5
+	_tick_zombies(0.05)
+	await get_tree().create_timer(0.18).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/monsters/bomber-pair.png")
+	_bomber_blast(zombies[-2].position)
+	await get_tree().create_timer(0.10).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/monsters/bomber-blast.png")
+	# Chase segment showcase: the beast closing in behind the survivor, warning HUD on.
+	start_run(); _clear_world(); state="playing"; shot_timer=999; spawn_timer=999; hint_time=0; touch_controls=false
+	player.position.x=0; player.target_x=0; aim_direction=Vector3.FORWARD; player.set_aim(aim_direction)
+	distance=401.0; _tick_chase(0.1)
+	if is_instance_valid(chaser):
+		chase_gap=6.5; chaser.position.z=player.position.z+chase_gap
+		await get_tree().create_timer(1.2).timeout; await RenderingServer.frame_post_draw
+		get_viewport().get_texture().get_image().save_png("res://diagnostics/chase-segment.png")
+	chase_active=false
+	if is_instance_valid(chaser): chaser.queue_free(); chaser=null
 	player.health=0; _end_run()
 	await get_tree().create_timer(0.10).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://diagnostics/monsters/gameover-revival.png")
+	# UI restyle captures: daily check-in, lobby, tasks, store.
+	go_to_lobby(); await get_tree().create_timer(0.5).timeout; await RenderingServer.frame_post_draw
+	if state!="signin": open_signin()
+	await get_tree().create_timer(0.2).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-restyle-signin.png")
+	close_signin(); await get_tree().create_timer(0.25).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-restyle-lobby.png")
+	open_tasks(); await get_tree().create_timer(0.2).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-restyle-tasks.png")
+	close_tasks(); open_store(); await get_tree().create_timer(0.2).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-restyle-store.png")
+	close_store()
+	# War-room map table, opened from the lobby's map button: default view, then swiped right.
+	go_to_lobby(); await get_tree().create_timer(0.3).timeout
+	open_map(); await get_tree().create_timer(0.5).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-map-table.png")
+	map_scene.pan_x=1.6; await get_tree().create_timer(0.25).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-map-table-right.png")
+	close_map()
+	go_to_lobby(); await get_tree().create_timer(0.3).timeout
+	# New survivors: Riley (regenerated) and Maya (new) standing in the lobby; Maya leads the intro chase below.
+	select_character(1); await get_tree().create_timer(0.4).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-riley-lobby.png")
+	_iap_grant("char_maya","capture") # capture rig owns everyone; the store flow is what enforces payment
+	select_character(3); await get_tree().create_timer(0.4).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/ui-maya-lobby.png")
 	start_run(); _begin_intro(); shot_timer=999; hint_time=0; touch_controls=false
 	await get_tree().create_timer(0.65).timeout; await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png("res://diagnostics/intro/intro-horde.png")
@@ -1677,22 +3542,165 @@ func _capture() -> void:
 	print("CAPTURE_3D_SAVED menu shop languages gameplay armor blood explosion ordnance specials revival intro")
 	get_tree().quit()
 
+## Darius (third survivor) review shots only: lobby card, opening chase, and a live run.
+## Additive — never overwrites the existing marketing captures.
+func _capture_medic() -> void:
+	owned_characters[2]=true; enter_lobby(); select_character(2)
+	await get_tree().create_timer(0.6).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/medic/lobby-darius.png")
+	character_choice=2; player.set_character(2); start_run(); _begin_intro(); shot_timer=999; hint_time=0; touch_controls=false
+	await get_tree().create_timer(1.2).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/medic/chase-darius.png")
+	_finish_intro()
+	for i in range(3): _spawn_zombie(-7-i*6)
+	_spawn_pickup("medkit",-6); pickups[-1].position.x=1.8
+	await get_tree().create_timer(0.5).timeout; await RenderingServer.frame_post_draw
+	get_viewport().get_texture().get_image().save_png("res://diagnostics/medic/run-darius.png")
+	print("CAPTURE_MEDIC_SAVED lobby chase run")
+	get_tree().quit()
+
+func _capture_bike() -> void:
+	# Riding shot for the motorcycle: default survivor on the bike, horde ahead, so the
+	# seated pose, the wheels and the durability bar are all visible in one frame.
+	character_choice=0; player.set_character(0); start_run(); _begin_intro(); shot_timer=999; hint_time=0; touch_controls=false
+	_finish_intro()
+	for i in range(3): _spawn_zombie(-7-i*6)
+	player.mount_vehicle("BIKE")
+	await get_tree().create_timer(0.5).timeout; await RenderingServer.frame_post_draw
+	assert(get_viewport().get_texture().get_image().save_png("res://diagnostics/medic/run-bike.png")==OK)
+	print("CAPTURE_BIKE_SAVED")
+	get_tree().quit()
+
+func _lootbox_test() -> void:
+	# Exercise the actual shop button and case-button hit rectangles. _save() is disabled
+	# for this flag, so the player's real wallet and upgrades are never written.
+	var saved_coins: int=bank_coins
+	var saved_upgrades: Dictionary=meta_upgrades.duplicate(true)
+	var saved_pets: Dictionary=owned_pets.duplicate()
+	meta_upgrades=ShopCatalog.default_levels()
+	for i in range(lobby.PETS.size()): owned_pets[i]=true # the 1% dog jackpot stays out of this deterministic upgrade check
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://diagnostics/lootbox"))
+	open_shop(); bank_coins=200
+	_pointer_down(Rect2(404,24,112,48).get_center())
+	assert(state=="lootbox" and lootbox_scene.visible and not shop_truck.visible)
+	await get_tree().create_timer(0.25).timeout; await RenderingServer.frame_post_draw
+	assert(get_viewport().get_texture().get_image().save_png("res://diagnostics/lootbox/case-closed.png")==OK)
+	var levels_before:=0
+	for item in shop_items: levels_before+=int(meta_upgrades.get(item.id,0))
+	_pointer_down(Rect2(80,790,380,66).get_center())
+	assert(bank_coins==100 and lootbox_scene.opening and not lootbox_reward_title.is_empty())
+	var levels_after:=0
+	for item in shop_items: levels_after+=int(meta_upgrades.get(item.id,0))
+	assert(levels_after==levels_before+1)
+	_pointer_down(Rect2(80,790,380,66).get_center())
+	assert(bank_coins==100) # a double tap cannot charge twice during the animation
+	await get_tree().create_timer(2.45).timeout; await RenderingServer.frame_post_draw
+	assert(lootbox_scene.revealed and not lootbox_scene.opening)
+	assert(get_viewport().get_texture().get_image().save_png("res://diagnostics/lootbox/case-open.png")==OK)
+	bank_coins=0
+	_pointer_down(Rect2(80,790,380,66).get_center())
+	assert(bank_coins==0 and lootbox_message==ShopText.text(language_code,"case_no_coins"))
+	assert(state=="resource_pack" and resource_pack_id=="coins_1" and resource_pack_return_state=="lootbox")
+	_pointer_down(OFFER_CLOSE.get_center()); assert(state=="lootbox")
+	_pointer_down(Rect2(24,24,100,48).get_center())
+	assert(state=="shop" and shop_truck.visible and not lootbox_scene.visible)
+	bank_coins=saved_coins; meta_upgrades=saved_upgrades; owned_pets=saved_pets
+	print("LOOTBOX_TEST_PASS shop_button debit=100 upgrade=+1 double_tap=safe animation=revealed insufficient_funds=blocked close=shop save=untouched")
+	get_tree().quit()
+
 func _smoke_test() -> void:
 	meta_upgrades=ShopCatalog.default_levels(); bank_coins=0
 	assert(Localization.LANGUAGES.size()==20)
 	assert(sound.streams.get("explosion")!=null and sound.streams.get("zombie")!=null)
 	assert(sound.streams.get("smg")!=null and sound.streams["smg"].get_length()>0.2)
-	_pointer_down(Vector2(270,840)); assert(state in ["intro","playing"])
+	intro_seen=false  # a brand-new player: tapping the cover begins the opening run
+	assert(state=="cover")  # the classic title poster greets every launch
+	_pointer_down(Vector2(270,480)); assert(state in ["intro","playing"])  # tap anywhere to start
 	_clear_world(); enter_lobby(); assert(state=="character_select")
-	_pointer_down(Vector2(60,LOBBY_TOP+LOBBY_STEP+50)); assert(character_choice==1 and player.character==1)
-	_pointer_down(Vector2(60,LOBBY_TOP+50)); assert(character_choice==0 and player.character==0)
-	_pointer_down(Vector2(394,470)); assert(character_choice==1)
-	_pointer_down(Vector2(146,470)); assert(character_choice==0)
+	_lobby_tap(lobby_card_rect(1).get_center()); assert(character_choice==1 and player.character==1)
+	# Darius is a paid survivor: a locked tap only explains, then the purchase unlocks him
+	_lobby_tap(lobby_card_rect(2).get_center()); assert(character_choice==1 and lobby_toast>0.0 and lobby_toast_key=="char_locked")
+	assert(_iap_grant("char_darius","smoke") and character_owned(2))
+	_lobby_tap(lobby_card_rect(2).get_center()); assert(character_choice==2 and player.character==2)
+	assert(player.heal_scale()==2.0) # Darius the paramedic: every healing effect is doubled
+	_lobby_tap(lobby_card_rect(0).get_center()); assert(character_choice==0 and player.character==0)
+	assert(player.heal_scale()==1.0)
+	lobby_scroll=0.0; assert(not lobby_page_visible(-1) and lobby_page_visible(1))
+	_pointer_down(lobby_page_rect(1).get_center()); assert(lobby_scroll>0.0 and lobby_page_visible(-1))
+	_pointer_down(lobby_page_rect(-1).get_center()); assert(lobby_scroll==0.0)
+	_pointer_down(lobby_arrow_rect(1).get_center()); assert(character_choice==1)
+	_pointer_down(lobby_arrow_rect(-1).get_center()); assert(character_choice==0)
 	await get_tree().process_frame; assert(lobby.visible and is_instance_valid(lobby.actor))
-	state="menu"
+	_pointer_down(lobby_tab_rect(1).get_center()); assert(lobby_tab==1)
+	pet_equipped=false; owned_pets={}
+	# locked dog: previewed, never equipped
+	_lobby_tap(lobby_card_rect(0).get_center()); assert(not pet_equipped and lobby_toast>0.0 and lobby_toast_key=="pet_locked")
+	_spawn_companion(); assert(not is_instance_valid(companion_pet))
+	# ...but it can also be bought outright in the store
+	assert(_iap_grant("pet_0","smoke") and pet_owned(0) and pack_owned("pet_0"))
+	_lobby_tap(lobby_card_rect(0).get_center()); assert(pet_equipped and pet_choice==0)
+	pet_equipped=false; owned_pets={}
+	for i in range(lobby.PETS.size()): owned_pets[i]=true
+	for i in range(lobby.PETS.size()):
+		_lobby_tap(lobby_card_rect(i).get_center()); assert(pet_equipped and pet_choice==i and lobby.pet_path==lobby.PETS[i].asset)
+		await get_tree().process_frame; assert(is_instance_valid(lobby.pet))
+	# tapping the equipped dog again sends it home: no dog in the intro or the run
+	var last_pet:=lobby_card_rect(lobby.PETS.size()-1).get_center()
+	_lobby_tap(last_pet); assert(not pet_equipped); await get_tree().process_frame; assert(not is_instance_valid(lobby.pet))
+	_spawn_companion(); assert(not is_instance_valid(companion_pet))
+	_lobby_tap(last_pet); assert(pet_equipped)
+	_pointer_down(lobby_tab_rect(0).get_center()); assert(lobby_tab==0)
+	# outfit skins: Maya is a paid survivor; her default look comes with her, the tactical
+	# outfit is a separate one-time purchase. Locked taps explain, never select.
+	set_lobby_tab(2); assert(lobby_tab==2 and lobby_item_count()>=lobby.SKINS.size())
+	_lobby_tap(lobby_card_rect(0).get_center()); assert(character_choice!=3 and lobby_toast_key=="char_locked")
+	assert(_iap_grant("char_maya","smoke") and character_owned(3))
+	_lobby_tap(lobby_card_rect(1).get_center()); assert(character_choice!=3 and lobby_toast_key=="skin_locked")
+	assert(_iap_grant("skin_maya_tactical","smoke") and skin_owned(1))
+	_lobby_tap(lobby_card_rect(1).get_center())
+	assert(character_choice==3 and selected_skin_index()==1 and "tactical" in player.character_asset_override)
+	await get_tree().process_frame; assert(is_instance_valid(lobby.actor) and lobby.actor_asset==String(lobby.SKINS[1].asset))
+	player.health=player.max_health*0.5; var maya_regen: float=player.instinct_regen_rate(); assert(maya_regen>0.0) # perk survives the skin swap (regen only ticks while hurt)
+	player.health=player.max_health; assert(player.instinct_regen_rate()==0.0)
+	_lobby_tap(lobby_card_rect(0).get_center())
+	assert(selected_skin_index()==0 and player.character_asset_override==String(lobby.SKINS[0].asset))
+	select_character(0); assert(selected_skin_index()==-1 and player.character_asset_override=="")
+	set_lobby_tab(0); assert(lobby_tab==0)
+	# the supply shop is reachable from the main screen
+	_pointer_down(SIDE_SHOP.get_center()); assert(state=="shop")
+	_pointer_down(SHOP_STORE_BTN.get_center()); assert(state=="store" and store_return_state=="shop"); close_store(); assert(state=="shop")
+	close_shop(); assert(state=="character_select")
+	_pointer_down(SIDE_STORE.get_center()); assert(state=="store"); close_store(); assert(state=="character_select")
+	# mailbox: welcome gift claims once
+	mail_claimed={}; var mc: int=bank_coins; var mv: int=bank_vouchers; var ms2: int=stamina.value
+	_pointer_down(SIDE_MAIL.get_center()); assert(state=="mail" and mails.size()>=1 and mail_unclaimed()==1)
+	_pointer_down(mail_row(0).get_center()); _letter_release(mail_row(0).get_center()); assert(mail_open==0 and bank_coins==mc)
+	mail_text_h=900.0; assert(letter_max_scroll()>0.0); mail_scroll=letter_max_scroll()
+	var cr: Rect2=letter_claim_rect(); assert(LETTER_VIEW.has_point(cr.get_center()))
+	_pointer_down(cr.get_center()); _letter_release(cr.get_center()); assert(bank_coins==mc+200 and bank_vouchers==mv+3 and stamina.value==ms2+50 and mail_unclaimed()==0)
+	_pointer_down(cr.get_center()); _letter_release(cr.get_center()); assert(bank_coins==mc+200)
+	_pointer_down(Vector2(60,48)); assert(state=="mail" and mail_open==-1)
+	remote_mail=[{"id":"gift2","title":{"en":"Gift","zh_CN":"福利"},"body":"x","coins":50,"vouchers":0},{"id":"old","coins":9,"until":"2000-01-01"}]
+	refresh_mail(); assert(mails.size()==2 and mail_unclaimed()==1); remote_mail=[]
+	_pointer_down(Vector2(60,48)); assert(state=="character_select")
+	# airdrop: one ad a day; the reveal closes on any tap; then "come back tomorrow"
+	airdrop_day=""; var ac: int=bank_coins+bank_vouchers*1000
+	assert(airdrop_available()); _pointer_down(AIRDROP_RECT.get_center()); assert(ad_pending=="airdrop")
+	await get_tree().create_timer(0.55).timeout
+	assert(state=="airdrop" and not airdrop_available() and bank_coins+bank_vouchers*1000>ac)
+	_pointer_down(Vector2(270,480)); assert(state=="character_select")
+	_pointer_down(AIRDROP_RECT.get_center()); assert(ad_pending=="" and state=="character_select")
+	# backpack: coins always, vouchers only when held
+	var keep_v: int=bank_vouchers; bank_vouchers=0
+	_pointer_down(SIDE_BAG.get_center()); assert(state=="bag" and bag_items().size()==1)
+	bank_vouchers=3; assert(bag_items().size()==2 and int(bag_items()[1].count)==3)
+	_pointer_down(Vector2(60,48)); assert(state=="character_select"); bank_vouchers=keep_v
+	state="cover"
 	_pointer_down(Vector2(490,45)); assert(state=="settings")
 	var old_muted: bool=sound.muted; _pointer_down(Vector2(270,250)); assert(sound.muted!=old_muted)
-	_pointer_down(Vector2(270,840)); assert(state=="menu")
+	_pointer_down(Vector2(270,840)); assert(state=="cover")
+	# The lobby is the hub now: survivors, shop and cases all live on its side bar.
+	go_to_lobby(); assert(state=="character_select")
 	var skeleton:=player.model.find_child("Skeleton3D",true,false) as Skeleton3D
 	assert(is_instance_valid(skeleton) and skeleton.get_bone_count()>=15)
 	open_shop(); assert(state=="shop" and shop_truck.visible); bank_coins=100; assert(buy_item("medical")); assert(bank_coins==60)
@@ -1700,8 +3708,88 @@ func _smoke_test() -> void:
 	bank_coins=200; assert(buy_item("w_shotgun")); player.apply_meta(meta_upgrades); player.set_weapon("SHOTGUN"); assert(is_equal_approx(player.damage,30.0*player.damage_scale*1.12))
 	meta_upgrades["w_shotgun"]=0
 	open_lootbox(); assert(state=="lootbox"); close_lootbox(); assert(state=="shop")
+	# Store: + opens it, a tap on a pack grants it in test runs, once-only packs stay once-only.
+	var shop_plus: Rect2=wallet_layout(WALLET_SHOP).coin_plus
+	_pointer_down(shop_plus.get_center()); assert(state=="store" and store_return_state=="shop")
+	assert(StoreCatalog.currency_for_locale("zh_CN")=="CNY" and StoreCatalog.currency_for_locale("ja_JP")=="JPY" and StoreCatalog.currency_for_locale("de_DE")=="EUR" and StoreCatalog.currency_for_locale("en")=="USD")
+	assert(StoreCatalog.price_text("CNY",0)=="¥6" and StoreCatalog.price_text("USD",3)=="$9.99" and StoreCatalog.price_text("EUR",2)=="4,99 €" and StoreCatalog.price_text("KRW",3)=="₩14,000")
+	offer_id=""; offer_expires=0; store_owned.clear()  # ignore whatever a local save left behind
+	var coins_before: int=bank_coins; var v_before: int=bank_vouchers
+	var starter: Dictionary=store_layout()[1]; assert(starter.pack.id=="bundle_starter")
+	var tap: Vector2=store_screen_rect(starter).get_center()
+	_pointer_down(tap); _store_release(tap); assert(bank_coins==coins_before+1000 and bank_vouchers==v_before+1)
+	_pointer_down(tap); _store_release(tap); assert(bank_coins==coins_before+1000)
+	store_scroll=store_max_scroll(); assert(store_max_scroll()>0.0)
+	_pointer_down(Vector2(70,48)); assert(state=="shop")
+	bank_coins=coins_before; bank_vouchers=v_before; store_owned.clear()
+	# IAP: only a verified transaction grants; cancel / pending / failure grant nothing; one grant per transaction
+	assert(iap.mode=="sim" and IapScript.sim_allowed())
+	var ic: int=bank_coins
+	iap.sim_next="cancelled"; buy_pack("coins_2"); assert(bank_coins==ic)
+	iap.sim_next="pending"; buy_pack("coins_2"); assert(bank_coins==ic)
+	iap.sim_next="failed"; buy_pack("coins_2"); assert(bank_coins==ic and state=="payfail"); close_payfail()
+	buy_pack("coins_2"); assert(bank_coins==ic+1650)
+	var granted_tx: String=String(iap.ledger.keys()[-1])
+	iap._deliver("coins_2",granted_tx,false); assert(bank_coins==ic+1650)   # same transaction again: ignored
+	assert(iap_ledger.has(granted_tx))
+	# remove ads: non-consumable, rewarded ads are skipped
+	remove_ads=false; buy_pack("removeads"); assert(remove_ads and pack_owned("removeads"))
+	assert(not buy_pack("removeads"))
+	iap.restore(); assert(remove_ads)
+	remove_ads=false
+	bank_coins=coins_before; bank_vouchers=v_before
+	# Limited offer: not before the gap, not after a long day, pops and can be bought once.
+	var keep_state: String=state
+	next_offer_at=now_unix()+3600; assert(not maybe_show_offer())
+	offer_id=""; assert(maybe_show_offer(true) and state=="offer" and offer_active())
+	assert(next_offer_at>=now_unix()+48*3600-5 and next_offer_at<=now_unix()+72*3600+5)
+	var o_coins: int=bank_coins; var o_pack: Dictionary=StoreCatalog.offer(offer_id)
+	_pointer_down(OFFER_BUY.get_center()); assert(bank_coins==o_coins+int(o_pack.coins) and not offer_active() and state==keep_state)
+	assert(StoreCatalog.discount(StoreCatalog.offer("offer_supply"))==75)
+	bank_coins=coins_before; bank_vouchers=v_before
+	# Failed top-up: popup over the store, nothing granted; Retry buys again, Close goes back.
+	open_store(); var c_fail: int=bank_coins
+	purchase_failed("coins_2"); assert(state=="payfail" and payfail_return_state=="store" and bank_coins==c_fail)
+	_pointer_down(PAYFAIL_CLOSE.get_center()); assert(state=="store")
+	purchase_failed("coins_2"); _pointer_down(PAYFAIL_RETRY.get_center()); assert(state=="store" and bank_coins==c_fail+1650)
+	close_store(); bank_coins=coins_before
+	# Check-in: one claim a day, the cycle moves on; missions count kills/runs and pay out once.
+	signin_last=""; signin_index=0; var c0: int=bank_coins
+	open_signin(); assert(state=="signin"); _pointer_down(SIGNIN_CLAIM.get_center())
+	assert(bank_coins==c0+50 and signin_index==1 and not signin_available())
+	_pointer_down(SIGNIN_CLAIM.get_center()); assert(bank_coins==c0+50)
+	# watching the ad pays the day twice over (desktop builds reward straight away)
+	signin_last=""; var c2: int=bank_coins; var day: Dictionary=ProgressCatalog.SIGNIN[signin_index]
+	_on_ad_rewarded("signin_double"); assert(bank_coins==c2+int(day.coins)*2 and not signin_available())
+	close_signin()
+	daily_day=""; _roll_progress(); var dm: Dictionary=daily_missions()[0]
+	assert(not mission_ready(dm,true)); _progress(String(dm.stat),int(dm.goal)); assert(mission_ready(dm,true))
+	open_tasks(); tasks_tab=0; var c1: int=bank_coins
+	_pointer_down(task_button(task_rows()[0].rect).get_center()); assert(bank_coins==c1+int(dm.coins) and mission_claimed(dm,true))
+	_pointer_down(task_button(task_rows()[0].rect).get_center()); assert(bank_coins==c1+int(dm.coins))
+	# swap by ad: a claimed mission can't be swapped; an open one changes, and only after the reward
+	assert(not can_swap_mission(0,true))
+	var swap_before: String=String(daily_missions()[1].id)
+	if can_swap_mission(1,true):
+		_on_ad_cancelled("swap:daily:1"); assert(String(daily_missions()[1].id)==swap_before)
+		_on_ad_rewarded("swap:daily:1"); assert(String(daily_missions()[1].id)!=swap_before)
+	daily_swaps.clear()
+	assert(event_missions().size()==ProgressCatalog.EVENT_COUNT and event_seconds_left()>0)
+	close_tasks(); bank_coins=coins_before; bank_vouchers=v_before
 	for code in ["en","zh_CN","ja","ar","th"]: assert(ShopText.text(code,"n_shotgun")!="n_shotgun")
-	close_shop(); start_run(); assert(state=="playing" and player.health==115)
+	close_shop(); start_run(); assert(state=="playing" and player.health==115 and is_instance_valid(companion_pet))
+	# Bites scale with the breed: the doberman only wounds a walker, the mastiff kills it,
+	# and no bite finishes a Juggernaut.
+	var breed_before: int=companion_pet.breed
+	_spawn_zombie(-2,"walker"); var bite_target=zombies[-1]; var hp_before: float=bite_target.health
+	companion_pet.breed=0; companion_pet.position=bite_target.position+Vector3(0,0,1.0); companion_pet.cooldown=0.0; companion_pet.target=bite_target
+	companion_pet.tick(0.02); assert(zombies.has(bite_target) and is_equal_approx(bite_target.health,hp_before-16.0))
+	companion_pet.breed=3; companion_pet.cooldown=0.0; companion_pet.target=bite_target; companion_pet.position=bite_target.position+Vector3(0,0,1.0)
+	companion_pet.tick(0.02); assert(not zombies.has(bite_target))
+	_spawn_zombie(-2,"brute"); var brute=zombies[-1]; brute.health=30.0
+	companion_pet.cooldown=0.0; companion_pet.target=brute; companion_pet.position=brute.position+Vector3(0,0,1.0)
+	companion_pet.tick(0.02); assert(zombies.has(brute) and is_equal_approx(brute.health,1.0))
+	zombies.erase(brute); brute.queue_free(); companion_pet.breed=breed_before
 	touch_controls=true; right_stick=Vector2.ZERO; assert(_wants_to_fire()); touch_controls=false
 	var old: float=player.damage; player.apply_upgrade("damage"); assert(player.damage>old)
 	player.target_x=100; await get_tree().create_timer(0.2).timeout; assert(player.position.x<=3.15)
@@ -1714,14 +3802,66 @@ func _smoke_test() -> void:
 	aim_target.position=player.position+Vector3(0,0,-6); assert(_fire() and sound.last_id=="pistol_near")
 	player.apply_upgrade("sniper"); assert(player.weapon=="SNIPER" and player.magazine_size==5 and player.pierce==2)
 	auto_reload=false; player.ammo=0; assert(request_reload()); assert(player.reloading)
-	assert(player.animation_player.current_animation=="Reload_Gun" and player.animation_player.is_playing())
+	assert(player.animation_player.current_animation==player._anim_name("Reload_Gun") and player.animation_player.is_playing())
 	await get_tree().create_timer(player.reload_duration+0.15).timeout; assert(not player.reloading and player.ammo>0)
-	assert(player.animation_player.current_animation=="Run_Gun" and player.animation_player.is_playing())
+	assert(player.animation_player.current_animation==player.run_clip and player.animation_player.is_playing())
 	for weapon_id in ["PISTOL","SMG","SHOTGUN","SNIPER","RIFLE","LAUNCHER"]:
 		player.set_weapon(weapon_id); player.ammo-=1
-		assert(player.request_reload() and player.animation_player.current_animation=="Reload_Gun")
-		player.finish_reload(); assert(player.animation_player.current_animation=="Run_Gun")
+		assert(player.request_reload() and player.animation_player.current_animation==player._anim_name("Reload_Gun"))
+		player.finish_reload(); assert(player.animation_player.current_animation==player.run_clip)
 	_spawn_gate(); assert(gates.size()==1 and gates[0].left.id=="damage" and gates[0].right.id=="rate")
+	# Roguelike gates: rarity mix, three choices past 500 m, pity, scaled effects.
+	var keep_dist: float=distance; var counts:=[0,0,0,0]
+	for i in range(2000): counts[_roll_rarity()]+=1
+	assert(counts[0]>counts[1] and counts[1]>counts[2] and counts[2]>counts[3] and counts[3]>0)
+	distance=600.0; new_gate_index=5; var three: Array=_roll_gate_options(); assert(three.size()==3)
+	var ids:={}
+	for o in three: ids[o.id]=true
+	assert(ids.size()==3)
+	distance=100.0; assert(_roll_gate_options().size()==2)
+	gates_since_epic=PITY_GATES-1; var forced: Array=_roll_gate_options(); var top:=0
+	for o in forced: top=maxi(top,int(o.rarity))
+	assert(top>=2 and gates_since_epic==0)
+	var g3=GateScript.new(); g3.setup([_gate_option("damage",3),_gate_option("rate",1),_gate_option("heal",0)],"zh_CN"); add_child(g3)
+	assert(g3.lane_of(-2.5)==0 and g3.lane_of(0.0)==1 and g3.lane_of(2.5)==2); g3.queue_free()
+	var dmg0: float=player.damage; player.apply_upgrade("damage",50.0); assert(absf(player.damage-dmg0*1.5)<0.01); player.damage=dmg0
+	# Every gate buff must have a real, measurable effect (no display-only buffs).
+	player.reset(); player.set_weapon("RIFLE")
+	assert(not _buff_useful("crit_damage",2) and _buff_useful("crit_chance",2))
+	var pp=player
+	var probe:={
+		"max_hp":func(): return pp.max_health, "regen":func(): return pp.regen, "kill_heal":func(): return pp.kill_heal,
+		"dmg_reduce":func(): return pp.dmg_reduce, "shield":func(): return pp.shield, "move":func(): return pp.move_mult,
+		"damage":func(): return pp.damage, "rate":func(): return -pp.fire_interval, "bullet_speed":func(): return pp.bullet_speed,
+		"crit_chance":func(): return pp.crit_chance, "magazine":func(): return pp.magazine_size, "reserve":func(): return pp.reserve_ammo,
+		"reload":func(): return -pp.reload_duration, "pierce":func(): return pp.pierce, "multishot":func(): return pp.projectile_count,
+		"split":func(): return pp.bullet_split, "explode":func(): return pp.explode_chance, "burn":func(): return pp.burn_dps,
+		"poison":func(): return pp.poison_dps, "shock":func(): return pp.shock_chance, "coins":func(): return pp.coin_mult,
+		"drop":func(): return pp.drop_chance, "ammo_return":func(): return pp.ammo_return, "pickup_range":func(): return pp.pickup_bonus}
+	for id in probe:
+		var probe_before=probe[id].call(); player.apply_upgrade(id,BuffCatalog.value_of(id,2)); assert(probe[id].call()>probe_before,id)
+	player.apply_upgrade("crit_damage",40.0); assert(player.crit_mult>1.5)
+	player.health=50.0; player.apply_upgrade("heal",30.0); assert(player.health==80.0)
+	# Darius (paramedic): heal gates restore double.
+	player.set_character(2)
+	player.health=20.0; player.apply_upgrade("heal",30.0); assert(player.health==80.0)
+	player.set_character(0); player.health=player.max_health
+	# stats survive a gun change
+	var mag_scaled: int=player.magazine_size; player.set_weapon("SMG"); assert(player.magazine_size>36 and player.pierce>0 and player.bullet_split>0)
+	# shield + damage reduction soak a hit
+	player.health=100.0; player.shield=10.0; player.dmg_reduce=0.5; player.take_damage(40.0); assert(player.shield==0.0 and player.health==90.0)
+	# movement speed scrolls the whole road faster
+	assert(player.move_mult>1.0)
+	# burn ticks damage on a zombie; split spawns fragments
+	_spawn_zombie(player.position.z-6.0,"walker"); var zb=zombies[zombies.size()-1]; zb.health=500.0
+	zb.set_meta("burn",[20.0,2.5]); buff_tick=0.5; _tick_buffs(0.0); assert(zb.health<500.0)
+	var nb: int=bullets.size(); var fake=BulletScript.new(); fake.velocity=Vector3(0,0,-30); fake.damage=10.0; add_child(fake)
+	_on_bullet_hit(zb,fake,zb.position+Vector3(0,1,0)); assert(bullets.size()>nb)
+	fake.queue_free()
+	for nbul in bullets.slice(nb): if is_instance_valid(nbul): nbul.queue_free()
+	bullets.resize(nb); zombies.erase(zb); zb.queue_free()
+	player.reset()
+	distance=keep_dist
 	state="playing"; player.set_weapon("SMG"); player.ammo=5; player.reserve_ammo=10
 	assert(swap_weapon() and player.weapon=="PISTOL" and player.swap_target()=="SMG")
 	assert(swap_weapon() and player.weapon=="SMG" and player.ammo==5 and player.reserve_ammo==10)
@@ -1733,9 +3873,45 @@ func _smoke_test() -> void:
 	assert(crate.counter.text=="3" and crate.bullet_hits(crate.position+Vector3(0,0.5,0.4)))
 	assert(not crate.take_hit(1) and crate.counter.text=="2")
 	crate.take_hit(1); assert(crate.take_hit(1) and crate.broken); _break_crate(crate)
+	# Crate health is damage, sized for 3-8 shots of the current gun.
+	var keep_rt: float=run_time; run_time=0.0
+	var hp0: int=_crate_hits("SHOTGUN"); var shots0: float=hp0/(player.damage*maxf(1.0,player.projectile_count*0.6))
+	assert(shots0>=2.5 and shots0<=8.5 and hp0%5==0)
+	run_time=600.0; var hp1: int=_crate_hits("SNIPER"); assert(hp1>=hp0 and hp1/(player.damage*maxf(1.0,player.projectile_count*0.6))<=8.5)
+	run_time=0.0; assert(_crate_hits("PET_1")>_crate_hits("SMG"))
+	run_time=keep_rt
 	for step in range(40): _tick_crates(0.02)
 	assert(player.weapon=="SHOTGUN" and not crates.has(crate))
 	print("SMOKE_CRATE_OK")
+	# Vehicle crate: break it and the survivor rides — the bike soaks damage, rams zombies
+	# (full kill credit), smokes when nearly done and breaks apart at zero durability.
+	var bike_crate:=WeaponCrateScript.new(); bike_crate.setup("BIKE",5); bike_crate.position=Vector3(-1.5,0,player.position.z-6); add_child(bike_crate); crates.append(bike_crate)
+	await get_tree().process_frame
+	assert(bike_crate.display_name()!="" and bike_crate.bullet_hits(bike_crate.position+Vector3(0,0.5,0.4)))
+	while not bike_crate.take_hit(1): pass
+	_break_crate(bike_crate)
+	assert(player.vehicle=="BIKE" and player.vehicle_durability==player.BIKE_DURABILITY)
+	crates.erase(bike_crate); bike_crate.queue_free()
+	var health_before_ride: float=player.health
+	_hurt_player(30.0); assert(player.health==health_before_ride and player.vehicle_durability==70.0)
+	_spawn_zombie(player.position.z-0.2,"walker"); var rammed=zombies[-1]; rammed.position.x=player.position.x
+	_tick_zombies(0.01); assert(not zombies.has(rammed) and player.vehicle_durability<70.0)
+	player.vehicle_durability=1.0; _tick_vehicle(1.0); assert(player.vehicle=="" and player.health==health_before_ride)
+	print("SMOKE_BIKE_OK")
+	# The district-14 crater is a hole: it shoves the survivor out and the horde never
+	# crosses it (soft steering plus the hard rim).
+	var crater_cz: float=_crater_z(); assert(crater_cz!=INF)
+	var crater_save:=Vector2(player.position.x,player.position.z)
+	player.position=Vector3(CRATER_X,player.position.y,crater_cz); player.target_x=CRATER_X
+	_resolve_crater_collision()
+	assert(absf(player.position.x-CRATER_X)>=CRATER_RADIUS+0.31)
+	player.position.x=crater_save.x; player.position.z=crater_save.y; player.target_x=crater_save.x
+	_spawn_zombie(-6.0); var crater_zombie=zombies[-1]; crater_zombie.position=Vector3(CRATER_X,0,crater_cz-1.2)
+	for step in range(150):
+		crater_zombie.tick(1.0/60.0); _avoid_crater(crater_zombie,1.0/60.0)
+		var cd: float=Vector2(crater_zombie.position.x-CRATER_X,crater_zombie.position.z-crater_cz).length()
+		assert(cd>=CRATER_RADIUS+crater_zombie.radius-0.02)
+	zombies.erase(crater_zombie); crater_zombie.queue_free()
 	_spawn_barrel(); var collision_barrel=barrels[-1]; collision_barrel.position=player.position+Vector3(0,0,-0.2)
 	_resolve_barrel_collision(); assert(_flat_distance(player.position,collision_barrel.position)>=collision_barrel.radius+0.39)
 	collision_barrel.position=Vector3(0,0,-4); await get_tree().process_frame
@@ -1765,6 +3941,10 @@ func _smoke_test() -> void:
 	obstacles.erase(collision_car); collision_car.queue_free()
 	player.reserve_ammo=0; _spawn_pickup("ammo",player.position.z); pickups[-1].position.x=player.position.x; _tick_pickups(0.01); assert(player.reserve_ammo>0)
 	player.health=50; _spawn_pickup("medkit",player.position.z); pickups[-1].position.x=player.position.x; _tick_pickups(0.01); assert(player.health==85)
+	# Darius (paramedic): the medkit pickup restores double (35 → 70).
+	player.set_character(2)
+	player.health=30; _spawn_pickup("medkit",player.position.z); pickups[-1].position.x=player.position.x; _tick_pickups(0.01); assert(player.health==100)
+	player.set_character(0); player.health=player.max_health
 	_spawn_pickup("armor",player.position.z); pickups[-1].position.x=player.position.x; _tick_pickups(0.01)
 	assert(player.has_armor and not player.has_helmet and is_instance_valid(player.armor_model))
 	_spawn_pickup("helmet",player.position.z); pickups[-1].position.x=player.position.x; _tick_pickups(0.01)
@@ -1805,7 +3985,7 @@ func _smoke_test() -> void:
 	for projectile in ordnance:
 		if is_instance_valid(projectile): projectile.queue_free()
 	ordnance.clear()
-	player.health=100; player.take_damage(25); assert(is_equal_approx(player.health,80.0))
+	player.shield=0.0; player.health=100; player.take_damage(25); assert(is_equal_approx(player.health,80.0))
 	_spawn_zombie(-8); var test_z=zombies[-1]; test_z.position.x=0
 	assert(_body_part(test_z,test_z.position+Vector3(0,1.8,0))=="head")
 	assert(_body_part(test_z,test_z.position+Vector3(-0.17,0.5,0))=="leg_l")
@@ -1825,12 +4005,30 @@ func _smoke_test() -> void:
 	run_coins=3; distance=160; var old_bank: int=bank_coins; _end_run(); assert(last_reward==5 and bank_coins==old_bank+5)
 	assert(request_revival() and state=="gameover" and revive_pending)
 	await get_tree().create_timer(0.55).timeout
-	assert(state=="playing" and revive_used and player.health==player.max_health*0.5)
+	assert(state=="playing" and not revive_used and revive_count==1 and player.health==player.max_health*0.5 and revive_invulnerable>9.0)
 	var protected_health: float=player.health; _hurt_player(20); assert(player.health==protected_health)
 	_revive_after_reward(); assert(state=="playing" and player.health==protected_health)
 	run_coins=5; distance=240; player.health=0; _end_run()
 	assert(last_reward==8 and bank_coins==old_bank+8)
-	_revive_after_reward(); assert(state=="gameover" and bank_coins==old_bank+8)
+	# second revive: 30% health, 8 s invincible; then no more this run
+	assert(not revive_used and request_revival()); await get_tree().create_timer(0.55).timeout
+	assert(state=="playing" and revive_used and absf(player.health-player.max_health*0.3)<0.01 and revive_invulnerable>7.0)
+	revive_invulnerable=0.0; player.health=0; _end_run(); assert(not request_revival())
+	_revive_after_reward(); assert(state=="gameover")
+	# share: without a native plugin the text goes to the clipboard
+	assert(share_result()=="clipboard" and share_text().contains(str(int(distance))))
+	# ×2 ad on the results screen: pays the run total once more, only once
+	assert(can_double_run() and request_reward_ad("run_double") and ad_pending=="run_double")
+	await get_tree().create_timer(0.55).timeout
+	assert(ad_pending=="" and run_double_bonus==8 and bank_coins==old_bank+16 and not can_double_run())
+	assert(not request_reward_ad("run_double"))
+	_pointer_down(gameover_double_rect().get_center()); assert(bank_coins==old_bank+16)
+	# New record: only when the best before this run is beaten (first run has nothing to beat).
+	var keep_best: int=best_distance
+	best_distance=100; start_run(); distance=150; _end_run(); assert(new_record and best_distance==150)
+	start_run(); distance=120; _end_run(); assert(not new_record and best_distance==150)
+	best_distance=0; start_run(); distance=80; _end_run(); assert(not new_record and best_distance==80)
+	best_distance=keep_best
 	start_run(); _clear_world(); state="playing"; shot_timer=999; player.health=player.max_health
 	run_time=37.0; jockey_introduced=true; banshee_introduced=false; _spawn_zombie()
 	var automatic_banshee=zombies[-1]
@@ -1848,15 +4046,55 @@ func _smoke_test() -> void:
 	assert(frenzy.burn_timer>5.0 and frenzy.frenzy_timer>4.5 and frenzy.flames.emitting)
 	assert(frenzy.position.z-old_frenzy_z>frenzy.speed*0.15)
 	assert(banshee.burn_timer==0.0 and banshee.flames.emitting)
+	# Maya is selectable, and her field instinct is real: slow self-repair below 60% health
+	# and an adrenaline speed burst after every hit she takes.
+	player.set_character(3); assert(player.character==3 and player.is_maya())
+	player.health=player.max_health*0.4; var regen_before: float=player.health; _tick_buffs(1.0)
+	assert(player.health>regen_before and player.health<=player.max_health*0.6+0.01)
+	player.health=player.max_health; assert(player.instinct_regen_rate()==0.0)
+	var plain_mult: float=player.move_mult
+	_hurt_player(10.0); assert(player.instinct_boost>0.0 and player.effective_move_mult()>plain_mult)
+	player.instinct_boost=0.0; player.health=player.max_health
+	player.set_character(0); assert(player.character==0 and not player.is_maya())
+	# Mid-run chase: the beast ambushes at the distance mark, gains ground, eats every
+	# stumble, and pays out when the survivor lasts the timer.
+	distance=399.0; _chase_reset(); next_chase_at=400.0
+	_tick_chase(0.1); assert(not chase_active)
+	distance=401.0; _tick_chase(0.1); assert(chase_active and is_instance_valid(chaser))
+	var gap_before: float=chase_gap; _tick_chase(0.5); assert(chase_gap<gap_before)
+	_hurt_player(5.0); assert(chase_gap<=gap_before-CHASE_STUMBLE+0.01)
+	var coins_before_chase: int=run_coins
+	chase_time=0.05; _tick_chase(0.1); assert(not chase_active and run_coins==coins_before_chase+CHASE_REWARD)
+	await get_tree().create_timer(1.8).timeout; assert(not is_instance_valid(chaser))
+	player.health=player.max_health
+	# Every supply-truck upgrade is a real, measurable improvement — coins never buy nothing.
+	for item in shop_items:
+		var levels: Dictionary=ShopCatalog.default_levels(); levels[item.id]=1
+		player.reset()
+		if item.id=="medical":
+			player.apply_meta(levels); assert(player.max_health==115.0)
+		elif item.id=="ammo":
+			player.apply_meta(levels); player.set_weapon("SMG"); assert(player.reserve_ammo==138)
+		else:
+			player.apply_meta(levels); player.set_weapon(String(item.weapon))
+			var expected: float=player.base_damage(String(item.weapon))*1.12
+			assert(absf(player.damage-expected)<0.01)
+	# 500 coins into the sniper (all five levels): genuinely stronger than stock.
+	player.reset(); player.apply_meta(ShopCatalog.default_levels()); player.set_weapon("SNIPER")
+	var stock_damage: float=player.damage
+	var maxed_levels: Dictionary=ShopCatalog.default_levels(); maxed_levels["w_sniper"]=5
+	player.reset(); player.apply_meta(maxed_levels); player.set_weapon("SNIPER")
+	assert(player.damage>stock_damage*1.5)
+	player.reset(); distance=keep_dist
 	_begin_intro(); assert(state=="intro" and zombies.size()==9 and intro_horde_offsets.size()==9 and (is_instance_valid(chaser) or not ResourceLoader.exists(BossChaserScript.MODEL_PATH)))
-	assert(player.animation_player.current_animation=="Run_Gun" and player.animation_player.is_playing())
+	assert(player.animation_player.current_animation==player.run_clip and player.animation_player.is_playing())
 	_tick_intro(0.5); assert(is_equal_approx(intro_time,0.5) and camera.fov==50.0)
 	_finish_intro(); assert(state=="playing" and zombies.size()==2 and intro_horde_offsets.is_empty())
 	_begin_intro(); assert(_pointer_down(Vector2(270,480)) and state=="playing" and zombies.size()==2)
 	_begin_intro()
 	var skip_key:=InputEventKey.new(); skip_key.keycode=KEY_SPACE; skip_key.pressed=true
 	_unhandled_input(skip_key); assert(state=="playing" and zombies.size()==2)
-	print("SMOKE_3D_OK languages=20 settings=true character_select=true shop=true rewards=true weapons=true reload=true armor=true helmet=true helmet_protection=true barrel_collision=true barrel_aim=true ordnance=true damage_numbers=true audio=true jockey=true banshee=true fire_frenzy=true revival=true revival_rewards=true intro=true")
+	print("SMOKE_3D_OK languages=20 settings=true character_select=true shop=true rewards=true weapons=true reload=true armor=true helmet=true helmet_protection=true barrel_collision=true barrel_aim=true ordnance=true damage_numbers=true audio=true jockey=true banshee=true fire_frenzy=true revival=true revival_rewards=true intro=true crater=true")
 	_clear_world(); await get_tree().process_frame; await get_tree().process_frame; get_tree().quit()
 
 func _soak_test() -> void:

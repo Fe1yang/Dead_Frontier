@@ -11,6 +11,20 @@ extends SkeletonModifier3D
 ## Extra roll (degrees) about the arm for meshes whose hands are not modelled the way the shared
 ## skeleton expects (the female mesh). Mirrored for the left arm.
 @export var palm_twist_deg:=0.0
+## Lowering the arm only at the shoulder joint bunches the shoulder up (a shrug); dropping the
+## collarbone this many degrees first lets the shoulders sit low and level.
+@export var clavicle_drop:=0.0
+## Base elbow bend (degrees) for stances that should never hang the arms straight:
+## the T-pose sculpted shoulder rips when the arm drops vertically, so the female
+## idle keeps the elbows bent and the hands hovering in front of the hips.
+@export var base_bend:=0.0
+## Per-side extras for idle actions (set every frame by IdleLife): forward lift of the arm
+## (same units as `forward`) and a forward elbow bend in degrees.
+var lift:={"r":0.0,"l":0.0}
+var bend:={"r":0.0,"l":0.0}
+## extra roll of the whole arm about its own axis (degrees, mirrored per side), so a bent
+## forearm swings in across the body instead of out to the side
+var roll:={"r":0.0,"l":0.0}
 
 var body: Node3D # the character root; its +Z is the way the character faces
 ## Bone-space offset from each hand bone to where its mesh hand really is (see GunGripIK.mesh_offset).
@@ -32,7 +46,7 @@ func setup_from_model(model: Node,sk: Skeleton3D) -> void:
 		if name=="": name=sk.get_bone_name(skin.get_bind_bone(i))
 		global_bind[name]=skin.get_bind_pose(i).affine_inverse()
 	for side in ["r","l"]:
-		for n in ["upperarm_"+side,"lowerarm_"+side,"hand_"+side]:
+		for n in ["clavicle_"+side,"upperarm_"+side,"lowerarm_"+side,"hand_"+side]:
 			bones[n]=sk.find_bone(n)
 		# Every bone below the upper arm (forearm, twist bones, wrist, fingers) gets its bind pose.
 		var below: Array=[]
@@ -115,6 +129,12 @@ func _process_modification() -> void:
 	var fwd:=(to_skel*fwd_w).normalized()
 	for side in ["r","l"]:
 		var up: int=bones["upperarm_"+side]; var lo: int=bones["lowerarm_"+side]; var hd: int=bones["hand_"+side]
+		# 0. Collarbone down a little so the shoulder doesn't bunch up when the arm hangs.
+		if absf(clavicle_drop)>0.01:
+			var cl: int=bones["clavicle_"+side]
+			var d: Vector3=_g(sk,up).origin-_g(sk,cl).origin
+			var ax: Vector3=d.cross(down)
+			if ax.length()>0.0001: _rotate_global(sk,cl,Quaternion(ax.normalized(),deg_to_rad(clavicle_drop)))
 		# 1. Rigid forearm + wrist straight from the mesh's bind pose: no stretching.
 		for n in chain.get(side,[]):
 			if bind_local.has(n): sk.set_bone_pose_rotation(sk.find_bone(n),bind_local[n])
@@ -122,7 +142,7 @@ func _process_modification() -> void:
 		var shoulder_w:=sk.global_transform*_g(sk,up).origin
 		var side_w:=shoulder_w-root.global_transform.origin; side_w-=fwd_w*side_w.dot(fwd_w); side_w.y=0
 		var out:=(to_skel*side_w.normalized()).normalized() if side_w.length()>0.001 else Vector3.ZERO
-		var want:=(down+out*outward+fwd*forward).normalized()
+		var want:=(down+out*outward+fwd*(forward+float(lift[side]))).normalized()
 		for pass_i in range(2):
 			var g:=_g(sk,up); var tip: Vector3=_g(sk,hd)*(hand_offset[side] as Vector3)
 			var cur: Vector3=tip-g.origin
@@ -138,3 +158,13 @@ func _process_modification() -> void:
 				var angle: float=p0.normalized().signed_angle_to(p1.normalized(),axis)
 				angle+=deg_to_rad(palm_twist_deg)*(1.0 if side=="r" else -1.0)
 				_rotate_global(sk,up,Quaternion(axis,angle*weight))
+		var rl: float=float(roll[side])
+		if absf(rl)>0.5:
+			var rax: Vector3=(_g(sk,hd).origin-_g(sk,up).origin).normalized()
+			_rotate_global(sk,up,Quaternion(rax,deg_to_rad(rl)*(1.0 if side=="r" else -1.0)*weight))
+		# 4. Optional forward elbow bend for idle actions (the forearm skin holds up to ~90°).
+		var b: float=float(bend[side])+base_bend
+		if b>0.5:
+			var arm_dir: Vector3=(_g(sk,hd).origin-_g(sk,lo).origin).normalized()
+			var bax: Vector3=arm_dir.cross(fwd)
+			if bax.length()>0.0001: _rotate_global(sk,lo,Quaternion(bax.normalized(),deg_to_rad(b)*weight))

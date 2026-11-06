@@ -1,0 +1,7 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 Core Profile Context 25.20.42.17.260320 - Compatibility - Using Device: ATI Technologies Inc. - AMD Radeon(TM) 880M Graphics
+
+SCRIPT ERROR: Assertion failed.
+   at: _smoke_test (res://scripts/main_3d.gd:3448)
+   GDScript backtrace (most recent call first):
+       [0] _smoke_test (res://scripts/main_3d.gd:3448)

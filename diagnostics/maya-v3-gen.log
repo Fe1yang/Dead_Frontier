@@ -1,0 +1,7 @@
+upstream task_id: a0b1323e-79ac-43da-a9c2-65db5d31036d
+download started: fetching generated media
+Saved generated 3D model to: C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\generated\survivor_maya_hd.glb
+model mime_type: model/gltf-binary
+download started: fetching generated media
+Saved rendered preview image to: C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\generated\survivor_maya_hd.preview.png
+Now display the preview image to the user by calling the readFile tool on that path. Reading the image to show it is the model's job, not this plugin's.

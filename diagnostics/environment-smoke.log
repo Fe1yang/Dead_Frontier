@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+WARNING: 'res://assets/models/props/debris_newspaper.glb': In external resource #0, invalid UID: 'uid://c3qgny5g6tvt7' - using text path instead: 'res://assets/models/props/debris_newspaper_evacuation_newspaper.png'.
+   at: open (core/io/resource_format_binary.cpp:1025)
+   GDScript backtrace (most recent call first):
+       [0] _debris (res://scripts/disaster_dressing_3d.gd:85)
+       [1] _scatter_debris (res://scripts/disaster_dressing_3d.gd:108)
+       [2] apply (res://scripts/disaster_dressing_3d.gd:28)
+       [3] _build_road (res://scripts/main_3d.gd:222)
+       [4] _ready (res://scripts/main_3d.gd:141)
+SMOKE_CRATE_OK
+SMOKE_3D_OK languages=20 settings=true character_select=true shop=true rewards=true weapons=true reload=true armor=true helmet=true helmet_protection=true barrel_collision=true barrel_aim=true ordnance=true damage_numbers=true audio=true jockey=true banshee=true fire_frenzy=true revival=true revival_rewards=true intro=true
+ERROR: 2 RID allocations of type 'N13RendererDummy15MaterialStorage13DummyMaterialE' were leaked at exit.
+ERROR: 1 RID allocations of type 'N13RendererDummy15MaterialStorage11DummyShaderE' were leaked at exit.
+ERROR: 1 RID allocations of type 'N13RendererDummy9DummyMeshE' were leaked at exit.
+ERROR: 1 RID allocations of type 'N17RendererSceneCull8InstanceE' were leaked at exit.
+ERROR: Pages in use exist at exit in PagedAllocator: N20RasterizerSceneDummy21GeometryInstanceDummyE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
+   at: ~Dependency (servers/rendering/storage/utilities.cpp:56)
+WARNING: 53 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 48 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

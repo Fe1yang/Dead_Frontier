@@ -1,0 +1,61 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 Core Profile Context 25.20.42.17.260320 - Compatibility - Using Device: ATI Technologies Inc. - AMD Radeon(TM) 880M Graphics
+
+ERROR: 1 RID allocations of type 'N5GLES34MeshE' were leaked at exit.
+ERROR: 2 RID allocations of type 'N5GLES38MaterialE' were leaked at exit.
+ERROR: 1 RID allocations of type 'N5GLES36ShaderE' were leaked at exit.
+ERROR: 1 RID allocations of type 'N17RendererSceneCull8InstanceE' were leaked at exit.
+ERROR: Pages in use exist at exit in PagedAllocator: N20RasterizerSceneGLES323GeometryInstanceSurfaceE
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+ERROR: Pages in use exist at exit in PagedAllocator: N20RasterizerSceneGLES321GeometryInstanceGLES3E
+   at: ~PagedAllocator (./core/templates/paged_allocator.h:170)
+WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
+   at: ~Dependency (servers/rendering/storage/utilities.cpp:56)
+ERROR: 1 shaders of type SceneShaderGLES3 were never freed
+   at: ~ShaderGLES3 (drivers/gles3/shader_gles3.cpp:838)
+WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
+   at: ~Dependency (servers/rendering/storage/utilities.cpp:56)
+WARNING: Leaked instance dependency: Bug - did not call instance_notify_deleted when freeing.
+   at: ~Dependency (servers/rendering/storage/utilities.cpp:56)
+ERROR: Buffer with GL ID of 4203: leaked 67780 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4204: leaked 54224 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4205: leaked 54224 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4206: leaked 34392 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4207: leaked 17196 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4208: leaked 8592 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4209: leaked 4296 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4210: leaked 1764 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4211: leaked 528 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4212: leaked 103140 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4213: leaked 82512 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4214: leaked 82512 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4215: leaked 48072 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4216: leaked 24036 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4217: leaked 12012 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4218: leaked 6000 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4219: leaked 3000 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4220: leaked 1188 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+ERROR: Buffer with GL ID of 4221: leaked 492 bytes.
+   at: ~Utilities (drivers/gles3/storage/utilities.cpp:113)
+WARNING: 53 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 48 resources still in use at exit (run with --verbose for details).
+   at: clear (core/io/resource.cpp:822)

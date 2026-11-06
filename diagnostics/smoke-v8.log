@@ -1,0 +1,19 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SMOKE_SWAP_OK
+SMOKE_CRATE_OK
+SMOKE_BIKE_OK
+ERROR: Parameter "t" is null.
+   at: texture_2d_get (./servers/rendering/dummy/storage/texture_storage.h:110)
+   GDScript backtrace (most recent call first):
+       [0] share_result (res://scripts/main_3d.gd:1256)
+       [1] _smoke_test (res://scripts/main_3d.gd:3885)
+SCRIPT ERROR: Cannot call method 'save_png' on a null value.
+   at: share_result (res://scripts/main_3d.gd:1256)
+   GDScript backtrace (most recent call first):
+       [0] share_result (res://scripts/main_3d.gd:1256)
+       [1] _smoke_test (res://scripts/main_3d.gd:3885)
+SCRIPT ERROR: Assertion failed.
+   at: _smoke_test (res://scripts/main_3d.gd:3885)
+   GDScript backtrace (most recent call first):
+       [0] _smoke_test (res://scripts/main_3d.gd:3885)

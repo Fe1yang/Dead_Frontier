@@ -1,0 +1,82 @@
+name: Build iOS (unsigned IPA)
+
+# Adapted from petrgon/godot-unsigned-ios-build for Dead Run (Godot 4.7.2).
+# Put this file at .github/workflows/build-ios-unsigned.yml in the GitHub repository.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.7.2-stable
+  TEMPLATE_DIR: 4.7.2.stable
+  IOS_PRESET: iOS          # export preset name in export_presets.cfg
+  NAME: DeadRun            # Xcode project / scheme / ipa name
+  HOMEBREW_NO_AUTO_UPDATE: 1
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    timeout-minutes: 60
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Download Godot (macOS)
+      run: |
+        curl -L "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_macos.universal.zip" -o godot.zip
+        unzip -q godot.zip -d godot
+
+    # Instead of committing the 180 MB ios.zip, pull only the iOS template out of the official
+    # export templates package.
+    - name: Install iOS export template
+      run: |
+        curl -L "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz" -o templates.tpz
+        unzip -q -j templates.tpz "templates/ios.zip" -d ios_template
+        dest="$HOME/Library/Application Support/Godot/export_templates/${TEMPLATE_DIR}"
+        mkdir -p "$dest"
+        cp ios_template/ios.zip "$dest/"
+        echo "${TEMPLATE_DIR}" > "$dest/version.txt"
+
+    # .godot/ is not committed, so import all assets once before exporting.
+    - name: Import project
+      run: godot/Godot.app/Contents/MacOS/Godot --headless --path . --import || true
+
+    - name: Export to Xcode project
+      run: |
+        mkdir -p build/ios
+        godot/Godot.app/Contents/MacOS/Godot --headless --path . \
+          --export-release "${IOS_PRESET}" build/ios/${NAME}.xcodeproj
+
+    - name: xcodebuild archive (unsigned)
+      run: |
+        xcodebuild archive \
+          -project build/ios/${NAME}.xcodeproj \
+          -scheme "${NAME}" \
+          -archivePath build/ios/App.xcarchive \
+          -configuration Release \
+          -destination "generic/platform=iOS" \
+          CODE_SIGN_STYLE=Manual \
+          CODE_SIGN_IDENTITY="" \
+          PROVISIONING_PROFILE_SPECIFIER="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          | xcpretty
+
+    - name: Package IPA
+      run: |
+        cd build/ios
+        mkdir -p Payload
+        cp -R App.xcarchive/Products/Applications/*.app Payload/
+        zip -qr "${NAME}.ipa" Payload
+        mv "${NAME}.ipa" ../../
+
+    - name: Upload IPA artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: DeadRun-unsigned-ipa
+        path: DeadRun.ipa
+        retention-days: 14

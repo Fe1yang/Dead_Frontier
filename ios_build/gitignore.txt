@@ -1,0 +1,11 @@
+# Godot cache (re-imported on the build machine)
+.godot/
+# Local tooling / large working files not needed for the game
+.venv-model/
+renders/
+diagnostics/
+references/
+research/
+assets/blender/
+build/
+*.log

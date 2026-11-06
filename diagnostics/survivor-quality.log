@@ -1,0 +1,10 @@
+00:29:20 | INFO: Data are loaded, start creating Blender stuff
+00:29:20 | INFO: Blender create Mesh node mesh_550c10a9-ac1c-4935-a8c8-23a3ef2652ef
+00:29:21 | INFO: glTF import finished in 0.61s
+00:29:23 | INFO: Data are loaded, start creating Blender stuff
+00:29:23 | INFO: Blender create Mesh node mesh_4878ec21-b9f1-49cd-8b4a-5d4f704730f1
+00:29:24 | INFO: glTF import finished in 0.42s
+SURVIVOR_QUALITY_INSPECTED
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

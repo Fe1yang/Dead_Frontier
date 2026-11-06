@@ -1,4 +1,5 @@
 extends Node3D
+const ModelFix=preload("res://scripts/model_fix.gd")
 
 const AnimLibrary=preload("res://scripts/anim_library.gd")
 ## Jockey runs on all fours: its gallop clip is tipped forward about the hips and lowered so
@@ -43,6 +44,8 @@ func configure(type: String, difficulty: float) -> void:
 	match kind:
 		"runner": health=26*difficulty; speed=5.2+difficulty*0.15; damage=14; reward=2; radius=0.36
 		"brute": health=150*difficulty; speed=5.6+difficulty*0.10; damage=32; reward=5; radius=0.80
+		# The bomber waddles in slow and fat; it never swings, it detonates.
+		"bomber","bomber_female": health=120*difficulty; speed=2.7+difficulty*0.08; damage=30; reward=6; radius=0.66
 		"jockey": health=68*difficulty; speed=7.4+difficulty*0.16; damage=22; reward=3; radius=0.48
 		"banshee": health=210*difficulty; speed=1.65+difficulty*0.05; damage=28; reward=8; radius=0.46
 		_: health=44*difficulty; speed=3.65+difficulty*0.1; damage=18; reward=1
@@ -54,20 +57,27 @@ func configure(type: String, difficulty: float) -> void:
 		"runner": "zombie_female_universal.glb",
 		"brute": "zombie_juggernaut_universal.glb",
 		"jockey": "zombie_jockey_universal.glb",
-		"banshee": "zombie_banshee_universal.glb"
+		"banshee": "zombie_banshee_universal.glb",
+		"bomber": "zombie_bomber_universal.glb",
+		"bomber_female": "zombie_bomber_female_universal.glb"
 	}
 	var asset: String="res://assets/models/actors/"+assets.get(kind,"zombie_walker_universal.glb")
+	if not ResourceLoader.exists(asset): asset="res://assets/models/actors/zombie_walker_universal.glb" # bomber models land later
 	model = load(asset).instantiate()
 	# The jockey rig is authored facing -Z; turn it so its head leads toward the player.
 	if kind=="jockey": model.rotation.y=PI
 	if kind=="brute": model.scale*=BRUTE_SCALE
 	add_child(model)
+	ModelFix.double_sided(model)
 	_collect(model)
 	animation_player=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
 	var clip_name := "Zombie_Walk_Fwd"
-	if kind=="brute":
-		# The juggernaut's arm geometry is skinned mostly to the torso in an arms-down pose, so its
-		# arm bones are pinned to that bind pose and only the body/legs take the upright walk.
+	if kind=="brute" or kind.begins_with("bomber"):
+		# The juggernaut/bomber are hulking heavies: they borrow the upright UAL1 "Walk" instead
+		# of the zombie shamble, with the arm tracks stripped and the arm bones pinned to the
+		# bind pose. The juggernaut's arm geometry is skinned mostly to the torso, and the
+		# bomber's belly is so huge that arms-down walk poses would bury the arms inside it —
+		# pinning holds the arms out to the sides, Boomer-style, so they stay visible.
 		var borrowed:=AnimLibrary.borrow(animation_player,"Walk","ual1",{},BRUTE_ARM_BONES)
 		AnimLibrary.pin_to_bind_pose(model,BRUTE_ARM_BONES)
 		if borrowed!="": clip_name=borrowed
@@ -80,6 +90,8 @@ func configure(type: String, difficulty: float) -> void:
 		match kind:
 			"runner": rate=randf_range(1.42,1.62)
 			"brute": rate=_brute_stride_rate()
+			"bomber": rate=_brute_stride_rate()
+			"bomber_female": rate=_brute_stride_rate()
 			"jockey": rate=randf_range(1.18,1.30)
 			"banshee": rate=0.72
 		animation_player.speed_scale=rate
@@ -111,7 +123,22 @@ func _make_health_bar() -> void:
 	bar.position = Vector3(0,height,0)
 	bar_fill.position = bar.position+Vector3(0,0,0.012)
 	add_child(bar); add_child(bar_fill)
-	bar.visible = kind in ["brute","banshee"]; bar_fill.visible = bar.visible
+	bar.visible = kind in ["brute","banshee"] or kind.begins_with("bomber"); bar_fill.visible = bar.visible
+	if kind.begins_with("bomber"): _make_pustules()
+
+## Glowing bile sacs across the gut: the visual warning that this one explodes.
+var pustule_mat: StandardMaterial3D
+func _make_pustules() -> void:
+	pustule_mat=StandardMaterial3D.new()
+	pustule_mat.albedo_color=Color("d8e34a"); pustule_mat.emission_enabled=true
+	pustule_mat.emission=Color("c6e04a"); pustule_mat.emission_energy_multiplier=1.6
+	var spots:=[[-0.16,1.02,0.30,0.085],[0.10,1.12,0.32,0.11],[0.22,0.92,0.24,0.07],[-0.02,0.86,0.33,0.095],[0.05,1.26,0.24,0.06],[-0.24,1.18,0.18,0.06]]
+	for s in spots:
+		var pust:=MeshInstance3D.new()
+		var sm:=SphereMesh.new(); sm.radius=0.5; sm.height=1.0; sm.radial_segments=10; sm.rings=6
+		pust.mesh=sm; pust.position=Vector3(s[0],s[1],s[2]); pust.scale=Vector3.ONE*s[3]*2.0
+		pust.material_override=pustule_mat; pust.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(pust)
 
 func _quad(w: float,h: float,color: Color) -> MeshInstance3D:
 	var n := MeshInstance3D.new()
@@ -220,15 +247,17 @@ func tick(delta: float) -> void:
 	if is_instance_valid(animation_player):
 		var base_rate:=speed/3.7
 		if kind=="jockey": base_rate=1.22
-		elif kind=="brute": base_rate=_brute_stride_rate()
+		elif kind=="brute" or kind.begins_with("bomber"): base_rate=_brute_stride_rate()
 		elif kind=="banshee": base_rate=clampf(banshee_ground_speed/2.3,0.6,1.7)
 		animation_player.speed_scale = 0.0 if stun_timer>0.0 else maxf(0.55,base_rate*(1.30 if frenzy else 1.0))
 
 	if is_instance_valid(flames): flames.emitting=burn_timer>0.0 or kind=="banshee"
 	if is_instance_valid(embers): embers.emitting=flames.emitting
-	bar.visible=kind in ["brute","banshee"] or health<max_health
+	bar.visible=kind in ["brute","banshee"] or kind.begins_with("bomber") or health<max_health
 	bar_fill.visible=bar.visible
 	bar_fill.scale.x=clampf(health/max_health,0,1)
+	# The bile sacs throb as the bomber waddles in.
+	if pustule_mat: pustule_mat.emission_energy_multiplier=1.35+0.75*(0.5+0.5*sin(age*5.0))
 
 ## The Banshee keeps her distance: she walks backwards ahead of the survivor as fast as the
 ## survivor runs, drifting closer and further (roughly 9-19 m ahead), so she can't be outrun

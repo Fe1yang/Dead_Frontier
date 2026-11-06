@@ -1,4 +1,5 @@
 extends Node3D
+const ModelFix=preload("res://scripts/model_fix.gd")
 
 const GunGripIK=preload("res://scripts/gun_grip_ik.gd")
 
@@ -26,9 +27,32 @@ var fire_mode := false
 var damage_scale := 1.0
 var rate_scale := 1.0
 var split_bonus := 0          # extra bullets from gates, kept when changing guns
+# Gate buffs (see buff_catalog.gd). Kept as separate multipliers / bonuses so they survive
+# picking up a new gun (set_weapon re-reads the base stats of each gun).
+var shield := 0.0             # absorbs damage before health
+var regen := 0.0              # HP per second
+var kill_heal := 0.0          # HP per kill
+var dmg_reduce := 0.0         # 0..0.6 of incoming damage removed
+var move_mult := 1.0          # forward run and side-step speed, up to 1.4
+var bullet_speed_scale := 1.0
+var crit_chance := 0.0        # 0..0.6
+var crit_mult := 1.5          # damage x on a crit
+var mag_scale := 1.0
+var reload_scale := 1.0       # reload time multiplier, down to 0.3
+var pierce_bonus := 0
+var bullet_split := 0         # fragments when a bullet hits a zombie
+var explode_chance := 0.0
+var burn_dps := 0.0
+var poison_dps := 0.0
+var shock_chance := 0.0
+var coin_mult := 1.0
+var drop_chance := 0.0
+var ammo_return := 0.0
+var pickup_bonus := 0.0       # extra pickup reach in metres
 var stowed: Dictionary = {}
 var hand_anchor: BoneAttachment3D   # the main gun while the pistol is out: id, ammo, reserve
 var weapon_levels: Dictionary = {} # shop upgrade level per weapon id
+var meta_reserve_bonus := 0     # permanent ammo-case reserve, re-applied on every gun change
 var model: Node3D
 var weapon_model: Node3D
 var armor_model: Node3D
@@ -41,16 +65,41 @@ var grip: SkeletonModifier3D # straight-arm two-hand stance (see gun_grip_ik.gd)
 var has_armor := false
 var has_helmet := false
 var character := 0
+# Motorcycle from a vehicle crate: the survivor rides it, ramming zombies; every hit it soaks
+# (or zombie it runs down) wears it out, it smokes under 30 durability and breaks apart at 0.
+var vehicle := ""
+var vehicle_durability := 0.0
+var vehicle_model: Node3D
+var rider: SkeletonModifier3D
+const BIKE_DURABILITY := 100.0
+## Per-vehicle feel: forward speed, side-step pace, and ram power (how hard it plows through
+## zombies — higher ram = less durability spent per zombie run down). The CAR row is ready for
+## the day a car joins the vehicle crates: faster than the bike and hits much harder.
+const VEHICLE_STATS := {
+	"BIKE": {"speed": 2.1, "side": 1.55, "ram": 1.0},
+	"CAR": {"speed": 2.7, "side": 1.6, "ram": 1.8},
+}
+
+func vehicle_speed() -> float:
+	return float(VEHICLE_STATS.get(vehicle, {}).get("speed", 1.0)) if vehicle != "" else 1.0
+
+func vehicle_side() -> float:
+	return float(VEHICLE_STATS.get(vehicle, {}).get("side", 1.0)) if vehicle != "" else 1.0
+
+func vehicle_ram() -> float:
+	return float(VEHICLE_STATS.get(vehicle, {}).get("ram", 1.0)) if vehicle != "" else 1.0
 var legs: Array[Node3D] = []
 var walk_time := 0.0
 var flash_time := 0.0
 var hurt_flash := 0.0
 var aim_direction := Vector3.FORWARD
 var light: OmniLight3D
+var torch: SpotLight3D
+var torch_spill: OmniLight3D
 var flash: Node3D
 
 const GRIP_OFFSETS := {
-	"PISTOL": Vector3(0.0,0.20,0.10),
+	"PISTOL": Vector3(0.0,0.20,0.18),  # pushed forward: the grip was clipping into the palm
 	"SMG": Vector3(0.0,0.23,0.20),
 	"SHOTGUN": Vector3(0.0,0.12,0.12),
 	"SNIPER": Vector3(0.0,0.13,0.15),
@@ -92,12 +141,91 @@ func _ready() -> void:
 	light.omni_range = 0.48
 	light.light_energy = 0.0
 	add_child(light)
+	torch=SpotLight3D.new(); torch.light_color=Color("e3edff"); torch.spot_range=18.0; torch.spot_angle=44.0
+	# The emitter sits just beyond the muzzle; disabling self-shadowing stops the gun
+	# itself from blacking out its own beam in the Compatibility renderer.
+	torch.spot_angle_attenuation=1.15; torch.spot_attenuation=1.0; torch.shadow_enabled=false; torch.light_energy=0.0
+	add_child(torch); torch.visible=false
+	torch_spill=OmniLight3D.new(); torch_spill.light_color=Color("c9dcff"); torch_spill.omni_range=2.8; torch_spill.light_energy=0.0
+	add_child(torch_spill)
 	set_aim(aim_direction)
 
-func set_character(index: int) -> void:
-	character = clampi(index,0,1)
+func set_night(night: float) -> void:
+	if is_instance_valid(torch):
+		torch.visible=night>0.025; torch.light_energy=9.0*night
+	if is_instance_valid(torch_spill): torch_spill.light_energy=0.65*night
+
+func set_character(index: int, asset_override:="") -> void:
+	character = clampi(index,0,CHARACTER_ASSETS.size()-1)
+	character_asset_override = asset_override
 	_load_character()
 	set_aim(aim_direction)
+
+## Darius the paramedic doubles every healing effect (medkits, heal gates, kill-heal,
+## regen). Kept as a derived value so it can never desync from the chosen character.
+func heal_scale() -> float:
+	return 2.0 if character==2 else 1.0
+
+## Maya's field instinct: she slowly patches herself up when she's hurting (never past
+## 60% — it is a survival net, not sustain), and every hit she takes floods her with
+## adrenaline: a short burst of extra speed to get clear.
+const INSTINCT_REGEN:=1.5        # HP per second while below the cap
+const INSTINCT_REGEN_CAP:=0.6    # …up to this share of max health
+const INSTINCT_HASTE_TIME:=2.5   # seconds of speed after a hit
+const INSTINCT_HASTE:=1.25       # speed multiplier while the adrenaline lasts
+var instinct_boost:=0.0          # seconds of adrenaline left
+
+func is_maya() -> bool:
+	return character==3
+
+func instinct_regen_rate() -> float:
+	if not is_maya() or health>=max_health*INSTINCT_REGEN_CAP: return 0.0
+	return INSTINCT_REGEN
+
+## The survivor's real pace: gate buffs, Maya's adrenaline, and the bike's engine.
+func effective_move_mult() -> float:
+	return move_mult*(INSTINCT_HASTE if instinct_boost>0.0 else 1.0)*vehicle_speed()
+
+func on_vehicle() -> bool:
+	return vehicle!=""
+
+## Climb on: the bike appears under the survivor, the run cycle freezes and the seated
+## pose modifier folds the legs onto the pegs (arms stay on the gun via the grip IK).
+func mount_vehicle(id: String) -> void:
+	if vehicle!="" or not ResourceLoader.exists("res://assets/models/motorcycle.glb"): return
+	vehicle=id; vehicle_durability=BIKE_DURABILITY
+	vehicle_model=(load("res://assets/models/motorcycle.glb") as PackedScene).instantiate() as Node3D
+	vehicle_model.position=Vector3(0,0,0.05)
+	add_child(vehicle_model); ModelFix.double_sided(vehicle_model)
+	if is_instance_valid(skeleton):
+		rider=(load("res://scripts/rider_pose.gd") as GDScript).new() as SkeletonModifier3D
+		rider.set("body",model); skeleton.add_child(rider)
+
+## Back on foot (bike broken or the run reset): drop the pose; the run cycle never stopped.
+func dismount_vehicle() -> void:
+	vehicle=""
+	if is_instance_valid(vehicle_model): vehicle_model.queue_free(); vehicle_model=null
+	if is_instance_valid(rider): rider.queue_free(); rider=null
+
+func _tick_vehicle_visual(delta: float) -> void:
+	if not is_instance_valid(vehicle_model): return
+	for w in ["WheelFrontPivot","WheelRearPivot"]:
+		var pivot:=vehicle_model.find_child(w,true,false) as Node3D
+		if pivot: pivot.rotation.x+=delta*10.0
+
+const CHARACTER_ASSETS := ["survivor_male_universal","survivor_riley_universal","survivor_medic_universal","survivor_maya_universal"]
+## Female characters run on the female-captured clips (narrower stance, no male hip sway).
+const FEMALE_CHARACTERS := [1, 3]  # riley, maya
+
+var run_clip:="Run_Gun"     # resolved in _play_run (female variant when available)
+
+## Animation name for this character: the "_F" female variant when the model has one.
+func _anim_name(base: String) -> String:
+	if character in FEMALE_CHARACTERS and is_instance_valid(animation_player) and animation_player.has_animation(base+"_F"):
+		return base+"_F"
+	return base
+
+var character_asset_override:="" # outfit skin: full res:// path that replaces the default body
 
 func _load_character() -> void:
 	if is_instance_valid(model):
@@ -107,16 +235,20 @@ func _load_character() -> void:
 	helmet_model = null
 	helmet_attachment = null
 	weapon_model = null
-	var asset := "survivor_male_universal" if character==0 else "survivor_female_universal"
-	model = load("res://assets/models/actors/"+asset+".glb").instantiate()
+	var asset_path: String = character_asset_override
+	if asset_path=="": asset_path="res://assets/models/actors/"+CHARACTER_ASSETS[clampi(character,0,CHARACTER_ASSETS.size()-1)]+".glb"
+	if not ResourceLoader.exists(asset_path): asset_path="res://assets/models/actors/"+CHARACTER_ASSETS[0]+".glb"
+	model = load(asset_path).instantiate()
 	model.rotation.y = PI
 	add_child(model)
+	ModelFix.double_sided(model)
 	legs.clear()
 	skeleton=model.find_child("Skeleton3D",true,false) as Skeleton3D
 	right_hand=skeleton.find_bone("hand_r") if is_instance_valid(skeleton) else -1
 	grip=null
 	if is_instance_valid(skeleton):
 		grip=GunGripIK.new()
+		grip.character=character
 		grip.hand_offset={"r":GunGripIK.mesh_offset(model,"hand_r"),"l":GunGripIK.mesh_offset(model,"hand_l")}
 		skeleton.add_child(grip)
 		# Follows the hand bone after the IK has run, so the gun sits exactly in the visible palm.
@@ -127,12 +259,18 @@ func _load_character() -> void:
 	set_armor(has_armor)
 	set_helmet(has_helmet)
 
+## The run clip moves a planted foot ~0.97 m/s at normal speed, but the road scrolls at
+## 3.5 m/s, so at the old 0.88 the feet skated. 1.9 is a fast sprint cadence (0.7 s a
+## stride pair) that cuts the slide by more than half without looking cartoonish.
+const RUN_ANIM_SPEED := 1.9
+
 func _play_run() -> void:
-	if is_instance_valid(animation_player) and animation_player.has_animation("Run_Gun"):
-		var clip := animation_player.get_animation("Run_Gun")
+	run_clip=_anim_name("Run_Gun")
+	if is_instance_valid(animation_player) and animation_player.has_animation(run_clip):
+		var clip := animation_player.get_animation(run_clip)
 		clip.loop_mode = Animation.LOOP_LINEAR
-		animation_player.speed_scale = 0.88
-		animation_player.play("Run_Gun")
+		animation_player.speed_scale = RUN_ANIM_SPEED*move_mult
+		animation_player.play(run_clip)
 
 func _load_weapon_model() -> void:
 	if is_instance_valid(weapon_model):
@@ -159,11 +297,16 @@ func _load_muzzle_flash() -> void:
 	add_child(flash)
 
 func reset() -> void:
+	dismount_vehicle()
 	max_health = 100.0
 	health = max_health
 	projectile_count = 1
 	gun_level = 1
 	split_bonus = 0
+	shield = 0.0; regen = 0.0; kill_heal = 0.0; dmg_reduce = 0.0; move_mult = 1.0
+	bullet_speed_scale = 1.0; crit_chance = 0.0; crit_mult = 1.5; mag_scale = 1.0; reload_scale = 1.0
+	pierce_bonus = 0; bullet_split = 0; explode_chance = 0.0; burn_dps = 0.0; poison_dps = 0.0
+	shock_chance = 0.0; coin_mult = 1.0; drop_chance = 0.0; ammo_return = 0.0; pickup_bonus = 0.0
 	stowed = {}
 	scrap = 0
 	damage_scale = 1.0
@@ -176,6 +319,7 @@ func reset() -> void:
 	flashbang_count = 1
 	fire_ammo = 0
 	fire_mode = false
+	instinct_boost = 0.0
 	set_armor(false)
 	set_helmet(false)
 	set_weapon("PISTOL")
@@ -216,16 +360,32 @@ func set_helmet(equipped: bool) -> void:
 func apply_meta(upgrades: Dictionary) -> void:
 	max_health=100.0+int(upgrades.get("medical",0))*15.0
 	health=max_health
-	reserve_ammo+=int(upgrades.get("ammo",0))*30
+	# The ammo case is permanent: the extra reserve is re-applied by set_weapon every
+	# time a gun is (re)loaded, so picking up a crate gun never wipes the purchase.
+	meta_reserve_bonus=int(upgrades.get("ammo",0))*30
+	reserve_ammo+=meta_reserve_bonus
 	var boost:=1.0+int(upgrades.get("damage",0))*0.08
 	damage_scale*=boost; damage*=boost
 	weapon_levels.clear()
 	for w in ["PISTOL","SMG","SHOTGUN","RIFLE","SNIPER","LAUNCHER"]:
 		weapon_levels[w]=int(upgrades.get("w_"+w.to_lower(),0))
-	damage*=weapon_bonus(weapon)
+	# Weapon upgrade damage is applied inside set_weapon (which reset() just ran), so the
+	# bonus lands exactly once per gun — never squared by applying it again here.
+	damage=base_damage(weapon)*weapon_bonus(weapon)
 
 func weapon_bonus(id: String) -> float:
 	return 1.0+int(weapon_levels.get(id,0))*0.12
+
+## The gun's damage before gate buffs and shop upgrades — one source of truth shared by
+## set_weapon and apply_meta so a bought level always lands exactly once.
+func base_damage(id: String) -> float:
+	match id:
+		"SMG": return 12.0*damage_scale
+		"SNIPER": return 95.0*damage_scale
+		"SHOTGUN": return 30.0*damage_scale
+		"PISTOL": return 24.0*damage_scale
+		"LAUNCHER": return 180.0*damage_scale
+		_: return 20.0*damage_scale
 
 func set_weapon(id: String) -> void:
 	weapon = id
@@ -252,7 +412,13 @@ func set_weapon(id: String) -> void:
 		_:
 			weapon = "RIFLE"; magazine_size = 30; damage = 20.0*damage_scale; fire_interval = 0.30*rate_scale
 			bullet_speed = 28.0; pierce = 0; reload_duration = 1.25; reserve_ammo = 90
-	damage *= weapon_bonus(weapon)
+	damage = base_damage(weapon)*weapon_bonus(weapon)
+	# The ammo case bought in the supply truck is never lost to a weapon swap.
+	reserve_ammo += meta_reserve_bonus
+	magazine_size = maxi(1,int(round(magazine_size*mag_scale)))
+	reload_duration *= reload_scale
+	bullet_speed *= bullet_speed_scale
+	pierce += pierce_bonus
 	projectile_count = mini(9 if weapon=="SHOTGUN" else 5, projectile_count+split_bonus)
 	ammo = magazine_size
 	gun_level += 1
@@ -261,12 +427,9 @@ func set_weapon(id: String) -> void:
 
 func set_aim(direction: Vector3) -> void:
 	if direction.length()<0.01: return
-	# Never aim back over the shoulder while running forward: that turns the survivor round
-	# and the two-handed stance reads as crossed arms. Keep aim in the forward half.
+	# Full 360° aim: the survivor turns on the spot to shoot whatever is picked,
+	# including the horde (or the beast) coming up from behind.
 	direction.y=0.0
-	if direction.z>-0.05:
-		direction.z=-0.05
-		if absf(direction.x)<0.05: direction.x=0.0; direction.z=-1.0
 	aim_direction = direction.normalized()
 	var yaw: float=PI+atan2(-aim_direction.x,-aim_direction.z)
 	if is_instance_valid(model): model.rotation.y=yaw
@@ -274,27 +437,43 @@ func set_aim(direction: Vector3) -> void:
 
 func _update_weapon_transform() -> void:
 	if not is_instance_valid(weapon_model) or not is_instance_valid(model): return
+	# Flush movement/yaw before reading muzzle and hand globals; otherwise the torch
+	# lags one frame behind a sideways-moving player in the Compatibility renderer.
+	force_update_transform(); model.force_update_transform()
 	var hand_position:=Vector3(0,1.42,0.38)
-	if is_instance_valid(hand_anchor) and is_instance_valid(grip) and hand_anchor.is_inside_tree():
+	if is_instance_valid(grip) and grip.grip_point!=Vector3.ZERO and grip.support_point!=Vector3.ZERO:
+		# Both IK points refer to the visible palms, not the possibly misaligned hand bones.
+		# Center every survivor's weapon between those palms instead of hanging it off hand_r.
+		var between_hands: Vector3=(grip.grip_point+grip.support_point)*0.5
+		hand_position=model.global_transform.affine_inverse()*skeleton.global_transform*between_hands
+	elif is_instance_valid(hand_anchor) and is_instance_valid(grip) and hand_anchor.is_inside_tree():
 		hand_position=model.global_transform.affine_inverse()*(hand_anchor.global_transform*(grip.hand_offset["r"] as Vector3))
 	elif is_instance_valid(grip) and grip.grip_point!=Vector3.ZERO:
-		# The IK owns the firing hand, so mount the weapon where the IK put the grip.
 		hand_position=model.global_transform.affine_inverse()*skeleton.global_transform*grip.grip_point
 	elif is_instance_valid(skeleton) and right_hand>=0:
 		var hand_global:=skeleton.to_global(skeleton.get_bone_global_pose(right_hand).origin)
 		hand_position=model.global_transform.affine_inverse()*hand_global
 	var weapon_scale:=float(WEAPON_SCALES.get(weapon,0.5))
 	weapon_model.position=hand_position+GRIP_OFFSETS.get(weapon,GRIP_OFFSETS["PISTOL"])*weapon_scale
+	weapon_model.force_update_transform()
 	var muzzle:=to_local(muzzle_position())
 	if is_instance_valid(light): light.position=muzzle
+	if is_instance_valid(torch):
+		torch.position=muzzle+aim_direction*0.08+Vector3(0,-0.04,0)
+		torch.look_at(to_global(torch.position+aim_direction*8.0+Vector3(0,-0.85,0)),Vector3.UP)
+	if is_instance_valid(torch_spill): torch_spill.position=muzzle-aim_direction*0.30
 	if is_instance_valid(flash):
 		flash.position=muzzle
 		flash.quaternion=Quaternion(Vector3.LEFT,aim_direction)
 
 func tick(delta: float) -> void:
-	position.x = move_toward(position.x,target_x,delta*6.8)
+	_tick_vehicle_visual(delta)
+	instinct_boost=maxf(0.0,instinct_boost-delta)
+	position.x = move_toward(position.x,target_x,delta*6.8*effective_move_mult()*vehicle_side())
 	position.x = clampf(position.x,-3.15,3.15)
 	walk_time += delta*6.6
+	if is_instance_valid(animation_player) and animation_player.current_animation==run_clip:
+		animation_player.speed_scale = RUN_ANIM_SPEED*effective_move_mult()   # feet keep pace with the road (speed buff too)
 	model.position.y = 0.0
 	if is_instance_valid(grip):
 		# Dip the gun while reloading; per-weapon support-hand reach along the barrel.
@@ -349,11 +528,12 @@ func request_reload() -> bool:
 	if reloading or ammo>=magazine_size or (reserve_ammo<=0 and not infinite_ammo()): return false
 	reloading = true
 	reload_timer = reload_duration
-	if is_instance_valid(animation_player) and animation_player.has_animation("Reload_Gun"):
-		var clip := animation_player.get_animation("Reload_Gun")
+	var reload_clip:=_anim_name("Reload_Gun")
+	if is_instance_valid(animation_player) and animation_player.has_animation(reload_clip):
+		var clip := animation_player.get_animation(reload_clip)
 		clip.loop_mode = Animation.LOOP_NONE
 		animation_player.speed_scale = clip.length/reload_duration
-		animation_player.play("Reload_Gun")
+		animation_player.play(reload_clip)
 	return true
 
 func finish_reload() -> void:
@@ -366,18 +546,68 @@ func finish_reload() -> void:
 	_play_run()
 
 func take_damage(amount: float) -> void:
-	var applied_damage := amount * (0.8 if has_helmet else 1.0)
+	var applied_damage := amount * (0.8 if has_helmet else 1.0) * (1.0-dmg_reduce)
+	if shield>0.0:
+		var soak := minf(shield,applied_damage)
+		shield -= soak; applied_damage -= soak
 	health = maxf(0,health-applied_damage)
 	hurt_flash = 0.2
+	if applied_damage>0.0 and is_maya(): instinct_boost=INSTINCT_HASTE_TIME # adrenaline: run!
 
-func apply_upgrade(id: String) -> void:
+## `value` comes from the gate's rarity roll (percent for damage / rate, HP for heal, bullets for
+## split); -1 keeps the original common-gate amounts.
+func apply_upgrade(id: String,value:=-1.0) -> void:
 	match id:
 		# Small steps per gate (many gates per run), so a run builds up gradually.
-		"damage": damage_scale *= 1.08; damage *= 1.08; gun_level += 1
-		"rate": rate_scale *= 0.94; fire_interval = maxf(0.075,fire_interval*0.94); gun_level += 1
-		"split": split_bonus += 1; projectile_count = mini(9 if weapon=="SHOTGUN" else 5,projectile_count+1); gun_level += 1
-		"heal": health = minf(max_health,health+15)
+		"damage":
+			var f:=1.0+(8.0 if value<0 else value)/100.0
+			damage_scale *= f; damage *= f; gun_level += 1
+		"rate":
+			var f:=1.0-(6.0 if value<0 else value)/100.0
+			rate_scale *= f; fire_interval = maxf(0.075,fire_interval*f); gun_level += 1
+		"multishot":
+			var n:=1 if value<0 else int(value)
+			split_bonus += n; projectile_count = mini(9 if weapon=="SHOTGUN" else 5,projectile_count+n); gun_level += 1
+		"heal": health = minf(max_health,health+(15.0 if value<0 else value)*heal_scale())
+		"max_hp": max_health += value; health = minf(max_health,health+value)
+		"regen": regen += value
+		"kill_heal": kill_heal += value
+		"dmg_reduce": dmg_reduce = minf(0.6,dmg_reduce+value/100.0)
+		"shield": shield = minf(200.0,shield+value)
+		"move": move_mult = minf(1.4,move_mult*(1.0+value/100.0))
+		"bullet_speed":
+			var f:=1.0+value/100.0
+			bullet_speed_scale *= f; bullet_speed *= f
+		"crit_chance": crit_chance = minf(0.6,crit_chance+value/100.0)
+		"crit_damage": crit_mult += value/100.0
+		"magazine":
+			var f:=1.0+value/100.0
+			mag_scale *= f
+			var grown:=maxi(magazine_size+1,int(round(magazine_size*f)))
+			ammo += grown-magazine_size; magazine_size = grown
+		"reserve":
+			# spare magazines for the gun that uses them (the pistol never runs out)
+			if weapon!="PISTOL": reserve_ammo += magazine_size*int(value)
+			elif not stowed.is_empty(): stowed.reserve = int(stowed.reserve)+30*int(value)
+		"reload":
+			var f:=1.0-value/100.0
+			var before:=reload_scale; reload_scale = maxf(0.3,reload_scale*f)
+			reload_duration *= reload_scale/before
+		"pierce": pierce_bonus += int(value); pierce += int(value)
+		"split": bullet_split += int(value)
+		"explode": explode_chance = minf(0.6,explode_chance+value/100.0)
+		"burn": burn_dps += value
+		"poison": poison_dps += value
+		"shock": shock_chance = minf(0.6,shock_chance+value/100.0)
+		"coins": coin_mult += value/100.0
+		"drop": drop_chance = minf(0.4,drop_chance+value/100.0)
+		"ammo_return": ammo_return = minf(0.6,ammo_return+value/100.0)
+		"pickup_range": pickup_bonus += value*0.5
 		"smg", "sniper", "shotgun", "pistol": set_weapon(id.to_upper())
+
+## A gate buff that would do nothing right now is never offered (see main_3d _buff_useful).
+func can_use_reserve() -> bool:
+	return weapon!="PISTOL" or not stowed.is_empty()
 
 func muzzle_position() -> Vector3:
 	if is_instance_valid(weapon_model):

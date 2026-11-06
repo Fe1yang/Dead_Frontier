@@ -2,6 +2,11 @@ extends Node
 
 signal revive_rewarded
 signal revive_cancelled
+## Other rewarded placements (check-in double, run-coins double) share the same ad unit and
+## report back with the purpose they were opened for.
+signal ad_rewarded(purpose: String)
+signal ad_cancelled(purpose: String)
+var purpose := "revive"
 
 # AdMob app "Dead Frontier": ca-app-pub-3341507214983966~4803691884 (set in Project Settings > admob/general/ios/app_id).
 # Rewarded unit "Revival_reward" — only served in release (exported) builds.
@@ -80,21 +85,33 @@ func setup_rewarded_callbacks() -> void:
 		_destroy_rewarded_ad()
 		if reward_earned and not reward_sent:
 			reward_sent=true
-			revive_rewarded.emit()
+			_emit_reward()
 		else:
-			revive_cancelled.emit()
+			_emit_cancel()
 		load_rewarded_ad()
 	callbacks.on_ad_failed_to_show_full_screen_content=func(error: AdError) -> void:
 		showing=false
 		status="unavailable"
 		push_warning("Revival ad failed to show: "+error.message)
 		_destroy_rewarded_ad()
-		revive_cancelled.emit()
+		_emit_cancel()
 		load_rewarded_ad()
 	rewarded_ad.full_screen_content_callback=callbacks
 
-func show_revival_ad() -> bool:
+func show_reward_ad(for_purpose: String) -> bool:
+	return show_revival_ad(for_purpose)
+
+func _emit_reward() -> void:
+	if purpose=="revive": revive_rewarded.emit()
+	else: ad_rewarded.emit(purpose)
+
+func _emit_cancel() -> void:
+	if purpose=="revive": revive_cancelled.emit()
+	else: ad_cancelled.emit(purpose)
+
+func show_revival_ad(for_purpose:="revive") -> bool:
 	if showing: return false
+	purpose=for_purpose
 	if OS.get_name()!="iOS":
 		_show_desktop_preview()
 		return true
@@ -120,7 +137,7 @@ func _show_desktop_preview() -> void:
 	if not is_inside_tree(): return
 	showing=false
 	status="desktop"
-	revive_rewarded.emit()
+	_emit_reward()
 
 func _destroy_rewarded_ad() -> void:
 	if is_instance_valid(rewarded_ad): rewarded_ad.destroy()

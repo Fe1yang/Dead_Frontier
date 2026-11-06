@@ -1,0 +1,226 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+11:31:29 | INFO: Starting glTF 2.0 export
+11:31:29 | INFO: Extracting primitive: Background city building mesh.002
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Exposed masonry scar mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Air conditioner cabinet mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Rain stain mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Interior blind slat mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Kerb stone mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Storm drain inset mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Apartment entrance door mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Rain stain mesh.006
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Recessed window glazing mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Recessed window glazing mesh.001
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Pedestrian instruction plaque mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Avenue edge line mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Segmented city pavement mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Background window mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Masonry apartment volume mesh.001
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Background city building mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Masonry apartment volume mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Facade settlement crack mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Window inner side reveal mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Flat roof membrane mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Signal black face gasket mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Avenue street blade mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: 柱体.027
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: 柱体.022
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: 柱体.017
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Apartment stone plinth mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Rain stain mesh.004
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Storm drain slot mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Low rise porch roof mesh
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Narrow townhouse volume mesh.001
+11:31:29 | INFO: Primitives created: 1
+11:31:29 | INFO: Extracting primitive: Crack weed blades mesh
+11:31:29 | INFO: Primitives created: 2
+11:31:30 | INFO: Finished glTF 2.0 export in 0.4725480079650879 s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+
+CITY_DISTRICT_EXPORTED 11 objects 37
+11:31:31 | INFO: Starting glTF 2.0 export
+11:31:31 | INFO: Extracting primitive: Background city building mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Background city building mesh.001
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Kerb stone mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Storm drain inset mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Pedestrian instruction plaque mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Avenue edge line mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Segmented city pavement mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Background city building mesh.002
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Avenue street blade mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Background window mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Signal black face gasket mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: 柱体.021
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: 柱体.016
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: 柱体.011
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Storm drain slot mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Irregular asphalt fracture mesh
+11:31:31 | INFO: Primitives created: 1
+11:31:31 | INFO: Extracting primitive: Crack weed blades mesh
+11:31:31 | INFO: Primitives created: 2
+11:31:31 | INFO: Finished glTF 2.0 export in 0.1761476993560791 s
+
+CITY_DISTRICT_EXPORTED 17 objects 19
+11:31:39 | INFO: Starting glTF 2.0 export
+11:31:39 | INFO: Extracting primitive: Background city building mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Background city building mesh.002
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Exposed masonry scar mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Low rise entrance mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Deep canvas awning mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Kerb stone mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Storm drain inset mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Background window mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Rain stain mesh.009
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Balcony frosted screen mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Recessed window glazing mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: 文本
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Modern floor band mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Avenue edge line mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:31:39 | INFO: Primitives created: 1
+11:31:39 | INFO: Extracting primitive: Segmented city pavement mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Rain stain mesh.003
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Background city building mesh.001
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Rain stain mesh.006
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: 柱体.027
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Irregular asphalt fracture mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Window inner side reveal mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Flat roof membrane mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Signal black face gasket mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Shop display glass mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Shop stall riser mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Sign enamel face mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: 柱体.022
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: 柱体.017
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Storm drain slot mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Rain stain mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: 柱体.002
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Slim stone sill mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Dried facade blood mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Low rise porch roof mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Masonry apartment volume mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Mixed use shop volume mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Modern apartment main volume mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Narrow townhouse volume mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Shopfront surround mesh
+11:31:40 | INFO: Primitives created: 1
+11:31:40 | INFO: Extracting primitive: Crack weed blades mesh
+11:31:40 | INFO: Primitives created: 2
+11:31:40 | INFO: Finished glTF 2.0 export in 0.3745894432067871 s
+
+CITY_DISTRICT_EXPORTED 23 objects 46
+CITY_DISTRICTS_COMPLETE 3
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

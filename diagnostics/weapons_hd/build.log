@@ -1,0 +1,296 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_weapons_hd.py:13: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+05:19:22 | INFO: Starting glTF 2.0 export
+05:19:22 | INFO: Extracting primitive: Barrel crownMesh
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 柱体
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.022
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.028
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: Frame ergonomicMesh
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.024
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.023
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: Grip angledMesh
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.005
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.006
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.007
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.008
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.009
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.010
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.016
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.017
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.018
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.019
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.020
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.021
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: Grip insetMesh
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.027
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.025
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.026
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: Slide sculptedMesh
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.001
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.002
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.003
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.004
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.011
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.012
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.013
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.014
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 立方体.015
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: 柱体.001
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: Trigger blade
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Extracting primitive: Trigger guard
+05:19:22 | INFO: Primitives created: 1
+05:19:22 | INFO: Finished glTF 2.0 export in 0.25166964530944824 s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_weapons_hd.py:199: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  world=bpy.data.worlds.new('Preview world'); world.use_nodes=True
+00:08.953  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\weapons_hd\pistol.png'
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_weapons_hd.py:13: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
+
+HD_WEAPON_EXPORTED pistol
+05:19:27 | INFO: Starting glTF 2.0 export
+05:19:27 | INFO: Extracting primitive: BarrelMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.064
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Curved magazineMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.033
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.038
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.029
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.030
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.031
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.032
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.034
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.035
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.036
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.037
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Lower receiverMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.043
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.044
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.045
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Muzzle compensatorMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.039
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.040
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.041
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.042
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.047
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.048
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.049
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.050
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.051
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.052
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.053
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.054
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.055
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.056
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.057
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.058
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.059
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.060
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.061
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.062
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Pistol gripMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.046
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 立方体.063
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Red dot housingMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 柱体.004
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Stock rod
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Stock rod.001
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Stock shoulder padMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 柱体.002
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: 柱体.003
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Trigger
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Trigger guard.001
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Upper receiverMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Vented handguardMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Extracting primitive: Vertical foregripMesh
+05:19:27 | INFO: Primitives created: 1
+05:19:27 | INFO: Finished glTF 2.0 export in 0.15323352813720703 s
+00:12.671  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\weapons_hd\smg.png'
+
+HD_WEAPON_EXPORTED smg
+05:19:31 | INFO: Starting glTF 2.0 export
+05:19:31 | INFO: Extracting primitive: BarrelMesh.001
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.081
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.082
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: Forged receiverMesh
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.023
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.079
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.005
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.006
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.007
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.008
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.009
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.010
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.011
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.012
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.013
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.014
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.015
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.016
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: Magazine tubeMesh
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.065
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.066
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.067
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.068
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.069
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.070
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.071
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.072
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.073
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.074
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.075
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.076
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.077
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.078
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: Pump walnut forendMesh
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: Recoil padMesh
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.018
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.020
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.022
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 立方体.080
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.017
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.019
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.021
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.024
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: 柱体.025
+05:19:31 | INFO: Primitives created: 1
+05:19:31 | INFO: Extracting primitive: Trigger.001
+05:57:48 | INFO: Primitives created: 1
+05:57:48 | INFO: Extracting primitive: Trigger guard.002
+05:57:48 | INFO: Primitives created: 1
+05:57:48 | INFO: Extracting primitive: Walnut stockMesh
+05:57:48 | INFO: Primitives created: 1
+05:57:48 | INFO: Finished glTF 2.0 export in 2297.6369059085846 s

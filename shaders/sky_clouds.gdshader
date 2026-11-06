@@ -10,6 +10,9 @@ uniform vec4 sky_sunset : source_color = vec4(0.15, 0.2, 0.4, 1.0);
 uniform vec4 horizon_night : source_color = vec4(0.1, 0.15, 0.2, 1.0);
 uniform vec4 sky_night : source_color = vec4(0.05, 0.10, 0.15, 1.0);
 uniform float day_night_mix : hint_range(-1.0, 1.0, 0.1) = 0.8;
+// Explicit game-clock blend: LIGHT0_DIRECTION is a direction to the lamp, not a
+// reliable day/night sign when the sun is turned to shine back along the street.
+uniform float daylight_blend : hint_range(-1.0, 1.0, 0.1) = 1.0;
 uniform bool use_directional_light = true;
 uniform float horizon_exponent = 2.0;
 uniform float sunset_amount_exponent = 0.7;
@@ -54,10 +57,7 @@ float get_cloud_height(sampler2D tex, vec2 uv) {
 void sky() {
 	float t = plane_intersection(vec3(0.0, 1.0, 0.0), vec3(0.0, -1.0, 0.0), vec3(0.0), EYEDIR);
 	
-	float blend = day_night_mix;
-	if(use_directional_light){
-		blend = LIGHT0_DIRECTION.y;
-	}
+	float blend = daylight_blend;
 
 	vec3 sky = vec3(0.0);
 	vec3 horizon_color = vec3(0.0);
@@ -104,13 +104,15 @@ void sky() {
 	sky_color = mix(sky_night_mix, sky_color, clamp(pow(1.0+blend, 4.0),0.0,1.0)).rgb;
 
 	sky = mix(sky_color, horizon_color, pow(1.0 - abs(EYEDIR.y), horizon_exponent));
-	sky = mix(sky, cloud_color.rgb * (1.0 + flash * 2.5), pow(cloud_value, 0.8));
+	float cloud_alpha = smoothstep(0.10, 0.52, cloud_value);
+	sky = mix(sky, cloud_color.rgb * (1.0 + flash * 2.5), cloud_alpha);
 	sky += vec3(0.75, 0.82, 1.0) * flash * 0.6;
 
 
 	sky += stars * 1.0;
 
-	sky = mix(sky, mix(sky_color * 0.5, horizon_color, EYEDIR.y + 1.0).rgb, clamp(pow(1.0 - EYEDIR.y, 2.0), 0.0, 1.0));
+	float horizon_wash = clamp(pow(1.0 - EYEDIR.y, 2.0), 0.0, 1.0) * 0.58;
+	sky = mix(sky, mix(sky_color * 0.5, horizon_color, EYEDIR.y + 1.0).rgb, horizon_wash);
 	if(use_directional_light) {
 		sky += sun * clamp(pow(EYEDIR.y + 1.0, 16.0),0.0,1.0);
 		sky += moon * clamp(pow(EYEDIR.y + 1.0, 16.0),0.0,1.0);

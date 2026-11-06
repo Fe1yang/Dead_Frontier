@@ -1,0 +1,45 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_street_debris.py:15: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+17:26:13 | INFO: Starting glTF 2.0 export
+17:26:13 | INFO: Extracting primitive: 立方体
+17:26:13 | INFO: Primitives created: 1
+17:26:13 | INFO: Finished glTF 2.0 export in 0.13126611709594727 s
+
+DEBRIS_EXPORTED debris_concrete_00 verts 800 faces 1038
+17:26:13 | INFO: Starting glTF 2.0 export
+17:26:13 | INFO: Extracting primitive: 立方体.001
+17:26:13 | INFO: Primitives created: 1
+17:26:13 | INFO: Finished glTF 2.0 export in 0.015394926071166992 s
+
+DEBRIS_EXPORTED debris_concrete_01 verts 800 faces 1024
+17:26:13 | INFO: Starting glTF 2.0 export
+17:26:13 | INFO: Extracting primitive: 立方体.002
+17:26:13 | INFO: Primitives created: 1
+17:26:13 | INFO: Finished glTF 2.0 export in 0.05148124694824219 s
+
+DEBRIS_EXPORTED debris_brick verts 800 faces 1030
+17:26:13 | INFO: Starting glTF 2.0 export
+17:26:13 | INFO: Extracting primitive: Splintered plank mesh
+17:26:13 | INFO: Primitives created: 2
+17:26:13 | INFO: Finished glTF 2.0 export in 0.030779600143432617 s
+
+DEBRIS_EXPORTED debris_board verts 284 faces 254
+17:26:13 | INFO: Starting glTF 2.0 export
+17:26:13 | INFO: Extracting primitive: Crushed can mesh
+17:26:13 | INFO: Primitives created: 2
+17:26:13 | INFO: Finished glTF 2.0 export in 0.016122817993164062 s
+
+DEBRIS_EXPORTED debris_can verts 1080 faces 1042
+17:26:13 | INFO: Starting glTF 2.0 export
+17:26:13 | INFO: Extracting primitive: Curled newspaper mesh
+17:26:13 | INFO: Primitives created: 1
+17:26:13 | INFO: Finished glTF 2.0 export in 0.018908023834228516 s
+
+DEBRIS_EXPORTED debris_newspaper verts 504 faces 502
+信息: 已另存为 "street_debris.blend"
+STREET_DEBRIS_COMPLETE
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

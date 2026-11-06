@@ -1,0 +1,43 @@
+02:28:43 | INFO: Data are loaded, start creating Blender stuff
+02:28:43 | INFO: Blender create Mesh node Mannequin
+02:28:45 | INFO: glTF import finished in 2.40s
+02:28:46 | INFO: Data are loaded, start creating Blender stuff
+02:28:46 | INFO: Blender create Mesh node Mannequin
+02:28:48 | INFO: glTF import finished in 2.51s
+02:28:48 | INFO: Data are loaded, start creating Blender stuff
+02:28:48 | INFO: Blender create Mesh node mesh_9f5d9d84-3400-4516-9a1f-50b88bae1ad7
+02:28:48 | INFO: glTF import finished in 0.09s
+SKIN_TRANSFER HighDetailCharacter 7369 vertices; missing weights 0
+DEFAULT_ACTION bomber Zombie_Walk_Fwd_Loop
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+02:28:49 | INFO: Starting glTF 2.0 export
+02:28:49 | INFO: Extracting primitive: mesh_9f5d9d84-3400-4516-9a1f-50b88bae1ad7
+02:28:50 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+02:28:50 | INFO: Primitives created: 1
+02:28:50 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+02:28:52 | INFO: Finished glTF 2.0 export in 2.9024462699890137 s
+
+UNIVERSAL_ACTOR_EXPORTED bomber C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\zombie_bomber_universal.glb actions ['Death01', 'Hit_Knockback', 'Zombie_Idle_Loop', 'Zombie_Scratch', 'Zombie_Walk_Fwd_Loop']
+02:28:53 | INFO: Data are loaded, start creating Blender stuff
+02:28:53 | INFO: Blender create Mesh node Mannequin
+02:28:55 | INFO: glTF import finished in 2.41s
+02:28:56 | INFO: Data are loaded, start creating Blender stuff
+02:28:56 | INFO: Blender create Mesh node Mannequin
+02:28:58 | INFO: glTF import finished in 2.64s
+02:28:58 | INFO: Data are loaded, start creating Blender stuff
+02:28:58 | INFO: Blender create Mesh node mesh_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe
+02:28:58 | INFO: glTF import finished in 0.10s
+SKIN_TRANSFER HighDetailCharacter 8564 vertices; missing weights 0
+DEFAULT_ACTION bomber_female Zombie_Walk_Fwd_Loop
+02:28:59 | INFO: Starting glTF 2.0 export
+02:28:59 | INFO: Extracting primitive: mesh_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe
+02:28:59 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+02:28:59 | INFO: Primitives created: 1
+02:28:59 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+02:29:02 | INFO: Finished glTF 2.0 export in 2.637174129486084 s
+
+UNIVERSAL_ACTOR_EXPORTED bomber_female C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\zombie_bomber_female_universal.glb actions ['Death01', 'Hit_Knockback', 'Zombie_Idle_Loop', 'Zombie_Scratch', 'Zombie_Walk_Fwd_Loop']
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

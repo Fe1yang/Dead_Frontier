@@ -1,0 +1,1576 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+20:42:51 | INFO: Starting glTF 2.0 export
+20:42:51 | INFO: Extracting primitive: 文本
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Air conditioner cabinet mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Interior blind slat mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Kerb stone mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Storm drain inset mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Background city building mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Background city building mesh.001
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Background window mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Apartment entrance door mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Window vertical casing mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Window glazing mesh.001
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Window glazing mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Deep canvas awning mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Avenue edge line mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Segmented city pavement mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Deep window reveal mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Shop display glass mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Shop stall riser mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Flat roof membrane mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Apartment stone plinth mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Storm drain slot mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Masonry apartment volume mesh.001
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Narrow townhouse volume mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: 柱体.003
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Shopfront surround mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Sign enamel face mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:42:51 | INFO: Primitives created: 1
+20:42:51 | INFO: Finished glTF 2.0 export in 0.38822245597839355 s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+
+信息: 已另存为 "district_00_master.blend"
+CITY_DISTRICT_EXPORTED 0 objects 30
+20:42:54 | INFO: Starting glTF 2.0 export
+20:42:54 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:42:54 | INFO: Primitives created: 1
+20:42:54 | INFO: Extracting primitive: Deep canvas awning mesh
+20:42:54 | INFO: Primitives created: 1
+20:42:54 | INFO: Extracting primitive: Interior blind slat mesh
+20:42:54 | INFO: Primitives created: 1
+20:42:54 | INFO: Extracting primitive: Parked car lower body mesh
+20:42:54 | INFO: Primitives created: 1
+20:42:54 | INFO: Extracting primitive: Kerb stone mesh
+20:42:54 | INFO: Primitives created: 1
+20:42:54 | INFO: Extracting primitive: Storm drain inset mesh
+20:42:54 | INFO: Primitives created: 1
+20:42:54 | INFO: Extracting primitive: Background city building mesh
+20:42:54 | INFO: Primitives created: 1
+20:42:54 | INFO: Extracting primitive: Background city building mesh.001
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Background window mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Apartment entrance door mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Shopfront mullion mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Window glazing mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Window glazing mesh.005
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: 文本
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Avenue edge line mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Segmented city pavement mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Deep window reveal mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Flat roof membrane mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: 柱体.006
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Shop display glass mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Sign enamel face mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Shop stall riser mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Storm drain slot mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Projecting stone sill mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Extracting primitive: Shopfront surround mesh
+20:42:55 | INFO: Primitives created: 1
+20:42:55 | INFO: Finished glTF 2.0 export in 0.2690236568450928 s
+
+CITY_DISTRICT_EXPORTED 1 objects 29
+20:42:57 | INFO: Starting glTF 2.0 export
+20:42:57 | INFO: Extracting primitive: Bus shelter bench mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Deep canvas awning mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Interior blind slat mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Kerb stone mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Storm drain inset mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Background city building mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Background city building mesh.001
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Background window mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Townhouse front door mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Window vertical casing mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Window glazing mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Window glazing mesh.003
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: 文本
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Avenue edge line mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Segmented city pavement mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Deep window reveal mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Flat roof membrane mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Shop display glass mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Sign enamel face mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Townhouse raised basement mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Storm drain slot mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Sign enamel face mesh.001
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Narrow townhouse volume mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: 柱体.005
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Shopfront surround mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:42:57 | INFO: Primitives created: 1
+20:42:57 | INFO: Finished glTF 2.0 export in 0.2575035095214844 s
+
+CITY_DISTRICT_EXPORTED 2 objects 30
+20:43:00 | INFO: Starting glTF 2.0 export
+20:43:00 | INFO: Extracting primitive: Air conditioner cabinet mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Kerb stone mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Background city building mesh.001
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Background city building mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Background window mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Apartment entrance door mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Window glazing mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: 柱体.006
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: 文本
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Shop display glass mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: 柱体.003
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Apartment stone plinth mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Masonry apartment volume mesh.001
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:00 | INFO: Primitives created: 1
+20:43:00 | INFO: Finished glTF 2.0 export in 0.27269649505615234 s
+
+CITY_DISTRICT_EXPORTED 3 objects 29
+20:43:03 | INFO: Starting glTF 2.0 export
+20:43:03 | INFO: Extracting primitive: Air conditioner cabinet mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Kerb stone mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Background city building mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Background city building mesh.001
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Background window mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Window glazing mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Deep canvas awning mesh.001
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: 文本
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Shop display glass mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Deco vertical pier mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: 柱体.001
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:03 | INFO: Primitives created: 1
+20:43:03 | INFO: Finished glTF 2.0 export in 0.3728780746459961 s
+
+CITY_DISTRICT_EXPORTED 4 objects 30
+20:43:06 | INFO: Starting glTF 2.0 export
+20:43:06 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:06 | INFO: Primitives created: 1
+20:43:06 | INFO: Extracting primitive: Deep canvas awning mesh.001
+20:43:06 | INFO: Primitives created: 1
+20:43:06 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:06 | INFO: Primitives created: 1
+20:43:06 | INFO: Extracting primitive: Kerb stone mesh
+20:43:06 | INFO: Primitives created: 1
+20:43:06 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:06 | INFO: Primitives created: 1
+20:43:06 | INFO: Extracting primitive: Background city building mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Background city building mesh.001
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Background window mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Shopfront mullion mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Window glazing mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: 文本
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Shop display glass mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: 柱体.011
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: 柱体.010
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: 柱体.009
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Traffic signal housing mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Projecting stone sill mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Apartment entrance door mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Window glazing mesh.007
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Mixed use shop volume mesh.001
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Extracting primitive: Narrow townhouse volume mesh
+20:43:07 | INFO: Primitives created: 1
+20:43:07 | INFO: Finished glTF 2.0 export in 0.2988889217376709 s
+
+CITY_DISTRICT_EXPORTED 5 objects 33
+20:43:09 | INFO: Starting glTF 2.0 export
+20:43:09 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Parked car lower body mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Kerb stone mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Background city building mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Background city building mesh.001
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Background window mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Shopfront mullion mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Window glazing mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Window glazing mesh.002
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Deep canvas awning mesh.001
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: 文本
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Office horizontal spandrel mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Office glazed bay mesh.001
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: 柱体.006
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Shop display glass mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Projecting stone sill mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Mixed use shop volume mesh.001
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Office core mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:09 | INFO: Primitives created: 1
+20:43:09 | INFO: Finished glTF 2.0 export in 0.2655472755432129 s
+
+信息: 已另存为 "district_01_master.blend"
+CITY_DISTRICT_EXPORTED 6 objects 34
+20:43:11 | INFO: Starting glTF 2.0 export
+20:43:11 | INFO: Extracting primitive: Office horizontal spandrel mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Kerb stone mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Background city building mesh.001
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Background city building mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Background window mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Window glazing mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: 文本
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Office glazed bay mesh.001
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Shop display glass mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Sign enamel face mesh.001
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Deco vertical pier mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Modern floor band mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Office core mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:11 | INFO: Primitives created: 1
+20:43:11 | INFO: Finished glTF 2.0 export in 0.24777674674987793 s
+
+CITY_DISTRICT_EXPORTED 7 objects 31
+20:43:13 | INFO: Starting glTF 2.0 export
+20:43:13 | INFO: Extracting primitive: Kerb stone mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Background city building mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Background city building mesh.001
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Background window mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Window glazing mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Office glazed bay mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: 柱体.003
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: 文本
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Modern floor band mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Office horizontal spandrel mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Office glazed bay mesh.001
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Shop display glass mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Side roof parapet mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Office core mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Modern apartment main volume mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Sign enamel face mesh.001
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:13 | INFO: Primitives created: 1
+20:43:13 | INFO: Finished glTF 2.0 export in 0.29347872734069824 s
+
+CITY_DISTRICT_EXPORTED 8 objects 31
+20:43:15 | INFO: Starting glTF 2.0 export
+20:43:15 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Deep canvas awning mesh.001
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Kerb stone mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Background city building mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Background city building mesh.001
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Background window mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Shopfront mullion mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Window glazing mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Window glazing mesh.005
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: 文本
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Modern floor band mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Office horizontal spandrel mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Office glazed bay mesh.001
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Shop display glass mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: 柱体.002
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Projecting stone sill mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Extracting primitive: Mixed use shop volume mesh.001
+20:43:15 | INFO: Primitives created: 1
+20:43:15 | INFO: Finished glTF 2.0 export in 0.23808550834655762 s
+
+CITY_DISTRICT_EXPORTED 9 objects 31
+20:43:17 | INFO: Starting glTF 2.0 export
+20:43:17 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Kerb stone mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Background city building mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Background city building mesh.001
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Background window mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Window glazing mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Window glazing mesh.002
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: 柱体.009
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: 文本
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Modern floor band mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Office horizontal spandrel mesh
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Office glazed bay mesh.001
+20:43:17 | INFO: Primitives created: 1
+20:43:17 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Shop display glass mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Projecting stone sill mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Modern apartment main volume mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: 柱体.002
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:18 | INFO: Primitives created: 1
+20:43:18 | INFO: Finished glTF 2.0 export in 0.36356067657470703 s
+
+CITY_DISTRICT_EXPORTED 10 objects 34
+20:43:20 | INFO: Starting glTF 2.0 export
+20:43:20 | INFO: Extracting primitive: Side roof parapet mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Kerb stone mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Background city building mesh.001
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Background city building mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Background window mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Office glazed bay mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: 文本
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Office horizontal spandrel mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Office glazed bay mesh.001
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Shop display glass mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: 柱体.005
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: 柱体.004
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: 柱体.003
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Traffic signal housing mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Sign enamel face mesh.001
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Office core mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:20 | INFO: Primitives created: 1
+20:43:20 | INFO: Finished glTF 2.0 export in 0.23172521591186523 s
+
+CITY_DISTRICT_EXPORTED 11 objects 33
+20:43:21 | INFO: Starting glTF 2.0 export
+20:43:21 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:21 | INFO: Primitives created: 1
+20:43:21 | INFO: Extracting primitive: Kerb stone mesh
+20:43:21 | INFO: Primitives created: 1
+20:43:21 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:21 | INFO: Primitives created: 1
+20:43:21 | INFO: Extracting primitive: Background city building mesh
+20:43:21 | INFO: Primitives created: 1
+20:43:21 | INFO: Extracting primitive: Background city building mesh.001
+20:43:21 | INFO: Primitives created: 1
+20:43:21 | INFO: Extracting primitive: Background window mesh
+20:43:21 | INFO: Primitives created: 1
+20:43:21 | INFO: Extracting primitive: Townhouse front door mesh
+20:43:21 | INFO: Primitives created: 1
+20:43:21 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Window glazing mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Modern floor band mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Townhouse raised basement mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Modern apartment main volume mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Narrow townhouse volume mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Narrow townhouse volume mesh.001
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:22 | INFO: Primitives created: 1
+20:43:22 | INFO: Finished glTF 2.0 export in 0.23868989944458008 s
+
+信息: 已另存为 "district_02_master.blend"
+CITY_DISTRICT_EXPORTED 12 objects 25
+20:43:24 | INFO: Starting glTF 2.0 export
+20:43:24 | INFO: Extracting primitive: 文本
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Air conditioner cabinet mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Kerb stone mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Background city building mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Background city building mesh.001
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Background window mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Apartment entrance door mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Window glazing mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Window glazing mesh.005
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Shop display glass mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Modern floor band mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Apartment stone plinth mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Modern apartment main volume mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Narrow townhouse volume mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:24 | INFO: Primitives created: 1
+20:43:24 | INFO: Finished glTF 2.0 export in 0.3096153736114502 s
+
+CITY_DISTRICT_EXPORTED 13 objects 30
+20:43:26 | INFO: Starting glTF 2.0 export
+20:43:26 | INFO: Extracting primitive: 文本
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Kerb stone mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Background city building mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Background city building mesh.001
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Background window mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Window glazing mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Townhouse front door mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Modern floor band mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Shop display glass mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Projecting stone sill mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Window glazing mesh.002
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Modern apartment main volume mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: 柱体.005
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:26 | INFO: Primitives created: 1
+20:43:26 | INFO: Finished glTF 2.0 export in 0.3070998191833496 s
+
+CITY_DISTRICT_EXPORTED 14 objects 31
+20:43:28 | INFO: Starting glTF 2.0 export
+20:43:28 | INFO: Extracting primitive: 文本
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Kerb stone mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Background city building mesh.001
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Background city building mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Background window mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Townhouse front door mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Window glazing mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Shop display glass mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Townhouse raised basement mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Narrow townhouse volume mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Narrow townhouse volume mesh.001
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: 柱体.003
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:28 | INFO: Primitives created: 1
+20:43:28 | INFO: Finished glTF 2.0 export in 0.2857959270477295 s
+
+CITY_DISTRICT_EXPORTED 15 objects 29
+20:43:31 | INFO: Starting glTF 2.0 export
+20:43:31 | INFO: Extracting primitive: 文本
+20:43:31 | INFO: Primitives created: 1
+20:43:31 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Parked car lower body mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Kerb stone mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Background city building mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Background city building mesh.001
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Background window mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Townhouse front door mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Shopfront mullion mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Window glazing mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Air conditioner cabinet mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: 柱体.007
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Shop display glass mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Projecting stone sill mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Narrow townhouse volume mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Masonry apartment volume mesh.001
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:32 | INFO: Primitives created: 1
+20:43:32 | INFO: Finished glTF 2.0 export in 0.2940804958343506 s
+
+CITY_DISTRICT_EXPORTED 16 objects 30
+20:43:35 | INFO: Starting glTF 2.0 export
+20:43:35 | INFO: Extracting primitive: Air conditioner cabinet mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Kerb stone mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Background city building mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Background city building mesh.001
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Background window mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Apartment entrance door mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Window glazing mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Window glazing mesh.005
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Avenue street blade mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: 柱体.009
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: 柱体.008
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: 柱体.007
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Traffic signal housing mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Apartment stone plinth mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Masonry apartment volume mesh.001
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Modern floor band mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Full height timber accent mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Extracting primitive: Modern apartment main volume mesh
+20:43:35 | INFO: Primitives created: 1
+20:43:35 | INFO: Finished glTF 2.0 export in 0.28995323181152344 s
+
+CITY_DISTRICT_EXPORTED 17 objects 28
+20:43:38 | INFO: Starting glTF 2.0 export
+20:43:38 | INFO: Extracting primitive: Apartment entrance door mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Bus shelter bench mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Kerb stone mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Background city building mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Background city building mesh.001
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Background window mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Loading roller door mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Shopfront mullion mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Window glazing mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: 文本
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Loading door reveal mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Shop display glass mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Loading dock bumper mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Industrial warehouse volume mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Warehouse corrugated rib mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: 柱体.004
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:38 | INFO: Primitives created: 1
+20:43:38 | INFO: Finished glTF 2.0 export in 0.3699989318847656 s
+
+信息: 已另存为 "district_03_master.blend"
+CITY_DISTRICT_EXPORTED 18 objects 32
+20:43:40 | INFO: Starting glTF 2.0 export
+20:43:40 | INFO: Extracting primitive: Air conditioner cabinet mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Kerb stone mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Background city building mesh.001
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Background city building mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Background window mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Apartment entrance door mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Loading roller door mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Window glazing mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Shop display glass mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: 文本
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Apartment stone plinth mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Warehouse corrugated rib mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Industrial warehouse volume mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: 柱体.004
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Extracting primitive: Sign enamel face mesh.001
+20:43:40 | INFO: Primitives created: 1
+20:43:40 | INFO: Finished glTF 2.0 export in 0.2887742519378662 s
+
+CITY_DISTRICT_EXPORTED 19 objects 30
+20:43:42 | INFO: Starting glTF 2.0 export
+20:43:42 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Parked vehicle silhouette mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Kerb stone mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Background city building mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Background city building mesh.001
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Background window mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Loading roller door mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Shopfront mullion mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Window glazing mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Parked vehicle silhouette mesh.002
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: 文本
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Shop display glass mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Shop stall riser mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Projecting stone sill mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Industrial warehouse volume mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Warehouse corrugated rib mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Mixed use shop volume mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:42 | INFO: Primitives created: 1
+20:43:42 | INFO: Finished glTF 2.0 export in 0.26100969314575195 s
+
+CITY_DISTRICT_EXPORTED 20 objects 32
+20:43:44 | INFO: Starting glTF 2.0 export
+20:43:44 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Parked vehicle silhouette mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Kerb stone mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Background city building mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Background city building mesh.001
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Background window mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Loading roller door mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Window glazing mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Window glazing mesh.002
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: 文本
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Loading door reveal mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: 柱体.004
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Parked vehicle silhouette mesh.002
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Loading dock bumper mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Industrial warehouse volume mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Warehouse corrugated rib mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Extracting primitive: Sign enamel face mesh.001
+20:43:44 | INFO: Primitives created: 1
+20:43:44 | INFO: Finished glTF 2.0 export in 0.22809290885925293 s
+
+CITY_DISTRICT_EXPORTED 21 objects 28
+20:43:46 | INFO: Starting glTF 2.0 export
+20:43:46 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Parked vehicle silhouette mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Kerb stone mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Background city building mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Background city building mesh.001
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Background window mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Deco entry doors mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Loading roller door mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Window glazing mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Window glazing mesh.002
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Parked vehicle silhouette mesh.002
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: 文本
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Deco vertical pier mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Industrial warehouse volume mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Stepped deco main volume mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Warehouse corrugated rib mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Sign enamel face mesh.002
+20:43:46 | INFO: Primitives created: 1
+20:43:46 | INFO: Extracting primitive: Streetlight diffuser mesh
+20:43:46 | INFO: Primitives created: 1
+20:43:47 | INFO: Finished glTF 2.0 export in 0.2789266109466553 s
+
+CITY_DISTRICT_EXPORTED 22 objects 29
+20:43:49 | INFO: Starting glTF 2.0 export
+20:43:49 | INFO: Extracting primitive: Apartment entrance door mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Deep canvas awning mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Parked vehicle silhouette mesh.002
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Parked vehicle silhouette mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Kerb stone mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Storm drain inset mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Background city building mesh.001
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Background city building mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Background window mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Interior blind slat mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Loading roller door mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Window vertical casing mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Window glazing mesh.001
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Window glazing mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: 文本
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Avenue edge line mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Main avenue asphalt mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Segmented city pavement mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Deep window reveal mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Flat roof membrane mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Shop display glass mesh
+20:43:49 | INFO: Primitives created: 1
+20:43:49 | INFO: Extracting primitive: Sign enamel face mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: 柱体.010
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: 柱体.009
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: 柱体.008
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Traffic signal housing mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Storm drain slot mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Sign enamel face mesh.001
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Parking deck edge mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Parking concrete deck mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Warehouse corrugated rib mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Masonry apartment volume mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Extracting primitive: Shopfront surround mesh
+20:43:50 | INFO: Primitives created: 1
+20:43:50 | INFO: Finished glTF 2.0 export in 0.2844889163970947 s
+
+CITY_DISTRICT_EXPORTED 23 objects 34
+CITY_DISTRICTS_COMPLETE 24
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

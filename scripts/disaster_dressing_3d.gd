@@ -22,6 +22,13 @@ static func apply(road: Node3D,index: int,zombie_script: GDScript) -> void:
 	# One small, grouped debris site every few blocks, not a continuous carpet.
 	if index%4==2:
 		_scatter_debris(root,-1 if index%8==2 else 1,rng)
+	# An occasional real death pose on the pavement; these are scenery, never shootable targets.
+	if index%5==2:
+		var corpse:=load("res://scripts/corpse_3d.gd").new() as Node3D
+		corpse.seed_value=9817+index*3571
+		corpse.body_count=1
+		corpse.position=Vector3((-1.0 if index%2==0 else 1.0)*rng.randf_range(4.85,5.65),0.17,rng.randf_range(-5.6,5.6))
+		root.add_child(corpse)
 	# Ambient watchers on the pavement: some stand and sway, some sit slumped on a crate, all
 	# watching the road. They can be shot (kills and coins count) and travel with the city loop.
 	if index%2==0:

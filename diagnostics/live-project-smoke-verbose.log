@@ -1,0 +1,699 @@
+WorkerThreadPool: 20 threads, 6 max low-priority.
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+TextServer: Added interface "Dummy"
+TextServer: Added interface "ICU / HarfBuzz / Graphite (Built-in)"
+Using "default" pen tablet driver...
+
+TextServer: Primary interface set to: "ICU / HarfBuzz / Graphite (Built-in)".
+CORE API HASH: 2004498165
+EDITOR API HASH: 1696660745
+SceneTreeFTI: traversal method DEFAULT
+Loaded system CA certificates
+Loading resource: res://scenes/main.tscn remapped: res://scenes/main.tscn
+Loading resource: res://scripts/main_3d.gd remapped: res://scripts/main_3d.gd
+Loading resource: res://assets/models/frag_grenade.glb remapped: res://assets/models/frag_grenade.glb
+Loading resource: res://.godot/imported/frag_grenade.glb-07b8337c8b518b8354cfc6016982f58c.scn remapped: res://.godot/imported/frag_grenade.glb-07b8337c8b518b8354cfc6016982f58c.scn
+Completed load for: 'res://assets/models/frag_grenade.glb' remapped 'res://assets/models/frag_grenade.glb' at thread -1
+Loading resource: res://assets/models/flashbang.glb remapped: res://assets/models/flashbang.glb
+Loading resource: res://.godot/imported/flashbang.glb-57b3a8bdcf2ca99b1b6ac912801ea130.scn remapped: res://.godot/imported/flashbang.glb-57b3a8bdcf2ca99b1b6ac912801ea130.scn
+Completed load for: 'res://assets/models/flashbang.glb' remapped 'res://assets/models/flashbang.glb' at thread -1
+Loading resource: res://assets/models/fire_round.glb remapped: res://assets/models/fire_round.glb
+Loading resource: res://.godot/imported/fire_round.glb-9b9d7aed6f5f6b948846de1a02188e07.scn remapped: res://.godot/imported/fire_round.glb-9b9d7aed6f5f6b948846de1a02188e07.scn
+Completed load for: 'res://assets/models/fire_round.glb' remapped 'res://assets/models/fire_round.glb' at thread -1
+Loading resource: res://assets/models/medkit.glb remapped: res://assets/models/medkit.glb
+Loading resource: res://.godot/imported/medkit.glb-419c92cfed2dcce002010ecd3e055c26.scn remapped: res://.godot/imported/medkit.glb-419c92cfed2dcce002010ecd3e055c26.scn
+Completed load for: 'res://assets/models/medkit.glb' remapped 'res://assets/models/medkit.glb' at thread -1
+Loading resource: res://assets/models/armor.glb remapped: res://assets/models/armor.glb
+Loading resource: res://.godot/imported/armor.glb-ff9f1f7f8ec2497fa2c244817a6c4732.scn remapped: res://.godot/imported/armor.glb-ff9f1f7f8ec2497fa2c244817a6c4732.scn
+Completed load for: 'res://assets/models/armor.glb' remapped 'res://assets/models/armor.glb' at thread -1
+Loading resource: res://assets/models/helmet.glb remapped: res://assets/models/helmet.glb
+Loading resource: res://.godot/imported/helmet.glb-773bbb0e9374b60506e5d9448ddfdd02.scn remapped: res://.godot/imported/helmet.glb-773bbb0e9374b60506e5d9448ddfdd02.scn
+Completed load for: 'res://assets/models/helmet.glb' remapped 'res://assets/models/helmet.glb' at thread -1
+Loading resource: res://assets/models/ammo_pickup.glb remapped: res://assets/models/ammo_pickup.glb
+Loading resource: res://.godot/imported/ammo_pickup.glb-c13dccd92c707033e5c73136b7be216d.scn remapped: res://.godot/imported/ammo_pickup.glb-c13dccd92c707033e5c73136b7be216d.scn
+Completed load for: 'res://assets/models/ammo_pickup.glb' remapped 'res://assets/models/ammo_pickup.glb' at thread -1
+Loading resource: res://assets/models/weapons/launcher.glb remapped: res://assets/models/weapons/launcher.glb
+Loading resource: res://.godot/imported/launcher.glb-a78d482bed1558ce48e1e805ffb209aa.scn remapped: res://.godot/imported/launcher.glb-a78d482bed1558ce48e1e805ffb209aa.scn
+Completed load for: 'res://assets/models/weapons/launcher.glb' remapped 'res://assets/models/weapons/launcher.glb' at thread -1
+Loading resource: res://addons/admob/internal/mock/mock_admob_factory.gd remapped: res://addons/admob/internal/mock/mock_admob_factory.gd
+Loading resource: res://addons/admob/assets/flood_it_icon.svg remapped: res://addons/admob/assets/flood_it_icon.svg
+Loading resource: res://.godot/imported/flood_it_icon.svg-05e240b107ea2708023f4d29eeb3364d.ctex remapped: res://.godot/imported/flood_it_icon.svg-05e240b107ea2708023f4d29eeb3364d.ctex
+Completed load for: 'res://addons/admob/assets/flood_it_icon.svg' remapped 'res://addons/admob/assets/flood_it_icon.svg' at thread -1
+Loading resource: res://addons/admob/assets/format-interstitial.svg remapped: res://addons/admob/assets/format-interstitial.svg
+Loading resource: res://.godot/imported/format-interstitial.svg-068610673c8c89ff9e1c9b26ba7eac17.ctex remapped: res://.godot/imported/format-interstitial.svg-068610673c8c89ff9e1c9b26ba7eac17.ctex
+Completed load for: 'res://addons/admob/assets/format-interstitial.svg' remapped 'res://addons/admob/assets/format-interstitial.svg' at thread -1
+Loading resource: res://addons/admob/assets/icon-120.png remapped: res://addons/admob/assets/icon-120.png
+Loading resource: res://.godot/imported/icon-120.png-f1130a47a81f19626ca0e688a5d38d3a.ctex remapped: res://.godot/imported/icon-120.png-f1130a47a81f19626ca0e688a5d38d3a.ctex
+Completed load for: 'res://addons/admob/assets/icon-120.png' remapped 'res://addons/admob/assets/icon-120.png' at thread -1
+Loading resource: res://addons/admob/assets/google_play_icon.svg remapped: res://addons/admob/assets/google_play_icon.svg
+Loading resource: res://.godot/imported/google_play_icon.svg-db138edd186a01176101b2b1dffa6f27.ctex remapped: res://.godot/imported/google_play_icon.svg-db138edd186a01176101b2b1dffa6f27.ctex
+Completed load for: 'res://addons/admob/assets/google_play_icon.svg' remapped 'res://addons/admob/assets/google_play_icon.svg' at thread -1
+Loading resource: res://addons/admob/assets/format-rewarded-interstitial.svg remapped: res://addons/admob/assets/format-rewarded-interstitial.svg
+Loading resource: res://.godot/imported/format-rewarded-interstitial.svg-e572976a0c09235dd26f576bb08f76af.ctex remapped: res://.godot/imported/format-rewarded-interstitial.svg-e572976a0c09235dd26f576bb08f76af.ctex
+Completed load for: 'res://addons/admob/assets/format-rewarded-interstitial.svg' remapped 'res://addons/admob/assets/format-rewarded-interstitial.svg' at thread -1
+Completed load for: 'res://addons/admob/internal/mock/mock_admob_factory.gd' remapped 'res://addons/admob/internal/mock/mock_admob_factory.gd' at thread -1
+Loading resource: res://shaders/comic_toon.gdshader remapped: res://shaders/comic_toon.gdshader
+Completed load for: 'res://shaders/comic_toon.gdshader' remapped 'res://shaders/comic_toon.gdshader' at thread -1
+Loading resource: res://shaders/comic_outline.gdshader remapped: res://shaders/comic_outline.gdshader
+Completed load for: 'res://shaders/comic_outline.gdshader' remapped 'res://shaders/comic_outline.gdshader' at thread -1
+Completed load for: 'res://scripts/main_3d.gd' remapped 'res://scripts/main_3d.gd' at thread -1
+Completed load for: 'res://scenes/main.tscn' remapped 'res://scenes/main.tscn' at thread -1
+Loading resource: res://assets/sky/day_blue_clouds.jpg remapped: res://assets/sky/day_blue_clouds.jpg
+Loading resource: res://.godot/imported/day_blue_clouds.jpg-828dc66b0255ac2bf9d91d7cdec2ff1e.ctex remapped: res://.godot/imported/day_blue_clouds.jpg-828dc66b0255ac2bf9d91d7cdec2ff1e.ctex
+Completed load for: 'res://assets/sky/day_blue_clouds.jpg' remapped 'res://assets/sky/day_blue_clouds.jpg' at thread -1
+Loading resource: res://assets/models/environment/city_hd_00.glb remapped: res://assets/models/environment/city_hd_00.glb
+Loading resource: res://.godot/imported/city_hd_00.glb-fabc011ce4629b6682a20016fb9969ed.scn remapped: res://.godot/imported/city_hd_00.glb-fabc011ce4629b6682a20016fb9969ed.scn
+Completed load for: 'res://assets/models/environment/city_hd_00.glb' remapped 'res://assets/models/environment/city_hd_00.glb' at thread -1
+Loading resource: res://assets/textures/polyhaven/asphalt_01/asphalt_01_diff_2k.jpg remapped: res://assets/textures/polyhaven/asphalt_01/asphalt_01_diff_2k.jpg
+Loading resource: res://.godot/imported/asphalt_01_diff_2k.jpg-c9957d956fe646a5912b05c10e6a8c67.ctex remapped: res://.godot/imported/asphalt_01_diff_2k.jpg-c9957d956fe646a5912b05c10e6a8c67.ctex
+Completed load for: 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_diff_2k.jpg' remapped 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_diff_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/asphalt_01/asphalt_01_nor_gl_2k.jpg remapped: res://assets/textures/polyhaven/asphalt_01/asphalt_01_nor_gl_2k.jpg
+Loading resource: res://.godot/imported/asphalt_01_nor_gl_2k.jpg-f1135e3b41b4c0c13003ad10c2e3cf97.ctex remapped: res://.godot/imported/asphalt_01_nor_gl_2k.jpg-f1135e3b41b4c0c13003ad10c2e3cf97.ctex
+Completed load for: 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_nor_gl_2k.jpg' remapped 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_nor_gl_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/asphalt_01/asphalt_01_rough_2k.jpg remapped: res://assets/textures/polyhaven/asphalt_01/asphalt_01_rough_2k.jpg
+Loading resource: res://.godot/imported/asphalt_01_rough_2k.jpg-cedcbe44dadfe7671fe760ad83d584a7.ctex remapped: res://.godot/imported/asphalt_01_rough_2k.jpg-cedcbe44dadfe7671fe760ad83d584a7.ctex
+Completed load for: 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_rough_2k.jpg' remapped 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_rough_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/asphalt_01/asphalt_01_ao_2k.jpg remapped: res://assets/textures/polyhaven/asphalt_01/asphalt_01_ao_2k.jpg
+Loading resource: res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.ctex remapped: res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.ctex
+Completed load for: 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_ao_2k.jpg' remapped 'res://assets/textures/polyhaven/asphalt_01/asphalt_01_ao_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_diff_2k.jpg remapped: res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_diff_2k.jpg
+Loading resource: res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.ctex remapped: res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.ctex
+Completed load for: 'res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_diff_2k.jpg' remapped 'res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_diff_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_nor_gl_2k.jpg remapped: res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_nor_gl_2k.jpg
+Loading resource: res://.godot/imported/red_brick_plaster_patch_02_nor_gl_2k.jpg-ab052a2dc7ed3ef6a7e936e614be9746.ctex remapped: res://.godot/imported/red_brick_plaster_patch_02_nor_gl_2k.jpg-ab052a2dc7ed3ef6a7e936e614be9746.ctex
+Completed load for: 'res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_nor_gl_2k.jpg' remapped 'res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_nor_gl_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_rough_2k.jpg remapped: res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_rough_2k.jpg
+Loading resource: res://.godot/imported/red_brick_plaster_patch_02_rough_2k.jpg-99b7e3f36ee5f35fe3f66f73fb7d96f7.ctex remapped: res://.godot/imported/red_brick_plaster_patch_02_rough_2k.jpg-99b7e3f36ee5f35fe3f66f73fb7d96f7.ctex
+Completed load for: 'res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_rough_2k.jpg' remapped 'res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_rough_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_diff_2k.jpg remapped: res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_diff_2k.jpg
+Loading resource: res://.godot/imported/concrete_wall_003_diff_2k.jpg-9ebcb3fbfb01a33b9101b56b108d6154.ctex remapped: res://.godot/imported/concrete_wall_003_diff_2k.jpg-9ebcb3fbfb01a33b9101b56b108d6154.ctex
+Completed load for: 'res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_diff_2k.jpg' remapped 'res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_diff_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_nor_gl_2k.jpg remapped: res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_nor_gl_2k.jpg
+Loading resource: res://.godot/imported/concrete_wall_003_nor_gl_2k.jpg-c66cdae88d8d5cc9c35ae6f28db709cf.ctex remapped: res://.godot/imported/concrete_wall_003_nor_gl_2k.jpg-c66cdae88d8d5cc9c35ae6f28db709cf.ctex
+Completed load for: 'res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_nor_gl_2k.jpg' remapped 'res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_nor_gl_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_rough_2k.jpg remapped: res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_rough_2k.jpg
+Loading resource: res://.godot/imported/concrete_wall_003_rough_2k.jpg-d895cf6488f9f5757f8e07ae15540d1b.ctex remapped: res://.godot/imported/concrete_wall_003_rough_2k.jpg-d895cf6488f9f5757f8e07ae15540d1b.ctex
+Completed load for: 'res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_rough_2k.jpg' remapped 'res://assets/textures/polyhaven/concrete_wall_003/concrete_wall_003_rough_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_diff_2k.jpg remapped: res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_diff_2k.jpg
+Loading resource: res://.godot/imported/concrete_pavement_diff_2k.jpg-03d0b385b0940e3cbfc202e277883208.ctex remapped: res://.godot/imported/concrete_pavement_diff_2k.jpg-03d0b385b0940e3cbfc202e277883208.ctex
+Completed load for: 'res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_diff_2k.jpg' remapped 'res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_diff_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_nor_gl_2k.jpg remapped: res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_nor_gl_2k.jpg
+Loading resource: res://.godot/imported/concrete_pavement_nor_gl_2k.jpg-88e8d8c7e13d2e5a250a57fa1019cb9f.ctex remapped: res://.godot/imported/concrete_pavement_nor_gl_2k.jpg-88e8d8c7e13d2e5a250a57fa1019cb9f.ctex
+Completed load for: 'res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_nor_gl_2k.jpg' remapped 'res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_nor_gl_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_arm_2k.jpg remapped: res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_arm_2k.jpg
+Loading resource: res://.godot/imported/concrete_pavement_arm_2k.jpg-119e232f0120d197b2953f8f5483fed7.ctex remapped: res://.godot/imported/concrete_pavement_arm_2k.jpg-119e232f0120d197b2953f8f5483fed7.ctex
+Completed load for: 'res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_arm_2k.jpg' remapped 'res://assets/textures/polyhaven/concrete_pavement/concrete_pavement_arm_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/plastered_wall/plastered_wall_diff_2k.jpg remapped: res://assets/textures/polyhaven/plastered_wall/plastered_wall_diff_2k.jpg
+Loading resource: res://.godot/imported/plastered_wall_diff_2k.jpg-87ea3e08d77984a9369dd4779935cad6.ctex remapped: res://.godot/imported/plastered_wall_diff_2k.jpg-87ea3e08d77984a9369dd4779935cad6.ctex
+Completed load for: 'res://assets/textures/polyhaven/plastered_wall/plastered_wall_diff_2k.jpg' remapped 'res://assets/textures/polyhaven/plastered_wall/plastered_wall_diff_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/plastered_wall/plastered_wall_nor_gl_2k.jpg remapped: res://assets/textures/polyhaven/plastered_wall/plastered_wall_nor_gl_2k.jpg
+Loading resource: res://.godot/imported/plastered_wall_nor_gl_2k.jpg-c7a41abf83a522fb988707e571321847.ctex remapped: res://.godot/imported/plastered_wall_nor_gl_2k.jpg-c7a41abf83a522fb988707e571321847.ctex
+Completed load for: 'res://assets/textures/polyhaven/plastered_wall/plastered_wall_nor_gl_2k.jpg' remapped 'res://assets/textures/polyhaven/plastered_wall/plastered_wall_nor_gl_2k.jpg' at thread -1
+Loading resource: res://assets/textures/polyhaven/plastered_wall/plastered_wall_rough_2k.jpg remapped: res://assets/textures/polyhaven/plastered_wall/plastered_wall_rough_2k.jpg
+Loading resource: res://.godot/imported/plastered_wall_rough_2k.jpg-b766b56d4df955e0671051dff0cd5b3b.ctex remapped: res://.godot/imported/plastered_wall_rough_2k.jpg-b766b56d4df955e0671051dff0cd5b3b.ctex
+Completed load for: 'res://assets/textures/polyhaven/plastered_wall/plastered_wall_rough_2k.jpg' remapped 'res://assets/textures/polyhaven/plastered_wall/plastered_wall_rough_2k.jpg' at thread -1
+Loading resource: res://assets/models/environment/city_hd_01.glb remapped: res://assets/models/environment/city_hd_01.glb
+Loading resource: res://.godot/imported/city_hd_01.glb-348ed5d409fb7e2537c9541f016e10e7.scn remapped: res://.godot/imported/city_hd_01.glb-348ed5d409fb7e2537c9541f016e10e7.scn
+Completed load for: 'res://assets/models/environment/city_hd_01.glb' remapped 'res://assets/models/environment/city_hd_01.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_02.glb remapped: res://assets/models/environment/city_hd_02.glb
+Loading resource: res://.godot/imported/city_hd_02.glb-7d8f0d0413847a9a40e2fb7bf46d6722.scn remapped: res://.godot/imported/city_hd_02.glb-7d8f0d0413847a9a40e2fb7bf46d6722.scn
+Completed load for: 'res://assets/models/environment/city_hd_02.glb' remapped 'res://assets/models/environment/city_hd_02.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_03.glb remapped: res://assets/models/environment/city_hd_03.glb
+Loading resource: res://.godot/imported/city_hd_03.glb-6487dda19e236e4ef88bbaed0757adc2.scn remapped: res://.godot/imported/city_hd_03.glb-6487dda19e236e4ef88bbaed0757adc2.scn
+Completed load for: 'res://assets/models/environment/city_hd_03.glb' remapped 'res://assets/models/environment/city_hd_03.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_04.glb remapped: res://assets/models/environment/city_hd_04.glb
+Loading resource: res://.godot/imported/city_hd_04.glb-59914320bb4e6347fa58852e83d61310.scn remapped: res://.godot/imported/city_hd_04.glb-59914320bb4e6347fa58852e83d61310.scn
+Completed load for: 'res://assets/models/environment/city_hd_04.glb' remapped 'res://assets/models/environment/city_hd_04.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_05.glb remapped: res://assets/models/environment/city_hd_05.glb
+Loading resource: res://.godot/imported/city_hd_05.glb-ec8e9de705e38782a9a2f313341c33ea.scn remapped: res://.godot/imported/city_hd_05.glb-ec8e9de705e38782a9a2f313341c33ea.scn
+Completed load for: 'res://assets/models/environment/city_hd_05.glb' remapped 'res://assets/models/environment/city_hd_05.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_06.glb remapped: res://assets/models/environment/city_hd_06.glb
+Loading resource: res://.godot/imported/city_hd_06.glb-eb37aa3753b8bbb474dee9e7808e8343.scn remapped: res://.godot/imported/city_hd_06.glb-eb37aa3753b8bbb474dee9e7808e8343.scn
+Completed load for: 'res://assets/models/environment/city_hd_06.glb' remapped 'res://assets/models/environment/city_hd_06.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_07.glb remapped: res://assets/models/environment/city_hd_07.glb
+Loading resource: res://.godot/imported/city_hd_07.glb-53e0361be4cfd9e94fa3955e34f52810.scn remapped: res://.godot/imported/city_hd_07.glb-53e0361be4cfd9e94fa3955e34f52810.scn
+Completed load for: 'res://assets/models/environment/city_hd_07.glb' remapped 'res://assets/models/environment/city_hd_07.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_08.glb remapped: res://assets/models/environment/city_hd_08.glb
+Loading resource: res://.godot/imported/city_hd_08.glb-accf8e0c3ebadc47b5a17519ea219c0c.scn remapped: res://.godot/imported/city_hd_08.glb-accf8e0c3ebadc47b5a17519ea219c0c.scn
+Completed load for: 'res://assets/models/environment/city_hd_08.glb' remapped 'res://assets/models/environment/city_hd_08.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_09.glb remapped: res://assets/models/environment/city_hd_09.glb
+Loading resource: res://.godot/imported/city_hd_09.glb-f75985a10604872a9151b3c5f74c642c.scn remapped: res://.godot/imported/city_hd_09.glb-f75985a10604872a9151b3c5f74c642c.scn
+Completed load for: 'res://assets/models/environment/city_hd_09.glb' remapped 'res://assets/models/environment/city_hd_09.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_10.glb remapped: res://assets/models/environment/city_hd_10.glb
+Loading resource: res://.godot/imported/city_hd_10.glb-048575743f2e35c72036c6a4dc76330a.scn remapped: res://.godot/imported/city_hd_10.glb-048575743f2e35c72036c6a4dc76330a.scn
+Completed load for: 'res://assets/models/environment/city_hd_10.glb' remapped 'res://assets/models/environment/city_hd_10.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_11.glb remapped: res://assets/models/environment/city_hd_11.glb
+Loading resource: res://.godot/imported/city_hd_11.glb-2a8384f31213e458c6920d6a51cef86e.scn remapped: res://.godot/imported/city_hd_11.glb-2a8384f31213e458c6920d6a51cef86e.scn
+Completed load for: 'res://assets/models/environment/city_hd_11.glb' remapped 'res://assets/models/environment/city_hd_11.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_00.glb remapped: res://assets/models/environment/city_hd_00.glb
+Loading resource: res://.godot/imported/city_hd_00.glb-fabc011ce4629b6682a20016fb9969ed.scn remapped: res://.godot/imported/city_hd_00.glb-fabc011ce4629b6682a20016fb9969ed.scn
+Completed load for: 'res://assets/models/environment/city_hd_00.glb' remapped 'res://assets/models/environment/city_hd_00.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_01.glb remapped: res://assets/models/environment/city_hd_01.glb
+Loading resource: res://.godot/imported/city_hd_01.glb-348ed5d409fb7e2537c9541f016e10e7.scn remapped: res://.godot/imported/city_hd_01.glb-348ed5d409fb7e2537c9541f016e10e7.scn
+Completed load for: 'res://assets/models/environment/city_hd_01.glb' remapped 'res://assets/models/environment/city_hd_01.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_02.glb remapped: res://assets/models/environment/city_hd_02.glb
+Loading resource: res://.godot/imported/city_hd_02.glb-7d8f0d0413847a9a40e2fb7bf46d6722.scn remapped: res://.godot/imported/city_hd_02.glb-7d8f0d0413847a9a40e2fb7bf46d6722.scn
+Completed load for: 'res://assets/models/environment/city_hd_02.glb' remapped 'res://assets/models/environment/city_hd_02.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_03.glb remapped: res://assets/models/environment/city_hd_03.glb
+Loading resource: res://.godot/imported/city_hd_03.glb-6487dda19e236e4ef88bbaed0757adc2.scn remapped: res://.godot/imported/city_hd_03.glb-6487dda19e236e4ef88bbaed0757adc2.scn
+Completed load for: 'res://assets/models/environment/city_hd_03.glb' remapped 'res://assets/models/environment/city_hd_03.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_04.glb remapped: res://assets/models/environment/city_hd_04.glb
+Loading resource: res://.godot/imported/city_hd_04.glb-59914320bb4e6347fa58852e83d61310.scn remapped: res://.godot/imported/city_hd_04.glb-59914320bb4e6347fa58852e83d61310.scn
+Completed load for: 'res://assets/models/environment/city_hd_04.glb' remapped 'res://assets/models/environment/city_hd_04.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_05.glb remapped: res://assets/models/environment/city_hd_05.glb
+Loading resource: res://.godot/imported/city_hd_05.glb-ec8e9de705e38782a9a2f313341c33ea.scn remapped: res://.godot/imported/city_hd_05.glb-ec8e9de705e38782a9a2f313341c33ea.scn
+Completed load for: 'res://assets/models/environment/city_hd_05.glb' remapped 'res://assets/models/environment/city_hd_05.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_06.glb remapped: res://assets/models/environment/city_hd_06.glb
+Loading resource: res://.godot/imported/city_hd_06.glb-eb37aa3753b8bbb474dee9e7808e8343.scn remapped: res://.godot/imported/city_hd_06.glb-eb37aa3753b8bbb474dee9e7808e8343.scn
+Completed load for: 'res://assets/models/environment/city_hd_06.glb' remapped 'res://assets/models/environment/city_hd_06.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_07.glb remapped: res://assets/models/environment/city_hd_07.glb
+Loading resource: res://.godot/imported/city_hd_07.glb-53e0361be4cfd9e94fa3955e34f52810.scn remapped: res://.godot/imported/city_hd_07.glb-53e0361be4cfd9e94fa3955e34f52810.scn
+Completed load for: 'res://assets/models/environment/city_hd_07.glb' remapped 'res://assets/models/environment/city_hd_07.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_08.glb remapped: res://assets/models/environment/city_hd_08.glb
+Loading resource: res://.godot/imported/city_hd_08.glb-accf8e0c3ebadc47b5a17519ea219c0c.scn remapped: res://.godot/imported/city_hd_08.glb-accf8e0c3ebadc47b5a17519ea219c0c.scn
+Completed load for: 'res://assets/models/environment/city_hd_08.glb' remapped 'res://assets/models/environment/city_hd_08.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_09.glb remapped: res://assets/models/environment/city_hd_09.glb
+Loading resource: res://.godot/imported/city_hd_09.glb-f75985a10604872a9151b3c5f74c642c.scn remapped: res://.godot/imported/city_hd_09.glb-f75985a10604872a9151b3c5f74c642c.scn
+Completed load for: 'res://assets/models/environment/city_hd_09.glb' remapped 'res://assets/models/environment/city_hd_09.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_10.glb remapped: res://assets/models/environment/city_hd_10.glb
+Loading resource: res://.godot/imported/city_hd_10.glb-048575743f2e35c72036c6a4dc76330a.scn remapped: res://.godot/imported/city_hd_10.glb-048575743f2e35c72036c6a4dc76330a.scn
+Completed load for: 'res://assets/models/environment/city_hd_10.glb' remapped 'res://assets/models/environment/city_hd_10.glb' at thread -1
+Loading resource: res://assets/models/environment/city_hd_11.glb remapped: res://assets/models/environment/city_hd_11.glb
+Loading resource: res://.godot/imported/city_hd_11.glb-2a8384f31213e458c6920d6a51cef86e.scn remapped: res://.godot/imported/city_hd_11.glb-2a8384f31213e458c6920d6a51cef86e.scn
+Completed load for: 'res://assets/models/environment/city_hd_11.glb' remapped 'res://assets/models/environment/city_hd_11.glb' at thread -1
+Loading resource: res://assets/audio/rifle.mp3 remapped: res://assets/audio/rifle.mp3
+Loading resource: res://.godot/imported/rifle.mp3-3631de2b519a914b17214fceaee10ace.mp3str remapped: res://.godot/imported/rifle.mp3-3631de2b519a914b17214fceaee10ace.mp3str
+Completed load for: 'res://assets/audio/rifle.mp3' remapped 'res://assets/audio/rifle.mp3' at thread -1
+Loading resource: res://assets/audio/smg.mp3 remapped: res://assets/audio/smg.mp3
+Loading resource: res://.godot/imported/smg.mp3-2480507a7e0acb3c4dae0ddf1f82e998.mp3str remapped: res://.godot/imported/smg.mp3-2480507a7e0acb3c4dae0ddf1f82e998.mp3str
+Completed load for: 'res://assets/audio/smg.mp3' remapped 'res://assets/audio/smg.mp3' at thread -1
+Loading resource: res://assets/audio/sniper.mp3 remapped: res://assets/audio/sniper.mp3
+Loading resource: res://.godot/imported/sniper.mp3-d9101aac156062f7e148c59de2ef7fdc.mp3str remapped: res://.godot/imported/sniper.mp3-d9101aac156062f7e148c59de2ef7fdc.mp3str
+Completed load for: 'res://assets/audio/sniper.mp3' remapped 'res://assets/audio/sniper.mp3' at thread -1
+Loading resource: res://assets/audio/shotgun.mp3 remapped: res://assets/audio/shotgun.mp3
+Loading resource: res://.godot/imported/shotgun.mp3-3487c401fd863490ef009a9a8141c6d8.mp3str remapped: res://.godot/imported/shotgun.mp3-3487c401fd863490ef009a9a8141c6d8.mp3str
+Completed load for: 'res://assets/audio/shotgun.mp3' remapped 'res://assets/audio/shotgun.mp3' at thread -1
+Loading resource: res://assets/audio/pistol_near.mp3 remapped: res://assets/audio/pistol_near.mp3
+Loading resource: res://.godot/imported/pistol_near.mp3-1df44b8629ee42d36173e99aa8b42380.mp3str remapped: res://.godot/imported/pistol_near.mp3-1df44b8629ee42d36173e99aa8b42380.mp3str
+Completed load for: 'res://assets/audio/pistol_near.mp3' remapped 'res://assets/audio/pistol_near.mp3' at thread -1
+Loading resource: res://assets/audio/pistol_far.mp3 remapped: res://assets/audio/pistol_far.mp3
+Loading resource: res://.godot/imported/pistol_far.mp3-f846f66d0a4600ce7590cd5eaaa21903.mp3str remapped: res://.godot/imported/pistol_far.mp3-f846f66d0a4600ce7590cd5eaaa21903.mp3str
+Completed load for: 'res://assets/audio/pistol_far.mp3' remapped 'res://assets/audio/pistol_far.mp3' at thread -1
+Loading resource: res://assets/audio/reload.mp3 remapped: res://assets/audio/reload.mp3
+Loading resource: res://.godot/imported/reload.mp3-7eceb517c9d23e67fb0d77f3c049ee5f.mp3str remapped: res://.godot/imported/reload.mp3-7eceb517c9d23e67fb0d77f3c049ee5f.mp3str
+Completed load for: 'res://assets/audio/reload.mp3' remapped 'res://assets/audio/reload.mp3' at thread -1
+Loading resource: res://assets/audio/explosion.mp3 remapped: res://assets/audio/explosion.mp3
+Loading resource: res://.godot/imported/explosion.mp3-8319b299f741c266d5908e4feef0754b.mp3str remapped: res://.godot/imported/explosion.mp3-8319b299f741c266d5908e4feef0754b.mp3str
+Completed load for: 'res://assets/audio/explosion.mp3' remapped 'res://assets/audio/explosion.mp3' at thread -1
+Loading resource: res://assets/audio/zombie_growl.mp3 remapped: res://assets/audio/zombie_growl.mp3
+Loading resource: res://.godot/imported/zombie_growl.mp3-5c99be623cc247bbd38689ce7c6e01d9.mp3str remapped: res://.godot/imported/zombie_growl.mp3-5c99be623cc247bbd38689ce7c6e01d9.mp3str
+Completed load for: 'res://assets/audio/zombie_growl.mp3' remapped 'res://assets/audio/zombie_growl.mp3' at thread -1
+Loading resource: res://assets/audio/dead_run_theme.wav remapped: res://assets/audio/dead_run_theme.wav
+Loading resource: res://.godot/imported/dead_run_theme.wav-3d2880c8051bc8d3e641c8dad1bf6b63.sample remapped: res://.godot/imported/dead_run_theme.wav-3d2880c8051bc8d3e641c8dad1bf6b63.sample
+Completed load for: 'res://assets/audio/dead_run_theme.wav' remapped 'res://assets/audio/dead_run_theme.wav' at thread -1
+Loading resource: res://assets/models/actors/survivor_male_universal.glb remapped: res://assets/models/actors/survivor_male_universal.glb
+Loading resource: res://.godot/imported/survivor_male_universal.glb-d098883afbddb06dbbc58528139d69fc.scn remapped: res://.godot/imported/survivor_male_universal.glb-d098883afbddb06dbbc58528139d69fc.scn
+Loading resource: res://assets/models/actors/survivor_male_universal_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg remapped: res://assets/models/actors/survivor_male_universal_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg
+Loading resource: res://.godot/imported/survivor_male_universal_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-806e09ce1c224d1285b7d2f57683da9c.s3tc.ctex remapped: res://.godot/imported/survivor_male_universal_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-806e09ce1c224d1285b7d2f57683da9c.s3tc.ctex
+Completed load for: 'res://assets/models/actors/survivor_male_universal_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg' remapped 'res://assets/models/actors/survivor_male_universal_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg' at thread -1
+Loading resource: res://assets/models/actors/survivor_male_universal_ORM_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg remapped: res://assets/models/actors/survivor_male_universal_ORM_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg
+Loading resource: res://.godot/imported/survivor_male_universal_ORM_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-031a6cc65d059ab89ce542f90e582ed6.s3tc.ctex remapped: res://.godot/imported/survivor_male_universal_ORM_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-031a6cc65d059ab89ce542f90e582ed6.s3tc.ctex
+Completed load for: 'res://assets/models/actors/survivor_male_universal_ORM_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg' remapped 'res://assets/models/actors/survivor_male_universal_ORM_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg' at thread -1
+Loading resource: res://assets/models/actors/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png remapped: res://assets/models/actors/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png
+Loading resource: res://.godot/imported/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png-dbb8ee2a9b79b2af7eedc37592b3d31e.s3tc.ctex remapped: res://.godot/imported/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png-dbb8ee2a9b79b2af7eedc37592b3d31e.s3tc.ctex
+Completed load for: 'res://assets/models/actors/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png' remapped 'res://assets/models/actors/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png' at thread -1
+Completed load for: 'res://assets/models/actors/survivor_male_universal.glb' remapped 'res://assets/models/actors/survivor_male_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Loading resource: res://assets/BinbunVFX/shared/script/vfx_controller.gd remapped: res://assets/BinbunVFX/shared/script/vfx_controller.gd
+Completed load for: 'res://assets/BinbunVFX/shared/script/vfx_controller.gd' remapped 'res://assets/BinbunVFX/shared/script/vfx_controller.gd' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres
+Loading resource: res://assets/BinbunVFX/muzzle_flash/shader/base.gdshader remapped: res://assets/BinbunVFX/muzzle_flash/shader/base.gdshader
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/shader/base.gdshader' remapped 'res://assets/BinbunVFX/muzzle_flash/shader/base.gdshader' at thread -1
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png remapped: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png
+Loading resource: res://.godot/imported/flash_long_03.png-8687c44a70a84929bd07804f7db61f97.s3tc.ctex remapped: res://.godot/imported/flash_long_03.png-8687c44a70a84929bd07804f7db61f97.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png remapped: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png
+Loading resource: res://.godot/imported/flash_front_01.png-2bc50d0a242bfb6598c3482ff4438a91.s3tc.ctex remapped: res://.godot/imported/flash_front_01.png-2bc50d0a242bfb6598c3482ff4438a91.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres
+Loading resource: res://assets/BinbunVFX/muzzle_flash/shader/glow.gdshader remapped: res://assets/BinbunVFX/muzzle_flash/shader/glow.gdshader
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/shader/glow.gdshader' remapped 'res://assets/BinbunVFX/muzzle_flash/shader/glow.gdshader' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/shared/script/vfx_light.gd remapped: res://assets/BinbunVFX/shared/script/vfx_light.gd
+Completed load for: 'res://assets/BinbunVFX/shared/script/vfx_light.gd' remapped 'res://assets/BinbunVFX/shared/script/vfx_light.gd' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/supply_truck.glb remapped: res://assets/models/supply_truck.glb
+Loading resource: res://.godot/imported/supply_truck.glb-9549aaf621b28a5ae87c1533bc18f6f6.scn remapped: res://.godot/imported/supply_truck.glb-9549aaf621b28a5ae87c1533bc18f6f6.scn
+Loading resource: res://assets/models/supply_truck_Color_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg remapped: res://assets/models/supply_truck_Color_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg
+Loading resource: res://.godot/imported/supply_truck_Color_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-49b6181f05dc090f6035c8dcb7d28753.s3tc.ctex remapped: res://.godot/imported/supply_truck_Color_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-49b6181f05dc090f6035c8dcb7d28753.s3tc.ctex
+Completed load for: 'res://assets/models/supply_truck_Color_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg' remapped 'res://assets/models/supply_truck_Color_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg' at thread -1
+Loading resource: res://assets/models/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg remapped: res://assets/models/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg
+Loading resource: res://.godot/imported/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-e658dfdbba3adf16fbf3978accd52704.s3tc.ctex remapped: res://.godot/imported/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-e658dfdbba3adf16fbf3978accd52704.s3tc.ctex
+Completed load for: 'res://assets/models/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg' remapped 'res://assets/models/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg' at thread -1
+Loading resource: res://assets/models/supply_truck_NormalGL_6f7686b0-578e-4ec6-b732-749d99a0a2af.png remapped: res://assets/models/supply_truck_NormalGL_6f7686b0-578e-4ec6-b732-749d99a0a2af.png
+Loading resource: res://.godot/imported/supply_truck_NormalGL_6f7686b0-578e-4ec6-b732-749d99a0a2af.png-d04d1ae8784c9be0960441040d3bf761.s3tc.ctex remapped: res://.godot/imported/supply_truck_NormalGL_6f7686b0-578e-4ec6-b732-749d99a0a2af.png-d04d1ae8784c9be0960441040d3bf761.s3tc.ctex
+Completed load for: 'res://assets/models/supply_truck_NormalGL_6f7686b0-578e-4ec6-b732-749d99a0a2af.png' remapped 'res://assets/models/supply_truck_NormalGL_6f7686b0-578e-4ec6-b732-749d99a0a2af.png' at thread -1
+Completed load for: 'res://assets/models/supply_truck.glb' remapped 'res://assets/models/supply_truck.glb' at thread -1
+Loading resource: res://assets/ui/male_hd_portrait.png remapped: res://assets/ui/male_hd_portrait.png
+Loading resource: res://.godot/imported/male_hd_portrait.png-676de2329ec6b24dc045457f75695da5.ctex remapped: res://.godot/imported/male_hd_portrait.png-676de2329ec6b24dc045457f75695da5.ctex
+Completed load for: 'res://assets/ui/male_hd_portrait.png' remapped 'res://assets/ui/male_hd_portrait.png' at thread -1
+Loading resource: res://assets/ui/female_hd_portrait.png remapped: res://assets/ui/female_hd_portrait.png
+Loading resource: res://.godot/imported/female_hd_portrait.png-91e8f5255b2ba503c8657bd65ef07c47.ctex remapped: res://.godot/imported/female_hd_portrait.png-91e8f5255b2ba503c8657bd65ef07c47.ctex
+Completed load for: 'res://assets/ui/female_hd_portrait.png' remapped 'res://assets/ui/female_hd_portrait.png' at thread -1
+Loading resource: res://assets/ui/male_hud_gray.png remapped: res://assets/ui/male_hud_gray.png
+Loading resource: res://.godot/imported/male_hud_gray.png-1dd6c98c4232c184168c41e6c38e735e.ctex remapped: res://.godot/imported/male_hud_gray.png-1dd6c98c4232c184168c41e6c38e735e.ctex
+Completed load for: 'res://assets/ui/male_hud_gray.png' remapped 'res://assets/ui/male_hud_gray.png' at thread -1
+Loading resource: res://assets/ui/female_hud_gray.png remapped: res://assets/ui/female_hud_gray.png
+Loading resource: res://.godot/imported/female_hud_gray.png-a6c5533a723d424ad4eb3372bc2d8eea.ctex remapped: res://.godot/imported/female_hud_gray.png-a6c5533a723d424ad4eb3372bc2d8eea.ctex
+Completed load for: 'res://assets/ui/female_hud_gray.png' remapped 'res://assets/ui/female_hud_gray.png' at thread -1
+Loading resource: res://assets/ui/menu_art_poster.png remapped: res://assets/ui/menu_art_poster.png
+Loading resource: res://.godot/imported/menu_art_poster.png-4db68def9b9b0d07ef4e178a7240449c.ctex remapped: res://.godot/imported/menu_art_poster.png-4db68def9b9b0d07ef4e178a7240449c.ctex
+Completed load for: 'res://assets/ui/menu_art_poster.png' remapped 'res://assets/ui/menu_art_poster.png' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Loading resource: res://assets/models/actors/zombie_walker_universal_Color_334abc05-0e37-4ab5-95db-c325e41f6104.jpg remapped: res://assets/models/actors/zombie_walker_universal_Color_334abc05-0e37-4ab5-95db-c325e41f6104.jpg
+Loading resource: res://.godot/imported/zombie_walker_universal_Color_334abc05-0e37-4ab5-95db-c325e41f6104.jpg-2ccd08336fba71d76e895770657fe642.s3tc.ctex remapped: res://.godot/imported/zombie_walker_universal_Color_334abc05-0e37-4ab5-95db-c325e41f6104.jpg-2ccd08336fba71d76e895770657fe642.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_walker_universal_Color_334abc05-0e37-4ab5-95db-c325e41f6104.jpg' remapped 'res://assets/models/actors/zombie_walker_universal_Color_334abc05-0e37-4ab5-95db-c325e41f6104.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal_ORM_334abc05-0e37-4ab5-95db-c325e41f6104.jpg remapped: res://assets/models/actors/zombie_walker_universal_ORM_334abc05-0e37-4ab5-95db-c325e41f6104.jpg
+Loading resource: res://.godot/imported/zombie_walker_universal_ORM_334abc05-0e37-4ab5-95db-c325e41f6104.jpg-3c7e4545a93b50614c879b06628dea56.s3tc.ctex remapped: res://.godot/imported/zombie_walker_universal_ORM_334abc05-0e37-4ab5-95db-c325e41f6104.jpg-3c7e4545a93b50614c879b06628dea56.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_walker_universal_ORM_334abc05-0e37-4ab5-95db-c325e41f6104.jpg' remapped 'res://assets/models/actors/zombie_walker_universal_ORM_334abc05-0e37-4ab5-95db-c325e41f6104.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png remapped: res://assets/models/actors/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png
+Loading resource: res://.godot/imported/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png-0b600fc4b58cea4f47eac9c3c5a9b9e1.s3tc.ctex remapped: res://.godot/imported/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png-0b600fc4b58cea4f47eac9c3c5a9b9e1.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png' remapped 'res://assets/models/actors/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png' at thread -1
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/vfx/flame_particle.png remapped: res://assets/vfx/flame_particle.png
+Loading resource: res://.godot/imported/flame_particle.png-32956bab402da8ca427941a507d81b5f.ctex remapped: res://.godot/imported/flame_particle.png-32956bab402da8ca427941a507d81b5f.ctex
+Completed load for: 'res://assets/vfx/flame_particle.png' remapped 'res://assets/vfx/flame_particle.png' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal.glb remapped: res://assets/models/actors/zombie_juggernaut_universal.glb
+Loading resource: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn remapped: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg remapped: res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg
+Loading resource: res://.godot/imported/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-3fcff9ec5ab7421519ea83deb48a6a89.s3tc.ctex remapped: res://.godot/imported/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-3fcff9ec5ab7421519ea83deb48a6a89.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' remapped 'res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg remapped: res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg
+Loading resource: res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.s3tc.ctex remapped: res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' remapped 'res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png remapped: res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png
+Loading resource: res://.godot/imported/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png-c0eaf9381a48184c3d696240d6b5594c.s3tc.ctex remapped: res://.godot/imported/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png-c0eaf9381a48184c3d696240d6b5594c.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png' remapped 'res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png' at thread -1
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal.glb' remapped 'res://assets/models/actors/zombie_juggernaut_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/survivor_female_universal.glb remapped: res://assets/models/actors/survivor_female_universal.glb
+Loading resource: res://.godot/imported/survivor_female_universal.glb-dd8aaf12a3121bcecdc349c16d370ee1.scn remapped: res://.godot/imported/survivor_female_universal.glb-dd8aaf12a3121bcecdc349c16d370ee1.scn
+Loading resource: res://assets/models/actors/survivor_female_universal_Color_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg remapped: res://assets/models/actors/survivor_female_universal_Color_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg
+Loading resource: res://.godot/imported/survivor_female_universal_Color_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg-543654b2906328ff7054424b96370491.s3tc.ctex remapped: res://.godot/imported/survivor_female_universal_Color_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg-543654b2906328ff7054424b96370491.s3tc.ctex
+Completed load for: 'res://assets/models/actors/survivor_female_universal_Color_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg' remapped 'res://assets/models/actors/survivor_female_universal_Color_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg' at thread -1
+Loading resource: res://assets/models/actors/survivor_female_universal_ORM_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg remapped: res://assets/models/actors/survivor_female_universal_ORM_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg
+Loading resource: res://.godot/imported/survivor_female_universal_ORM_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg-b20e5f0b0bd0e032b57b65baae3c758c.s3tc.ctex remapped: res://.godot/imported/survivor_female_universal_ORM_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg-b20e5f0b0bd0e032b57b65baae3c758c.s3tc.ctex
+Completed load for: 'res://assets/models/actors/survivor_female_universal_ORM_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg' remapped 'res://assets/models/actors/survivor_female_universal_ORM_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.jpg' at thread -1
+Loading resource: res://assets/models/actors/survivor_female_universal_NormalGL_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.png remapped: res://assets/models/actors/survivor_female_universal_NormalGL_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.png
+Loading resource: res://.godot/imported/survivor_female_universal_NormalGL_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.png-874f1cc70c276a854e607c8ef14e5c42.s3tc.ctex remapped: res://.godot/imported/survivor_female_universal_NormalGL_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.png-874f1cc70c276a854e607c8ef14e5c42.s3tc.ctex
+Completed load for: 'res://assets/models/actors/survivor_female_universal_NormalGL_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.png' remapped 'res://assets/models/actors/survivor_female_universal_NormalGL_4878ec21-b9f1-49cd-8b4a-5d4f704730f1.png' at thread -1
+Completed load for: 'res://assets/models/actors/survivor_female_universal.glb' remapped 'res://assets/models/actors/survivor_female_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/actors/survivor_male_universal.glb remapped: res://assets/models/actors/survivor_male_universal.glb
+Loading resource: res://.godot/imported/survivor_male_universal.glb-d098883afbddb06dbbc58528139d69fc.scn remapped: res://.godot/imported/survivor_male_universal.glb-d098883afbddb06dbbc58528139d69fc.scn
+Completed load for: 'res://assets/models/actors/survivor_male_universal.glb' remapped 'res://assets/models/actors/survivor_male_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal.glb remapped: res://assets/models/actors/zombie_juggernaut_universal.glb
+Loading resource: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn remapped: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal.glb' remapped 'res://assets/models/actors/zombie_juggernaut_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/smg.glb remapped: res://assets/models/weapons/smg.glb
+Loading resource: res://.godot/imported/smg.glb-790f805aefeb777507c7ad85058d1264.scn remapped: res://.godot/imported/smg.glb-790f805aefeb777507c7ad85058d1264.scn
+Completed load for: 'res://assets/models/weapons/smg.glb' remapped 'res://assets/models/weapons/smg.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png remapped: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png
+Loading resource: res://.godot/imported/flash_long_02.png-5a5dad0f2930b91a87120cb393dd3c73.s3tc.ctex remapped: res://.godot/imported/flash_long_02.png-5a5dad0f2930b91a87120cb393dd3c73.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png remapped: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png
+Loading resource: res://.godot/imported/flash_side_02.png-4e4150b6a39844872155199b44ddbc81.s3tc.ctex remapped: res://.godot/imported/flash_side_02.png-4e4150b6a39844872155199b44ddbc81.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png remapped: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png
+Loading resource: res://.godot/imported/flash_front_03.png-fe1752453384ef54bd71f0a898535a3a.s3tc.ctex remapped: res://.godot/imported/flash_front_03.png-fe1752453384ef54bd71f0a898535a3a.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn' at thread -1
+Loading resource: res://assets/models/weapons/shotgun.glb remapped: res://assets/models/weapons/shotgun.glb
+Loading resource: res://.godot/imported/shotgun.glb-219804165957ede62614c3ed83487fea.scn remapped: res://.godot/imported/shotgun.glb-219804165957ede62614c3ed83487fea.scn
+Completed load for: 'res://assets/models/weapons/shotgun.glb' remapped 'res://assets/models/weapons/shotgun.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/sniper.glb remapped: res://assets/models/weapons/sniper.glb
+Loading resource: res://.godot/imported/sniper.glb-42a1b590e519c11735051a52d9febace.scn remapped: res://.godot/imported/sniper.glb-42a1b590e519c11735051a52d9febace.scn
+Completed load for: 'res://assets/models/weapons/sniper.glb' remapped 'res://assets/models/weapons/sniper.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_04.png remapped: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_04.png
+Loading resource: res://.godot/imported/flash_long_04.png-cecd71a974bbb31fae46f3a4660c596c.s3tc.ctex remapped: res://.godot/imported/flash_long_04.png-cecd71a974bbb31fae46f3a4660c596c.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_04.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_04.png' at thread -1
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_04.png remapped: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_04.png
+Loading resource: res://.godot/imported/flash_side_04.png-05fc13a5f3e1301e283ee8b1a0fc2e1a.s3tc.ctex remapped: res://.godot/imported/flash_side_04.png-05fc13a5f3e1301e283ee8b1a0fc2e1a.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_04.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_04.png' at thread -1
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_04.png remapped: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_04.png
+Loading resource: res://.godot/imported/flash_front_04.png-16c5a9450a9f973e9905a8c9a99208c8.s3tc.ctex remapped: res://.godot/imported/flash_front_04.png-16c5a9450a9f973e9905a8c9a99208c8.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_04.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_04.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png remapped: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png
+Loading resource: res://.godot/imported/flash_long_03.png-8687c44a70a84929bd07804f7db61f97.s3tc.ctex remapped: res://.godot/imported/flash_long_03.png-8687c44a70a84929bd07804f7db61f97.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png remapped: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png
+Loading resource: res://.godot/imported/flash_front_01.png-2bc50d0a242bfb6598c3482ff4438a91.s3tc.ctex remapped: res://.godot/imported/flash_front_01.png-2bc50d0a242bfb6598c3482ff4438a91.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/weapons/smg.glb remapped: res://assets/models/weapons/smg.glb
+Loading resource: res://.godot/imported/smg.glb-790f805aefeb777507c7ad85058d1264.scn remapped: res://.godot/imported/smg.glb-790f805aefeb777507c7ad85058d1264.scn
+Completed load for: 'res://assets/models/weapons/smg.glb' remapped 'res://assets/models/weapons/smg.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png remapped: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png
+Loading resource: res://.godot/imported/flash_long_02.png-5a5dad0f2930b91a87120cb393dd3c73.s3tc.ctex remapped: res://.godot/imported/flash_long_02.png-5a5dad0f2930b91a87120cb393dd3c73.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_02.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_long.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png remapped: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png
+Loading resource: res://.godot/imported/flash_side_02.png-4e4150b6a39844872155199b44ddbc81.s3tc.ctex remapped: res://.godot/imported/flash_side_02.png-4e4150b6a39844872155199b44ddbc81.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_02.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_side.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png remapped: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png
+Loading resource: res://.godot/imported/flash_front_03.png-fe1752453384ef54bd71f0a898535a3a.s3tc.ctex remapped: res://.godot/imported/flash_front_03.png-fe1752453384ef54bd71f0a898535a3a.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_03.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_03/flash_03_front.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_02/flash_02_glow.tres' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_02.tscn' at thread -1
+Loading resource: res://assets/models/weapons/shotgun.glb remapped: res://assets/models/weapons/shotgun.glb
+Loading resource: res://.godot/imported/shotgun.glb-219804165957ede62614c3ed83487fea.scn remapped: res://.godot/imported/shotgun.glb-219804165957ede62614c3ed83487fea.scn
+Completed load for: 'res://assets/models/weapons/shotgun.glb' remapped 'res://assets/models/weapons/shotgun.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' at thread -1
+Loading resource: res://assets/models/weapons/sniper.glb remapped: res://assets/models/weapons/sniper.glb
+Loading resource: res://.godot/imported/sniper.glb-42a1b590e519c11735051a52d9febace.scn remapped: res://.godot/imported/sniper.glb-42a1b590e519c11735051a52d9febace.scn
+Completed load for: 'res://assets/models/weapons/sniper.glb' remapped 'res://assets/models/weapons/sniper.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/big_flash/big_flash_04.tscn' at thread -1
+Loading resource: res://assets/models/rifle.glb remapped: res://assets/models/rifle.glb
+Loading resource: res://.godot/imported/rifle.glb-81243bc6d79d22e6828b5910416f220b.scn remapped: res://.godot/imported/rifle.glb-81243bc6d79d22e6828b5910416f220b.scn
+Completed load for: 'res://assets/models/rifle.glb' remapped 'res://assets/models/rifle.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_01.tscn
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_side.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_side.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_01.png remapped: res://assets/BinbunVFX/shared/texture/flash_side/flash_side_01.png
+Loading resource: res://.godot/imported/flash_side_01.png-e742b018f40af019038ba95de5f5bd26.s3tc.ctex remapped: res://.godot/imported/flash_side_01.png-e742b018f40af019038ba95de5f5bd26.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_01.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_side/flash_side_01.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_side.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_side.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/wide_01_front.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/wide_01_front.tres
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/wide_01_front.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/wide_01_front.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_glow.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_glow.tres
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_glow.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_glow.tres' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/muzzle_flash/muzzle_flash_01.tscn' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' at thread -1
+Loading resource: res://assets/models/barrel.glb remapped: res://assets/models/barrel.glb
+Loading resource: res://.godot/imported/barrel.glb-65b421d2ca2c5bdaf4ca29fd56be7f2f.scn remapped: res://.godot/imported/barrel.glb-65b421d2ca2c5bdaf4ca29fd56be7f2f.scn
+Loading resource: res://assets/models/barrel_barrel_paint_original.png remapped: res://assets/models/barrel_barrel_paint_original.png
+Loading resource: res://.godot/imported/barrel_barrel_paint_original.png-4809fb023f46e762a02481547b96d8ef.ctex remapped: res://.godot/imported/barrel_barrel_paint_original.png-4809fb023f46e762a02481547b96d8ef.ctex
+Completed load for: 'res://assets/models/barrel_barrel_paint_original.png' remapped 'res://assets/models/barrel_barrel_paint_original.png' at thread -1
+Completed load for: 'res://assets/models/barrel.glb' remapped 'res://assets/models/barrel.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/wide_flash/wide_flash_03.tscn' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png remapped: res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png
+Loading resource: res://.godot/imported/flash_long_03.png-8687c44a70a84929bd07804f7db61f97.s3tc.ctex remapped: res://.godot/imported/flash_long_03.png-8687c44a70a84929bd07804f7db61f97.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_long/flash_long_03.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_long.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres
+Loading resource: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png remapped: res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png
+Loading resource: res://.godot/imported/flash_front_01.png-2bc50d0a242bfb6598c3482ff4438a91.s3tc.ctex remapped: res://.godot/imported/flash_front_01.png-2bc50d0a242bfb6598c3482ff4438a91.s3tc.ctex
+Completed load for: 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png' remapped 'res://assets/BinbunVFX/shared/texture/flash_front/flash_front_01.png' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/flash_01_front.tres' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres remapped: res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres' remapped 'res://assets/BinbunVFX/muzzle_flash/src/material/muzzle_flash/flash_01/short_01_glow.tres' at thread -1
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/barrel.glb remapped: res://assets/models/barrel.glb
+Loading resource: res://.godot/imported/barrel.glb-65b421d2ca2c5bdaf4ca29fd56be7f2f.scn remapped: res://.godot/imported/barrel.glb-65b421d2ca2c5bdaf4ca29fd56be7f2f.scn
+Completed load for: 'res://assets/models/barrel.glb' remapped 'res://assets/models/barrel.glb' at thread -1
+Loading resource: res://assets/models/barrel.glb remapped: res://assets/models/barrel.glb
+Loading resource: res://.godot/imported/barrel.glb-65b421d2ca2c5bdaf4ca29fd56be7f2f.scn remapped: res://.godot/imported/barrel.glb-65b421d2ca2c5bdaf4ca29fd56be7f2f.scn
+Completed load for: 'res://assets/models/barrel.glb' remapped 'res://assets/models/barrel.glb' at thread -1
+Loading resource: res://assets/models/weapons/pistol.glb remapped: res://assets/models/weapons/pistol.glb
+Loading resource: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn remapped: res://.godot/imported/pistol.glb-1de1fcf0451ab6626f5edacccc9d6b0f.scn
+Completed load for: 'res://assets/models/weapons/pistol.glb' remapped 'res://assets/models/weapons/pistol.glb' at thread -1
+Loading resource: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn remapped: res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn
+Completed load for: 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' remapped 'res://assets/BinbunVFX/muzzle_flash/effects/short_flash/short_flash_01.tscn' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_banshee_universal.glb remapped: res://assets/models/actors/zombie_banshee_universal.glb
+Loading resource: res://.godot/imported/zombie_banshee_universal.glb-f2082ff2f9ae49b4832595e21d2452b4.scn remapped: res://.godot/imported/zombie_banshee_universal.glb-f2082ff2f9ae49b4832595e21d2452b4.scn
+Loading resource: res://assets/models/actors/zombie_banshee_universal_Color_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg remapped: res://assets/models/actors/zombie_banshee_universal_Color_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg
+Loading resource: res://.godot/imported/zombie_banshee_universal_Color_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-5b228811cd12cf07fc6638b3608cad71.ctex remapped: res://.godot/imported/zombie_banshee_universal_Color_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-5b228811cd12cf07fc6638b3608cad71.ctex
+Completed load for: 'res://assets/models/actors/zombie_banshee_universal_Color_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg' remapped 'res://assets/models/actors/zombie_banshee_universal_Color_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg remapped: res://assets/models/actors/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg
+Loading resource: res://.godot/imported/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-60b449e10d1db7c248d894a953418fcb.ctex remapped: res://.godot/imported/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-60b449e10d1db7c248d894a953418fcb.ctex
+Completed load for: 'res://assets/models/actors/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg' remapped 'res://assets/models/actors/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_banshee_universal_NormalGL_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.png remapped: res://assets/models/actors/zombie_banshee_universal_NormalGL_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.png
+Loading resource: res://.godot/imported/zombie_banshee_universal_NormalGL_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.png-2c1591b81432753fa54c6ae2f12e81b7.ctex remapped: res://.godot/imported/zombie_banshee_universal_NormalGL_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.png-2c1591b81432753fa54c6ae2f12e81b7.ctex
+Completed load for: 'res://assets/models/actors/zombie_banshee_universal_NormalGL_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.png' remapped 'res://assets/models/actors/zombie_banshee_universal_NormalGL_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.png' at thread -1
+Completed load for: 'res://assets/models/actors/zombie_banshee_universal.glb' remapped 'res://assets/models/actors/zombie_banshee_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_jockey_universal.glb remapped: res://assets/models/actors/zombie_jockey_universal.glb
+Loading resource: res://.godot/imported/zombie_jockey_universal.glb-b398ab49e782501fe2db94211e8b648d.scn remapped: res://.godot/imported/zombie_jockey_universal.glb-b398ab49e782501fe2db94211e8b648d.scn
+Loading resource: res://assets/models/actors/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg remapped: res://assets/models/actors/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg
+Loading resource: res://.godot/imported/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-e541de603df759eb11885782d5b621c6.s3tc.ctex remapped: res://.godot/imported/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-e541de603df759eb11885782d5b621c6.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg' remapped 'res://assets/models/actors/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_jockey_universal_ORM_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg remapped: res://assets/models/actors/zombie_jockey_universal_ORM_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg
+Loading resource: res://.godot/imported/zombie_jockey_universal_ORM_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-dc13324d71626583eaeca62a28f2fd35.s3tc.ctex remapped: res://.godot/imported/zombie_jockey_universal_ORM_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-dc13324d71626583eaeca62a28f2fd35.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_jockey_universal_ORM_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg' remapped 'res://assets/models/actors/zombie_jockey_universal_ORM_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_jockey_universal_NormalGL_b3adb93c-3c99-44aa-9acc-24c6122f2c03.png remapped: res://assets/models/actors/zombie_jockey_universal_NormalGL_b3adb93c-3c99-44aa-9acc-24c6122f2c03.png
+Loading resource: res://.godot/imported/zombie_jockey_universal_NormalGL_b3adb93c-3c99-44aa-9acc-24c6122f2c03.png-674dd98ac1c033371edeacd23268c88a.s3tc.ctex remapped: res://.godot/imported/zombie_jockey_universal_NormalGL_b3adb93c-3c99-44aa-9acc-24c6122f2c03.png-674dd98ac1c033371edeacd23268c88a.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_jockey_universal_NormalGL_b3adb93c-3c99-44aa-9acc-24c6122f2c03.png' remapped 'res://assets/models/actors/zombie_jockey_universal_NormalGL_b3adb93c-3c99-44aa-9acc-24c6122f2c03.png' at thread -1
+Completed load for: 'res://assets/models/actors/zombie_jockey_universal.glb' remapped 'res://assets/models/actors/zombie_jockey_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_banshee_universal.glb remapped: res://assets/models/actors/zombie_banshee_universal.glb
+Loading resource: res://.godot/imported/zombie_banshee_universal.glb-f2082ff2f9ae49b4832595e21d2452b4.scn remapped: res://.godot/imported/zombie_banshee_universal.glb-f2082ff2f9ae49b4832595e21d2452b4.scn
+Completed load for: 'res://assets/models/actors/zombie_banshee_universal.glb' remapped 'res://assets/models/actors/zombie_banshee_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal.glb remapped: res://assets/models/actors/zombie_juggernaut_universal.glb
+Loading resource: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn remapped: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg remapped: res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg
+Loading resource: res://.godot/imported/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-3fcff9ec5ab7421519ea83deb48a6a89.s3tc.ctex remapped: res://.godot/imported/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-3fcff9ec5ab7421519ea83deb48a6a89.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' remapped 'res://assets/models/actors/zombie_juggernaut_universal_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg remapped: res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg
+Loading resource: res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.s3tc.ctex remapped: res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' remapped 'res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png remapped: res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png
+Loading resource: res://.godot/imported/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png-c0eaf9381a48184c3d696240d6b5594c.s3tc.ctex remapped: res://.godot/imported/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png-c0eaf9381a48184c3d696240d6b5594c.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png' remapped 'res://assets/models/actors/zombie_juggernaut_universal_NormalGL_e9561010-0afc-4bce-9963-e6d5ffef41e5.png' at thread -1
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal.glb' remapped 'res://assets/models/actors/zombie_juggernaut_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal.glb remapped: res://assets/models/actors/zombie_female_universal.glb
+Loading resource: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn remapped: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn
+Loading resource: res://assets/models/actors/zombie_female_universal_Color_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg remapped: res://assets/models/actors/zombie_female_universal_Color_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg
+Loading resource: res://.godot/imported/zombie_female_universal_Color_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-b9d8bf083198a4fc56a10db268f5c9e0.s3tc.ctex remapped: res://.godot/imported/zombie_female_universal_Color_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-b9d8bf083198a4fc56a10db268f5c9e0.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_female_universal_Color_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg' remapped 'res://assets/models/actors/zombie_female_universal_Color_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg remapped: res://assets/models/actors/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg
+Loading resource: res://.godot/imported/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-64583c1598779785dc8527e215c65fe8.s3tc.ctex remapped: res://.godot/imported/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-64583c1598779785dc8527e215c65fe8.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg' remapped 'res://assets/models/actors/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal_NormalGL_b157638a-a55b-4f82-ab8f-806b22d811f9.png remapped: res://assets/models/actors/zombie_female_universal_NormalGL_b157638a-a55b-4f82-ab8f-806b22d811f9.png
+Loading resource: res://.godot/imported/zombie_female_universal_NormalGL_b157638a-a55b-4f82-ab8f-806b22d811f9.png-8a468351adee4c0950a67d591f09d183.s3tc.ctex remapped: res://.godot/imported/zombie_female_universal_NormalGL_b157638a-a55b-4f82-ab8f-806b22d811f9.png-8a468351adee4c0950a67d591f09d183.s3tc.ctex
+Completed load for: 'res://assets/models/actors/zombie_female_universal_NormalGL_b157638a-a55b-4f82-ab8f-806b22d811f9.png' remapped 'res://assets/models/actors/zombie_female_universal_NormalGL_b157638a-a55b-4f82-ab8f-806b22d811f9.png' at thread -1
+Completed load for: 'res://assets/models/actors/zombie_female_universal.glb' remapped 'res://assets/models/actors/zombie_female_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal.glb remapped: res://assets/models/actors/zombie_female_universal.glb
+Loading resource: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn remapped: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn
+Completed load for: 'res://assets/models/actors/zombie_female_universal.glb' remapped 'res://assets/models/actors/zombie_female_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal.glb remapped: res://assets/models/actors/zombie_juggernaut_universal.glb
+Loading resource: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn remapped: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal.glb' remapped 'res://assets/models/actors/zombie_juggernaut_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal.glb remapped: res://assets/models/actors/zombie_female_universal.glb
+Loading resource: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn remapped: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn
+Completed load for: 'res://assets/models/actors/zombie_female_universal.glb' remapped 'res://assets/models/actors/zombie_female_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal.glb remapped: res://assets/models/actors/zombie_female_universal.glb
+Loading resource: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn remapped: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn
+Completed load for: 'res://assets/models/actors/zombie_female_universal.glb' remapped 'res://assets/models/actors/zombie_female_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_jockey_universal.glb remapped: res://assets/models/actors/zombie_jockey_universal.glb
+Loading resource: res://.godot/imported/zombie_jockey_universal.glb-b398ab49e782501fe2db94211e8b648d.scn remapped: res://.godot/imported/zombie_jockey_universal.glb-b398ab49e782501fe2db94211e8b648d.scn
+Completed load for: 'res://assets/models/actors/zombie_jockey_universal.glb' remapped 'res://assets/models/actors/zombie_jockey_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_juggernaut_universal.glb remapped: res://assets/models/actors/zombie_juggernaut_universal.glb
+Loading resource: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn remapped: res://.godot/imported/zombie_juggernaut_universal.glb-2e333c8b152ede637f369cd3d0b0d9fb.scn
+Completed load for: 'res://assets/models/actors/zombie_juggernaut_universal.glb' remapped 'res://assets/models/actors/zombie_juggernaut_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal.glb remapped: res://assets/models/actors/zombie_female_universal.glb
+Loading resource: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn remapped: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn
+Completed load for: 'res://assets/models/actors/zombie_female_universal.glb' remapped 'res://assets/models/actors/zombie_female_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_female_universal.glb remapped: res://assets/models/actors/zombie_female_universal.glb
+Loading resource: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn remapped: res://.godot/imported/zombie_female_universal.glb-765c4aebad68f4325d6c7c7c46c9bdce.scn
+Completed load for: 'res://assets/models/actors/zombie_female_universal.glb' remapped 'res://assets/models/actors/zombie_female_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+Loading resource: res://assets/models/actors/zombie_walker_universal.glb remapped: res://assets/models/actors/zombie_walker_universal.glb
+Loading resource: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn remapped: res://.godot/imported/zombie_walker_universal.glb-1741b856f92418740088bc55b05bbca7.scn
+Completed load for: 'res://assets/models/actors/zombie_walker_universal.glb' remapped 'res://assets/models/actors/zombie_walker_universal.glb' at thread -1
+SMOKE_3D_OK languages=20 settings=true character_select=true shop=true rewards=true weapons=true reload=true armor=true helmet=true helmet_protection=true barrel_collision=true barrel_aim=true ordnance=true damage_numbers=true audio=true jockey=true banshee=true fire_frenzy=true revival=true revival_rewards=true intro=true
+XR: Clearing primary interface
+XR: Removed interface "Native mobile"
+XR: Removed interface "OpenXR"
+Leaked instance: AudioStreamMP3:9223372135873908467 - Reference count: 1
+Leaked instance: AudioStreamMP3:9223372136544997111 - Reference count: 4
+Leaked instance: AudioStreamMP3:9223372136712769272 - Reference count: 3
+Leaked instance: AudioStreamWAV:9223372136880541435 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372309450986242 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372322906313930 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372316178650559 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372255378020801 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372257810717266 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372258683132534 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372276970298943 - Reference count: 1
+Leaked instance: AudioStreamPlaybackMP3:9223372282808770446 - Reference count: 1
+Leaked instance: AudioStreamPlaybackWAV:9223372324315603204 - Reference count: 1
+Hint: Leaked instances typically happen when nodes are removed from the scene tree (with `remove_child()`) but not freed (with `free()` or `queue_free()`).
+Resource still in use: res://assets/audio/shotgun.mp3 (AudioStreamMP3)
+Resource still in use: res://assets/audio/explosion.mp3 (AudioStreamMP3)
+Resource still in use: res://assets/audio/zombie_growl.mp3 (AudioStreamMP3)
+Orphan StringName: Master (static: 0, total: 17)
+StringName: 1 unclaimed string names at exit.
+WARNING: 13 ObjectDB instances were leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
+ERROR: 3 resources still in use at exit.
+   at: clear (core/io/resource.cpp:817)

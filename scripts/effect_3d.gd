@@ -13,6 +13,7 @@ var effect_material: StandardMaterial3D
 func make_text(text: String,color: Color) -> void:
 	mode="text"
 	label=Label3D.new(); label.text=text; label.font_size=52; label.pixel_size=0.009
+	label.font=load("res://scripts/run_text.gd").font()
 	label.modulate=color; label.outline_size=10; label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
 	add_child(label); visual=label
 

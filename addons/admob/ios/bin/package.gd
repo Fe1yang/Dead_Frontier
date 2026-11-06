@@ -1,2 +1,5 @@
 # This file is dynamically generated.
-const VERSION := "5.1.0"
+# It defines the current installed version of the platform plugin.
+# Do not modify this manually.
+
+const VERSION := "v5.1.0"

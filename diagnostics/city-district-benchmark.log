@@ -1,0 +1,72 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+20:32:32 | INFO: Starting glTF 2.0 export
+20:32:32 | INFO: Extracting primitive: 立方体.536
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.109
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.461
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.158
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.002
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.004
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.540
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.559
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.541
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.092
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.045
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.044
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.067
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 文本
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.003
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.001
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.043
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.103
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.449
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.256
+20:32:32 | INFO: Primitives created: 1
+20:32:32 | INFO: Extracting primitive: 立方体.257
+20:32:32 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 立方体.042
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 立方体.005
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 立方体.117
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 立方体.464
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 立方体.041
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 柱体.005
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 立方体.448
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Extracting primitive: 立方体.531
+20:32:33 | INFO: Primitives created: 1
+20:32:33 | INFO: Finished glTF 2.0 export in 0.34424757957458496 s
+
+CITY_DISTRICT_EXPORTED 2 objects 30
+CITY_DISTRICTS_COMPLETE 1
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

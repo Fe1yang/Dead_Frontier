@@ -1,0 +1,143 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_weapons_hd.py:13: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*color,1); m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+14:12:51 | INFO: Starting glTF 2.0 export
+14:12:51 | INFO: Extracting primitive: Adjustable stockMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Box magazineMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.010
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.011
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.012
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.013
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Cheek restMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 柱体.002
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Folded bipod
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Folded bipod.001
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.001
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.002
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.003
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.004
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.005
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.006
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.007
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.008
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.009
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Heavy free floated barrelMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Long forestockMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Muzzle brakeMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 柱体
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 柱体.001
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.015
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.016
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.017
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.018
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.019
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.020
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.021
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.022
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.023
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.024
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Precision receiverMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.014
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Scope main tubeMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.025
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.026
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Scope objectiveMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Scope ocularMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Scope ringMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Scope ringMesh.001
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Stock recoil padMesh
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Trigger
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: Trigger guard
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.027
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.028
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.029
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.030
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.031
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.032
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.033
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.034
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.035
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.036
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.037
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.038
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.039
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.040
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.041
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 立方体.042
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Extracting primitive: 柱体.003
+14:12:51 | INFO: Primitives created: 1
+14:12:51 | INFO: Finished glTF 2.0 export in 0.30625247955322266 s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_weapons_hd.py:199: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  world=bpy.data.worlds.new('Preview world'); world.use_nodes=True
+00:09.031  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\weapons_hd\sniper.png'
+
+HD_WEAPON_EXPORTED sniper
+HD_WEAPONS_COMPLETE
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

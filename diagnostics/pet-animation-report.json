@@ -1,0 +1,42 @@
+{
+  "doberman": {
+    "height_m": 0.8199999928474426,
+    "vertices": 10573,
+    "bones": 19,
+    "clips": [
+      "Dog_Idle",
+      "Dog_Run",
+      "Dog_Bite"
+    ]
+  },
+  "german_shepherd": {
+    "height_m": 0.7800000011920929,
+    "vertices": 10380,
+    "bones": 19,
+    "clips": [
+      "Dog_Idle",
+      "Dog_Run",
+      "Dog_Bite"
+    ]
+  },
+  "czech_wolfdog": {
+    "height_m": 0.8200000822544098,
+    "vertices": 10572,
+    "bones": 19,
+    "clips": [
+      "Dog_Idle",
+      "Dog_Run",
+      "Dog_Bite"
+    ]
+  },
+  "tibetan_mastiff": {
+    "height_m": 0.9399999976158142,
+    "vertices": 11336,
+    "bones": 19,
+    "clips": [
+      "Dog_Idle",
+      "Dog_Run",
+      "Dog_Bite"
+    ]
+  }
+}

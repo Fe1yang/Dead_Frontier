@@ -1,0 +1,12 @@
+02:37:15 | INFO: Data are loaded, start creating Blender stuff
+02:37:15 | INFO: Blender create Mesh node mesh_9f5d9d84-3400-4516-9a1f-50b88bae1ad7
+02:37:16 | INFO: glTF import finished in 0.12s
+00:07.235  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\inspect-bomber-tpose.png'
+Traceback (most recent call last):
+  File "C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\inspect_model_closeup.py", line 49, in <module>
+    print('saved', scene.render.filepath, '| bbox', tuple(low.round(2)), tuple(high.round(2)))
+                                                          ^^^^^^^^^
+AttributeError: 'Vector' object has no attribute 'round'
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

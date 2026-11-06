@@ -5,6 +5,7 @@ extends Node3D
 
 const MODEL_PATH:="res://assets/models/actors/pursuer_abomination.glb"
 const SCALE:=1.95
+const ModelFix=preload("res://scripts/model_fix.gd")
 
 var model: Node3D
 var anim: AnimationPlayer
@@ -15,16 +16,21 @@ func _ready() -> void:
 	model.scale=Vector3.ONE*SCALE
 	model.rotation.y=PI # faces -Z, down the road after the survivor
 	add_child(model)
+	ModelFix.double_sided(model) # no white see-through specks on the skin
 	anim=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
 	if is_instance_valid(anim) and anim.has_animation("Pursuer_Run"):
 		var clip:=anim.get_animation("Pursuer_Run")
 		clip.loop_mode=Animation.LOOP_LINEAR
-		anim.speed_scale=0.78 # heavy, long strides for its size
+		anim.speed_scale=1.359 # calibrated from exported stance-foot travel to match the 3.5 m/s road
 		anim.play("Pursuer_Run")
 	else:
 		push_error("Pursuer custom run animation is missing")
 	for m in model.find_children("*","MeshInstance3D",true,false):
 		(m as MeshInstance3D).cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	# Use the game's voice pool so the supplied roar follows the existing mute setting.
+	# BossChaser is created for both the opening pursuit and mid-run ambushes.
+	var sound=get_parent().get("sound")
+	if is_instance_valid(sound): sound.play("pursuer_roar")
 
 func height() -> float:
 	return 1.84*SCALE

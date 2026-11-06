@@ -1,0 +1,23 @@
+Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 Core Profile Context 25.20.42.17.260320 - Compatibility - Using Device: ATI Technologies Inc. - AMD Radeon(TM) 880M Graphics
+
+res://assets/models/generated/survivor_riley_hd_Color_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/generated/survivor_riley_hd_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/generated/survivor_riley_hd_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png：检测到纹理被用于 3D 法线贴图。正在启用红绿纹理压缩，降低内存使用（蓝通道被丢弃）。
+res://assets/models/generated/survivor_riley_hd_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png：检测到纹理被用作 3D 粗糙度贴图。根据在 res://assets/models/generated/survivor_riley_hd_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png 处检测到的关联法线贴图，启用粗糙度限制器。
+res://assets/models/generated/survivor_riley_hd_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/generated/survivor_maya_hd_Color_7593d872-3c78-4b60-b8e3-5a8e65158a30.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/generated/survivor_maya_hd_ORM_7593d872-3c78-4b60-b8e3-5a8e65158a30.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/generated/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png：检测到纹理被用于 3D 法线贴图。正在启用红绿纹理压缩，降低内存使用（蓝通道被丢弃）。
+res://assets/models/generated/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png：检测到纹理被用作 3D 粗糙度贴图。根据在 res://assets/models/generated/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png 处检测到的关联法线贴图，启用粗糙度限制器。
+res://assets/models/generated/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/actors/survivor_riley_universal_Color_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/actors/survivor_riley_universal_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/actors/survivor_riley_universal_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png：检测到纹理被用于 3D 法线贴图。正在启用红绿纹理压缩，降低内存使用（蓝通道被丢弃）。
+res://assets/models/actors/survivor_riley_universal_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png：检测到纹理被用作 3D 粗糙度贴图。根据在 res://assets/models/actors/survivor_riley_universal_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png 处检测到的关联法线贴图，启用粗糙度限制器。
+res://assets/models/actors/survivor_riley_universal_NormalGL_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.png：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/actors/survivor_maya_universal_Color_7593d872-3c78-4b60-b8e3-5a8e65158a30.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/actors/survivor_maya_universal_ORM_7593d872-3c78-4b60-b8e3-5a8e65158a30.jpg：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。
+res://assets/models/actors/survivor_maya_universal_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png：检测到纹理被用于 3D 法线贴图。正在启用红绿纹理压缩，降低内存使用（蓝通道被丢弃）。
+res://assets/models/actors/survivor_maya_universal_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png：检测到纹理被用作 3D 粗糙度贴图。根据在 res://assets/models/actors/survivor_maya_universal_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png 处检测到的关联法线贴图，启用粗糙度限制器。
+res://assets/models/actors/survivor_maya_universal_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png：检测到纹理被用于 3D。启用 mipmap 生成并将纹理压缩模式设置为 VRAM Compressed (S3TC/ETC/BPTC)。

@@ -5,9 +5,14 @@ extends Node3D
 const TRUCK_PATH := "res://assets/models/supply_truck.glb"
 const CRATE_SCALE := 2.9
 const FLIGHT_TIME := 0.55
-const WEAPON_SCALES := {"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95}
-const WEAPON_NAMES := {"PISTOL":"PISTOL","SMG":"SMG","SHOTGUN":"SHOTGUN","SNIPER":"SNIPER","LAUNCHER":"GRENADE LAUNCHER","RIFLE":"RIFLE"}
+const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62}
+const WEAPON_NAMES := {"ARMOR":"ARMOR: SHIELD +50","HELMET":"HELMET: +20% PROTECTION","PISTOL":"PISTOL","SMG":"SMG","SHOTGUN":"SHOTGUN","SNIPER":"SNIPER","LAUNCHER":"GRENADE LAUNCHER","RIFLE":"RIFLE"}
 const GLOW := Color("49b8ff")
+const PET_GLOW := Color("ffbf4a")
+# Dogs can stand on a platform too ("PET_<index>"); English names for the pop-up.
+const PET_NAMES := ["DOBERMAN","GERMAN SHEPHERD","CZECH WOLFDOG","TIBETAN MASTIFF"]
+const LobbyScene := preload("res://scripts/lobby_scene_3d.gd")
+const ModelFix := preload("res://scripts/model_fix.gd")
 
 static var crate_mesh: Mesh
 static var latch_mesh: Mesh
@@ -74,19 +79,32 @@ func _ready() -> void:
 	body.add_child(counter)
 	# Weapon on display above the crate, lit blue like a loot drop.
 	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85,0); add_child(weapon_pivot)
+	weapon_pivot.rotation.y = PI*0.5 if weapon_id=="BIKE" else 0.0
 	var path := "res://assets/models/rifle.glb" if weapon_id=="RIFLE" else "res://assets/models/weapons/"+weapon_id.to_lower()+".glb"
-	if ResourceLoader.exists(path):
+	if weapon_id in ["ARMOR","HELMET"]: path = "res://assets/models/"+weapon_id.to_lower()+".glb"
+	if weapon_id=="BIKE": path = "res://assets/models/motorcycle.glb"
+	if is_pet():
+		var pi := pet_index()
+		weapon_model = (load(LobbyScene.PETS[pi].asset) as PackedScene).instantiate() as Node3D
+		weapon_pivot.add_child(weapon_model)
+		var lift := ModelFix.fit_pet(weapon_model,float(LobbyScene.PETS[pi].get("length",1.1))*1.3)
+		weapon_model.position.y = lift-0.75
+		ModelFix.play_animation(weapon_model,"Dog_Idle")
+		path = ""
+	if path!="" and ResourceLoader.exists(path):
 		weapon_model = (load(path) as PackedScene).instantiate() as Node3D
 		weapon_model.scale = Vector3.ONE*float(WEAPON_SCALES.get(weapon_id,0.6))
+		if weapon_id=="BIKE": weapon_model.rotation.x=-PI*0.5
 		weapon_pivot.add_child(weapon_model)
 		_center_model(weapon_model)
 	glow_ring = MeshInstance3D.new(); var torus := TorusMesh.new()
 	torus.inner_radius = 0.56; torus.outer_radius = 0.68; torus.rings = 32; torus.ring_segments = 8; glow_ring.mesh = torus
 	var glow_mat := StandardMaterial3D.new(); glow_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	glow_mat.albedo_color = Color(GLOW.r,GLOW.g,GLOW.b,0.75); glow_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	var g := PET_GLOW if is_pet() else GLOW
+	glow_mat.albedo_color = Color(g.r,g.g,g.b,0.75); glow_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	glow_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	glow_ring.material_override = glow_mat; glow_ring.position = Vector3(0,-0.42,0); weapon_pivot.add_child(glow_ring)
-	light = OmniLight3D.new(); light.light_color = GLOW; light.light_energy = 1.6; light.omni_range = 2.6
+	light = OmniLight3D.new(); light.light_color = PET_GLOW if is_pet() else GLOW; light.light_energy = 1.6; light.omni_range = 2.6
 	light.position = Vector3(0,0.1,0.35); weapon_pivot.add_child(light)
 	_refresh_counter()
 
@@ -138,7 +156,7 @@ func tick(delta: float,player_target: Vector3) -> void:
 		body.scale = Vector3.ONE*(1.0+0.08*punch)
 		counter.modulate = Color("fbfbf6").lerp(Color("ff4a3a"),punch)
 		weapon_pivot.position.y = 1.85+sin(spin*2.6)*0.07
-		weapon_pivot.rotation.y = spin*1.9
+		weapon_pivot.rotation.y = spin*1.9+(PI*0.5 if weapon_id=="BIKE" else 0.0) if not is_pet() else spin*0.6
 		if glow_ring: glow_ring.rotation.x = 0.0
 		if light: light.light_energy = 1.4+0.4*sin(spin*5.0)
 		return
@@ -154,5 +172,17 @@ func tick(delta: float,player_target: Vector3) -> void:
 	if light: light.light_energy = 2.4*(1.0-e)+0.4
 	if t>=1.0: arrived = true
 
+func is_pet() -> bool:
+	return weapon_id.begins_with("PET_")
+
+func pet_index() -> int:
+	return clampi(int(weapon_id.trim_prefix("PET_")),0,LobbyScene.PETS.size()-1)
+
 func display_name() -> String:
-	return String(WEAPON_NAMES.get(weapon_id,weapon_id))
+	var RT=load("res://scripts/run_text.gd")
+	if is_pet(): return RT.text("dog_%d"%pet_index())
+	if weapon_id=="BIKE": return RT.text("l_bike")
+	if weapon_id=="ARMOR": return RT.fmt("shield",50)
+	if weapon_id=="HELMET": return RT.text("helmet")
+	var ST=load("res://scripts/shop_text.gd")
+	return ST.text(RT.lang,"n_"+weapon_id.to_lower())

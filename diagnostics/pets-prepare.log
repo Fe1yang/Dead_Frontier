@@ -1,0 +1,58 @@
+22:47:05 | INFO: Data are loaded, start creating Blender stuff
+22:47:05 | INFO: Blender create Mesh node mesh_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c
+22:47:05 | INFO: glTF import finished in 0.06s
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+22:47:05 | INFO: Starting glTF 2.0 export
+22:47:05 | INFO: Extracting primitive: mesh_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c
+22:47:06 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+22:47:06 | INFO: Primitives created: 1
+22:47:06 | INFO: Finished glTF 2.0 export in 1.145716905593872 s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\prepare_pets.py:87: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  floor_mat.use_nodes = True
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\prepare_pets.py:103: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  scene.world.use_nodes = True
+00:19.218  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\renders\pets\doberman.png'
+
+信息: 已另存为 "doberman.blend"
+PET_PREPARED doberman {'source_dimensions': [1.0, 0.2832161486148834, 0.837298572063446], 'metres_high': 0.82, 'triangles': 17654, 'mesh_objects': 1, 'source': 'C:\\Users\\user\\Documents\\kimi\\tasks\\2026-11-02\\20-32-30-26dbcd78\\assets\\models\\generated\\doberman_raw.glb'}
+22:47:20 | INFO: Data are loaded, start creating Blender stuff
+22:47:20 | INFO: Blender create Mesh node mesh_3ca719b2-b973-4436-85c3-3f9b785e418f
+22:47:20 | INFO: glTF import finished in 0.05s
+22:47:20 | INFO: Starting glTF 2.0 export
+22:47:20 | INFO: Extracting primitive: mesh_3ca719b2-b973-4436-85c3-3f9b785e418f
+22:47:21 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+22:47:21 | INFO: Primitives created: 1
+22:47:21 | INFO: Finished glTF 2.0 export in 1.1220667362213135 s
+00:33.375  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\renders\pets\german_shepherd.png'
+
+信息: 已另存为 "german_shepherd.blend"
+PET_PREPARED german_shepherd {'source_dimensions': [1.0, 0.24124443531036377, 0.667845606803894], 'metres_high': 0.78, 'triangles': 17550, 'mesh_objects': 1, 'source': 'C:\\Users\\user\\Documents\\kimi\\tasks\\2026-11-02\\20-32-30-26dbcd78\\assets\\models\\generated\\german_shepherd_raw.glb'}
+22:47:34 | INFO: Data are loaded, start creating Blender stuff
+22:47:34 | INFO: Blender create Mesh node mesh_559c98d4-feaf-4965-9caf-90ae58c81a87
+22:47:34 | INFO: glTF import finished in 0.06s
+22:47:34 | INFO: Starting glTF 2.0 export
+22:47:34 | INFO: Extracting primitive: mesh_559c98d4-feaf-4965-9caf-90ae58c81a87
+22:47:35 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+22:47:35 | INFO: Primitives created: 1
+22:47:35 | INFO: Finished glTF 2.0 export in 1.1020240783691406 s
+00:47.750  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\renders\pets\czech_wolfdog.png'
+
+信息: 已另存为 "czech_wolfdog.blend"
+PET_PREPARED czech_wolfdog {'source_dimensions': [1.0, 0.2912944257259369, 0.6143214702606201], 'metres_high': 0.82, 'triangles': 17456, 'mesh_objects': 1, 'source': 'C:\\Users\\user\\Documents\\kimi\\tasks\\2026-11-02\\20-32-30-26dbcd78\\assets\\models\\generated\\czech_wolfdog_raw.glb'}
+22:47:48 | INFO: Data are loaded, start creating Blender stuff
+22:47:48 | INFO: Blender create Mesh node mesh_492d1674-7bba-4e84-a39f-b559a2f96100
+22:47:48 | INFO: glTF import finished in 0.06s
+22:47:48 | INFO: Starting glTF 2.0 export
+22:47:48 | INFO: Extracting primitive: mesh_492d1674-7bba-4e84-a39f-b559a2f96100
+22:47:49 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+22:47:49 | INFO: Primitives created: 1
+22:47:49 | INFO: Finished glTF 2.0 export in 1.0407943725585938 s
+01:03.156  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\renders\pets\tibetan_mastiff.png'
+
+信息: 已另存为 "tibetan_mastiff.blend"
+PET_PREPARED tibetan_mastiff {'source_dimensions': [1.0, 0.3840514123439789, 0.7223633527755737], 'metres_high': 0.94, 'triangles': 17780, 'mesh_objects': 1, 'source': 'C:\\Users\\user\\Documents\\kimi\\tasks\\2026-11-02\\20-32-30-26dbcd78\\assets\\models\\generated\\tibetan_mastiff_raw.glb'}
+ALL_PETS_PREPARED
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

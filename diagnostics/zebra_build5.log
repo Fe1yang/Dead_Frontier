@@ -1,0 +1,94 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+11:30:56 | INFO: Starting glTF 2.0 export
+11:30:56 | INFO: Extracting primitive: Background city building mesh.002
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Rain stain mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Interior blind slat mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Kerb stone mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Storm drain inset mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Recessed window glazing mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Office glazed bay mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: 文本
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Tower horizontal floor band mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Office horizontal spandrel mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Office glazed bay mesh.001
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Facade settlement crack mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Avenue edge line mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Segmented city pavement mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Background window mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Background city building mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Office core mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Tower street podium mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Window inner side reveal mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Flat roof membrane mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Signal black face gasket mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Stepped deco main volume mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Sign enamel face mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: 柱体.023
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: 柱体.018
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: 柱体.013
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Storm drain slot mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Side roof parapet mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Rain stain mesh.006
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Rain stain mesh.004
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Deco entry doors mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Dried facade blood mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: 柱体
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Sign enamel face mesh.003
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Extracting primitive: Tower lobby glazing mesh
+11:30:56 | INFO: Primitives created: 1
+11:30:56 | INFO: Finished glTF 2.0 export in 0.46180057525634766 s
+
+CITY_DISTRICT_EXPORTED 5 objects 41
+CITY_DISTRICTS_COMPLETE 1
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

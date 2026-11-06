@@ -1,0 +1,913 @@
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+11:39:35 | INFO: Data are loaded, start creating Blender stuff
+11:39:35 | INFO: Blender create Mesh node 柱体
+11:39:35 | INFO: Blender create Mesh node 柱体.001
+11:39:35 | INFO: Blender create Mesh node 柱体.002
+11:39:35 | INFO: Blender create Mesh node 柱体.003
+11:39:35 | INFO: Blender create Mesh node 柱体.004
+11:39:35 | INFO: Blender create Mesh node 柱体.005
+11:39:35 | INFO: Blender create Mesh node 柱体.006
+11:39:35 | INFO: Blender create Mesh node 柱体.007
+11:39:35 | INFO: Blender create Mesh node Station back glass mesh
+11:39:35 | INFO: Blender create Mesh node Station back glazing mullion mesh
+11:39:35 | INFO: Blender create Mesh node Station back glazing mullion mesh.001
+11:39:35 | INFO: Blender create Mesh node Station back glazing mullion mesh.002
+11:39:35 | INFO: Blender create Mesh node Station back horizontal rail mesh
+11:39:35 | INFO: Blender create Mesh node Station back horizontal rail mesh.001
+11:39:35 | INFO: Blender create Mesh node Station bench backrest slat mesh
+11:39:35 | INFO: Blender create Mesh node Station bench backrest slat mesh.001
+11:39:35 | INFO: Blender create Mesh node Station bench backrest slat mesh.002
+11:39:35 | INFO: Blender create Mesh node 柱体.008
+11:39:35 | INFO: Blender create Mesh node 柱体.010
+11:39:35 | INFO: Blender create Mesh node 柱体.009
+11:39:35 | INFO: Blender create Mesh node 柱体.011
+11:39:35 | INFO: Blender create Mesh node Station bench wooden slat mesh
+11:39:35 | INFO: Blender create Mesh node Station bench wooden slat mesh.001
+11:39:35 | INFO: Blender create Mesh node Station bench wooden slat mesh.002
+11:39:35 | INFO: Blender create Mesh node Station bench wooden slat mesh.003
+11:39:35 | INFO: Blender create Mesh node Station bolted foot mesh
+11:39:35 | INFO: Blender create Mesh node Station bolted foot mesh.001
+11:39:35 | INFO: Blender create Mesh node Station bolted foot mesh.002
+11:39:35 | INFO: Blender create Mesh node Station bolted foot mesh.003
+11:39:35 | INFO: Blender create Mesh node Station BUS lettering
+11:39:35 | INFO: Blender create Mesh node Station concrete base mesh
+11:39:35 | INFO: Blender create Mesh node Station end glass mesh
+11:39:35 | INFO: Blender create Mesh node Station poster colour band mesh
+11:39:35 | INFO: Blender create Mesh node Station poster face mesh
+11:39:35 | INFO: Blender create Mesh node Station poster frame mesh
+11:39:35 | INFO: Blender create Mesh node Station poster subtitle
+11:39:35 | INFO: Blender create Mesh node Station poster title
+11:39:35 | INFO: Blender create Mesh node Station roof mesh
+11:39:35 | INFO: Blender create Mesh node Station roof front fascia mesh
+11:39:35 | INFO: Blender create Mesh node Station roof light mesh
+11:39:35 | INFO: Blender create Mesh node Station route numbers
+11:39:35 | INFO: Blender create Mesh node Station side top rail mesh
+11:39:35 | INFO: Blender create Mesh node Station side top rail mesh.001
+11:39:35 | INFO: Blender create Mesh node Station sign face mesh
+11:39:35 | INFO: Blender create Mesh node Station sign housing mesh
+11:39:35 | INFO: Blender create Mesh node 柱体.012
+11:39:35 | INFO: Blender create Mesh node Station steel post mesh
+11:39:35 | INFO: Blender create Mesh node Station steel post mesh.001
+11:39:35 | INFO: Blender create Mesh node Station steel post mesh.002
+11:39:35 | INFO: Blender create Mesh node Station steel post mesh.003
+11:39:35 | INFO: Blender create Mesh node Station timetable case mesh
+11:39:35 | INFO: Blender create Mesh node Station timetable paper mesh
+11:39:35 | INFO: Blender create Mesh node Station timetable printed line mesh
+11:39:35 | INFO: Blender create Mesh node Station timetable printed line mesh.001
+11:39:35 | INFO: Blender create Mesh node Station timetable printed line mesh.002
+11:39:35 | INFO: Blender create Mesh node Station timetable printed line mesh.003
+11:39:35 | INFO: Blender create Mesh node Station timetable printed line mesh.004
+11:39:35 | INFO: Blender create Mesh node Station timetable printed line mesh.005
+11:39:35 | INFO: glTF import finished in 0.29s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\build_city_districts.py:23: DeprecationWarning: 'Material.use_nodes' is expected to be removed in Blender 6.0
+  m=bpy.data.materials.new(name); m.diffuse_color=(*rgb,1); m.use_nodes=True
+警告: 物体 'bus_stop placement' 无已解算网格数据
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+11:39:36 | INFO: Starting glTF 2.0 export
+11:39:36 | INFO: Extracting primitive: Background city building mesh.002
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: 柱体.008
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station poster colour band mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station BUS lettering
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station concrete base mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station back glazing mullion mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station back glass mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station bolted foot mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station bench backrest slat mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station poster face mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station poster subtitle
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station roof mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Station roof light mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Low rise porch roof mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Kerb stone mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Storm drain inset mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Low rise entrance mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Recessed window glazing mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Recessed window glazing mesh.003
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Narrow townhouse volume mesh.002
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Avenue edge line mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Segmented city pavement mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Background window mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Background city building mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Narrow townhouse volume mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Window inner side reveal mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Low rise pitched roof mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Storm drain slot mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Low rise stone base mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Rain stain mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Air conditioner cabinet mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Rain stain mesh.002
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Rain stain mesh.003
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Narrow townhouse volume mesh.001
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Extracting primitive: Streetlight diffuser mesh
+11:39:36 | INFO: Primitives created: 1
+11:39:36 | INFO: Finished glTF 2.0 export in 0.3856520652770996 s
+
+CITY_DISTRICT_EXPORTED 2 objects 38
+11:39:46 | INFO: Starting glTF 2.0 export
+11:39:46 | INFO: Extracting primitive: Background city building mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Background city building mesh.001
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Background city building mesh.002
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Office core mesh.001
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Interior blind slat mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Kerb stone mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Storm drain inset mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Recessed window glazing mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Office glazed bay mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: 文本
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Tower horizontal floor band mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Office horizontal spandrel mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Office glazed bay mesh.001
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Avenue edge line mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Segmented city pavement mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Background window mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Tower street podium mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Storm drain slot mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: 柱体.023
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Window inner side reveal mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Flat roof membrane mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Signal black face gasket mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Facade settlement crack mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Sign enamel face mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: 柱体.018
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: 柱体.013
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Side roof parapet mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Rain stain mesh.004
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Rain stain mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Rain stain mesh.002
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Deco entry doors mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Dried facade blood mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Office core mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: 柱体
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Sign enamel face mesh.003
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Extracting primitive: Tower lobby glazing mesh
+11:39:46 | INFO: Primitives created: 1
+11:39:46 | INFO: Finished glTF 2.0 export in 0.36948323249816895 s
+
+CITY_DISTRICT_EXPORTED 5 objects 42
+11:39:49 | INFO: Data are loaded, start creating Blender stuff
+11:39:49 | INFO: Blender create Mesh node 锥体.011
+11:39:49 | INFO: Blender create Mesh node 锥体.012
+11:39:49 | INFO: Blender create Mesh node 锥体.015
+11:39:49 | INFO: Blender create Mesh node 锥体.016
+11:39:49 | INFO: Blender create Mesh node 锥体.019
+11:39:49 | INFO: Blender create Mesh node 锥体.020
+11:39:49 | INFO: Blender create Mesh node 锥体.023
+11:39:49 | INFO: Blender create Mesh node 锥体.024
+11:39:49 | INFO: Blender create Mesh node 锥体.027
+11:39:49 | INFO: Blender create Mesh node 锥体.028
+11:39:49 | INFO: Blender create Mesh node 锥体.031
+11:39:49 | INFO: Blender create Mesh node 锥体.032
+11:39:49 | INFO: Blender create Mesh node 锥体.035
+11:39:49 | INFO: Blender create Mesh node 锥体.036
+11:39:49 | INFO: Blender create Mesh node 锥体.039
+11:39:49 | INFO: Blender create Mesh node 锥体.040
+11:39:49 | INFO: Blender create Mesh node 锥体.043
+11:39:49 | INFO: Blender create Mesh node 锥体.044
+11:39:49 | INFO: Blender create Mesh node 锥体.047
+11:39:49 | INFO: Blender create Mesh node 锥体.048
+11:39:49 | INFO: Blender create Mesh node 锥体.051
+11:39:49 | INFO: Blender create Mesh node 锥体.052
+11:39:49 | INFO: Blender create Mesh node 锥体.055
+11:39:49 | INFO: Blender create Mesh node 锥体.056
+11:39:49 | INFO: Blender create Mesh node Tree individual folded leaves mesh
+11:39:49 | INFO: Blender create Mesh node Tree pit dry soil mesh
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh.001
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh.002
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh.003
+11:39:49 | INFO: Blender create Mesh node 锥体.013
+11:39:49 | INFO: Blender create Mesh node 锥体.014
+11:39:49 | INFO: Blender create Mesh node 锥体.017
+11:39:49 | INFO: Blender create Mesh node 锥体.018
+11:39:49 | INFO: Blender create Mesh node 锥体.021
+11:39:49 | INFO: Blender create Mesh node 锥体.022
+11:39:49 | INFO: Blender create Mesh node 锥体.025
+11:39:49 | INFO: Blender create Mesh node 锥体.026
+11:39:49 | INFO: Blender create Mesh node 锥体.029
+11:39:49 | INFO: Blender create Mesh node 锥体.030
+11:39:49 | INFO: Blender create Mesh node 锥体.033
+11:39:49 | INFO: Blender create Mesh node 锥体.034
+11:39:49 | INFO: Blender create Mesh node 锥体.037
+11:39:49 | INFO: Blender create Mesh node 锥体.038
+11:39:49 | INFO: Blender create Mesh node 锥体.041
+11:39:49 | INFO: Blender create Mesh node 锥体.042
+11:39:49 | INFO: Blender create Mesh node 锥体.045
+11:39:49 | INFO: Blender create Mesh node 锥体.046
+11:39:49 | INFO: Blender create Mesh node 锥体.049
+11:39:49 | INFO: Blender create Mesh node 锥体.050
+11:39:49 | INFO: Blender create Mesh node 锥体.053
+11:39:49 | INFO: Blender create Mesh node 锥体.054
+11:39:49 | INFO: Blender create Mesh node 锥体.005
+11:39:49 | INFO: Blender create Mesh node 锥体.006
+11:39:49 | INFO: Blender create Mesh node 锥体.007
+11:39:49 | INFO: Blender create Mesh node 锥体.008
+11:39:49 | INFO: Blender create Mesh node 锥体.009
+11:39:49 | INFO: Blender create Mesh node 锥体.010
+11:39:49 | INFO: Blender create Mesh node 锥体
+11:39:49 | INFO: Blender create Mesh node 锥体.001
+11:39:49 | INFO: Blender create Mesh node 锥体.002
+11:39:49 | INFO: Blender create Mesh node 锥体.003
+11:39:49 | INFO: Blender create Mesh node 锥体.004
+11:39:49 | INFO: glTF import finished in 0.35s
+11:39:49 | INFO: Data are loaded, start creating Blender stuff
+11:39:49 | INFO: Blender create Mesh node 锥体.011
+11:39:49 | INFO: Blender create Mesh node 锥体.012
+11:39:49 | INFO: Blender create Mesh node 锥体.015
+11:39:49 | INFO: Blender create Mesh node 锥体.016
+11:39:49 | INFO: Blender create Mesh node 锥体.019
+11:39:49 | INFO: Blender create Mesh node 锥体.020
+11:39:49 | INFO: Blender create Mesh node 锥体.023
+11:39:49 | INFO: Blender create Mesh node 锥体.024
+11:39:49 | INFO: Blender create Mesh node 锥体.027
+11:39:49 | INFO: Blender create Mesh node 锥体.028
+11:39:49 | INFO: Blender create Mesh node 锥体.031
+11:39:49 | INFO: Blender create Mesh node 锥体.032
+11:39:49 | INFO: Blender create Mesh node 锥体.035
+11:39:49 | INFO: Blender create Mesh node 锥体.036
+11:39:49 | INFO: Blender create Mesh node 锥体.039
+11:39:49 | INFO: Blender create Mesh node 锥体.040
+11:39:49 | INFO: Blender create Mesh node 锥体.043
+11:39:49 | INFO: Blender create Mesh node 锥体.044
+11:39:49 | INFO: Blender create Mesh node 锥体.047
+11:39:49 | INFO: Blender create Mesh node 锥体.048
+11:39:49 | INFO: Blender create Mesh node 锥体.051
+11:39:49 | INFO: Blender create Mesh node 锥体.052
+11:39:49 | INFO: Blender create Mesh node 锥体.055
+11:39:49 | INFO: Blender create Mesh node 锥体.056
+11:39:49 | INFO: Blender create Mesh node Tree individual folded leaves mesh
+11:39:49 | INFO: Blender create Mesh node Tree pit dry soil mesh
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh.001
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh.002
+11:39:49 | INFO: Blender create Mesh node Tree pit stone border mesh.003
+11:39:49 | INFO: Blender create Mesh node 锥体.013
+11:39:49 | INFO: Blender create Mesh node 锥体.014
+11:39:49 | INFO: Blender create Mesh node 锥体.017
+11:39:49 | INFO: Blender create Mesh node 锥体.018
+11:39:49 | INFO: Blender create Mesh node 锥体.021
+11:39:49 | INFO: Blender create Mesh node 锥体.022
+11:39:49 | INFO: Blender create Mesh node 锥体.025
+11:39:49 | INFO: Blender create Mesh node 锥体.026
+11:39:49 | INFO: Blender create Mesh node 锥体.029
+11:39:49 | INFO: Blender create Mesh node 锥体.030
+11:39:49 | INFO: Blender create Mesh node 锥体.033
+11:39:49 | INFO: Blender create Mesh node 锥体.034
+11:39:49 | INFO: Blender create Mesh node 锥体.037
+11:39:49 | INFO: Blender create Mesh node 锥体.038
+11:39:49 | INFO: Blender create Mesh node 锥体.041
+11:39:49 | INFO: Blender create Mesh node 锥体.042
+11:39:49 | INFO: Blender create Mesh node 锥体.045
+11:39:49 | INFO: Blender create Mesh node 锥体.046
+11:39:49 | INFO: Blender create Mesh node 锥体.049
+11:39:49 | INFO: Blender create Mesh node 锥体.050
+11:39:49 | INFO: Blender create Mesh node 锥体.053
+11:39:49 | INFO: Blender create Mesh node 锥体.054
+11:39:49 | INFO: Blender create Mesh node 锥体.005
+11:39:49 | INFO: Blender create Mesh node 锥体.006
+11:39:49 | INFO: Blender create Mesh node 锥体.007
+11:39:49 | INFO: Blender create Mesh node 锥体.008
+11:39:49 | INFO: Blender create Mesh node 锥体.009
+11:39:49 | INFO: Blender create Mesh node 锥体.010
+11:39:49 | INFO: Blender create Mesh node 锥体
+11:39:49 | INFO: Blender create Mesh node 锥体.001
+11:39:49 | INFO: Blender create Mesh node 锥体.002
+11:39:49 | INFO: Blender create Mesh node 锥体.003
+11:39:49 | INFO: Blender create Mesh node 锥体.004
+11:39:49 | INFO: glTF import finished in 0.35s
+11:39:50 | INFO: Data are loaded, start creating Blender stuff
+11:39:50 | INFO: Blender create Mesh node 柱体
+11:39:50 | INFO: Blender create Mesh node 柱体.001
+11:39:50 | INFO: Blender create Mesh node 柱体.002
+11:39:50 | INFO: Blender create Mesh node 柱体.003
+11:39:50 | INFO: Blender create Mesh node 柱体.004
+11:39:50 | INFO: Blender create Mesh node 柱体.005
+11:39:50 | INFO: Blender create Mesh node 柱体.006
+11:39:50 | INFO: Blender create Mesh node 柱体.007
+11:39:50 | INFO: Blender create Mesh node 柱体.008
+11:39:50 | INFO: Blender create Mesh node 柱体.009
+11:39:50 | INFO: Blender create Mesh node 柱体.010
+11:39:50 | INFO: Blender create Mesh node 柱体.011
+11:39:50 | INFO: Blender create Mesh node 柱体.012
+11:39:50 | INFO: Blender create Mesh node 柱体.013
+11:39:50 | INFO: Blender create Mesh node 柱体.014
+11:39:50 | INFO: Blender create Mesh node 柱体.015
+11:39:50 | INFO: Blender create Mesh node 柱体.016
+11:39:50 | INFO: Blender create Mesh node 柱体.017
+11:39:50 | INFO: Blender create Mesh node 球体
+11:39:50 | INFO: Blender create Mesh node 球体.001
+11:39:50 | INFO: Blender create Mesh node 球体.002
+11:39:50 | INFO: Blender create Mesh node 球体.003
+11:39:50 | INFO: Blender create Mesh node 球体.004
+11:39:50 | INFO: Blender create Mesh node 球体.005
+11:39:50 | INFO: Blender create Mesh node 球体.006
+11:39:50 | INFO: Blender create Mesh node 球体.007
+11:39:50 | INFO: Blender create Mesh node 球体.008
+11:39:50 | INFO: Blender create Mesh node 球体.009
+11:39:50 | INFO: Blender create Mesh node 球体.010
+11:39:50 | INFO: Blender create Mesh node 球体.011
+11:39:50 | INFO: Blender create Mesh node 球体.012
+11:39:50 | INFO: Blender create Mesh node 球体.013
+11:39:50 | INFO: Blender create Mesh node 球体.014
+11:39:50 | INFO: Blender create Mesh node 球体.015
+11:39:50 | INFO: Blender create Mesh node 球体.016
+11:39:50 | INFO: Blender create Mesh node 球体.017
+11:39:50 | INFO: Blender create Mesh node 球体.018
+11:39:50 | INFO: Blender create Mesh node 球体.019
+11:39:50 | INFO: Blender create Mesh node 球体.020
+11:39:50 | INFO: Blender create Mesh node 球体.021
+11:39:50 | INFO: Blender create Mesh node 球体.022
+11:39:50 | INFO: Blender create Mesh node 球体.023
+11:39:50 | INFO: Blender create Mesh node 球体.024
+11:39:50 | INFO: Blender create Mesh node 球体.025
+11:39:50 | INFO: Blender create Mesh node 球体.026
+11:39:50 | INFO: Blender create Mesh node 球体.027
+11:39:50 | INFO: Blender create Mesh node 球体.028
+11:39:50 | INFO: Blender create Mesh node 球体.029
+11:39:50 | INFO: Blender create Mesh node 球体.030
+11:39:50 | INFO: Blender create Mesh node 球体.031
+11:39:50 | INFO: Blender create Mesh node 球体.032
+11:39:50 | INFO: Blender create Mesh node 球体.033
+11:39:50 | INFO: Blender create Mesh node 球体.034
+11:39:50 | INFO: Blender create Mesh node 球体.035
+11:39:50 | INFO: Blender create Mesh node 球体.036
+11:39:50 | INFO: Blender create Mesh node 球体.037
+11:39:50 | INFO: Blender create Mesh node 球体.038
+11:39:50 | INFO: Blender create Mesh node 球体.039
+11:39:50 | INFO: Blender create Mesh node 球体.040
+11:39:50 | INFO: Blender create Mesh node 球体.041
+11:39:50 | INFO: Blender create Mesh node 球体.042
+11:39:50 | INFO: Blender create Mesh node 球体.043
+11:39:50 | INFO: Blender create Mesh node 球体.044
+11:39:50 | INFO: Blender create Mesh node 球体.045
+11:39:50 | INFO: Blender create Mesh node 球体.046
+11:39:50 | INFO: Blender create Mesh node 球体.047
+11:39:50 | INFO: Blender create Mesh node 球体.048
+11:39:50 | INFO: Blender create Mesh node 球体.049
+11:39:50 | INFO: Blender create Mesh node 球体.050
+11:39:50 | INFO: Blender create Mesh node 球体.051
+11:39:50 | INFO: Blender create Mesh node 球体.052
+11:39:50 | INFO: Blender create Mesh node 球体.053
+11:39:50 | INFO: Blender create Mesh node 球体.054
+11:39:50 | INFO: Blender create Mesh node 球体.055
+11:39:50 | INFO: Blender create Mesh node 球体.056
+11:39:50 | INFO: Blender create Mesh node 球体.057
+11:39:50 | INFO: Blender create Mesh node 球体.058
+11:39:50 | INFO: Blender create Mesh node 球体.059
+11:39:50 | INFO: Blender create Mesh node 球体.060
+11:39:50 | INFO: Blender create Mesh node 球体.061
+11:39:50 | INFO: Blender create Mesh node 球体.062
+11:39:50 | INFO: Blender create Mesh node 球体.063
+11:39:50 | INFO: Blender create Mesh node 球体.064
+11:39:50 | INFO: Blender create Mesh node 球体.065
+11:39:50 | INFO: Blender create Mesh node 球体.066
+11:39:50 | INFO: Blender create Mesh node 球体.067
+11:39:50 | INFO: Blender create Mesh node 球体.068
+11:39:50 | INFO: Blender create Mesh node 球体.069
+11:39:50 | INFO: Blender create Mesh node 球体.070
+11:39:50 | INFO: Blender create Mesh node 球体.071
+11:39:50 | INFO: Blender create Mesh node 球体.072
+11:39:50 | INFO: Blender create Mesh node 球体.073
+11:39:50 | INFO: Blender create Mesh node 球体.074
+11:39:50 | INFO: Blender create Mesh node 球体.075
+11:39:50 | INFO: Blender create Mesh node 球体.076
+11:39:50 | INFO: Blender create Mesh node 球体.077
+11:39:50 | INFO: Blender create Mesh node 球体.078
+11:39:50 | INFO: Blender create Mesh node 球体.079
+11:39:50 | INFO: Blender create Mesh node 球体.080
+11:39:50 | INFO: Blender create Mesh node 球体.081
+11:39:50 | INFO: Blender create Mesh node 球体.082
+11:39:50 | INFO: Blender create Mesh node 球体.083
+11:39:50 | INFO: Blender create Mesh node 球体.084
+11:39:50 | INFO: Blender create Mesh node 球体.085
+11:39:50 | INFO: Blender create Mesh node 球体.086
+11:39:50 | INFO: Blender create Mesh node 球体.087
+11:39:50 | INFO: Blender create Mesh node 球体.088
+11:39:50 | INFO: Blender create Mesh node 球体.089
+11:39:50 | INFO: Blender create Mesh node 立方体
+11:39:50 | INFO: Blender create Mesh node 立方体.001
+11:39:50 | INFO: Blender create Mesh node 棱角球
+11:39:50 | INFO: Blender create Mesh node 棱角球.001
+11:39:50 | INFO: Blender create Mesh node 棱角球.002
+11:39:50 | INFO: Blender create Mesh node 棱角球.003
+11:39:50 | INFO: Blender create Mesh node 棱角球.004
+11:39:50 | INFO: Blender create Mesh node 棱角球.005
+11:39:50 | INFO: Blender create Mesh node 棱角球.006
+11:39:50 | INFO: Blender create Mesh node 棱角球.007
+11:39:50 | INFO: Blender create Mesh node 棱角球.008
+11:39:50 | INFO: Blender create Mesh node 棱角球.009
+11:39:50 | INFO: Blender create Mesh node 棱角球.010
+11:39:50 | INFO: Blender create Mesh node 立方体.002
+11:39:50 | INFO: Blender create Mesh node 立方体.003
+11:39:50 | INFO: Blender create Mesh node 立方体.004
+11:39:50 | INFO: Blender create Mesh node 立方体.005
+11:39:50 | INFO: glTF import finished in 0.46s
+警告: 物体 'street_tree placement' 无已解算网格数据
+警告: 物体 'street_tree placement.001' 无已解算网格数据
+警告: 物体 'flowerbed placement' 无已解算网格数据
+11:39:53 | INFO: Starting glTF 2.0 export
+11:39:53 | INFO: Extracting primitive: Background city building mesh.003
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Interior blind slat mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Kerb stone mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Storm drain inset mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Apartment entrance door mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Exposed masonry scar mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Shopfront mullion mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Recessed window glazing mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Recessed window glazing mesh.003
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: 文本
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Modern floor band mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Avenue edge line mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Segmented city pavement mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Masonry apartment volume mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Rain stain mesh.002
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Background window mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Background city building mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Window inner side reveal mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Flat roof membrane mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Shop display glass mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Deep canvas awning mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Shop stall riser mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Storm drain slot mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Irregular pavement slab fracture mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: 柱体.002
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Slim stone sill mesh
+11:39:53 | INFO: Primitives created: 1
+11:39:53 | INFO: Extracting primitive: Rain stain mesh.004
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Rain stain mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 球体
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 球体.005
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 柱体.010
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 棱角球
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 立方体
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 立方体.001
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Mixed use shop volume mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Modern apartment main volume mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Shopfront surround mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Sign enamel face mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Crack weed blades mesh
+11:39:54 | INFO: Primitives created: 2
+11:39:54 | INFO: Extracting primitive: 锥体.013
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Tree pit stone border mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 锥体.011
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Tree individual folded leaves mesh
+11:39:54 | INFO: Primitives created: 3
+11:39:54 | INFO: Extracting primitive: Tree pit dry soil mesh
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 锥体.081
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Tree pit stone border mesh.004
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: 锥体.057
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Extracting primitive: Tree individual folded leaves mesh.001
+11:39:54 | INFO: Primitives created: 3
+11:39:54 | INFO: Extracting primitive: Tree pit dry soil mesh.001
+11:39:54 | INFO: Primitives created: 1
+11:39:54 | INFO: Finished glTF 2.0 export in 0.5159018039703369 s
+
+CITY_DISTRICT_EXPORTED 9 objects 56
+11:40:05 | INFO: Starting glTF 2.0 export
+11:40:05 | INFO: Extracting primitive: Background city building mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Background city building mesh.001
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Background city building mesh.002
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Background city building mesh.003
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Exposed masonry scar mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Air conditioner cabinet mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Rain stain mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Interior blind slat mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Kerb stone mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Storm drain inset mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Apartment entrance door mesh
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Rain stain mesh.006
+11:40:05 | INFO: Primitives created: 1
+11:40:05 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Recessed window glazing mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Recessed window glazing mesh.001
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Pedestrian instruction plaque mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Avenue edge line mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Segmented city pavement mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Storm drain slot mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Facade settlement crack mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Rain stain mesh.004
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Avenue street blade mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Background window mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Window inner side reveal mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Flat roof membrane mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Signal black face gasket mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: 柱体.027
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: 柱体.022
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: 柱体.017
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Apartment stone plinth mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Rain stain mesh.002
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Low rise porch roof mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Masonry apartment volume mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Masonry apartment volume mesh.001
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Narrow townhouse volume mesh
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Narrow townhouse volume mesh.001
+11:40:06 | INFO: Primitives created: 1
+11:40:06 | INFO: Extracting primitive: Crack weed blades mesh
+11:40:06 | INFO: Primitives created: 2
+11:40:06 | INFO: Finished glTF 2.0 export in 0.41122937202453613 s
+
+CITY_DISTRICT_EXPORTED 11 objects 41
+11:40:16 | INFO: Starting glTF 2.0 export
+11:40:16 | INFO: Extracting primitive: Background city building mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Background city building mesh.001
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Background city building mesh.002
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Background city building mesh.003
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Rain stain mesh.002
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Parked car lower body mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Kerb stone mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Storm drain inset mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Recessed window glazing mesh.001
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Recessed window glazing mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Rain stain mesh.006
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: 文本
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Tower horizontal floor band mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Tower entry canopy mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Avenue edge line mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Segmented city pavement mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Background window mesh
+11:40:16 | INFO: Primitives created: 1
+11:40:16 | INFO: Extracting primitive: Stepped deco main volume mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: 柱体.003
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Tower street podium mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Window inner side reveal mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Tower lobby glazing mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Interior blind slat mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Sign enamel face mesh.001
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Deco vertical pier mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Rain stain mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Storm drain slot mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Deco entry doors mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Flat roof membrane mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Irregular asphalt fracture mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Modern apartment main volume mesh.002
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Sign enamel face mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Extracting primitive: Crack weed blades mesh
+11:40:17 | INFO: Primitives created: 2
+11:40:17 | INFO: Extracting primitive: Streetlight diffuser mesh
+11:40:17 | INFO: Primitives created: 1
+11:40:17 | INFO: Finished glTF 2.0 export in 0.5475695133209229 s
+
+CITY_DISTRICT_EXPORTED 16 objects 39
+11:40:19 | INFO: Starting glTF 2.0 export
+11:40:19 | INFO: Extracting primitive: Background city building mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Background city building mesh.001
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Background city building mesh.002
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Background city building mesh.003
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Kerb stone mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Storm drain inset mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Pedestrian instruction plaque mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Avenue edge line mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Segmented city pavement mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Background window mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Avenue street blade mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Signal black face gasket mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: 柱体.021
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: 柱体.016
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: 柱体.011
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Storm drain slot mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Irregular asphalt fracture mesh
+11:40:19 | INFO: Primitives created: 1
+11:40:19 | INFO: Extracting primitive: Crack weed blades mesh
+11:40:19 | INFO: Primitives created: 2
+11:40:19 | INFO: Finished glTF 2.0 export in 0.22965478897094727 s
+
+CITY_DISTRICT_EXPORTED 17 objects 20
+11:40:27 | INFO: Starting glTF 2.0 export
+11:40:27 | INFO: Extracting primitive: Background city building mesh.001
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Exposed masonry scar mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Roof HVAC cabinet mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Low rise entrance mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Deep canvas awning mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Kerb stone mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Storm drain inset mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Rain stain mesh.009
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Slim window vertical casing mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Balcony frosted screen mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Recessed window glazing mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: 文本
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Modern floor band mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Avenue edge line mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Main avenue asphalt mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Segmented city pavement mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Background city building mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Background window mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Rain stain mesh.006
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Modern apartment main volume mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Rain stain mesh.003
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Window inner side reveal mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Flat roof membrane mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:27 | INFO: Extracting primitive: Signal black face gasket mesh
+11:40:27 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Shop display glass mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Shop stall riser mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Sign enamel face mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: 柱体.027
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: 柱体.022
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: 柱体.017
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Signal rounded rear shell mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Storm drain slot mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Rain stain mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: 柱体.002
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Slim stone sill mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Irregular asphalt fracture mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Dark room beyond damaged window mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Emergency boarded window plank mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Dried facade blood mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Low rise porch roof mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Masonry apartment volume mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Mixed use shop volume mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Narrow townhouse volume mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Shopfront surround mesh
+11:40:28 | INFO: Primitives created: 1
+11:40:28 | INFO: Extracting primitive: Crack weed blades mesh
+11:40:28 | INFO: Primitives created: 2
+11:40:28 | INFO: Finished glTF 2.0 export in 0.4174981117248535 s
+
+CITY_DISTRICT_EXPORTED 23 objects 45
+CITY_DISTRICTS_COMPLETE 7
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit
