@@ -302,7 +302,10 @@ func _ready() -> void:
 	_setup_world(); _build_road()
 	touch_controls=OS.has_feature("mobile")
 	sound=SoundScript.new(); sound.muted=_read_muted(); add_child(sound)
-	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args(): sound.muted=true
+	# Every test/capture run is fully muted — the owner's machine stays silent.
+	var _targs:=OS.get_cmdline_user_args()
+	for _f in ["--smoke-test","--soak-test","--lootbox-test","--stamina-test","--capture","--capture-medic","--capture-bike"]:
+		if _f in _targs: sound.muted=true; break
 	iap=IapScript.new(); iap.ledger=iap_ledger; iap.grant=_iap_grant; add_child(iap)
 	iap.purchase_finished.connect(_on_purchase_finished)
 	revival_ads=RevivalAdsScript.new(); add_child(revival_ads)
@@ -3349,6 +3352,11 @@ func _pointer_down(pos: Vector2) -> bool:
 			_release_touches(); go_to_lobby(); return true
 	return false
 
+## Save file: the current name plus the legacy Dead Run name, so an old file keeps working
+## and is written under the new name on the next save.
+const SAVE_PATH:="user://deadfrontier.cfg"
+const SAVE_PATH_LEGACY:="user://dead_run.cfg"
+
 func _load_save() -> void:
 	var c:=ConfigFile.new()
 	# Test and capture runs must not inherit the player's real save: a purchased remove-ads
@@ -3356,7 +3364,7 @@ func _load_save() -> void:
 	var isolated:=false
 	for f in ["--smoke-test","--soak-test","--lootbox-test","--stamina-test","--capture","--capture-medic","--capture-bike"]:
 		if f in OS.get_cmdline_user_args(): isolated=true; break
-	if not isolated and c.load("user://dead_run.cfg")==OK:
+	if not isolated and (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK):
 		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2)
 		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
 		terms_accepted=bool(c.get_value("legal","terms_v1",false))
@@ -3377,7 +3385,7 @@ func _load_save() -> void:
 	stamina.load_config(c)
 func _read_muted() -> bool:
 	var c:=ConfigFile.new()
-	return bool(c.get_value("audio","muted",false)) if c.load("user://dead_run.cfg")==OK else false
+	return bool(c.get_value("audio","muted",false)) if (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK) else false
 func _save() -> void:
 	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--lootbox-test" in OS.get_cmdline_user_args() or "--stamina-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-medic" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args(): return # test and capture runs must never touch the player's real save
 	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size)
@@ -3389,7 +3397,7 @@ func _save() -> void:
 	c.set_value("event","window",event_window); c.set_value("event","stats",event_stats); c.set_value("event","claimed",event_claimed); c.set_value("event","swaps",event_swaps)
 	for id in meta_upgrades.keys(): c.set_value("upgrades",id,meta_upgrades[id])
 	stamina.save_config(c)
-	c.set_value("audio","muted",sound.muted if is_instance_valid(sound) else false); c.save("user://dead_run.cfg")
+	c.set_value("audio","muted",sound.muted if is_instance_valid(sound) else false); c.save(SAVE_PATH)
 
 func _capture() -> void:
 	# In-memory unlocks so the review shots can show every survivor, pet and skin; _save()
@@ -3743,7 +3751,7 @@ func _smoke_test() -> void:
 	_pointer_down(shop_plus.get_center()); assert(state=="store" and store_return_state=="shop")
 	assert(StoreCatalog.currency_for_locale("zh_CN")=="CNY" and StoreCatalog.currency_for_locale("ja_JP")=="JPY" and StoreCatalog.currency_for_locale("de_DE")=="EUR" and StoreCatalog.currency_for_locale("en")=="USD")
 	assert(StoreCatalog.price_text("CNY",0)=="¥6" and StoreCatalog.price_text("USD",3)=="$9.99" and StoreCatalog.price_text("EUR",2)=="4,99 €" and StoreCatalog.price_text("KRW",3)=="₩14,000")
-	offer_id=""; offer_expires=0; store_owned.clear()  # ignore whatever a local save left behind
+	offer_id=""; offer_expires=0; store_owned.clear(); owned_characters={}  # ignore whatever a local save (or the lobby section above) left behind
 	var coins_before: int=bank_coins; var v_before: int=bank_vouchers
 	var starter: Dictionary=store_layout()[1]; assert(starter.pack.id=="bundle_starter")
 	var tap: Vector2=store_screen_rect(starter).get_center()

@@ -1,6 +1,6 @@
 name: Build iOS (unsigned IPA)
 
-# Adapted from petrgon/godot-unsigned-ios-build for Dead Run (Godot 4.7.2).
+# Adapted from petrgon/godot-unsigned-ios-build for Dead Frontier (Godot 4.7.2).
 # Put this file at .github/workflows/build-ios-unsigned.yml in the GitHub repository.
 on:
   push:
@@ -11,7 +11,7 @@ env:
   GODOT_VERSION: 4.7.2-stable
   TEMPLATE_DIR: 4.7.2.stable
   IOS_PRESET: iOS          # export preset name in export_presets.cfg
-  NAME: DeadRun            # Xcode project / scheme / ipa name
+  NAME: DeadFrontier        # Xcode project / scheme / ipa name
   HOMEBREW_NO_AUTO_UPDATE: 1
 
 jobs:
@@ -77,6 +77,6 @@ jobs:
     - name: Upload IPA artifact
       uses: actions/upload-artifact@v4
       with:
-        name: DeadRun-unsigned-ipa
-        path: DeadRun.ipa
+        name: DeadFrontier-unsigned-ipa
+        path: DeadFrontier.ipa
         retention-days: 14

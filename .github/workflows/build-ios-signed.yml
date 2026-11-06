@@ -24,7 +24,7 @@ env:
   HOMEBREW_NO_AUTO_UPDATE: 1
   # --- real values to fill in (not secrets, but keep them accurate) ---
   APPLE_TEAM_ID: "ABCDE12345"              # 10-character App Store Team ID
-  BUNDLE_ID: "com.nightfall.deadrun"       # must match export_presets.cfg + provisioning profile
+  BUNDLE_ID: "com.deadfrontier.game"        # must match export_presets.cfg + provisioning profile
   PROFILE_NAME: "DeadFrontier App Store"   # provisioning profile name as shown in Apple Developer portal
   # IAP plugin: pinned to main @ 2026-11-03 = PR #21 merge (setAutoFinish/finishTransaction)
   PLUGIN_REPO: hrk4649/godot_ios_plugin_iap
