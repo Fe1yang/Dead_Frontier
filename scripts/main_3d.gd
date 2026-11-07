@@ -1917,7 +1917,7 @@ func lobby_view_rect() -> Rect2:
 
 func lobby_item_count() -> int:
 	if lobby_tab==2: return maxi(LOBBY_SLOTS,lobby.SKINS.size())
-	if lobby_tab==3: return 3 # BIKE / SPORT / CRUISER all in the lobby vehicle tab
+	if lobby_tab==3: return 4 # BIKE / SPORT / CRUISER / GOLD in the lobby vehicle tab
 	return maxi(LOBBY_SLOTS,lobby.CHARACTERS.size()) if lobby_tab==0 else maxi(LOBBY_SLOTS,lobby.PETS.size())
 
 func lobby_max_scroll() -> float:
@@ -2039,7 +2039,7 @@ func vehicle_owned(id: String) -> bool:
 ## equipped name for saves written before store_owned existed.
 func vehicle_is_owned(id: String) -> bool:
 	if store_owned.has(id): return true
-	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER"}
+	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER","vehicle_gold":"GOLD"}
 	var vname: String=String(name_of.get(id,""))
 	return vname!="" and owned_vehicle==vname
 
@@ -2639,7 +2639,11 @@ func _ram_zombie(z: Node3D) -> void:
 	var ring:=EffectScript.new(); ring.position=Vector3(zp.x,0.10,zp.z); ring.life=0.35; ring.total_life=0.35
 	add_child(ring); ring.make_shockwave(Color(1.0,0.6,0.3,0.8),0.7); effects.append(ring)
 	_hit_zombie(z,1e9,"torso",zp+Vector3(0,1.0,0))
-	shake=maxf(shake,0.45 if player.vehicle=="CRUISER" else 0.3)
+	# The golden bike shakes coins out of whatever it runs down: a second, gold pile
+	# on top of the kill reward, so ramming always pays.
+	if player.vehicle=="GOLD":
+		_drop_coins(zp+Vector3(0,0,0.35),maxi(2,int(round(float(z.get("reward"))))),"brute")
+	shake=maxf(shake,0.45 if player.vehicle in ["CRUISER","GOLD"] else 0.3)
 	player.vehicle_durability-=cost
 	if player.vehicle_durability<=0.0: _vehicle_breakdown()
 

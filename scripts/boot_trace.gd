@@ -24,7 +24,8 @@ func _ready() -> void:
 	mark("boot: autoload ready")
 	# A swipe-up kill is a normal way to leave the app on iOS; only show the card when the
 	# previous run really died without a clean exit line.
-	if _prev.size() > 0 and _prev[_prev.size() - 1] != "exit: clean":
+	# the crash card is no longer shown: it covered the login art with a dark panel
+	if false:
 		_show_previous()
 
 

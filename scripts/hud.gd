@@ -513,7 +513,13 @@ func _draw_loading() -> void:
 	if game.loading_order.size()>0 and loading_art.size()>0:
 		var idx: int=int(game.loading_order[game.loading_idx % game.loading_order.size()])
 		if idx>=0 and idx<loading_art.size() and loading_art[idx]:
-			clean_ops.append(["texture",loading_art[idx],Rect2(0,0,540,game.ui_h)])
+			# keep the 9:16 art's proportions: scale to cover the screen and centre it,
+			# instead of stretching it to the taller phone height
+			var tex:=loading_art[idx]
+			var tw:=float(tex.get_width()); var th:=float(tex.get_height())
+			var k:=maxf(540.0/tw,game.ui_h/th)
+			var sz:=Vector2(tw*k,th*k)
+			clean_ops.append(["texture",tex,Rect2((Vector2(540,game.ui_h)-sz)*0.5,sz)])
 	else:
 		_box(Rect2(0,0,540,game.ui_h),INK)
 	var zh: bool=game.language_code.begins_with("zh") if game.language_code else true
@@ -681,9 +687,9 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
 	if game.lobby_tab==3:
 		# Vehicle card: same anatomy as the pet/skin cards - art, lock overlay, name.
-		var vi: int=clampi(i,0,2)
-		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser"]
-		var vnames: Array=["BIKE","SPORT","CRUISER"]
+		var vi: int=clampi(i,0,3)
+		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold"]
+		var vnames: Array=["BIKE","SPORT","CRUISER","GOLD"]
 		var vid: String=String(vids[vi])
 		var von: bool=game.vehicle_owned(String(vnames[vi]))
 		var vsel: bool=von or game.vehicle_choice==vi
@@ -704,7 +710,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 				clean_ops.append(["line",varc,Color(1,1,1,0.9),3.0])
 				_box(Rect2(vlc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
 		if whole:
-			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if vsel else MUTED)
+			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if vsel else MUTED)
 			if vsel: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 		return
 	var pets: bool=game.lobby_tab==1
