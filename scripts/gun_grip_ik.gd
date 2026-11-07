@@ -28,8 +28,16 @@ var support_point:=Vector3.ZERO   # visible support-hand position; weapon sits a
 var hand_offset:={"r":Vector3.ZERO,"l":Vector3.ZERO}
 var _ready_bones:=false
 
+## The shared Run_Gun clip bakes a hunched upper body into the pose: neck_01 carries
+## +15 deg head-down pitch and +13 deg yaw, spine_03 +18 deg chest yaw and +9 deg pitch.
+## Left alone that reads as a hunchback on the female rigs and as a bent spine on all of
+## them. These keep-rates flatten it after the clip has played (1.0 = untouched).
+const NECK_PITCH_KEEP:=0.30
+const NECK_TWIST_KEEP:=0.12
+const SPINE_TWIST_KEEP:=0.22
+
 func _setup(sk: Skeleton3D) -> void:
-	for n in ["upperarm_r","lowerarm_r","hand_r","upperarm_l","lowerarm_l","hand_l","spine_02","spine_03","clavicle_r","clavicle_l","foot_l","ball_l"]:
+	for n in ["upperarm_r","lowerarm_r","hand_r","upperarm_l","lowerarm_l","hand_l","spine_01","spine_02","spine_03","neck_01","Head","clavicle_r","clavicle_l","foot_l","ball_l"]:
 		b[n]=sk.find_bone(n)
 	for side in ["r","l"]:
 		var u:=sk.get_bone_global_rest(b["upperarm_"+side]).origin
@@ -57,10 +65,15 @@ func _process_modification() -> void:
 	var sk:=get_skeleton()
 	if sk==null or weight<=0.0: return
 	if not _ready_bones: _setup(sk)
-	var pitch: float=[0.60,0.42,0.52,0.46][clampi(character,0,3)]
-	var shoulder: float=[0.58,0.68,0.60,0.64][clampi(character,0,3)]
-	_trim_euler(sk,b.spine_02,1.0,0.22)
-	_trim_euler(sk,b.spine_03,pitch,0.22)
+	var pitch: float=[0.45,0.32,0.39,0.35][clampi(character,0,3)]
+	var shoulder: float=[0.82,0.88,0.84,0.86][clampi(character,0,3)]
+	_trim_euler(sk,b.spine_01,1.0,0.30)
+	_trim_euler(sk,b.spine_02,1.0,SPINE_TWIST_KEEP)
+	_trim_euler(sk,b.spine_03,pitch,SPINE_TWIST_KEEP)
+	# Flatten the baked-in head-down / head-turn of the shared run clip: this is what made
+	# the survivors look hunched (worst on the female rigs, whose neck is longer).
+	if b.neck_01>=0: _trim_euler(sk,b.neck_01,NECK_PITCH_KEEP,NECK_TWIST_KEEP)
+	if b.Head>=0: _trim_euler(sk,b.Head,0.55,0.35)
 	_relax_to_rest(sk,b.clavicle_r,shoulder)
 	_relax_to_rest(sk,b.clavicle_l,shoulder)
 	# Darius' bare right biceps/triceps fan out under the shared run twist. Trim only
