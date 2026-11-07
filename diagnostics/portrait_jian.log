@@ -1,0 +1,12 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+05:35:54 | INFO: Data are loaded, start creating Blender stuff
+05:35:54 | INFO: Blender create Mesh node mesh_65fe6cf7-cf29-4fb2-bbcc-67e74b5dac2c
+05:36:05 | INFO: glTF import finished in 11.00s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\render_portrait_studio.py:69: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  scene.world.use_nodes = True
+00:36.532  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\ui\jian_hd_portrait.png'
+PORTRAIT_RENDERED survivor_jian_universal.glb C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\ui\jian_hd_portrait.png
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

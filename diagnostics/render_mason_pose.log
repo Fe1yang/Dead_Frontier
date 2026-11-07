@@ -1,0 +1,12 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+07:07:46 | INFO: Data are loaded, start creating Blender stuff
+07:07:46 | INFO: Blender create Mesh node mesh_550c10a9-ac1c-4935-a8c8-23a3ef2652ef
+07:07:46 | INFO: glTF import finished in 0.41s
+C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\tools\render_run_frame.py:27: DeprecationWarning: 'World.use_nodes' is expected to be removed in Blender 6.0
+  w = bpy.data.worlds.new('w'); sc.world = w; w.use_nodes=True
+00:06.484  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\pose\frame_survivor_male_universal.png'
+FRAME_RENDERED C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\pose\frame_survivor_male_universal.png
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

@@ -1,0 +1,17 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+07:28:06 | INFO: Data are loaded, start creating Blender stuff
+07:28:06 | INFO: Blender create Mesh node mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:28:15 | INFO: glTF import finished in 8.38s
+DOMINANT_IN_BOX [('Head', 14170), ('hand_r', 7930), ('clavicle_l', 7095), ('lowerarm_r', 3151), ('hand_l', 2876), ('neck_01', 1738), ('upperarm_l', 89)]
+STRAY bind (-0.53, -0.01, 1.47) posed (-0.05, -0.28, 1.42) lowerarm_r 0.71
+STRAY bind (-0.55, -0.01, 1.46) posed (-0.04, -0.3, 1.43) lowerarm_r 0.77
+STRAY bind (-0.66, -0.02, 1.45) posed (0.0, -0.4, 1.42) lowerarm_r 0.74
+STRAY bind (-0.86, -0.03, 1.42) posed (0.07, -0.59, 1.42) hand_r 0.74
+STRAY bind (-0.85, -0.03, 1.4) posed (0.09, -0.57, 1.42) hand_r 0.71
+STRAY bind (-0.86, -0.03, 1.39) posed (0.11, -0.58, 1.42) hand_r 0.7
+STRAY bind (-0.85, -0.03, 1.4) posed (0.09, -0.57, 1.43) hand_r 0.71
+STRAY bind (-0.85, -0.03, 1.4) posed (0.09, -0.57, 1.43) hand_r 0.71
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

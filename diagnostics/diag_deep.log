@@ -1,0 +1,13 @@
+00:03.875  blend            | Read blend: "C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\retarget_jian.blend"
+BlenderMCP addon registered
+MESH_OBJECTS [('HighDetailCharacter', 29690)]
+SHAPE_KEYS None
+BASIS_VS_EVAL_DELTA max 1.3748 median 0.2777
+GROUPS_WITHOUT_BONE []
+BONES_WITHOUT_GROUP []
+MODIFIERS [('Universal Armature', 'ARMATURE')]
+PARENT UniversalRig matrix_world [1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0]
+BlenderMCP addon unregistered
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

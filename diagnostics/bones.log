@@ -1,0 +1,13 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+07:30:10 | INFO: Data are loaded, start creating Blender stuff
+07:30:10 | INFO: Blender create Mesh node mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:30:18 | INFO: glTF import finished in 8.31s
+BONES survivor_jian_universal.glb clavicle_r(-0.05,-0.12,1.38) upperarm_r(-0.22,0.01,1.39) lowerarm_r(-0.11,-0.24,1.36) hand_r(0.01,-0.48,1.34) Head(-0.01,-0.11,1.50)
+07:30:19 | INFO: Data are loaded, start creating Blender stuff
+07:30:19 | INFO: Blender create Mesh node mesh_550c10a9-ac1c-4935-a8c8-23a3ef2652ef
+07:30:19 | INFO: glTF import finished in 0.44s
+BONES survivor_male_universal.glb clavicle_r(-0.05,-0.12,1.38) upperarm_r(-0.22,0.01,1.39) lowerarm_r(-0.11,-0.24,1.36) hand_r(0.01,-0.48,1.34) Head(-0.01,-0.11,1.50)
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

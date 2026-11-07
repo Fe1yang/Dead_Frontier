@@ -1,0 +1,149 @@
+BlenderMCP addon registered
+06:25:28 | INFO: Data are loaded, start creating Blender stuff
+06:25:28 | INFO: Blender create Mesh node Mannequin
+06:25:31 | INFO: glTF import finished in 3.47s
+06:25:32 | INFO: Data are loaded, start creating Blender stuff
+06:25:32 | INFO: Blender create Mesh node Mannequin
+06:25:36 | INFO: glTF import finished in 4.08s
+06:25:36 | INFO: Data are loaded, start creating Blender stuff
+06:25:36 | INFO: Blender create Mesh node mesh_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967
+06:25:36 | INFO: glTF import finished in 0.14s
+HAND_WEIGHTS l 329
+HAND_WEIGHTS r 265
+SHOULDER_WEIGHTS l 932
+SHOULDER_WEIGHTS r 1134
+HEAD_WEIGHTS 2374
+ARM_WEIGHTS l 1211
+ARM_WEIGHTS r 1325
+ARMPIT_WEIGHTS 1133
+ARM_CHAIN l 1976
+ARM_CHAIN r 2281
+SLIM_FEMALE HighDetailCharacter 3387 vertices narrowed
+SLIM_FEMALE_RIG spine bones shortened 6% toward waist z=0.917
+SKIN_TRANSFER HighDetailCharacter 16921 vertices; missing weights 0
+GRIP_IK l target (-0.03500000014901161, -0.3449999988079071, 1.3550000190734863) wrist (-0.03500000759959221, -0.34499990940093994, 1.3550001382827759)
+GRIP_IK r target (-0.09000000357627869, -0.38999998569488525, 1.3949999809265137) wrist (-0.08999999612569809, -0.38999974727630615, 1.3949998617172241)
+RUN_GUN_BAKED 33 frames with animated waist and legs
+RELOAD_GUN_BAKED 41 frames with continuous leg motion
+FEMALE_VARIANT_BAKED Run_Gun_F_Loop 33 frames
+FEMALE_VARIANT_BAKED Reload_Gun_F_Loop 41 frames
+DEFAULT_ACTION riley Run_Gun_Loop
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+06:25:43 | INFO: Starting glTF 2.0 export
+06:25:43 | INFO: Extracting primitive: mesh_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967
+06:25:44 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+06:25:44 | INFO: Primitives created: 1
+06:25:44 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+06:25:50 | INFO: Finished glTF 2.0 export in 6.276860237121582 s
+
+UNIVERSAL_ACTOR_EXPORTED riley C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\survivor_riley_universal.glb actions ['Death01', 'Hit_Chest', 'Pistol_Aim_Neutral', 'Pistol_Reload', 'Pistol_Shoot', 'Reload_Gun_F_Loop', 'Reload_Gun_Loop', 'Run_Gun_F_Loop', 'Run_Gun_Loop']
+06:25:50 | INFO: Data are loaded, start creating Blender stuff
+06:25:50 | INFO: Blender create Mesh node Mannequin
+06:25:54 | INFO: glTF import finished in 3.48s
+06:25:55 | INFO: Data are loaded, start creating Blender stuff
+06:25:55 | INFO: Blender create Mesh node Mannequin
+06:25:57 | INFO: glTF import finished in 2.79s
+06:25:57 | INFO: Data are loaded, start creating Blender stuff
+06:25:57 | INFO: Blender create Mesh node mesh_a0b1323e-79ac-43da-a9c2-65db5d31036d
+06:25:58 | INFO: glTF import finished in 0.09s
+HAND_WEIGHTS l 296
+HAND_WEIGHTS r 394
+SHOULDER_WEIGHTS l 1258
+SHOULDER_WEIGHTS r 1127
+HEAD_WEIGHTS 2373
+ARM_WEIGHTS l 1014
+ARM_WEIGHTS r 1172
+ARMPIT_WEIGHTS 1267
+ARM_CHAIN l 1896
+ARM_CHAIN r 2112
+SLIM_FEMALE HighDetailCharacter 3374 vertices narrowed
+SLIM_FEMALE_RIG spine bones shortened 6% toward waist z=0.917
+SKIN_TRANSFER HighDetailCharacter 16847 vertices; missing weights 0
+GRIP_IK l target (-0.03500000014901161, -0.3449999988079071, 1.3550000190734863) wrist (-0.03500000759959221, -0.34499990940093994, 1.3550001382827759)
+GRIP_IK r target (-0.09000000357627869, -0.38999998569488525, 1.3949999809265137) wrist (-0.08999999612569809, -0.38999974727630615, 1.3949998617172241)
+RUN_GUN_BAKED 33 frames with animated waist and legs
+RELOAD_GUN_BAKED 41 frames with continuous leg motion
+FEMALE_VARIANT_BAKED Run_Gun_F_Loop 33 frames
+FEMALE_VARIANT_BAKED Reload_Gun_F_Loop 41 frames
+DEFAULT_ACTION maya Run_Gun_Loop
+06:26:04 | INFO: Starting glTF 2.0 export
+06:26:04 | INFO: Extracting primitive: mesh_a0b1323e-79ac-43da-a9c2-65db5d31036d
+06:26:04 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+06:26:04 | INFO: Primitives created: 1
+06:26:04 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+06:26:10 | INFO: Finished glTF 2.0 export in 5.979984283447266 s
+
+UNIVERSAL_ACTOR_EXPORTED maya C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\survivor_maya_universal.glb actions ['Death01', 'Hit_Chest', 'Pistol_Aim_Neutral', 'Pistol_Reload', 'Pistol_Shoot', 'Reload_Gun_F_Loop', 'Reload_Gun_Loop', 'Run_Gun_F_Loop', 'Run_Gun_Loop']
+06:26:11 | INFO: Data are loaded, start creating Blender stuff
+06:26:11 | INFO: Blender create Mesh node Mannequin
+06:26:14 | INFO: glTF import finished in 3.60s
+06:26:15 | INFO: Data are loaded, start creating Blender stuff
+06:26:15 | INFO: Blender create Mesh node Mannequin
+06:26:19 | INFO: glTF import finished in 4.09s
+06:26:19 | INFO: Data are loaded, start creating Blender stuff
+06:26:19 | INFO: Blender create Mesh node mesh_65fe6cf7-cf29-4fb2-bbcc-67e74b5dac2c
+06:26:25 | INFO: glTF import finished in 5.83s
+PROPORTIONS legs_stretched 295915 head_shrunk 136346 pivot (0.008, -0.039) waist 0.97 neck 1.463
+HAND_WEIGHTS l 14227
+HAND_WEIGHTS r 14295
+SHOULDER_WEIGHTS l 32974
+SHOULDER_WEIGHTS r 26395
+HEAD_WEIGHTS 70626
+ARM_WEIGHTS l 16022
+ARM_WEIGHTS r 20344
+ARMPIT_WEIGHTS 40959
+ARM_CHAIN l 110565
+ARM_CHAIN r 120854
+SKIN_TRANSFER HighDetailCharacter 751150 vertices; missing weights 0
+GRIP_IK l target (-0.03500000014901161, -0.3449999988079071, 1.3550000190734863) wrist (-0.03499998152256012, -0.344999760389328, 1.3549998998641968)
+GRIP_IK r target (-0.09000000357627869, -0.38999998569488525, 1.3949999809265137) wrist (-0.0903686061501503, -0.38841310143470764, 1.395039677619934)
+RUN_GUN_BAKED 33 frames with animated waist and legs
+RELOAD_GUN_BAKED 41 frames with continuous leg motion
+DEFAULT_ACTION jian Run_Gun_Loop
+06:29:05 | INFO: Starting glTF 2.0 export
+06:29:06 | INFO: Extracting primitive: mesh_65fe6cf7-cf29-4fb2-bbcc-67e74b5dac2c
+06:29:16 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+06:29:20 | INFO: Primitives created: 1
+06:29:20 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+06:29:29 | INFO: Finished glTF 2.0 export in 24.496840000152588 s
+
+UNIVERSAL_ACTOR_EXPORTED jian C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\survivor_jian_universal.glb actions ['Death01', 'Hit_Chest', 'Pistol_Aim_Neutral', 'Pistol_Reload', 'Pistol_Shoot', 'Reload_Gun_Loop', 'Run_Gun_Loop']
+06:29:30 | INFO: Data are loaded, start creating Blender stuff
+06:29:30 | INFO: Blender create Mesh node Mannequin
+06:29:34 | INFO: glTF import finished in 3.65s
+06:29:34 | INFO: Data are loaded, start creating Blender stuff
+06:29:34 | INFO: Blender create Mesh node Mannequin
+06:29:38 | INFO: glTF import finished in 3.95s
+06:29:38 | INFO: Data are loaded, start creating Blender stuff
+06:29:38 | INFO: Blender create Mesh node tripo_mesh_a65314b8
+06:29:39 | INFO: glTF import finished in 0.36s
+PROPORTIONS legs_stretched 17702 head_shrunk 22819 pivot (0.002, -0.068) waist 0.97 neck 1.463
+HAND_WEIGHTS l 2158
+HAND_WEIGHTS r 2164
+SHOULDER_WEIGHTS l 2352
+SHOULDER_WEIGHTS r 2457
+HEAD_WEIGHTS 18220
+ARM_WEIGHTS l 2577
+ARM_WEIGHTS r 2904
+ARMPIT_WEIGHTS 2790
+ARM_CHAIN l 6637
+ARM_CHAIN r 6773
+SKIN_TRANSFER HighDetailCharacter 60929 vertices; missing weights 0
+GRIP_IK l target (-0.03500000014901161, -0.3449999988079071, 1.3550000190734863) wrist (-0.03499998152256012, -0.344999760389328, 1.3549998998641968)
+GRIP_IK r target (-0.09000000357627869, -0.38999998569488525, 1.3949999809265137) wrist (-0.0903686061501503, -0.38841310143470764, 1.395039677619934)
+RUN_GUN_BAKED 33 frames with animated waist and legs
+RELOAD_GUN_BAKED 41 frames with continuous leg motion
+DEFAULT_ACTION jian_scout Run_Gun_Loop
+06:29:57 | INFO: Starting glTF 2.0 export
+06:29:57 | INFO: Extracting primitive: tripo_mesh_a65314b8
+06:30:00 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+06:30:00 | INFO: Primitives created: 1
+06:30:00 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+06:30:04 | INFO: Finished glTF 2.0 export in 7.424370288848877 s
+
+UNIVERSAL_ACTOR_EXPORTED jian_scout C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\survivor_jian_scout_universal.glb actions ['Death01', 'Hit_Chest', 'Pistol_Aim_Neutral', 'Pistol_Reload', 'Pistol_Shoot', 'Reload_Gun_Loop', 'Run_Gun_Loop']
+BlenderMCP addon unregistered
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

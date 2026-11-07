@@ -39,7 +39,7 @@ func _process_modification() -> void:
 		var hip:=_g(sk,bones["thigh_"+side]).origin
 		if hip.dot(right)*s<0.0: out=-out
 		# Knees OUTSIDE the tank (not through it): thighs forward, barely down, wide out.
-		# Old fwd+down*0.28+out*0.26 drove the thigh through the tank top (BIKE 0.84 / CAR 1.51).
+		# Old fwd+down*0.28+out*0.26 drove the thigh through the tank top (scrambler ~0.90 / cruiser ~1.03).
 		_aim(sk,bones["thigh_"+side],bones["calf_"+side],fwd+down*0.06+out*0.50)
 		# Calves drop to the pegs, more vertical now that knees sit high and wide.
 		_aim(sk,bones["calf_"+side],bones["foot_"+side],down+fwd*0.04-out*0.04)

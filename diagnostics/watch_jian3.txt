@@ -1,0 +1,1 @@
+failed: Error generating 3D model: [HTTP 400] invalid 3D generation parameters: prompt too long, max 1024 characters

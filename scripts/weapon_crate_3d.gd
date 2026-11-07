@@ -5,7 +5,7 @@ extends Node3D
 const TRUCK_PATH := "res://assets/models/supply_truck.glb"
 const CRATE_SCALE := 2.9
 const FLIGHT_TIME := 0.55
-const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.86,"CAR":1.1}
+const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.62,"CRUISER":0.62}
 const WEAPON_NAMES := {"ARMOR":"ARMOR: SHIELD +50","HELMET":"HELMET: +20% PROTECTION","PISTOL":"PISTOL","SMG":"SMG","SHOTGUN":"SHOTGUN","SNIPER":"SNIPER","LAUNCHER":"GRENADE LAUNCHER","RIFLE":"RIFLE"}
 const GLOW := Color("49b8ff")
 const PET_GLOW := Color("ffbf4a")
@@ -53,7 +53,7 @@ func setup(id: String,hits: int) -> void:
 func _ready() -> void:
 	_cache_meshes()
 	body = Node3D.new(); body.name = "Body"; add_child(body)
-	var s := CRATE_SCALE*(1.55 if weapon_id=="CAR" else (1.30 if weapon_id=="SPORT" else 1.0))
+	var s := CRATE_SCALE # all three bikes are full-size drops in the same crate
 	if crate_mesh:
 		var c := MeshInstance3D.new(); c.mesh = crate_mesh; c.scale = Vector3.ONE*s
 		c.position = Vector3(0,0.15*s,0); body.add_child(c)
@@ -79,12 +79,12 @@ func _ready() -> void:
 	body.add_child(counter)
 	# Weapon on display above the crate, lit blue like a loot drop.
 	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85,0); add_child(weapon_pivot)
-	weapon_pivot.rotation.y = PI*0.5 if weapon_id in ["BIKE","SPORT","CAR"] else 0.0
+	weapon_pivot.rotation.y = PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0
 	var path := "res://assets/models/rifle.glb" if weapon_id=="RIFLE" else "res://assets/models/weapons/"+weapon_id.to_lower()+".glb"
 	if weapon_id in ["ARMOR","HELMET"]: path = "res://assets/models/"+weapon_id.to_lower()+".glb"
-	if weapon_id=="BIKE": path = "res://assets/models/motorcycle.glb"
-	if weapon_id=="SPORT": path = "res://assets/models/motorcycle.glb"
-	if weapon_id=="CAR": path = "res://assets/models/motorcycle.glb"
+	if weapon_id=="BIKE": path = "res://assets/models/vehicles/bike_scrambler.glb"
+	if weapon_id=="SPORT": path = "res://assets/models/vehicles/bike_sport.glb"
+	if weapon_id=="CRUISER": path = "res://assets/models/vehicles/bike_cruiser.glb"
 	if is_pet():
 		var pi := pet_index()
 		weapon_model = (load(LobbyScene.PETS[pi].asset) as PackedScene).instantiate() as Node3D
@@ -158,7 +158,7 @@ func tick(delta: float,player_target: Vector3) -> void:
 		body.scale = Vector3.ONE*(1.0+0.08*punch)
 		counter.modulate = Color("fbfbf6").lerp(Color("ff4a3a"),punch)
 		weapon_pivot.position.y = 1.85+sin(spin*2.6)*0.07
-		weapon_pivot.rotation.y = spin*1.9+(PI*0.5 if weapon_id in ["BIKE","SPORT","CAR"] else 0.0) if not is_pet() else spin*0.6
+		weapon_pivot.rotation.y = spin*1.9+(PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0) if not is_pet() else spin*0.6
 		if glow_ring: glow_ring.rotation.x = 0.0
 		if light: light.light_energy = 1.4+0.4*sin(spin*5.0)
 		return
@@ -184,8 +184,9 @@ func display_name() -> String:
 	var RT=load("res://scripts/run_text.gd")
 	if is_pet(): return RT.text("dog_%d"%pet_index())
 	if weapon_id=="BIKE": return RT.text("l_bike")
-	if weapon_id=="SPORT": return "SPORT"
-	if weapon_id=="CAR": return "CAR"
+	if weapon_id=="SPORT" or weapon_id=="CRUISER":
+		var SC=load("res://scripts/store_catalog.gd")
+		return SC.text(RT.lang,"sport" if weapon_id=="SPORT" else "cruiser")
 	if weapon_id=="ARMOR": return RT.fmt("shield",50)
 	if weapon_id=="HELMET": return RT.text("helmet")
 	var ST=load("res://scripts/shop_text.gd")

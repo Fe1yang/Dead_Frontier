@@ -27,3 +27,8 @@ assets/ui/store/*.bak.png.import
 *.bak
 *.bak2
 *.bak.*
+
+# Local-only working material
+Claude outputs/
+assets/models/generated/
+diagnostics/import_store_cards.log

@@ -1,0 +1,50 @@
+BlenderMCP addon registered
+07:05:38 | INFO: Data are loaded, start creating Blender stuff
+07:05:38 | INFO: Blender create Mesh node Mannequin
+07:05:41 | INFO: glTF import finished in 2.46s
+07:05:41 | INFO: Data are loaded, start creating Blender stuff
+07:05:41 | INFO: Blender create Mesh node Mannequin
+07:05:44 | INFO: glTF import finished in 2.64s
+07:05:44 | INFO: Data are loaded, start creating Blender stuff
+07:05:44 | INFO: Blender create Mesh node mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:05:48 | INFO: glTF import finished in 4.37s
+DEDUP_SHELLS 753540 -> 29690 parts 202 clusters 152 kept 29690
+PROPORTIONS legs_stretched 17300 head_shrunk 3367 pivot (-0.012, -0.152) waist 0.97 neck 1.463
+TPOSE_PROBE l band 8793 pivot (0.192, 0.065, 1.441)
+TPOSE_PROBE l lat_max 0.601 wrist_cur (0.409, 0.243, 0.623)
+TPOSE_PROBE l angle_deg 75.46
+TPOSE_MATCH l degrees 75.5 verts 670
+TPOSE_PROBE r band 7144 pivot (-0.192, 0.065, 1.441)
+TPOSE_PROBE r lat_max 0.63 wrist_cur (-0.337, 0.164, 0.622)
+TPOSE_PROBE r angle_deg 80.0
+TPOSE_MATCH r degrees 80.0 verts 136
+HAND_WEIGHTS l 547
+HAND_WEIGHTS r 91
+SHOULDER_WEIGHTS l 0
+SHOULDER_WEIGHTS r 0
+HEAD_WEIGHTS 556
+ARM_WEIGHTS l 2608
+ARM_WEIGHTS r 1170
+ARMPIT_WEIGHTS 627
+ARM_CHAIN l 5140
+ARM_CHAIN r 3772
+SKIN_TRANSFER HighDetailCharacter 29690 vertices; missing weights 0
+GRIP_IK l target (-0.03500000014901161, -0.3449999988079071, 1.3550000190734863) wrist (-0.03499998152256012, -0.344999760389328, 1.3549998998641968)
+GRIP_IK r target (-0.09000000357627869, -0.38999998569488525, 1.3949999809265137) wrist (-0.0903686061501503, -0.38841310143470764, 1.395039677619934)
+RUN_GUN_BAKED 33 frames with animated waist and legs
+RELOAD_GUN_BAKED 41 frames with continuous leg motion
+DEFAULT_ACTION jian Run_Gun_Loop
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+07:06:01 | INFO: Starting glTF 2.0 export
+07:06:01 | INFO: Extracting primitive: mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:06:03 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+07:06:03 | INFO: Primitives created: 1
+07:06:03 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+07:06:06 | INFO: Finished glTF 2.0 export in 4.528235197067261 s
+
+UNIVERSAL_ACTOR_EXPORTED jian C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\survivor_jian_universal.glb actions ['Death01', 'Hit_Chest', 'Pistol_Aim_Neutral', 'Pistol_Reload', 'Pistol_Shoot', 'Reload_Gun_Loop', 'Run_Gun_Loop']
+BlenderMCP addon unregistered
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

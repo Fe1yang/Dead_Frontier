@@ -1833,7 +1833,7 @@ const LOBBY_LEFT_X:=12.0
 const LOBBY_BAND_TOP:=684.0   # the dark band behind tabs, strip and start button
 ## Main screen list: one column on the left with 角色 / 宠物 tabs; it scrolls vertically.
 var lobby_tab:=0          # 0 = survivors, 1 = pets, 2 = skins, 3 = vehicle
-var vehicle_choice:=0 # which vehicle card is shown in the lobby stage (0 bike, 1 sport, 2 car)
+var vehicle_choice:=0 # which vehicle card is shown in the lobby stage (0 scrambler, 1 sport, 2 cruiser)
 var lobby_scroll:=0.0
 var lobby_press:=Vector2(-1,-1)
 var lobby_dragged:=false
@@ -1856,7 +1856,7 @@ func lobby_view_rect() -> Rect2:
 
 func lobby_item_count() -> int:
 	if lobby_tab==2: return maxi(LOBBY_SLOTS,lobby.SKINS.size())
-	if lobby_tab==3: return 3 # BIKE / SPORT / CAR all in the lobby vehicle tab
+	if lobby_tab==3: return 3 # BIKE / SPORT / CRUISER all in the lobby vehicle tab
 	return maxi(LOBBY_SLOTS,lobby.CHARACTERS.size()) if lobby_tab==0 else maxi(LOBBY_SLOTS,lobby.PETS.size())
 
 func lobby_max_scroll() -> float:
@@ -2566,7 +2566,7 @@ func _ram_zombie(z: Node3D) -> void:
 	var ring:=EffectScript.new(); ring.position=Vector3(zp.x,0.10,zp.z); ring.life=0.35; ring.total_life=0.35
 	add_child(ring); ring.make_shockwave(Color(1.0,0.6,0.3,0.8),0.7); effects.append(ring)
 	_hit_zombie(z,1e9,"torso",zp+Vector3(0,1.0,0))
-	shake=maxf(shake,0.45 if player.vehicle=="CAR" else 0.3)
+	shake=maxf(shake,0.45 if player.vehicle=="CRUISER" else 0.3)
 	player.vehicle_durability-=cost
 	if player.vehicle_durability<=0.0: _vehicle_breakdown()
 
@@ -2905,7 +2905,7 @@ func _spawn_crates() -> void:
 			if not gear.is_empty(): id=gear[rng.randi_range(0,gear.size()-1)]
 		elif player.vehicle=="" and rng.randf()<BIKE_CRATE_CHANCE: id="BIKE"
 		elif player.vehicle=="" and rng.randf()<0.06: id="SPORT"
-		elif player.vehicle=="" and rng.randf()<0.06: id="CAR"
+		elif player.vehicle=="" and rng.randf()<0.06: id="CRUISER"
 		crate.setup(id,_crate_hits(id)); crate.position=Vector3(x,0,z); add_child(crate); crates.append(crate)
 
 func _break_crate(crate: Node3D) -> void:
@@ -2936,8 +2936,8 @@ func _break_crate(crate: Node3D) -> void:
 	if crate.weapon_id=="SPORT":
 		player.mount_vehicle("SPORT"); sound.play("gate")
 		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
-	if crate.weapon_id=="CAR":
-		player.mount_vehicle("CAR"); sound.play("gate")
+	if crate.weapon_id=="CRUISER":
+		player.mount_vehicle("CRUISER"); sound.play("gate")
 		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
 	# Swap immediately on break; the flying gun is only the visual of it landing in your hands.
 	player.stowed={}; player.set_weapon(crate.weapon_id); sound.play("gate")
@@ -3588,6 +3588,7 @@ func _load_save() -> void:
 		if f in OS.get_cmdline_user_args(): isolated=true; break
 	if not isolated and (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK):
 		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2); owned_vehicle=str(c.get_value("vehicles","owned",""))
+		if owned_vehicle=="CAR": owned_vehicle="CRUISER" # old save name for the third bike
 		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
 		terms_accepted=bool(c.get_value("legal","terms_v1",false))
 		# A locked survivor can never stay selected (e.g. an old save from before the store).
@@ -3856,11 +3857,11 @@ func _capture_bike() -> void:
 	get_tree().quit()
 
 func _capture_car() -> void:
-	# Same shot for the CAR (motorcycle scaled 1.8): seat fit is per-vehicle, verify separately.
+	# Same shot for the cruiser: seat fit is per-vehicle, verify separately.
 	character_choice=0; player.set_character(0); start_run(); _begin_intro(); shot_timer=999; hint_time=0; touch_controls=false
 	_finish_intro()
 	for i in range(3): _spawn_zombie(-7-i*6)
-	player.mount_vehicle("CAR")
+	player.mount_vehicle("CRUISER")
 	await get_tree().create_timer(0.5).timeout; await RenderingServer.frame_post_draw
 	assert(get_viewport().get_texture().get_image().save_png("res://diagnostics/medic/run-car.png")==OK)
 	capture_close_cam=true

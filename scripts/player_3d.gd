@@ -73,23 +73,28 @@ var vehicle_model: Node3D
 var rider: SkeletonModifier3D
 const BIKE_DURABILITY := 100.0
 ## Per-vehicle feel: forward speed, side-step pace, and ram power (how hard it plows through
-## zombies — higher ram = less durability spent per zombie run down). The CAR row is ready for
-## the day a car joins the vehicle crates: faster than the bike and hits much harder.
+## zombies — higher ram = less durability spent per zombie run down). The three bikes are
+## genuinely different models: scrambler, sport bike and cruiser.
 const VEHICLE_STATS := {
 	"BIKE": {"speed": 2.9, "side": 1.8, "ram": 1.1},
 	"SPORT": {"speed": 3.2, "side": 1.75, "ram": 1.5},
-	"CAR": {"speed": 3.6, "side": 1.7, "ram": 1.9},
+	"CRUISER": {"speed": 3.6, "side": 1.7, "ram": 1.9},
 }
-## Seat fit per vehicle (lift_y, back_z), measured from motorcycle.glb parts:
-## BIKE scale 1.0: seat top ~0.77, tank top ~0.84; CAR scale 1.8: seat top ~1.38, tank top ~1.51.
-## Rider pelvis rest height is 0.917 for ALL 5 survivors (same rig), so one row per
-## vehicle covers every character — but BIKE and CAR must NOT share a row.
+## One GLB per vehicle. All are authored at real-world scale, Y-up, facing -Z (the
+## survivor's run direction), so they mount without any per-vehicle scaling hacks.
+const VEHICLE_MODELS := {
+	"BIKE": "res://assets/models/vehicles/bike_scrambler.glb",
+	"SPORT": "res://assets/models/vehicles/bike_sport.glb",
+	"CRUISER": "res://assets/models/vehicles/bike_cruiser.glb",
+}
+## Seat fit per vehicle (lift_y, back_z), measured from each GLB:
+## scrambler seat top ~0.83, sport ~0.90, cruiser ~0.73. Rider pelvis rest height is
+## 0.917 for ALL 5 survivors (same rig), so one row per vehicle covers every character.
 const SEAT_FIT := {
-	"BIKE": Vector2(0.08, 0.15),
-	"SPORT": Vector2(0.30, 0.22),
-	"CAR": Vector2(0.54, 0.30),
+	"BIKE": Vector2(0.14, 0.17),
+	"SPORT": Vector2(0.22, 0.09),
+	"CRUISER": Vector2(0.04, 0.15),
 }
-const VEHICLE_SCALE := {"BIKE":1.0,"SPORT":1.35,"CAR":1.8}
 
 func vehicle_speed() -> float:
 	return float(VEHICLE_STATS.get(vehicle, {}).get("speed", 1.0)) if vehicle != "" else 1.0
@@ -211,11 +216,11 @@ func on_vehicle() -> bool:
 ## Climb on: the bike appears under the survivor, the run cycle freezes and the seated
 ## pose modifier folds the legs onto the pegs (arms stay on the gun via the grip IK).
 func mount_vehicle(id: String) -> void:
-	if vehicle!="" or not ResourceLoader.exists("res://assets/models/motorcycle.glb"): return
+	var path: String=String(VEHICLE_MODELS.get(id,""))
+	if vehicle!="" or path=="" or not ResourceLoader.exists(path): return
 	vehicle=id; vehicle_durability=BIKE_DURABILITY
-	vehicle_model=(load("res://assets/models/motorcycle.glb") as PackedScene).instantiate() as Node3D
+	vehicle_model=(load(path) as PackedScene).instantiate() as Node3D
 	vehicle_model.position=Vector3(0,0,0.05)
-	vehicle_model.scale=Vector3.ONE*float(VEHICLE_SCALE.get(id,1.0))
 	add_child(vehicle_model); ModelFix.double_sided(vehicle_model)
 	# Seat the rider on THIS vehicle's seat (per-vehicle lift/back, see SEAT_FIT).
 	if is_instance_valid(model):

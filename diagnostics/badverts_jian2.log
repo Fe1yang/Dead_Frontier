@@ -1,0 +1,16 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+07:26:53 | INFO: Data are loaded, start creating Blender stuff
+07:26:53 | INFO: Blender create Mesh node mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:27:02 | INFO: glTF import finished in 8.27s
+CHIN_REGION_VERTS 37049
+GROUP_HISTO [('Head', 1716), ('neck_01', 1386), ('lowerarm_r', 1267), ('hand_r', 1162), ('clavicle_l', 788), ('upperarm_l', 523), ('hand_l', 229), ('lowerarm_l', 229), ('upperarm_r', 82)]
+EX bind (0.01, -0.22, 1.64) posed (-0.05, -0.34, 1.48) [('Head', 0.56), ('neck_01', 0.44)]
+EX bind (0.01, -0.22, 1.63) posed (-0.05, -0.33, 1.47) [('Head', 0.55), ('neck_01', 0.45)]
+EX bind (0.07, -0.11, 1.69) posed (0.03, -0.27, 1.57) [('Head', 0.77), ('neck_01', 0.23)]
+EX bind (0.2, -0.12, 1.51) posed (0.14, -0.18, 1.43) [('clavicle_l', 0.76), ('upperarm_l', 0.22), ('lowerarm_l', 0.03)]
+EX bind (0.04, -0.12, 1.55) posed (0.01, -0.22, 1.44) [('neck_01', 0.5), ('Head', 0.5)]
+EX bind (0.05, -0.12, 1.58) posed (0.01, -0.23, 1.46) [('Head', 0.5), ('neck_01', 0.5)]
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

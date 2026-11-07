@@ -50,22 +50,34 @@ var bulb_base:=1.4
 var ember_base:=0.6
 
 var bike: Node3D
+var bike_index:=-1
 var focus_vehicle:=false
-const VEHICLE_STAGE_SCALES:=[0.42,0.57,0.76] # BIKE / SPORT / CAR lobby preview sizes
+const VEHICLE_MODELS:=[
+	"res://assets/models/vehicles/bike_scrambler.glb",
+	"res://assets/models/vehicles/bike_sport.glb",
+	"res://assets/models/vehicles/bike_cruiser.glb"]
+## One preview scale for all three: they are real-size models, so the cruiser stays
+## longer/taller than the scrambler instead of being faked with different scales.
+const VEHICLE_STAGE_SCALE:=0.52
 func set_vehicle_visual(i: int) -> void:
+	i=clampi(i,0,VEHICLE_MODELS.size()-1)
+	if i==bike_index and is_instance_valid(bike): return
+	bike_index=i
 	if is_instance_valid(bike):
-		bike.scale=Vector3.ONE*float(VEHICLE_STAGE_SCALES[clampi(i,0,2)])
+		bike.queue_free(); bike=null
+	var path: String=String(VEHICLE_MODELS[i])
+	if not ResourceLoader.exists(path): return
+	bike=(load(path) as PackedScene).instantiate() as Node3D
+	bike.position=STAND+Vector3(0,0.0,-0.35) # models already rest on y=0
+	bike.rotation.y=PI # head-on: front of the bike square to the camera
+	bike.scale=Vector3.ONE*VEHICLE_STAGE_SCALE
+	bike.visible=focus_vehicle
+	add_child(bike); ModelFix.double_sided(bike)
 func _ready() -> void:
 	position=ORIGIN
 	_build_set()
-	# Vehicle display on the lobby stage (same glb the game mounts)
-	if ResourceLoader.exists("res://assets/models/motorcycle.glb"):
-		bike=(load("res://assets/models/motorcycle.glb") as PackedScene).instantiate() as Node3D
-		bike.position=STAND+Vector3(0,-0.06,-0.35)
-		bike.rotation.y=PI # head-on: front of the bike square to the camera
-		bike.scale=Vector3.ONE*1.0 # normal size
-		bike.visible=false # only when the vehicle tab is tapped
-		add_child(bike); ModelFix.double_sided(bike)
+	# Vehicle display on the lobby stage: the same GLBs the game mounts.
+	set_vehicle_visual(0)
 
 ## Framing: on the survivors tab the camera moves in so the survivor fills the shot (whole body,
 ## the dog still at their side); on the pets tab it eases back out to the wider two-shot.

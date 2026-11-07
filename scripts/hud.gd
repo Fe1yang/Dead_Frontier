@@ -658,7 +658,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	if vis.size.y<4.0 or vis.size.x<4.0: return
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
 	if game.lobby_tab==3:
-		var vehicle_names: Array=["摩托车","跑风","装甲车"]
+		var vehicle_names: Array=["摩托车","跑车摩托","巡航摩托"]
 		_panel(vis,Color(0.10,0.11,0.115,0.94),RED if whole else LINE,0)
 		if whole: _text_center(String(vehicle_names[clampi(i,0,2)]),Vector2(card.get_center().x,card.end.y-9),12,WHITE)
 		return

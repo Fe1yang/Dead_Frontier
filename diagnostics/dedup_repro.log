@@ -1,0 +1,14 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+07:20:19 | INFO: Data are loaded, start creating Blender stuff
+07:20:19 | INFO: Blender create Mesh node mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:20:23 | INFO: glTF import finished in 4.39s
+00:16.796  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\pose\dedup_kept_jian.png'
+SRC_MESHES [('node_f2e1e062-71d2-4838-a851-3634d3a54726', 753540)]
+PARTS 202
+KEEP_CLUSTER objs 1 verts 29690 center (0.1, -0.022, -0.29)
+KEPT_BOUNDS x 0.042 0.158 y -0.095 0.052 z -0.372 -0.207
+KEPT_RENDERED C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\pose\dedup_kept_jian.png
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

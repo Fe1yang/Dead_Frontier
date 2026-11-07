@@ -1,0 +1,69 @@
+BlenderMCP addon registered
+06:00:18 | INFO: Data are loaded, start creating Blender stuff
+06:00:18 | INFO: Blender create Mesh node Mannequin
+06:00:20 | INFO: glTF import finished in 2.41s
+06:00:21 | INFO: Data are loaded, start creating Blender stuff
+06:00:21 | INFO: Blender create Mesh node Mannequin
+06:00:24 | INFO: glTF import finished in 2.59s
+06:00:24 | INFO: Data are loaded, start creating Blender stuff
+06:00:24 | INFO: Blender create Mesh node mesh_556b4c74-cfea-4a94-af38-5485edf41ea6
+06:00:28 | INFO: glTF import finished in 4.39s
+HAND_WEIGHTS l 7158
+HAND_WEIGHTS r 7002
+SHOULDER_WEIGHTS l 27158
+SHOULDER_WEIGHTS r 28245
+HEAD_WEIGHTS 52658
+ARM_WEIGHTS l 17391
+ARM_WEIGHTS r 18066
+ARMPIT_WEIGHTS 35676
+SKIN_TRANSFER HighDetailCharacter 725835 vertices; missing weights 0
+GRIP_IK l target (-0.03500000014901161, -0.3449999988079071, 1.3550000190734863) wrist (-0.03499998152256012, -0.344999760389328, 1.3549998998641968)
+GRIP_IK r target (-0.09000000357627869, -0.38999998569488525, 1.3949999809265137) wrist (-0.0903686061501503, -0.38841310143470764, 1.395039677619934)
+RUN_GUN_BAKED 33 frames with animated waist and legs
+RELOAD_GUN_BAKED 41 frames with continuous leg motion
+DEFAULT_ACTION jian Run_Gun_Loop
+INFO Draco is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_draco_bridge.dll
+INFO MeshOptimizer is available, use library at C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_gltf2\bf_intern_meshopt_bridge.dll
+06:01:51 | INFO: Starting glTF 2.0 export
+06:01:52 | INFO: Extracting primitive: mesh_556b4c74-cfea-4a94-af38-5485edf41ea6
+06:02:02 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+06:02:05 | INFO: Primitives created: 1
+06:02:05 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+06:02:12 | INFO: Finished glTF 2.0 export in 21.177616119384766 s
+
+UNIVERSAL_ACTOR_EXPORTED jian C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\survivor_jian_universal.glb actions ['Death01', 'Hit_Chest', 'Pistol_Aim_Neutral', 'Pistol_Reload', 'Pistol_Shoot', 'Reload_Gun_Loop', 'Run_Gun_Loop']
+06:02:13 | INFO: Data are loaded, start creating Blender stuff
+06:02:13 | INFO: Blender create Mesh node Mannequin
+06:02:16 | INFO: glTF import finished in 2.52s
+06:02:16 | INFO: Data are loaded, start creating Blender stuff
+06:02:16 | INFO: Blender create Mesh node Mannequin
+06:02:19 | INFO: glTF import finished in 2.71s
+06:02:19 | INFO: Data are loaded, start creating Blender stuff
+06:02:19 | INFO: Blender create Mesh node mesh_65fe6cf7-cf29-4fb2-bbcc-67e74b5dac2c
+06:02:24 | INFO: glTF import finished in 4.53s
+HAND_WEIGHTS l 14227
+HAND_WEIGHTS r 14295
+SHOULDER_WEIGHTS l 32974
+SHOULDER_WEIGHTS r 26395
+HEAD_WEIGHTS 69667
+ARM_WEIGHTS l 16965
+ARM_WEIGHTS r 20932
+ARMPIT_WEIGHTS 40956
+SKIN_TRANSFER HighDetailCharacter 751150 vertices; missing weights 0
+GRIP_IK l target (-0.03500000014901161, -0.3449999988079071, 1.3550000190734863) wrist (-0.03499998152256012, -0.344999760389328, 1.3549998998641968)
+GRIP_IK r target (-0.09000000357627869, -0.38999998569488525, 1.3949999809265137) wrist (-0.0903686061501503, -0.38841310143470764, 1.395039677619934)
+RUN_GUN_BAKED 33 frames with animated waist and legs
+RELOAD_GUN_BAKED 41 frames with continuous leg motion
+DEFAULT_ACTION jian_scout Run_Gun_Loop
+06:03:41 | INFO: Starting glTF 2.0 export
+06:03:42 | INFO: Extracting primitive: mesh_65fe6cf7-cf29-4fb2-bbcc-67e74b5dac2c
+06:03:50 | WARNING: More than one shader node tex image used for a texture. The resulting glTF sampler will behave like the first shader node tex image.
+06:03:53 | INFO: Primitives created: 1
+06:03:53 | WARNING: There are more than 4 joint vertex influences.The 4 with highest weight will be used (and normalized).
+06:03:59 | INFO: Finished glTF 2.0 export in 18.075237274169922 s
+
+UNIVERSAL_ACTOR_EXPORTED jian_scout C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\assets\models\actors\survivor_jian_scout_universal.glb actions ['Death01', 'Hit_Chest', 'Pistol_Aim_Neutral', 'Pistol_Reload', 'Pistol_Shoot', 'Reload_Gun_Loop', 'Run_Gun_Loop']
+BlenderMCP addon unregistered
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

@@ -1,0 +1,16 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+07:08:18 | INFO: Data are loaded, start creating Blender stuff
+07:08:18 | INFO: Blender create Mesh node mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:08:19 | INFO: glTF import finished in 0.59s
+CHIN_REGION_VERTS 1312
+GROUP_HISTO [('upperarm_l', 682), ('lowerarm_l', 682), ('clavicle_l', 677), ('lowerarm_r', 630), ('upperarm_r', 602), ('hand_r', 334), ('clavicle_r', 285)]
+EX bind (0.18, -0.61, 1.61) posed (-0.01, -0.4, 1.5) [('clavicle_l', 0.54), ('upperarm_l', 0.27), ('lowerarm_l', 0.19)]
+EX bind (0.39, -0.05, 1.68) posed (0.27, -0.25, 1.5) [('upperarm_l', 0.41), ('lowerarm_l', 0.35), ('clavicle_l', 0.25)]
+EX bind (-0.63, -0.04, 1.48) posed (-0.02, -0.38, 1.45) [('lowerarm_r', 0.72), ('hand_r', 0.19), ('upperarm_r', 0.08)]
+EX bind (0.41, -0.05, 1.63) posed (0.25, -0.24, 1.45) [('upperarm_l', 0.44), ('lowerarm_l', 0.39), ('clavicle_l', 0.17)]
+EX bind (0.4, -0.05, 1.66) posed (0.26, -0.25, 1.47) [('upperarm_l', 0.42), ('lowerarm_l', 0.37), ('clavicle_l', 0.21)]
+EX bind (0.38, -0.06, 1.7) posed (0.28, -0.25, 1.52) [('upperarm_l', 0.39), ('lowerarm_l', 0.33), ('clavicle_l', 0.28)]
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

@@ -1,0 +1,10 @@
+00:03.844  blend            | Read blend: "C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\retarget_jian.blend"
+BlenderMCP addon registered
+DATABLOCK x -1.086 1.122 y -0.783 0.814 z 0.0 1.829
+EVALUATED_WORLD x -0.592 0.626 y -0.851 1.051 z -0.232 1.815
+N_VERTS 29690 29690
+VERT_Z_BANDS hi 8111 mid 12091 lo 9488
+BlenderMCP addon unregistered
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

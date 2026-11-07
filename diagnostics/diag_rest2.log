@@ -1,0 +1,9 @@
+00:03.968  blend            | Read blend: "C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\retarget_jian.blend"
+00:05.000  render           | Saved: 'C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\pose\hard_rest_jian.png'
+BlenderMCP addon registered
+HARD_REST_DELTA max 0.0 median 0.0
+HARD_REST_RENDERED C:\Users\user\Documents\kimi\tasks\2026-11-02\20-32-30-26dbcd78\diagnostics\pose\hard_rest_jian.png
+BlenderMCP addon unregistered
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit

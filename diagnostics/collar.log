@@ -1,0 +1,11 @@
+BlenderMCP addon registered
+BlenderMCP addon unregistered
+07:31:25 | INFO: Data are loaded, start creating Blender stuff
+07:31:25 | INFO: Blender create Mesh node mesh_f2e1e062-71d2-4838-a851-3634d3a54726
+07:31:35 | INFO: glTF import finished in 10.32s
+GROUP clavicle_l n 200 x 0.07 0.28 y -0.17 0.07 z 1.5 1.62 median (0.14, -0.09, 1.54)
+GROUP hand_l n 200 x 0.76 0.89 y -0.12 -0.04 z 1.37 1.44 median (0.88, -0.04, 1.39)
+GROUP upperarm_l n 89 x 0.27 0.29 y -0.03 0.03 z 1.5 1.51 median (0.29, 0.01, 1.51)
+Blender 5.2.3 LTS (hash e13b728c6880 built 2026-10-22 01:37:16)
+
+Blender quit
