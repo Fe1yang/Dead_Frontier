@@ -48,7 +48,14 @@ var celebrate:=0.0
 var auto_focus_timer:=-1.0
 
 func _ready() -> void:
-	truck=load(TRUCK_PATH).instantiate() as Node3D
+	var packed:=load(TRUCK_PATH) as PackedScene
+	if packed==null:
+		push_error("supply truck missing: "+TRUCK_PATH)
+		return
+	truck=packed.instantiate() as Node3D
+	if truck==null:
+		push_error("supply truck failed to instantiate")
+		return
 	add_child(truck)
 	# The truck model's baked shopkeeper statue stays hidden.
 	for hide in ["Merchant_HD","Crate.001","CrateLatch.001","Crate.002","CrateLatch.002"]:

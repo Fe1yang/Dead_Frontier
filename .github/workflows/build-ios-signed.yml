@@ -91,8 +91,28 @@ jobs:
         cp ios_template/ios.zip ios_template/version.txt "$dest/"
         rm templates.tpz
 
+    # NOTE: this step used to be `--import || true`. On a clean checkout that pass dies while
+    # compiling the scripts that preload a not-yet-imported .glb, so nothing was imported, the
+    # `|| true` hid it, and the export packed a project with zero model/texture payload.
+    # Every build that reached TestFlight before 2026-11-08 was therefore an empty shell:
+    # every runtime load("res://assets/...") returned null and the first unguarded use crashed.
     - name: Import project
-      run: godot/Godot.app/Contents/MacOS/Godot --headless --path . --import || true
+      run: |
+        set -o pipefail
+        GODOT="godot/Godot.app/Contents/MacOS/Godot"
+        # Pass 1 imports meshes/textures, pass 2 recompiles the scripts that preload them.
+        for pass in 1 2; do
+          echo "=== import pass ${pass} ==="
+          "$GODOT" --headless --path . --import 2>&1 | tail -n 60 || echo "import pass ${pass} exited non-zero (see above)"
+        done
+        if [ "$(find .godot/imported -name '*.scn' 2>/dev/null | wc -l)" -eq 0 ]; then
+          echo "=== no .scn after --import, falling back to an editor run ==="
+          "$GODOT" --headless --editor --path . --quit-after 4000 2>&1 | tail -n 80 || true
+        fi
+        echo "=== imported artefacts ==="
+        find .godot/imported -name '*.scn' 2>/dev/null | wc -l
+        du -sh .godot/imported 2>/dev/null || true
+        test "$(find .godot/imported -name '*.scn' 2>/dev/null | wc -l)" -ge 30
 
     - name: Export to Xcode project
       run: |
@@ -100,6 +120,35 @@ jobs:
         godot/Godot.app/Contents/MacOS/Godot --headless --path . \
           --export-release "${IOS_PRESET}" build/ios/${NAME}.xcodeproj 2>&1 | tee export.log
         test -d build/ios/${NAME}.xcodeproj
+
+    # Hard gate: never upload a package that has no model/texture payload again.
+    - name: Verify the exported PCK really contains the assets
+      run: |
+        python3 - <<'PY'
+        import glob, struct, sys
+        packs = glob.glob("build/ios/*.pck")
+        if not packs:
+            sys.exit("no .pck next to the Xcode project")
+        p = packs[0]
+        d = open(p, "rb").read()
+        if d[:4] != b"GDPC":
+            sys.exit("bad pck magic")
+        file_base, dir_off = struct.unpack_from("<QQ", d, 24)
+        cnt = struct.unpack_from("<I", d, dir_off)[0]
+        pos, ents = dir_off + 4, []
+        for _ in range(cnt):
+            plen = struct.unpack_from("<I", d, pos)[0]; pos += 4
+            name = d[pos:pos + plen].split(b"\x00")[0].decode("utf-8", "replace"); pos += plen
+            pos += (4 - (plen % 4)) % 4
+            off, size = struct.unpack_from("<QQ", d, pos); pos += 36
+            ents.append((name, size))
+        scn = [n for n, s in ents if n.endswith(".scn") and s > 0]
+        ctex = [n for n, s in ents if n.endswith(".ctex") and s > 0]
+        payload = sum(s for _, s in ents)
+        print(f"pck={p} entries={cnt} payload={payload/1e6:.1f} MB .scn>0={len(scn)} .ctex>0={len(ctex)}")
+        if len(scn) < 20 or len(ctex) < 20:
+            sys.exit("PCK has no model/texture payload -- refusing to upload")
+        PY
 
     # --- signing ---
     - name: Install Apple distribution certificate
