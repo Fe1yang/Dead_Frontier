@@ -355,6 +355,7 @@ func _ready() -> void:
 	var screen_ratio:=float(win.y)/float(maxi(1,win.x))  # height/width: portrait is > 1
 	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND if screen_ratio>1.72 else Window.CONTENT_SCALE_ASPECT_KEEP
 	ui_h=get_viewport().get_visible_rect().size.y
+	_pin_sticks()
 	touch_controls=OS.has_feature("mobile")
 	sound=SoundScript.new(); sound.muted=_read_muted(); _read_volumes(); add_child(sound)
 	# Every test/capture run is fully muted — the owner's machine stays silent.
@@ -393,6 +394,10 @@ func _ready() -> void:
 	elif "--lootbox-test" in OS.get_cmdline_user_args(): call_deferred("_lootbox_test")
 	elif "--smoke-test" in OS.get_cmdline_user_args(): call_deferred("_smoke_test")
 	elif "--soak-test" in OS.get_cmdline_user_args(): call_deferred("_soak_test")
+
+func _pin_sticks() -> void:
+	left_origin=Vector2(110,ui_h-118); right_origin=Vector2(430,ui_h-118)
+	left_knob=left_origin; right_knob=right_origin
 
 func localize(key: String) -> String:
 	return Localization.text(language_code,key)
