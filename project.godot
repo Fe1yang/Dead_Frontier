@@ -25,6 +25,10 @@ config/icon="res://assets/icons/icon-1024.png"
 
 default_bus_layout="res://assets/default_bus_layout.tres"
 
+[autoload]
+
+BootTrace="*res://scripts/boot_trace.gd"
+
 [display]
 
 window/size/viewport_width=540

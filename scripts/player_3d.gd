@@ -272,6 +272,7 @@ func _load_character() -> void:
 	var asset_path: String = character_asset_override
 	if asset_path=="": asset_path="res://assets/models/actors/"+CHARACTER_ASSETS[clampi(character,0,CHARACTER_ASSETS.size()-1)]+".glb"
 	if not ResourceLoader.exists(asset_path): asset_path="res://assets/models/actors/"+CHARACTER_ASSETS[0]+".glb"
+	BootTrace.mark("player: loading " + asset_path.get_file())
 	model = ModelFix.spawn(asset_path)
 	if model == null:
 		push_error("survivor model unavailable, keeping the previous one")

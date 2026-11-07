@@ -74,6 +74,7 @@ static func spawn(path: String) -> Node3D:
 
 static func note_missing(path: String) -> void:
 	push_error("model missing: " + path)
+	BootTrace.mark("MISSING: " + path)
 	if missing.has(path):
 		return
 	missing.append(path)

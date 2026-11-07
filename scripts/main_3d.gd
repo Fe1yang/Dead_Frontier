@@ -318,6 +318,7 @@ var left_knob:=Vector2(92,820)
 var right_knob:=Vector2(448,820)
 
 func _ready() -> void:
+	BootTrace.mark("main: _ready start")
 	rng.randomize()
 	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
 	_setup_world(); _build_road()
