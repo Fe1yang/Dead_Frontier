@@ -100,6 +100,13 @@ jobs:
       run: |
         set -o pipefail
         GODOT="godot/Godot.app/Contents/MacOS/Godot"
+        # A .blend in the project makes the headless macOS importer abort the whole queue
+        # ("Blender path is invalid or not set ... Cannot configure blender path in headless
+        # mode"). This machine has Blender installed, CI does not -- that is why the import
+        # worked here and packed nothing there. Blender files are authoring sources only.
+        find . -name '*.blend' -not -path './iap-plugin-src/*' -delete
+        find . -name '*.blend1' -not -path './iap-plugin-src/*' -delete
+        find . -name '*.blend.import' -not -path './iap-plugin-src/*' -delete
         # Pass 1 imports meshes/textures, pass 2 recompiles the scripts that preload them.
         for pass in 1 2; do
           echo "=== import pass ${pass} ==="
