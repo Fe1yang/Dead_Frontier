@@ -303,15 +303,16 @@ var right_stick:=Vector2.ZERO
 # Touch layout (mobile only; hidden on desktop): sticks bottom corners, action buttons stacked on the right.
 const STICK_LEFT:=Vector2(110,842)
 const STICK_RIGHT:=Vector2(430,842)
-const BTN_RELOAD:=Vector2(490,640)
-const BTN_FRAG:=Vector2(490,724)
-const BTN_FLASH:=Vector2(414,724)
-const BTN_FIRE_MODE:=Vector2(414,640)
-const BTN_SWAP:=Vector2(490,556)
+const BTN_RELOAD:=Vector2(492,596)
+const BTN_FRAG:=Vector2(492,676)
+const BTN_FLASH:=Vector2(420,676)
+const BTN_FIRE_MODE:=Vector2(420,596)
+const BTN_SWAP:=Vector2(492,516)
 const BTN_RADIUS:=36.0
 const PAUSE_BUTTON:=Rect2(476,8,58,58)
 ## The classic start screen (state "cover"): the title poster greets every launch, and any
 ## tap starts the run right away. Characters, shop and the rest live in the lobby side bar.
+var ui_h:=960.0
 var left_origin:=STICK_LEFT
 var right_origin:=STICK_RIGHT
 var left_knob:=Vector2(92,820)
@@ -322,6 +323,7 @@ func _ready() -> void:
 	rng.randomize()
 	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
 	_setup_world(); _build_road()
+	ui_h=get_viewport().get_visible_rect().size.y
 	touch_controls=OS.has_feature("mobile")
 	sound=SoundScript.new(); sound.muted=_read_muted(); _read_volumes(); add_child(sound)
 	# Every test/capture run is fully muted — the owner's machine stays silent.
@@ -1214,8 +1216,10 @@ func close_store() -> void:
 ## full-width bundle cards, then two-column coin and voucher cards.
 const STORE_TOP:=124.0
 const STORE_BOTTOM:=930.0
+static func store_bottom(h: float) -> float:
+	return h-30.0
 func store_view_rect() -> Rect2:
-	return Rect2(0,STORE_TOP,540,STORE_BOTTOM-STORE_TOP)
+	return Rect2(0,STORE_TOP,540,store_bottom(ui_h)-STORE_TOP)
 
 func store_layout() -> Array:
 	# One full-width row per pack (list layout); grey caps label above each group.
@@ -1240,7 +1244,7 @@ func store_content_height() -> float:
 	return h+60.0  # room for the price note at the end
 
 func store_max_scroll() -> float:
-	return maxf(0.0,store_content_height()-(STORE_BOTTOM-STORE_TOP))
+	return maxf(0.0,store_content_height()-(store_bottom(ui_h)-STORE_TOP))
 
 ## Where an item sits on screen right now.
 func store_screen_rect(item: Dictionary) -> Rect2:
@@ -1494,8 +1498,16 @@ func bag_items() -> Array:
 	if bank_vouchers>0: items.append({"id":"vouchers","count":bank_vouchers})
 	return items
 
-static func bag_slot(i: int) -> Rect2:
-	return Rect2(36+(i%4)*120,150+(i/4)*140,108,128)
+const BAG_COLS:=4
+const BAG_ROWS:=8
+const BAG_TOP:=150.0
+var bag_scroll:=0.0
+func bag_slot_count() -> int:
+	return BAG_COLS*BAG_ROWS
+func bag_slot(i: int) -> Rect2:
+	return Rect2(36+(i%BAG_COLS)*120,BAG_TOP+(i/BAG_COLS)*140-bag_scroll,108,128)
+func bag_max_scroll() -> float:
+	return maxf(0.0,BAG_TOP+BAG_ROWS*140.0-(ui_h-40.0))
 
 func open_bag() -> void:
 	bag_return_state=state; state="bag"; _release_touches()
@@ -3392,6 +3404,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT)): _set_volume_from(event.position.x)
 		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed):
 			volume_drag=""; sound.play("hit"); _save()
+	if state=="bag":
+		if event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT)):
+			bag_scroll=clampf(bag_scroll-event.relative.y,0.0,bag_max_scroll())
+		elif event is InputEventMouseButton and event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP,MOUSE_BUTTON_WHEEL_DOWN]:
+			bag_scroll=clampf(bag_scroll+(-60.0 if event.button_index==MOUSE_BUTTON_WHEEL_UP else 60.0),0.0,bag_max_scroll())
 	if state=="store":
 		if event is InputEventScreenDrag and store_press.x>=0: _store_drag(event.position,event.relative)
 		elif event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT) and store_press.x>=0 and not touch_controls: _store_drag(event.position,event.relative)
@@ -3424,7 +3441,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _release_touches() -> void:
 	left_touch_id=-1; right_touch_id=-1; left_stick=Vector2.ZERO; right_stick=Vector2.ZERO
-	left_origin=STICK_LEFT; right_origin=STICK_RIGHT; left_knob=left_origin; right_knob=right_origin
+	left_origin=Vector2(110,ui_h-118); right_origin=Vector2(430,ui_h-118); left_knob=left_origin; right_knob=right_origin
 
 func _pointer_down(pos: Vector2) -> bool:
 	if state=="terms":

@@ -181,7 +181,7 @@ func _draw() -> void:
 	elif game.state=="character_select": _draw_character_select()
 	if game.state=="paused": clean_ops.clear(); _draw_pause() # HUD small print sits under the overlay
 	if game.state=="health_ad": clean_ops.clear(); _draw_hud(); _draw_health_ad_prompt() # frozen run behind the offer
-	if game.damage_flash>0: draw_rect(Rect2(0,0,540,960),Color(0.65,0.025,0.025,game.damage_flash*0.36))
+	if game.damage_flash>0: draw_rect(Rect2(0,0,540,game.ui_h),Color(0.65,0.025,0.025,game.damage_flash*0.36))
 	draw_rect(Rect2(0,0,540,2),Color(0.45,0.04,0.055,0.65))
 	if clean: clean.queue_redraw()
 	if list_clip: list_clip.queue_redraw()
@@ -227,7 +227,7 @@ func _string(f: Font,pos: Vector2,value: String,size: int,color: Color) -> void:
 
 func _draw_intro() -> void:
 	draw_rect(Rect2(0,0,540,78),Color(0.01,0.012,0.013,0.94))
-	draw_rect(Rect2(0,852,540,108),Color(0.01,0.012,0.013,0.94))
+	draw_rect(Rect2(0,game.ui_h-108,540,108),Color(0.01,0.012,0.013,0.94))
 	if game.intro_time<1.4:
 		_text_center("追杀者来了" if game.language_code.begins_with("zh") else "THE CHASER IS COMING",Vector2(270,902),30,WHITE)
 	else:
@@ -271,16 +271,16 @@ func _draw_hud() -> void:
 	if game.touch_controls and game.state=="playing":
 		_draw_joystick(game.left_origin,game.left_knob,false)
 		_draw_joystick(game.right_origin,game.right_knob,true)
-		_round_button(game.BTN_RELOAD,"reload",-1,WHITE)
+		_round_button(_btn(game.BTN_RELOAD),"reload",-1,WHITE)
 		var swap_to: String=game.player.swap_target()
-		_round_button(game.BTN_SWAP,"swap",-1,WHITE if swap_to!="" else Color(1,1,1,0.35))
+		_round_button(_btn(game.BTN_SWAP),"swap",-1,WHITE if swap_to!="" else Color(1,1,1,0.35))
 		if swap_to!="":
 			var short:={"PISTOL":"PST","SMG":"SMG","SHOTGUN":"SG","SNIPER":"SNP","RIFLE":"AR","LAUNCHER":"GL"}
 			_text_center(short.get(swap_to,swap_to),game.BTN_SWAP+Vector2(0,52),13,WHITE)
-		_round_button(game.BTN_FRAG,"frag",game.player.grenade_count,WHITE)
-		_round_button(game.BTN_FLASH,"flash",game.player.flashbang_count,Color("cfefff"))
+		_round_button(_btn(game.BTN_FRAG),"frag",game.player.grenade_count,WHITE)
+		_round_button(_btn(game.BTN_FLASH),"flash",game.player.flashbang_count,Color("cfefff"))
 		if game.player.weapon=="LAUNCHER":
-			_round_button(game.BTN_FIRE_MODE,"fire",game.player.fire_ammo,Color("ff8a5c"))
+			_round_button(_btn(game.BTN_FIRE_MODE),"fire",game.player.fire_ammo,Color("ff8a5c"))
 	if game.hint_time>0:
 		var hint: String=game.localize("aim_stick") if game.touch_controls else GameText.text(game.language_code,"auto_hint")
 		_text_center(hint,Vector2(270,186),15,Color(WHITE.r,WHITE.g,WHITE.b,clampf(game.hint_time,0,1)*0.9))
@@ -427,6 +427,9 @@ func _draw_ammo(right_top: Vector2) -> void:
 	elif game.player.ammo==0:
 		_text_right(game.localize("auto") if game.auto_reload else game.localize("press_r"),Vector2(right_top.x+6,right_top.y+84),15,Color("e66b62"))
 
+func _btn(p: Vector2) -> Vector2:
+	return p + Vector2(0, game.ui_h - 960.0)
+
 func _round_button(center: Vector2,icon: String,count: int,accent: Color) -> void:
 	var r:=34.0
 	draw_circle(center,r,Color(0.02,0.02,0.02,0.45))
@@ -486,8 +489,8 @@ func _draw_cover() -> void:
 	# The original start screen, restored: the full-screen title poster does all the talking
 	# (title, skull, TAP ANYWHERE TO START, version are painted into the art). The gear in its
 	# top-right corner opens settings; any other tap continues to the main menu.
-	if menu_art: draw_texture_rect(menu_art,Rect2(0,0,540,960),false)
-	else: draw_rect(Rect2(0,0,540,960),INK)
+	if menu_art: draw_texture_rect(menu_art,Rect2(0,0,540,game.ui_h),false)
+	else: draw_rect(Rect2(0,0,540,game.ui_h),INK)
 
 func _draw_loading() -> void:
 	# ONE loading art per run, full-screen, randomly picked at _begin_loading and kept
@@ -498,9 +501,9 @@ func _draw_loading() -> void:
 	if game.loading_order.size()>0 and loading_art.size()>0:
 		var idx: int=int(game.loading_order[game.loading_idx % game.loading_order.size()])
 		if idx>=0 and idx<loading_art.size() and loading_art[idx]:
-			clean_ops.append(["texture",loading_art[idx],Rect2(0,0,540,960)])
+			clean_ops.append(["texture",loading_art[idx],Rect2(0,0,540,game.ui_h)])
 	else:
-		_box(Rect2(0,0,540,960),INK)
+		_box(Rect2(0,0,540,game.ui_h),INK)
 	var zh: bool=game.language_code.begins_with("zh") if game.language_code else true
 	var dots: String="..." if int(game.elapsed*2.0)%4<3 else "."
 	var label: String=("加载中%s"%dots) if zh else ("LOADING%s"%dots)
@@ -558,7 +561,7 @@ func _draw_map() -> void:
 		_text_center(game.map_toast_text,Vector2(270,856),20,Color(1.0,0.85,0.55,a))
 
 func _draw_settings() -> void:
-	draw_rect(Rect2(0,0,540,960),Color(0.018,0.022,0.023,0.88))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0.018,0.022,0.023,0.88))
 	_bold_text("SETTINGS",Vector2(42,100),32,WHITE)
 	_text("AUDIO / GAMEPLAY",Vector2(44,132),14,MUTED)
 	var lang: String=game.language_code
@@ -592,7 +595,7 @@ func _draw_character_select() -> void:
 			var sp: String="res://assets/ui/%s_hd_portrait.png"%String(sk.get("name",""))
 			skin_portraits.append(load(sp) if ResourceLoader.exists(sp) else null)
 	draw_rect(Rect2(0,0,540,62),Color(0.015,0.018,0.019,0.72))
-	draw_rect(Rect2(0,game.LOBBY_BAND_TOP,540,960-game.LOBBY_BAND_TOP),Color(0.015,0.018,0.019,0.82))
+	draw_rect(Rect2(0,game.LOBBY_BAND_TOP,540,game.ui_h-game.LOBBY_BAND_TOP),Color(0.015,0.018,0.019,0.82))
 	_wallet(game.WALLET_LOBBY,true,game.LOBBY_WALLET_SCALE)
 	_energy_refill_timer(game.WALLET_LOBBY,game.LOBBY_WALLET_SCALE)
 	if game.offer_active() and game.state=="character_select": _offer_badge(game.OFFER_BADGE)
@@ -814,7 +817,7 @@ func _draw_shop() -> void:
 	_text_center("PREMIUM / "+game.localize("planned"),Vector2(270,936),12,Color("cf8c75"))
 
 func _draw_languages() -> void:
-	draw_rect(Rect2(0,0,540,960),Color(0.018,0.022,0.023,0.88))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0.018,0.022,0.023,0.88))
 	_bold_text(game.localize("language"),Vector2(30,76),30,WHITE); _text("20 LANGUAGES / NATIVE NAMES",Vector2(32,105),10,MUTED)
 	_box(Rect2(26,117,108,3),PAINT_RED)
 	for i in range(Localization.LANGUAGES.size()):
@@ -828,7 +831,7 @@ func _draw_gameover() -> void:
 	var zh: bool=game.language_code.begins_with("zh")
 	# The street where the run ended stays visible; darkness pools at the top (title) and
 	# bottom (buttons) only.
-	_box(Rect2(0,0,540,960),Color(0.012,0.015,0.016,0.58))
+	_box(Rect2(0,0,540,game.ui_h),Color(0.012,0.015,0.016,0.58))
 	_box(Rect2(0,0,540,240),Color(0.012,0.015,0.016,0.35))
 	_box(Rect2(0,560,540,400),Color(0.012,0.015,0.016,0.45))
 	if game.new_record: _draw_new_record()
@@ -882,7 +885,7 @@ func _draw_gameover() -> void:
 	_toast(84) # keyboard retry (Enter) with no cans explains itself here
 
 func _draw_pause() -> void:
-	draw_rect(Rect2(0,0,540,960),Color(0.015,0.019,0.020,0.80))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0.015,0.019,0.020,0.80))
 	_bold_text(game.localize("paused"),Vector2(114,370),42,WHITE)
 	_box(Rect2(110,387,94,3),PAINT_RED)
 	# Settings leads the list; restarting mid-run is free and says so.
@@ -1196,12 +1199,12 @@ func _page_header(title: String) -> void:
 func _di_backdrop() -> void:
 	# Restrained near-black backdrop with a warm lower fade; preserve subtle atmosphere,
 	# but do not bury the screen in repeated paint textures.
-	draw_rect(Rect2(0,0,540,960),Color("111313",1.0))
-	draw_polygon(PackedVector2Array([Vector2(0,0),Vector2(540,0),Vector2(540,960),Vector2(0,960)]),
+	draw_rect(Rect2(0,0,540,game.ui_h),Color("111313",1.0))
+	draw_polygon(PackedVector2Array([Vector2(0,0),Vector2(540,0),Vector2(540,game.ui_h),Vector2(0,game.ui_h)]),
 		PackedColorArray([Color("191918"),Color("121414"),Color("090b0b"),Color("0d0e0d")]))
-	if grunge_tex: draw_texture_rect(grunge_tex,Rect2(0,0,540,960),true,Color(1,1,1,0.025))
+	if grunge_tex: draw_texture_rect(grunge_tex,Rect2(0,0,540,game.ui_h),true,Color(1,1,1,0.025))
 	draw_rect(Rect2(0,0,540,112),Color(0,0,0,0.32))
-	draw_rect(Rect2(0,930,540,30),Color(0,0,0,0.28))
+	draw_rect(Rect2(0,game.ui_h-30,540,30),Color(0,0,0,0.28))
 
 func _di_tag(pos: Vector2,label: String,size:=20,angle:=-0.045) -> Rect2:
 	var t:=label.to_upper()
@@ -1440,7 +1443,7 @@ func _draw_offer_popup() -> void:
 	var o: Dictionary=StoreCatalog.offer(game.offer_id)
 	if o.is_empty(): return
 	var cur: String=game.store_currency if not game.store_currency.is_empty() else StoreCatalog.device_currency()
-	_box(Rect2(0,0,540,960),Color(0,0,0,0.72))
+	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.72))
 	var p: Rect2=game.OFFER_PANEL
 	_paint(p,Color(0.05,0.052,0.056,0.97))
 	_section(Vector2(-1,p.position.y+44),StoreCatalog.text(lang,"limited"),24)
@@ -1491,7 +1494,7 @@ func _draw_resource_pack_popup() -> void:
 	var p: Dictionary=game.pack_by_id(game.resource_pack_id)
 	if p.is_empty(): return
 	var cur: String=game.store_currency if not game.store_currency.is_empty() else StoreCatalog.device_currency()
-	_box(Rect2(0,0,540,960),Color(0,0,0,0.72))
+	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.72))
 	var panel: Rect2=game.OFFER_PANEL
 	_paint(panel,Color(0.05,0.052,0.056,0.97))
 	var title_key: String="coin_packs" if p.kind=="coins" else ("voucher_packs" if p.kind=="vouchers" else "can_packs")
@@ -1633,7 +1636,7 @@ func _circle_pts(c: Vector2,r: float,n:=12) -> PackedVector2Array:
 ## Mailbox page: a list of letters (title, first line, reward); tap one to read it in full.
 func _draw_mail() -> void:
 	var lang: String=game.language_code
-	draw_rect(Rect2(0,0,540,960),Color(0.02,0.022,0.024,0.78))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0.02,0.022,0.024,0.78))
 	if game.mail_open>=0 and game.mail_open<game.mails.size(): _draw_letter(game.mails[game.mail_open],lang); return
 	_page_header(ExtraText.text(lang,"mail"))
 	if game.mails.is_empty():
@@ -1717,18 +1720,29 @@ func _draw_letter(m: Dictionary,lang: String) -> void:
 ## Backpack: a grid of item slots with icon, name and count.
 func _draw_bag() -> void:
 	var lang: String=game.language_code
-	draw_rect(Rect2(0,0,540,960),Color(0.02,0.022,0.024,0.78))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0.02,0.022,0.024,0.78))
 	_page_header(ExtraText.text(lang,"bag"))
 	var items: Array=game.bag_items()
-	for i in range(items.size()):
-		var it: Dictionary=items[i]; var r: Rect2=game.bag_slot(i)
+	# a real grid: owned stacks first, the rest are empty slots, clipped under the header
+	list_clip.position=Vector2(0,132)
+	list_clip.size=Vector2(540,game.ui_h-172)
+	var saved_ops:=clean_ops
+	clean_ops=list_ops
+	for i in range(game.bag_slot_count()):
+		var r: Rect2=game.bag_slot(i)
+		if r.end.y<126 or r.position.y>game.ui_h-34: continue
 		_box(r,Color(0.06,0.065,0.068,0.80)); _frame(r,Color(1,1,1,0.14),1.0)
-		var icon:=Rect2(r.get_center()+Vector2(-26,-46),Vector2(52,52))
-		if it.id=="coins": clean_ops.append(["texture",coin_tex,icon])
-		elif it.id=="silver": clean_ops.append(["texture",silver_tex,icon])
-		else: clean_ops.append(["texture",voucher_tex,Rect2(r.get_center()+Vector2(-36,-40),Vector2(72,42))])
-		_clean_center(bold,Vector2(r.get_center().x,r.end.y-34),_grouped(int(it.count)),20,GOLD if it.id=="coins" else (Color(0.85,0.90,1.0) if it.id=="silver" else VOUCHER_COL))
-		_clean_center(font,Vector2(r.get_center().x,r.end.y-12),ExtraText.text(lang,"item_"+String(it.id)),12,MUTED)
+		if i<items.size():
+			var it: Dictionary=items[i]
+			var icon:=Rect2(r.get_center()+Vector2(-26,-46),Vector2(52,52))
+			if it.id=="coins": clean_ops.append(["texture",coin_tex,icon])
+			elif it.id=="silver": clean_ops.append(["texture",silver_tex,icon])
+			else: clean_ops.append(["texture",voucher_tex,Rect2(r.get_center()+Vector2(-36,-40),Vector2(72,42))])
+			_clean_center(bold,Vector2(r.get_center().x,r.end.y-34),_grouped(int(it.count)),20,GOLD if it.id=="coins" else (Color(0.85,0.90,1.0) if it.id=="silver" else VOUCHER_COL))
+			_clean_center(font,Vector2(r.get_center().x,r.end.y-12),ExtraText.text(lang,"item_"+String(it.id)),12,MUTED)
+		else:
+			_clean_center(font,r.get_center()+Vector2(0,6),"-",16,Color(1,1,1,0.10))
+	clean_ops=saved_ops
 	_toast(860)
 
 ## Lobby airdrop: the crate bobs gently; free once a day (one ad), dimmed until tomorrow.
@@ -1758,7 +1772,7 @@ func _airdrop_button(lang: String) -> void:
 func _draw_airdrop() -> void:
 	var lang: String=game.language_code
 	var t: float=Time.get_ticks_msec()/1000.0
-	draw_rect(Rect2(0,0,540,960),Color(0,0,0,0.78))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.78))
 	if glow_tex: clean_ops.append(["tinted",glow_tex,Rect2(270-210,330-210,420,420),Color(HILITE.r,HILITE.g,HILITE.b,0.35+0.1*sin(t*3.0))])
 	for i in range(12):
 		var a: float=t*0.4+TAU*i/12.0
@@ -1800,7 +1814,7 @@ func _reward_line(pos: Vector2,coins: int,vouchers: int,size:=22,cans:=0) -> voi
 func _draw_signin() -> void:
 	var lang: String=game.language_code
 	var t: float=Time.get_ticks_msec()/1000.0
-	_box(Rect2(0,0,540,960),Color(0,0,0,0.60))
+	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.60))
 	var p: Rect2=game.SIGNIN_PANEL
 	# A military supply drop, not a casino card: one dark plate, stencil day numbers, and a
 	# brass frame on the day-7 crate — the only tile allowed to look special.
@@ -1844,7 +1858,7 @@ func _draw_signin() -> void:
 
 func _draw_tasks() -> void:
 	var lang: String=game.language_code
-	draw_rect(Rect2(0,0,540,960),Color(0.025,0.028,0.03,0.92))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0.025,0.028,0.03,0.92))
 	_page_header(ProgressCatalog.text(lang,"tasks"))
 	for t in range(2):
 		var r: Rect2=game.tasks_tab_rect(t); var on: bool=game.tasks_tab==t
@@ -1916,7 +1930,7 @@ func _draw_new_record() -> void:
 		clean_ops.append(["line",PackedVector2Array([pos-Vector2(0,sz),pos+Vector2(0,sz)]),Color(1,0.95,0.8,tw),2.0])
 	# opening flash
 	var flash: float=maxf(0.0,0.6-t*1.6)
-	if flash>0.0: _box(Rect2(0,0,540,960),Color(1,0.96,0.85,flash),Color(0,0,0,0),0,0)
+	if flash>0.0: _box(Rect2(0,0,540,game.ui_h),Color(1,0.96,0.85,flash),Color(0,0,0,0),0,0)
 
 func _record_confetti() -> void:
 	var t: float=game.gameover_time
@@ -1969,7 +1983,7 @@ func _draw_record_banner() -> void:
 ## style as the other popups: dim the frozen run, one panel, one primary action.
 func _draw_health_ad_prompt() -> void:
 	var zh: bool=game.language_code.begins_with("zh")
-	_box(Rect2(0,0,540,960),Color(0,0,0,0.72))
+	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.72))
 	var p: Rect2=game.HEALTH_AD_PANEL
 	_paint(p,Color(0.05,0.052,0.056,0.98))
 	var c:=Vector2(p.get_center().x,p.position.y+58)
@@ -1985,7 +1999,7 @@ func _draw_health_ad_prompt() -> void:
 ## "Top-up failed" popup: red title stroke, short explanation, Retry / Close.
 func _draw_payfail() -> void:
 	var lang: String=game.language_code
-	_box(Rect2(0,0,540,960),Color(0,0,0,0.72))
+	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.72))
 	var p: Rect2=game.PAYFAIL_PANEL
 	_paint(p,Color(0.05,0.052,0.056,0.98))
 	var c:=Vector2(p.get_center().x,p.position.y+70)

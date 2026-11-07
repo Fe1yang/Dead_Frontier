@@ -149,11 +149,11 @@ func music_state(state: String) -> void:
 		if title_on and not title_music.playing: title_music.play()
 		elif not title_on and title_music.playing: title_music.stop()
 	if is_instance_valid(lobby_music):
-		var lobby_on:=not muted and state in LOBBY_STATES
+		var lobby_on:=not muted and (state in LOBBY_STATES or state in ["map","bag"])
 		if lobby_on and not lobby_music.playing: _next_lobby_track()
 		elif not lobby_on and lobby_music.playing: lobby_music.stop()
 	if is_instance_valid(shop_music):
-		var shop_on:=not muted and state=="shop"
+		var shop_on:=not muted and state in ["shop","store"]
 		if shop_on and not shop_music.playing: _next_shop_track()
 		elif not shop_on and shop_music.playing: shop_music.stop()
 	if is_instance_valid(chase) and not chase_streams.is_empty():
@@ -172,7 +172,7 @@ func music_state(state: String) -> void:
 
 ## Random next lobby track, never the same one twice in a row (same rule as the chase rotation).
 func _next_lobby_track() -> void:
-	if lobby_streams.is_empty() or not music_state_name in LOBBY_STATES: return
+	if lobby_streams.is_empty() or not (music_state_name in LOBBY_STATES or music_state_name in ["map","bag"]): return
 	var last: AudioStream=lobby_music.stream
 	var options: Array=lobby_streams.filter(func(st): return st!=last)
 	if options.is_empty(): options=lobby_streams
@@ -180,7 +180,7 @@ func _next_lobby_track() -> void:
 
 ## Random next shop track, never the same one twice in a row (same rule as the other rotations).
 func _next_shop_track() -> void:
-	if shop_streams.is_empty() or music_state_name!="shop": return
+	if shop_streams.is_empty() or not music_state_name in ["shop","store"]: return
 	var last: AudioStream=shop_music.stream
 	var options: Array=shop_streams.filter(func(st): return st!=last)
 	if options.is_empty(): options=shop_streams

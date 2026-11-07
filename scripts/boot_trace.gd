@@ -22,9 +22,17 @@ func _ready() -> void:
 	_open_new_log()
 	_build_overlay()
 	mark("boot: autoload ready")
-	if _prev.size() > 0:
+	# A swipe-up kill is a normal way to leave the app on iOS; only show the card when the
+	# previous run really died without a clean exit line.
+	if _prev.size() > 0 and _prev[_prev.size() - 1] != "exit: clean":
 		_show_previous()
 
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST or what == NOTIFICATION_APPLICATION_PAUSED:
+		if _file != null:
+			_file.store_line("exit: clean")
+			_file.flush()
 
 func _read_previous() -> PackedStringArray:
 	var out := PackedStringArray()
