@@ -65,8 +65,10 @@ func _process_modification() -> void:
 	var sk:=get_skeleton()
 	if sk==null or weight<=0.0: return
 	if not _ready_bones: _setup(sk)
-	var pitch: float=[0.45,0.32,0.39,0.35][clampi(character,0,3)]
-	var shoulder: float=[0.82,0.88,0.84,0.86][clampi(character,0,3)]
+	var pitch: float=[0.60,0.42,0.52,0.46][clampi(character,0,3)]
+	# Shoulder relaxation stays at the value the grip was tuned against: pulling the
+	# clavicles further toward rest swings the upper arms inward and buries them in the chest.
+	var shoulder: float=[0.58,0.68,0.60,0.64][clampi(character,0,3)]
 	_trim_euler(sk,b.spine_01,1.0,0.30)
 	_trim_euler(sk,b.spine_02,1.0,SPINE_TWIST_KEEP)
 	_trim_euler(sk,b.spine_03,pitch,SPINE_TWIST_KEEP)

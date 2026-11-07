@@ -74,6 +74,7 @@ func _tint_coin_metal(albedo: Color) -> void:
 		mesh_inst.material_override=mat
 
 func _prepare_coin_scatter() -> void:
+	if model_instance==null or not is_instance_valid(model_instance): return
 	for node in model_instance.get_children():
 		if not node is Node3D or not String(node.name).begins_with("CoinAssembly"): continue
 		var piece:=node as Node3D

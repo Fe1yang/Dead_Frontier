@@ -438,7 +438,17 @@ func _build_road() -> void:
 		var asset: String="city_hd_%02d"%(i%24)
 		var path: String="res://assets/models/environment/"+asset+".glb"
 		if not ResourceLoader.exists(path): path="res://assets/models/environment/city_hd_00.glb"
-		var road:=load(path).instantiate() as Node3D
+		var packed: Resource=load(path)
+		if packed==null:
+			push_warning("district failed to load: "+path+" -- falling back to city_hd_00")
+			packed=load("res://assets/models/environment/city_hd_00.glb")
+		if packed==null:
+			push_error("no district model available at all, skipping this segment")
+			continue
+		var road:=packed.instantiate() as Node3D
+		if road==null:
+			push_error("district instantiate failed: "+path)
+			continue
 		road.position=Vector3(0,0,ROAD_BEHIND-i*ROAD_SEGMENT); add_child(road)
 		EnvironmentMaterials.apply(road,i); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
 		_randomize_zebra(road)

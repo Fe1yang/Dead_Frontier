@@ -461,13 +461,10 @@ func set_weapon(id: String) -> void:
 
 func set_aim(direction: Vector3) -> void:
 	if direction.length()<0.01: return
-	# Never aim back over the shoulder while running forward: that turns the survivor round
-	# and the two-handed stance reads as crossed arms. Keep aim in the forward half.
-	# (Restored from grip-final-formal validated version.)
+	# Full 360 deg aim: the survivor turns on the spot to shoot whatever is picked,
+	# including the horde (or the beast) coming up from behind. (The forward-only clamp
+	# that briefly lived here also made the stance read as crossed arms at the edges.)
 	direction.y=0.0
-	if direction.z>-0.05:
-		direction.z=-0.05
-		if absf(direction.x)<0.05: direction.x=0.0; direction.z=-1.0
 	aim_direction = direction.normalized()
 	var yaw: float=PI+atan2(-aim_direction.x,-aim_direction.z)
 	if is_instance_valid(model): model.rotation.y=yaw

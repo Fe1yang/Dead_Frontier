@@ -61,6 +61,7 @@ func _copy_named(node: Node,names: Array) -> void:
 		var copy:=node.duplicate() as MeshInstance3D
 		visual.add_child(copy); copy.global_transform=node.global_transform; copy.material_overlay=null
 		return
+	if node==null or not is_instance_valid(node): return
 	for child in node.get_children(): _copy_named(child,names)
 
 func tick(delta: float) -> void:

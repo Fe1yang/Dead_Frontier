@@ -32,10 +32,17 @@ func _ready() -> void:
 	elif kind=="police":
 		half_extents=Vector2(2.42,1.08) if police_crosswise else Vector2(1.08,2.42)
 		damage=24.0
-		var police:=load("res://assets/models/props/police_car.glb").instantiate() as Node3D
-		model.add_child(police)
-		EnvironmentMaterials.apply(police)
-		_setup_police_lights(police)
+		var packed: Resource=load("res://assets/models/props/police_car.glb")
+		var police: Node3D=null
+		if packed!=null: police=packed.instantiate() as Node3D
+		if police==null:
+			# A missing prop model must never take the whole run down with it.
+			push_warning("police_car.glb unavailable -- drawing an ordinary wreck instead")
+			_make_car()
+		else:
+			model.add_child(police)
+			EnvironmentMaterials.apply(police)
+			_setup_police_lights(police)
 		model.rotation.y=(PI*0.5 if police_crosswise else 0.0)+random.randf_range(-0.06,0.06)
 	elif kind=="corpse_pile":
 		half_extents=Vector2(0.92,1.16)

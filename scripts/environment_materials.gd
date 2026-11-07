@@ -10,6 +10,9 @@ const TRIM_KEYS:=["frame","office_frame","trim","blind","recess","modern_panel",
 static var cache: Dictionary={}
 
 static func apply(root: Node,_variant: int=0) -> void:
+	# A model that failed to load hands us a null root. Walking it used to be an
+	# instant segfault on iOS: crash 92E6252A was Node::get_children on a null object.
+	if root==null or not is_instance_valid(root): return
 	if root is MeshInstance3D and is_instance_valid(root.mesh):
 		for surface in range(root.mesh.get_surface_count()):
 			var source: Material=root.get_surface_override_material(surface)

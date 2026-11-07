@@ -112,6 +112,7 @@ func configure(type: String, difficulty: float) -> void:
 	_make_fire()
 
 func _collect(node: Node) -> void:
+	if node==null or not is_instance_valid(node): return
 	if node is MeshInstance3D: meshes.append(node)
 	for child in node.get_children(): _collect(child)
 
