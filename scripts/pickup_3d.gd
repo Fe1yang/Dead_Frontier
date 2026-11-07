@@ -1,18 +1,30 @@
 extends Node3D
 const RunText=preload("res://scripts/run_text.gd")
 
-const MODELS := {
-	"medkit": preload("res://assets/models/medkit.glb"),
-	"armor": preload("res://assets/models/armor.glb"),
-	"helmet": preload("res://assets/models/helmet.glb"),
-	"ammo": preload("res://assets/models/ammo_pickup.glb"),
-	"grenade": preload("res://assets/models/frag_grenade.glb"),
-	"flashbang": preload("res://assets/models/flashbang.glb"),
-	"launcher": preload("res://assets/models/weapons/launcher.glb"),
-	"fire_round": preload("res://assets/models/fire_round.glb"),
-	"coin": preload("res://assets/models/coin_stack.glb"),
-	"silver_coin": preload("res://assets/models/coin_stack.glb")
+# Paths, not preloads. A preload of a .glb makes the very first import pass on a clean
+# checkout fail ("Could not preload resource file"), which aborted the import queue and
+# shipped iOS packages with no models at all. Load lazily, and survive a missing model.
+const MODEL_PATHS := {
+	"medkit": "res://assets/models/medkit.glb",
+	"armor": "res://assets/models/armor.glb",
+	"helmet": "res://assets/models/helmet.glb",
+	"ammo": "res://assets/models/ammo_pickup.glb",
+	"grenade": "res://assets/models/frag_grenade.glb",
+	"flashbang": "res://assets/models/flashbang.glb",
+	"launcher": "res://assets/models/weapons/launcher.glb",
+	"fire_round": "res://assets/models/fire_round.glb",
+	"coin": "res://assets/models/coin_stack.glb",
+	"silver_coin": "res://assets/models/coin_stack.glb"
 }
+var _model_cache := {}
+
+func _model(kind_id: String) -> PackedScene:
+	if _model_cache.has(kind_id):
+		return _model_cache[kind_id]
+	var packed: PackedScene = load(MODEL_PATHS[kind_id]) as PackedScene
+	if packed != null:
+		_model_cache[kind_id] = packed
+	return packed
 # One coin mesh, two metals: gold stays gold, silver reuses the same pile tinted.
 const GOLD_ALBEDO:=Color(1.0,0.80,0.32)
 const SILVER_ALBEDO:=Color(0.52,0.58,0.66)
@@ -35,7 +47,11 @@ var coin_light: OmniLight3D
 func _ready() -> void:
 	visual = Node3D.new()
 	add_child(visual)
-	model_instance = MODELS[kind].instantiate() as Node3D
+	var packed:=_model(kind)
+	model_instance = packed.instantiate() as Node3D if packed != null else null
+	if model_instance == null:
+		push_error("pickup model missing or broken: " + str(MODEL_PATHS.get(kind, "?")))
+		model_instance = Node3D.new() # invisible placeholder: the run continues
 	model_instance.scale = Vector3.ONE * float(DISPLAY_SCALES[kind])
 	model_instance.position.y = float(GROUND_OFFSETS[kind])
 	visual.add_child(model_instance)

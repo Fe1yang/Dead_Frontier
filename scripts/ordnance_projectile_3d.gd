@@ -9,16 +9,22 @@ var age := 0.0
 var bounces := 0
 var visual: Node3D
 
-const MODELS := {
-	"frag": preload("res://assets/models/frag_grenade.glb"),
-	"flash": preload("res://assets/models/flashbang.glb"),
-	"launcher": preload("res://assets/models/frag_grenade.glb"),
-	"fire": preload("res://assets/models/fire_round.glb")
+# Lazy paths for the same reason as pickup_3d.gd: preloads of .glb abort the first import.
+const MODEL_PATHS := {
+	"frag": "res://assets/models/frag_grenade.glb",
+	"flash": "res://assets/models/flashbang.glb",
+	"launcher": "res://assets/models/frag_grenade.glb",
+	"fire": "res://assets/models/fire_round.glb"
 }
 const SCALES := {"frag": 1.8, "flash": 1.8, "launcher": 1.35, "fire": 2.0}
 
 func _ready() -> void:
-	visual = MODELS.get(kind, MODELS["frag"]).instantiate() as Node3D
+	var path: String = MODEL_PATHS.get(kind, MODEL_PATHS["frag"])
+	var packed: PackedScene = load(path) as PackedScene
+	visual = packed.instantiate() as Node3D if packed != null else null
+	if visual == null:
+		push_error("ordnance model missing or broken: " + path)
+		visual = Node3D.new() # invisible placeholder: the projectile still flies
 	visual.scale = Vector3.ONE * float(SCALES.get(kind, 1.8))
 	add_child(visual)
 	if kind == "flash": fuse = 0.9
