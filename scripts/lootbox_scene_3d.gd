@@ -69,7 +69,8 @@ func reset_case() -> void:
 	elapsed=0; opening=false; revealed=false
 	if lid: lid.rotation.x=0
 	if lock_core: lock_core.rotation=Vector3.ZERO
-	for child in reward.get_children(): child.queue_free()
+	if reward!=null and is_instance_valid(reward):
+		for child in reward.get_children(): child.queue_free()
 	glow.light_energy=0
 	for spark in sparks: spark.visible=false
 
