@@ -4,6 +4,7 @@ extends RefCounted
 ## The generated meshes contain stray back-facing triangles. With back-face culling those
 ## faces vanish and the background shows through as little white dots, so draw both sides.
 static func double_sided(root: Node) -> void:
+	if root==null or not is_instance_valid(root): return
 	for node in root.find_children("*","MeshInstance3D",true,false):
 		var mesh_node:=node as MeshInstance3D
 		if mesh_node.mesh==null: continue
@@ -14,6 +15,7 @@ static func double_sided(root: Node) -> void:
 
 ## Remove the plastic shine from generated skin: high roughness, no GGX specular streak.
 static func matte(root: Node) -> void:
+	if root==null or not is_instance_valid(root): return
 	for node in root.find_children("*","MeshInstance3D",true,false):
 		var mesh_node:=node as MeshInstance3D
 		if mesh_node.mesh==null: continue
@@ -29,6 +31,7 @@ static func matte(root: Node) -> void:
 ## The dog GLBs come out of the generator about 8 units tall (a survivor is about 1.8), so each
 ## one is scaled to a real nose-to-tail length. Returns the lift that puts its paws on the floor.
 static func fit_pet(model: Node3D,length: float) -> float:
+	if model==null or not is_instance_valid(model): return 0.0
 	var box:=AABB(); var first:=true
 	for node in model.find_children("*","MeshInstance3D",true,false):
 		var mesh_node:=node as MeshInstance3D

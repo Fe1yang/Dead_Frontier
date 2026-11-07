@@ -12,7 +12,14 @@ var anim: AnimationPlayer
 var stomp_time:=0.0
 
 func _ready() -> void:
-	model=load(MODEL_PATH).instantiate() as Node3D
+	var pursuer: Resource=load(MODEL_PATH)
+	if pursuer==null:
+		push_error("pursuer model missing: "+MODEL_PATH)
+		return
+	model=pursuer.instantiate() as Node3D
+	if model==null:
+		push_error("pursuer scene failed to instantiate")
+		return
 	model.scale=Vector3.ONE*SCALE
 	model.rotation.y=PI # faces -Z, down the road after the survivor
 	add_child(model)

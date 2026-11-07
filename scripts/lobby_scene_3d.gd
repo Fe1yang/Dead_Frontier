@@ -119,6 +119,9 @@ func show_character(index: int, asset_override:="") -> void:
 	# jacket no longer pulls wrinkles across the back.
 	if index==1:
 		actor.scale=Vector3.ONE*ACTOR_SCALE
+	if actor==null:
+		push_error("lobby actor failed to instantiate: "+str(CHARACTERS[index].get("asset","")))
+		return
 	add_child(actor); ModelFix.double_sided(actor)
 	actor.visible=false # lobby preview hidden: tapping avatars below only swaps equipment, no 3D figure on the platform
 	if index==4: ModelFix.matte(actor) # Jian skin came out plastic-glossy; force matte
