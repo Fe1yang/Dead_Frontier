@@ -83,7 +83,7 @@ const VEHICLE_STATS := {
 ## One GLB per vehicle. All are authored at real-world scale, Y-up, facing -Z (the
 ## survivor's run direction), so they mount without any per-vehicle scaling hacks.
 const VEHICLE_MODELS := {
-	"BIKE": "res://assets/models/vehicles/bike_scrambler.glb",
+	"BIKE": "res://assets/models/vehicles/bike_paid.glb",
 	"SPORT": "res://assets/models/vehicles/bike_sport.glb",
 	"CRUISER": "res://assets/models/vehicles/bike_cruiser.glb",
 }
