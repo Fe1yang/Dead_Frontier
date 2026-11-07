@@ -54,7 +54,8 @@ var bark_stop:=0.0
 func setup(index: int, slot:=0) -> void:
 	breed=clampi(index,0,LobbyScene.PETS.size()-1)
 	slot_index=clampi(slot,0,FORMATION_OFFSETS.size()-1)
-	model=(load(LobbyScene.PETS[breed].asset) as PackedScene).instantiate() as Node3D
+	model=ModelFix.spawn(String(LobbyScene.PETS[breed].asset))
+	if model==null: return
 	add_child(model); ModelFix.double_sided(model)
 	base_y=ModelFix.fit_pet(model,float(LobbyScene.PETS[breed].get("length",1.1)))
 	model.position.y=base_y

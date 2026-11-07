@@ -53,3 +53,32 @@ static func play_animation(model: Node3D,clip: String,loop:=true) -> void:
 	if player==null or not player.has_animation(clip): return
 	if loop: player.get_animation(clip).loop_mode=Animation.LOOP_LINEAR
 	if player.current_animation!=clip or not player.is_playing(): player.play(clip,0.15)
+
+## Paths that failed to load this session. Surfaced on the summary screen so a device
+## without a console can still tell us WHICH asset is missing.
+static var missing: Array = []
+const LOG_PATH := "user://missing_models.log"
+
+
+## Loads a scene and returns null instead of crashing when the asset is missing.
+static func spawn(path: String) -> Node3D:
+	var packed: Resource = load(path)
+	if packed == null:
+		note_missing(path)
+		return null
+	var node: Node3D = packed.instantiate() as Node3D
+	if node == null:
+		note_missing(path)
+	return node
+
+
+static func note_missing(path: String) -> void:
+	push_error("model missing: " + path)
+	if missing.has(path):
+		return
+	missing.append(path)
+	var f := FileAccess.open(LOG_PATH, FileAccess.WRITE)
+	if f != null:
+		for p in missing:
+			f.store_line(String(p))
+		f.close()

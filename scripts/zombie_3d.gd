@@ -63,7 +63,8 @@ func configure(type: String, difficulty: float) -> void:
 	}
 	var asset: String="res://assets/models/actors/"+assets.get(kind,"zombie_walker_universal.glb")
 	if not ResourceLoader.exists(asset): asset="res://assets/models/actors/zombie_walker_universal.glb" # bomber models land later
-	model = load(asset).instantiate()
+	model = ModelFix.spawn(asset)
+	if model == null: return
 	# The jockey rig is authored facing -Z; turn it so its head leads toward the player.
 	# Bomber is already authored facing +Z (toward the player): no rotation.
 	if kind=="jockey": model.rotation.y=PI

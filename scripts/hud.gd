@@ -1,4 +1,5 @@
 extends Control
+const ModelFix := preload("res://scripts/model_fix.gd")
 
 const ExtraText=preload("res://scripts/extra_text.gd")
 const RunText=preload("res://scripts/run_text.gd")
@@ -130,6 +131,7 @@ func _process(_delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
+	_draw_missing_assets()
 	clean_ops.clear(); list_ops.clear()
 	if game==null or font==null: return
 	if game.state in ["playing","paused","health_ad"]: _draw_hud()
@@ -2063,3 +2065,12 @@ func _draw_terms() -> void:
 	_frame(area, Color(1, 1, 1, 0.14), 1.0)
 	_button(game.TERMS_DISAGREE, "不同意 · 退出" if zh else "DISAGREE · EXIT", false)
 	_button(game.TERMS_AGREE, "同意并继续" if zh else "I AGREE", true)
+
+
+## Debug aid for device-only problems: if any model failed to load, say which one, in a
+## corner small enough not to disturb play. A screenshot is then enough to identify it.
+func _draw_missing_assets() -> void:
+	if ModelFix.missing.is_empty():
+		return
+	var msg: String = "MISSING: " + String(ModelFix.missing[0]).get_file()
+	draw_string(ThemeDB.fallback_font, Vector2(12, size.y - 14), msg, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(1, 0.45, 0.4, 0.9))

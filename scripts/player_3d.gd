@@ -272,7 +272,10 @@ func _load_character() -> void:
 	var asset_path: String = character_asset_override
 	if asset_path=="": asset_path="res://assets/models/actors/"+CHARACTER_ASSETS[clampi(character,0,CHARACTER_ASSETS.size()-1)]+".glb"
 	if not ResourceLoader.exists(asset_path): asset_path="res://assets/models/actors/"+CHARACTER_ASSETS[0]+".glb"
-	model = load(asset_path).instantiate()
+	model = ModelFix.spawn(asset_path)
+	if model == null:
+		push_error("survivor model unavailable, keeping the previous one")
+		return
 	model.rotation.y = PI
 	add_child(model)
 	ModelFix.double_sided(model)

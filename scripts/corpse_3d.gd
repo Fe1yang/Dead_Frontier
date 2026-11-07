@@ -1,4 +1,5 @@
 extends Node3D
+const ModelFix := preload("res://scripts/model_fix.gd")
 ## Motionless corpses use the final frame of the authored Death01 clip, not a rotated walk pose.
 ## The same component serves isolated pavement bodies and physical road-blocking piles.
 
@@ -48,7 +49,8 @@ func _add_body(index: int) -> void:
 	var body:=Node3D.new()
 	body.name="Corpse_%d"%index
 	add_child(body)
-	var model:=load(path).instantiate() as Node3D
+	var model: Node3D=ModelFix.spawn(path)
+	if model==null: return
 	body.add_child(model)
 	var anim:=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
 	if anim and anim.has_animation("Death01"):

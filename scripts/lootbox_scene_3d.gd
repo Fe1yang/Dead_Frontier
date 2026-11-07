@@ -1,4 +1,5 @@
 extends Node3D
+const ModelFix := preload("res://scripts/model_fix.gd")
 ## Animated field-issue case on a stocked armourer’s workbench. The GLB keeps the lid
 ## and latches on separate pivots; rewards are real models already used by the game.
 
@@ -16,7 +17,8 @@ var sparks: Array[MeshInstance3D]=[]
 func _ready() -> void:
 	_build_environment()
 	# Reuse the finished DF-07 model from the earlier armoury preview.
-	case_model=(load("res://assets/models/props/supply_case.glb") as PackedScene).instantiate() as Node3D
+	case_model=ModelFix.spawn("res://assets/models/props/supply_case.glb")
+	if case_model==null: return
 	case_model.scale=Vector3.ONE*1.55; case_model.position=Vector3(0,0.62,0); add_child(case_model)
 	lid=case_model.find_child("CrateLid",true,false) as Node3D
 	lock_core=case_model.find_child("CrateCore",true,false) as Node3D
