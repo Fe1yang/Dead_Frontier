@@ -54,7 +54,7 @@ var bike_index:=-1
 var focus_vehicle:=false
 const VEHICLE_MODELS:=[
 	"res://assets/models/vehicles/bike_paid.glb",
-	"res://assets/models/vehicles/bike_sport.glb",
+	"res://assets/models/vehicles/bike_paid2.glb",
 	"res://assets/models/vehicles/bike_cruiser.glb"]
 ## One preview scale for all three: they are real-size models, so the cruiser stays
 ## longer/taller than the scrambler instead of being faked with different scales.

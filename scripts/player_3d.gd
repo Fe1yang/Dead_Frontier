@@ -84,7 +84,7 @@ const VEHICLE_STATS := {
 ## survivor's run direction), so they mount without any per-vehicle scaling hacks.
 const VEHICLE_MODELS := {
 	"BIKE": "res://assets/models/vehicles/bike_paid.glb",
-	"SPORT": "res://assets/models/vehicles/bike_sport.glb",
+	"SPORT": "res://assets/models/vehicles/bike_paid2.glb",
 	"CRUISER": "res://assets/models/vehicles/bike_cruiser.glb",
 }
 ## Seat fit per vehicle (lift_y, back_z), measured from each GLB:
