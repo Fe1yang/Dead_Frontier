@@ -87,6 +87,17 @@ func _process_modification() -> void:
 	sk.set_bone_pose_scale(b.lowerarm_l,Vector3.ONE)
 	var sr:=_g(sk,b.upperarm_r).origin
 	var sl:=_g(sk,b.upperarm_l).origin
+	if character==4:
+		# His bind pose keeps the shoulder joints inside the chest, so the arm mesh reads as
+		# growing out of the sternum no matter how the clavicle is relaxed. Slide both
+		# upper-arm roots outward along the shoulder line before anything is measured.
+		var out_dir:=(sr-sl).normalized()
+		var gr:=_g(sk,b.upperarm_r)
+		var glf:=_g(sk,b.upperarm_l)
+		_set_g(sk,b.upperarm_r,Transform3D(gr.basis,gr.origin+out_dir*0.05))
+		_set_g(sk,b.upperarm_l,Transform3D(glf.basis,glf.origin-out_dir*0.05))
+		sr=_g(sk,b.upperarm_r).origin
+		sl=_g(sk,b.upperarm_l).origin
 	var chest:=(sr+sl)*0.5
 	var side_axis:=(sl-sr).normalized() # points from right shoulder to left shoulder
 	var fwd:=(forward-side_axis*forward.dot(side_axis)).normalized()
@@ -104,6 +115,24 @@ func _process_modification() -> void:
 	var firing_side:=0.025
 	var support_reach:=support_forward+(0.035 if character==0 else 0.0)
 	var support_level:=support_drop+(0.025 if character==0 else 0.0)
+	# Yuhang's rig carries a long hand offset (0.206 m ahead of the wrist) and a short, wide
+	# torso, so the shared numbers fold his arms against the chest. Hold him wider and a
+	# little further forward so the pair of arms reads extended instead of tucked in.
+	if character==4:
+		# His shoulders sit gathered toward the sternum in the shared run clip; relax the
+		# clavicles a second time so the upper arms start at the actual shoulder joints
+		# instead of appearing to grow out of the chest.
+		_relax_to_rest(sk,b.clavicle_r,0.60)
+		_relax_to_rest(sk,b.clavicle_l,0.60)
+		# His forearms have almost no skin weights, so a bent elbow collapses the forearm and
+		# the hands end up sitting on the chest. Use the straight-armed stance (same idea as
+		# Mason) instead: near-full extension hides the missing forearm deformation.
+		hand_gap=0.24
+		forward_push=0.02
+		firing_side=0.03
+		arm_reach=0.93
+		reach_r=(float(lengths.r[0])+float(lengths.r[1]))*arm_reach
+		depth=sqrt(maxf(0.01,reach_r*reach_r-lateral*lateral-grip_drop*grip_drop))
 	var want_r:=chest+fwd*(depth+forward_push)+down*grip_drop-side_axis*firing_side
 	var want_l:=want_r+fwd*support_reach+down*support_level+side_axis*hand_gap
 	grip_point=_reach(sk,"r",want_r,-side_axis*0.8+down*0.6,palm_roll_r,fwd)
