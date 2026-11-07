@@ -127,6 +127,18 @@ func _ready() -> void:
 		brush_panel.append(load("res://assets/ui/brush_panel_%d.png"%i))
 		brush_line.append(load("res://assets/ui/brush_line_%d.png"%i))
 
+## Store / lobby card art, loaded on demand.
+## pack_art is filled once at HUD start; a card PNG whose import landed after that stays
+## null forever, so re-check the path here and cache the hit.
+func _store_art(id: String) -> Texture2D:
+	var t: Texture2D=pack_art.get(id)
+	if t==null:
+		var path: String="res://assets/ui/store/%s.png"%id
+		if ResourceLoader.exists(path):
+			t=load(path)
+			if t!=null: pack_art[id]=t
+	return t
+
 func _process(_delta: float) -> void:
 	_update_cjk_font()
 	# The main menu now draws its own HUD lettering (title + buttons), so the worn-paint
@@ -139,9 +151,6 @@ func _draw() -> void:
 	_draw_missing_assets()
 	clean_ops.clear(); list_ops.clear()
 	if game==null or font==null: return
-	if game.ads_offer_open:
-		_draw_ads_offer()
-		return
 	if game.state in ["playing","paused","health_ad"]: _draw_hud()
 	elif game.state=="intro": _draw_intro()
 	elif game.state=="cover": _draw_cover()
@@ -671,13 +680,32 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	if vis.size.y<4.0 or vis.size.x<4.0: return
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
 	if game.lobby_tab==3:
-		var vehicle_names: Array=["摩托车","跑车摩托","巡航摩托"]
-		_panel(vis,Color(0.10,0.11,0.115,0.94),RED if whole else LINE,0)
-		if whole: _text_center(String(vehicle_names[clampi(i,0,2)]),Vector2(card.get_center().x,card.end.y-9),12,WHITE)
-		# un-bought vehicles show the same lock the pet/skin cards use
-		var vid: String=["vehicle_bike","vehicle_sport","vehicle_cruiser"][clampi(i,0,2)]
-		if whole and not game.store_owned.has(vid) and not game.vehicle_owned(vid):
-			_locked_slot(card,false,false)
+		# Vehicle card: same anatomy as the pet/skin cards - art, lock overlay, name.
+		var vi: int=clampi(i,0,2)
+		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser"]
+		var vnames: Array=["BIKE","SPORT","CRUISER"]
+		var vid: String=String(vids[vi])
+		var von: bool=game.vehicle_owned(String(vnames[vi]))
+		var vsel: bool=von or game.vehicle_choice==vi
+		_panel(vis,Color(0.10,0.11,0.115,0.94) if vsel else Color(0.05,0.055,0.06,0.80),RED if vsel and whole else LINE,0)
+		var vtex: Texture2D=_store_art(vid)
+		var vr2:=Rect2(card.position+Vector2(4,4),card.size-Vector2(8,30))
+		var vvis:=vr2.intersection(view)
+		if vtex and vvis.size.y>1.0:
+			var vts:=vtex.get_size()
+			clean_ops.append(["region",vtex,vvis,Rect2((vvis.position-vr2.position)/vr2.size*vts,vvis.size/vr2.size*vts)])
+		if not game.vehicle_is_owned(vid) and vvis.size.y>1.0:
+			_box(vvis,Color(0,0,0,0.58))
+			var vlc:=vr2.get_center()+Vector2(0,6)
+			if view.has_point(vlc+Vector2(0,-14)) and view.has_point(vlc+Vector2(0,18)):
+				_box(Rect2(vlc+Vector2(-13,-2),Vector2(26,20)),Color(1,1,1,0.9))
+				var varc:=PackedVector2Array()
+				for kk in range(13): varc.append(vlc+Vector2(cos(PI+PI*kk/12.0),sin(PI+PI*kk/12.0))*8.0+Vector2(0,-2))
+				clean_ops.append(["line",varc,Color(1,1,1,0.9),3.0])
+				_box(Rect2(vlc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
+		if whole:
+			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if vsel else MUTED)
+			if vsel: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 		return
 	var pets: bool=game.lobby_tab==1
 	if game.lobby_tab==2:
@@ -903,25 +931,6 @@ func _draw_pause() -> void:
 	_button(Rect2(66,700,408,58),game.localize("shop"),false)
 	_button(Rect2(66,774,408,58),game.localize("restart"),false)
 	_button(Rect2(66,848,408,58),GameText.text(game.language_code,"main_menu"),false)
-
-## Permanent ad-free pitch, shown over whatever screen the rewarded ad was launched from.
-func _draw_ads_offer() -> void:
-	var lang: String=game.language_code
-	var zh: bool=lang.begins_with("zh")
-	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.72))
-	var c: Rect2=game.ADS_OFFER_CARD
-	_box(c,Color(0.045,0.048,0.050,0.98))
-	_frame(c,Color(1,1,1,0.16),1.0)
-	_box(Rect2(c.position,Vector2(c.size.x,3)),PAINT_RED)
-	var title: String="永久免广告" if zh else "REMOVE ADS FOREVER"
-	_clean_center(bold,Vector2(270,c.position.y+54),title,30,WHITE)
-	var sub: String=("所有激励广告直接给奖励，不再播放" if zh else "Rewarded ads pay out instantly, no video")
-	_clean_center(font,Vector2(270,c.position.y+92),sub,15,Color(1,1,1,0.62))
-	_clean_center(bold,Vector2(270,c.position.y+150),game.ads_offer_price(),40,GOLD)
-	var note: String=("一次买断，永久生效" if zh else "One-time purchase, yours forever")
-	_clean_center(font,Vector2(270,c.position.y+180),note,13,Color(1,1,1,0.45))
-	_button(game.ADS_OFFER_BUY,"立即购买" if zh else "BUY NOW",true)
-	_button(game.ADS_OFFER_LATER,"以后再说" if zh else "NOT NOW",false)
 
 func _draw_revive_button(rect: Rect2) -> void:
 	# Rewarded-ad revive: explicit reward and AD label, presented as a restrained brass console.
@@ -1573,7 +1582,7 @@ func _pack_visual(r: Rect2,p: Dictionary,own_bg:=true) -> void:
 				if piece.size()>=3: clean_ops.append(["poly",piece,rc])
 	var g: float=r.size.x*(1.0+0.08*pulse+0.12*flash)
 	clean_ops.append(["tinted",glow_tex,Rect2(c-Vector2(g,g)*0.5,Vector2(g,g)),Color(col.r,col.g,col.b,0.85*pulse+0.4*flash)])
-	var art: Texture2D=pack_art.get(String(p.get("art",p.id)))
+	var art: Texture2D=_store_art(String(p.get("art",p.id)))
 	if art:
 		var available:=r.grow(-r.size.x*0.07)
 		var art_size: Vector2=art.get_size()

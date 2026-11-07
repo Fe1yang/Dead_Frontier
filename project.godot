@@ -18,6 +18,11 @@ general/ios/app_id="ca-app-pub-3341507214983966~4803691884"
 config/name="Dreadline:Zombie Apocalypse"
 config/description="A 3D zombie runner with manual aiming, collectible weapons and supplies."
 run/main_scene="res://scenes/main.tscn"
+boot_splash/show_image=true
+boot_splash/image="res://assets/ui/title_screen.png"
+boot_splash/fullsize=true
+boot_splash/bg_color=Color(0.025, 0.047, 0.043, 1)
+boot_splash/minimum_display_time=0
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://assets/icons/icon-1024.png"
 

@@ -2031,6 +2031,18 @@ func skin_owned(index: int) -> bool:
 func vehicle_owned(id: String) -> bool:
 	return owned_vehicle==id
 
+
+## Is this store vehicle ("vehicle_bike" / "vehicle_sport" / "vehicle_cruiser") owned?
+## vehicle_owned() above only answers "is it the one currently equipped", and it compares
+## against the vehicle names BIKE/SPORT/CRUISER - never the store id. A one-off vehicle
+## purchase records itself in store_owned, so check that first, then fall back to the
+## equipped name for saves written before store_owned existed.
+func vehicle_is_owned(id: String) -> bool:
+	if store_owned.has(id): return true
+	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER"}
+	var vname: String=String(name_of.get(id,""))
+	return vname!="" and owned_vehicle==vname
+
 func select_pet(index: int) -> void:
 	index=posmod(index,lobby.PETS.size())
 	if not pet_owned(index):
