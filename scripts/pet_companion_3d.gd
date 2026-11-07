@@ -79,14 +79,14 @@ func _tick_bark(delta: float) -> void:
 	var away:=Vector2(position.x-game.player.position.x,position.z-game.player.position.z).length()
 	if away>FAR_DISTANCE:
 		var far:=load(BARK_FAR_PATH) as AudioStream
-	if far==null: return
-	bark_player.stream=far; bark_player.volume_db=-9.0; bark_player.pitch_scale=randf_range(0.95,1.05)
+		if far==null: return
+		bark_player.stream=far; bark_player.volume_db=-9.0; bark_player.pitch_scale=randf_range(0.95,1.05)
 		bark_player.play(); bark_stop=0.0
 	else:
 		var seg: Array=BARK_SEGMENTS[randi()%BARK_SEGMENTS.size()]
 		var near:=load(BARK_NEAR_PATH) as AudioStream
-	if near==null: return
-	bark_player.stream=near; bark_player.volume_db=-7.0; bark_player.pitch_scale=randf_range(0.94,1.06)
+		if near==null: return
+		bark_player.stream=near; bark_player.volume_db=-7.0; bark_player.pitch_scale=randf_range(0.94,1.06)
 		bark_player.play(float(seg[0])); bark_stop=(float(seg[1])-float(seg[0]))/bark_player.pitch_scale
 
 ## Gallop (or finish a bite) without any chasing logic; used while the opening intro plays.
