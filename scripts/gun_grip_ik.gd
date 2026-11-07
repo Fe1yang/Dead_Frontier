@@ -144,8 +144,20 @@ static func mesh_offset(model: Node,bone: String) -> Vector3:
 			for k in range(per):
 				if group.has(bones[v*per+k]): w+=weights[v*per+k]
 			if w>0.6: sum+=verts[v]; count+=1
-		if count==0: continue
-		return mi.skin.get_bind_pose(hand_index)*(sum/count)
+		if count>0:
+			return mi.skin.get_bind_pose(hand_index)*(sum/count)
+		# Fallback for rigs whose hand is weighted below 0.6 (Yuhang/Jian): no vertex passed
+		# the strict test, which used to return (0,0,0) and made the IK aim the wrist bone
+		# instead of the visible hand -- hands crossed and sank into the chest. Use the
+		# weight-weighted centroid of everything the hand group influences instead.
+		var acc:=Vector3.ZERO; var wsum:=0.0
+		for v in range(verts.size()):
+			var w2:=0.0
+			for k in range(per):
+				if group.has(bones[v*per+k]): w2+=weights[v*per+k]
+			if w2>0.2: acc+=verts[v]*w2; wsum+=w2
+		if wsum>0.0:
+			return mi.skin.get_bind_pose(hand_index)*(acc/wsum)
 	return Vector3.ZERO
 
 func _solve(sk: Skeleton3D,side: String,target: Vector3,pole: Vector3,roll: float,fwd: Vector3) -> void:
