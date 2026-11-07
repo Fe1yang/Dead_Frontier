@@ -85,7 +85,7 @@ const VEHICLE_STATS := {
 const VEHICLE_MODELS := {
 	"BIKE": "res://assets/models/vehicles/bike_paid.glb",
 	"SPORT": "res://assets/models/vehicles/bike_paid2.glb",
-	"CRUISER": "res://assets/models/vehicles/bike_cruiser.glb",
+	"CRUISER": "res://assets/models/vehicles/bike_paid3.glb",
 }
 ## Seat fit per vehicle (lift_y, back_z), measured from each GLB:
 ## scrambler seat top ~0.83, sport ~0.90, cruiser ~0.73. Rider pelvis rest height is
