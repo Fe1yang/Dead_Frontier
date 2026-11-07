@@ -152,6 +152,34 @@ var store_owned:={}  # once-only packs already bought
 var iap: Node
 var iap_ledger:={}        # StoreKit transaction IDs already granted (saved)
 var remove_ads:=false     # non-consumable: rewarded ads are skipped, the reward is given directly
+
+## Offered once per session, right after a rewarded ad pays out.
+var ads_offer_open:=false
+var ads_offer_seen:=false
+var ads_offer_shows:=0
+const ADS_OFFER_MAX_SHOWS:=2
+const ADS_OFFER_CARD:=Rect2(46,300,448,420)
+const ADS_OFFER_BUY:=Rect2(70,582,400,66)
+const ADS_OFFER_LATER:=Rect2(70,664,400,52)
+
+func ads_offer_price() -> String:
+	if iap!=null and iap.prices.has("removeads"): return String(iap.prices["removeads"])
+	return "$9.99"
+
+func maybe_offer_no_ads() -> void:
+	if remove_ads or ads_offer_shows>=ADS_OFFER_MAX_SHOWS: return
+	ads_offer_shows+=1
+	_save()
+	ads_offer_open=true
+	_release_touches()
+
+func ads_offer_tap(pos: Vector2) -> void:
+	if ADS_OFFER_BUY.has_point(pos):
+		ads_offer_open=false
+		buy_pack("removeads")
+		return
+	ads_offer_open=false
+
 const REMOVE_ADS_PACK:={"id":"removeads","kind":"bundle","name":"removeads","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"red","rays":10}
 var store_currency:=""
 ## "Top-up failed" popup (state "payfail"): shown whenever a purchase doesn't go through, with
@@ -1795,6 +1823,8 @@ func _reward_ad_allowed(purpose: String) -> bool:
 	if purpose.begins_with("swap:"):
 		var a: PackedStringArray=purpose.split(":"); return can_swap_mission(int(a[2]),a[1]=="daily")
 	return true
+
+	maybe_offer_no_ads()
 
 func _on_ad_cancelled(_purpose: String) -> void:
 	ad_pending=""
@@ -3447,6 +3477,8 @@ func _release_touches() -> void:
 	left_origin=Vector2(110,ui_h-118); right_origin=Vector2(430,ui_h-118); left_knob=left_origin; right_knob=right_origin
 
 func _pointer_down(pos: Vector2) -> bool:
+	if ads_offer_open:
+		ads_offer_tap(pos); return true
 	if state=="terms":
 		# 不同意 = 退出游戏，下次打开还会弹出；同意 = 存档并进入游戏。
 		if TERMS_AGREE.has_point(pos): terms_accepted=true; _save(); state="cover"; return true
@@ -3629,6 +3661,7 @@ func _load_save() -> void:
 		can_ad_day=str(c.get_value("can_ads","day","")); can_ad_count=clampi(int(c.get_value("can_ads","count",0)),0,CAN_AD_DAILY_LIMIT)
 		for id in c.get_value("store","owned",[]): store_owned[String(id)]=true
 		remove_ads=bool(c.get_value("store","remove_ads",false))
+		ads_offer_shows=int(c.get_value("store","ads_offer_shows",0))
 		for tx in c.get_value("store","iap_ledger",[]): iap_ledger[String(tx)]=true
 		offer_id=str(c.get_value("offer","id","")); offer_expires=int(c.get_value("offer","expires",0)); next_offer_at=int(c.get_value("offer","next",0))
 		play_day=str(c.get_value("offer","play_day","")); play_seconds_today=float(c.get_value("offer","play_seconds",0.0))
@@ -3662,7 +3695,7 @@ func _read_muted() -> bool:
 func _save() -> void:
 	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--lootbox-test" in OS.get_cmdline_user_args() or "--stamina-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-medic" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args(): return # test and capture runs must never touch the player's real save
 	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
-	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","silver",bank_silver); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","iap_ledger",iap_ledger.keys()); c.set_value("legal","terms_v1",terms_accepted)
+	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","silver",bank_silver); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","ads_offer_shows",ads_offer_shows); c.set_value("store","iap_ledger",iap_ledger.keys()); c.set_value("legal","terms_v1",terms_accepted)
 	c.set_value("can_ads","day",can_ad_day); c.set_value("can_ads","count",can_ad_count)
 	c.set_value("offer","id",offer_id); c.set_value("offer","expires",offer_expires); c.set_value("offer","next",next_offer_at); c.set_value("offer","play_day",play_day); c.set_value("offer","play_seconds",play_seconds_today)
 	c.set_value("signin","last",signin_last); c.set_value("signin","index",signin_index); c.set_value("signin","shown",signin_shown_day)

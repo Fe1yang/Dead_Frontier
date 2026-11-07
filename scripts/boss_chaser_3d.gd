@@ -41,12 +41,23 @@ func _ready() -> void:
 	var glow:=OmniLight3D.new()
 	glow.light_color=Color("ffe0b8"); glow.light_energy=0.35; glow.omni_range=6.0; glow.omni_attenuation=1.1
 	glow.position=Vector3(0,2.2,-1.5); add_child(glow)
-	anim=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
-	if is_instance_valid(anim) and anim.has_animation("Pursuer_Run"):
-		var clip:=anim.get_animation("Pursuer_Run")
+	# The GLB may park its clips on a nested player, and the clip name is not guaranteed to
+	# survive every re-export: take the first player that actually has animation data and
+	# play its first clip, preferring the named run loop when present.
+	for ap in model.find_children("*","AnimationPlayer",true,false):
+		var player:=ap as AnimationPlayer
+		if player==null: continue
+		var list:=player.get_animation_list()
+		if list.is_empty(): continue
+		anim=player
+		break
+	if is_instance_valid(anim):
+		var clip_name:="Pursuer_Run"
+		if not anim.has_animation(clip_name): clip_name=String(anim.get_animation_list()[0])
+		var clip:=anim.get_animation(clip_name)
 		clip.loop_mode=Animation.LOOP_LINEAR
 		anim.speed_scale=0.90 # slowed for the opening: heavy stride, no ice-skate slide
-		anim.play("Pursuer_Run")
+		anim.play(clip_name)
 	else:
 		push_error("Pursuer custom run animation is missing")
 	for m in model.find_children("*","MeshInstance3D",true,false):

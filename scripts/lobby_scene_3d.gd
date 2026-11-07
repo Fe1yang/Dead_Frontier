@@ -73,6 +73,31 @@ func set_vehicle_visual(i: int) -> void:
 	bike.scale=Vector3.ONE*VEHICLE_STAGE_SCALE
 	bike.visible=focus_vehicle
 	add_child(bike); ModelFix.double_sided(bike)
+	_fit_vehicle()
+## Rest the model on the stage and, if the GLB came in Z-up (standing on its nose), tip it
+## upright. The models are not authored to a common convention, so measure instead of trusting.
+func _model_aabb(node: Node3D) -> AABB:
+	var out:=AABB()
+	var first:=true
+	for mi in node.find_children("*","MeshInstance3D",true,false):
+		var m:=mi as MeshInstance3D
+		if m==null or m.mesh==null: continue
+		var b: AABB=m.global_transform*m.get_aabb()
+		if first: out=b; first=false
+		else: out=out.merge(b)
+	return out
+
+func _fit_vehicle() -> void:
+	if not is_instance_valid(bike): return
+	var b:=_model_aabb(bike)
+	if b.size.y>1.5*maxf(b.size.x,b.size.z):
+		# taller than it is long: the model is standing on its end
+		bike.rotate_object_local(Vector3.RIGHT,-PI*0.5)
+		b=_model_aabb(bike)
+	if b.size.y<=0.0: return
+	bike.global_position+=Vector3(0.0,STAND.y-b.position.y,0.0)
+	var c:=b.get_center()
+	bike.global_position+=Vector3(STAND.x-c.x,0.0,STAND.z-c.z)
 func _ready() -> void:
 	position=ORIGIN
 	_build_set()

@@ -139,6 +139,9 @@ func _draw() -> void:
 	_draw_missing_assets()
 	clean_ops.clear(); list_ops.clear()
 	if game==null or font==null: return
+	if game.ads_offer_open:
+		_draw_ads_offer()
+		return
 	if game.state in ["playing","paused","health_ad"]: _draw_hud()
 	elif game.state=="intro": _draw_intro()
 	elif game.state=="cover": _draw_cover()
@@ -896,6 +899,25 @@ func _draw_pause() -> void:
 	_button(Rect2(66,700,408,58),game.localize("shop"),false)
 	_button(Rect2(66,774,408,58),game.localize("restart"),false)
 	_button(Rect2(66,848,408,58),GameText.text(game.language_code,"main_menu"),false)
+
+## Permanent ad-free pitch, shown over whatever screen the rewarded ad was launched from.
+func _draw_ads_offer() -> void:
+	var lang: String=game.language_code
+	var zh: bool=lang.begins_with("zh")
+	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.72))
+	var c: Rect2=game.ADS_OFFER_CARD
+	_box(c,Color(0.045,0.048,0.050,0.98))
+	_frame(c,Color(1,1,1,0.16),1.0)
+	_box(Rect2(c.position,Vector2(c.size.x,3)),PAINT_RED)
+	var title: String="永久免广告" if zh else "REMOVE ADS FOREVER"
+	_clean_center(bold,Vector2(270,c.position.y+54),title,30,WHITE)
+	var sub: String=("所有激励广告直接给奖励，不再播放" if zh else "Rewarded ads pay out instantly, no video")
+	_clean_center(font,Vector2(270,c.position.y+92),sub,15,Color(1,1,1,0.62))
+	_clean_center(bold,Vector2(270,c.position.y+150),game.ads_offer_price(),40,GOLD)
+	var note: String=("一次买断，永久生效" if zh else "One-time purchase, yours forever")
+	_clean_center(font,Vector2(270,c.position.y+180),note,13,Color(1,1,1,0.45))
+	_button(game.ADS_OFFER_BUY,"立即购买" if zh else "BUY NOW",true)
+	_button(game.ADS_OFFER_LATER,"以后再说" if zh else "NOT NOW",false)
 
 func _draw_revive_button(rect: Rect2) -> void:
 	# Rewarded-ad revive: explicit reward and AD label, presented as a restrained brass console.
