@@ -283,7 +283,15 @@ func _load_character() -> void:
 	if is_instance_valid(skeleton):
 		grip=GunGripIK.new()
 		grip.character=character
-		grip.hand_offset={"r":GunGripIK.mesh_offset(model,"hand_r"),"l":GunGripIK.mesh_offset(model,"hand_l")}
+		# Yuhang's mesh has no vertex weighted >0.6 to the hand group, so mesh_offset() comes
+		# back empty and the IK would aim the wrist bone instead of the visible hand (hands
+		# crossed, arms buried). All five rigs share the same bone lengths and shoulder width
+		# (upper 0.274 / fore 0.273 / shoulder 0.384), so his palm sits where the male's does.
+		var off_r: Vector3=GunGripIK.mesh_offset(model,"hand_r")
+		var off_l: Vector3=GunGripIK.mesh_offset(model,"hand_l")
+		if off_r.length()<0.001: off_r=Vector3(0.078,-0.096,-0.010)
+		if off_l.length()<0.001: off_l=Vector3(0.020,-0.096,0.113)
+		grip.hand_offset={"r":off_r,"l":off_l}
 		skeleton.add_child(grip)
 		# Follows the hand bone after the IK has run, so the gun sits exactly in the visible palm.
 		hand_anchor=BoneAttachment3D.new(); hand_anchor.bone_name="hand_r"; skeleton.add_child(hand_anchor)
