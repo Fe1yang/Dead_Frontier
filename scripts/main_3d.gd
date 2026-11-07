@@ -323,6 +323,9 @@ func _ready() -> void:
 	rng.randomize()
 	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
 	_setup_world(); _build_road()
+	var win:=DisplayServer.window_get_size()
+	var screen_ratio:=float(win.x)/float(maxi(1,win.y))
+	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND if screen_ratio>1.72 else Window.CONTENT_SCALE_ASPECT_KEEP
 	ui_h=get_viewport().get_visible_rect().size.y
 	touch_controls=OS.has_feature("mobile")
 	sound=SoundScript.new(); sound.muted=_read_muted(); _read_volumes(); add_child(sound)
