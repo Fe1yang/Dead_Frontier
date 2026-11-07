@@ -3459,9 +3459,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _pointer_down(event.position): return
 			if state=="playing":
 				if event.position.x<270 and left_touch_id==-1:
-					left_touch_id=event.index; left_origin=event.position; left_knob=event.position; left_stick=Vector2.ZERO
+					left_touch_id=event.index; left_knob=left_origin; left_stick=Vector2.ZERO
 				elif event.position.x>=270 and right_touch_id==-1:
-					right_touch_id=event.index; right_origin=event.position; right_knob=event.position; right_stick=Vector2.ZERO
+					right_touch_id=event.index; right_knob=right_origin; right_stick=Vector2.ZERO
 		else:
 			if event.index==left_touch_id: left_touch_id=-1; left_stick=Vector2.ZERO; left_knob=left_origin
 			if event.index==right_touch_id: right_touch_id=-1; right_stick=Vector2.ZERO; right_knob=right_origin
