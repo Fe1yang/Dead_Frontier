@@ -59,7 +59,11 @@ const VEHICLE_MODELS:=[
 	"res://assets/models/vehicles/bike_gold.glb"]
 ## One preview scale for all three: they are real-size models, so the cruiser stays
 ## longer/taller than the scrambler instead of being faked with different scales.
-const VEHICLE_STAGE_SCALE:=0.52
+const VEHICLE_STAGE_SCALE:=0.75
+## Where the turntable rests: a 3/4 angle reads better than dead-on.
+const VEHICLE_YAW:=PI+0.55
+const VEHICLE_CAM_POS:=Vector3(-0.08,1.02,4.35)
+const VEHICLE_CAM_TARGET:=Vector3(-0.08,0.52,0.0)
 func set_vehicle_visual(i: int) -> void:
 	i=clampi(i,0,VEHICLE_MODELS.size()-1)
 	if i==bike_index and is_instance_valid(bike): return
@@ -70,20 +74,24 @@ func set_vehicle_visual(i: int) -> void:
 	if not ResourceLoader.exists(path): return
 	bike=(load(path) as PackedScene).instantiate() as Node3D
 	bike.position=STAND+Vector3(0,0.0,-0.35) # models already rest on y=0
-	bike.rotation.y=PI # head-on: front of the bike square to the camera
+	bike.rotation.y=VEHICLE_YAW # 3/4 view: head-on hid the whole silhouette
 	bike.scale=Vector3.ONE*VEHICLE_STAGE_SCALE
 	bike.visible=focus_vehicle
 	add_child(bike); ModelFix.double_sided(bike)
 	_fit_vehicle()
 ## Rest the model on the stage and, if the GLB came in Z-up (standing on its nose), tip it
 ## upright. The models are not authored to a common convention, so measure instead of trusting.
+## AABB in THIS node's space. Measuring in global space and then adding the offset to a
+## global position put the bike 200 m away: the lobby lives at ORIGIN, so the global centre
+## (~-200) was being subtracted from the local STAND spot twice.
 func _model_aabb(node: Node3D) -> AABB:
 	var out:=AABB()
 	var first:=true
+	var to_local_xf:=global_transform.affine_inverse()
 	for mi in node.find_children("*","MeshInstance3D",true,false):
 		var m:=mi as MeshInstance3D
 		if m==null or m.mesh==null: continue
-		var b: AABB=m.global_transform*m.get_aabb()
+		var b: AABB=(to_local_xf*m.global_transform)*m.get_aabb()
 		if first: out=b; first=false
 		else: out=out.merge(b)
 	return out
@@ -96,9 +104,9 @@ func _fit_vehicle() -> void:
 		bike.rotate_object_local(Vector3.RIGHT,-PI*0.5)
 		b=_model_aabb(bike)
 	if b.size.y<=0.0: return
-	bike.global_position+=Vector3(0.0,STAND.y-b.position.y,0.0)
 	var c:=b.get_center()
-	bike.global_position+=Vector3(STAND.x-c.x,0.0,STAND.z-c.z)
+	# work in local space: position is relative to this node, the AABB now is too
+	bike.position+=Vector3(STAND.x-c.x,STAND.y-b.position.y,STAND.z-c.z)
 func _ready() -> void:
 	position=ORIGIN
 	_build_set()
@@ -113,13 +121,13 @@ var focus_pets:=false  # set by main_3d when the pets tab is open
 
 func camera_position() -> Vector3:
 	if focus_vehicle:
-		return ORIGIN+Vector3(-0.08,0.95,3.4)
+		return ORIGIN+VEHICLE_CAM_POS
 	# Fixed solo framing for both tabs (no zoom/scale on tab switch per user request).
 	return ORIGIN+SOLO_POS+Vector3(sin(time*0.3)*0.04,sin(time*0.45)*0.02,0)
 
 func camera_target() -> Vector3:
 	if focus_vehicle:
-		return ORIGIN+Vector3(-0.08,0.45,0.0)
+		return ORIGIN+VEHICLE_CAM_TARGET
 	return ORIGIN+SOLO_TARGET
 
 var actor_asset:=""
@@ -252,8 +260,8 @@ func _process(delta: float) -> void:
 		else: pet.rotation.y=lerp_angle(pet.rotation.y,0.0,1.0-exp(-delta*1.2))
 	if is_instance_valid(bike):
 		# head-on front view sits at PI; dragging adds around that
-		if spin_vehicle: bike.rotation.y=PI+spin
-		else: bike.rotation.y=lerp_angle(bike.rotation.y,PI,1.0-exp(-delta*1.2))
+		if spin_vehicle: bike.rotation.y=VEHICLE_YAW+spin
+		else: bike.rotation.y=lerp_angle(bike.rotation.y,VEHICLE_YAW,1.0-exp(-delta*1.2))
 
 func _mat(color: Color,rough:=0.8,metal:=0.0) -> StandardMaterial3D:
 	var m:=StandardMaterial3D.new(); m.albedo_color=color; m.roughness=rough; m.metallic=metal; return m
