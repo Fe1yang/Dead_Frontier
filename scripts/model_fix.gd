@@ -12,6 +12,20 @@ static func double_sided(root: Node) -> void:
 			if mat==null: mat=mesh_node.mesh.surface_get_material(s)
 			if mat is BaseMaterial3D: (mat as BaseMaterial3D).cull_mode=BaseMaterial3D.CULL_DISABLED
 
+## Remove the plastic shine from generated skin: high roughness, no GGX specular streak.
+static func matte(root: Node) -> void:
+	for node in root.find_children("*","MeshInstance3D",true,false):
+		var mesh_node:=node as MeshInstance3D
+		if mesh_node.mesh==null: continue
+		for s in range(mesh_node.mesh.get_surface_count()):
+			var mat: Material=mesh_node.get_surface_override_material(s)
+			if mat==null: mat=mesh_node.mesh.surface_get_material(s)
+			if mat is BaseMaterial3D:
+				var b:=mat as BaseMaterial3D
+				b.roughness=0.88
+				b.metallic=0.0
+				b.specular_mode=BaseMaterial3D.SPECULAR_DISABLED
+
 ## The dog GLBs come out of the generator about 8 units tall (a survivor is about 1.8), so each
 ## one is scaled to a real nose-to-tail length. Returns the lift that puts its paws on the floor.
 static func fit_pet(model: Node3D,length: float) -> float:

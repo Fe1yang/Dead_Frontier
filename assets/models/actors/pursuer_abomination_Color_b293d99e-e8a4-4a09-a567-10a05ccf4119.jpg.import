@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c33ygt7d6728k"
 path.s3tc="res://.godot/imported/pursuer_abomination_Color_b293d99e-e8a4-4a09-a567-10a05ccf4119.jpg-6ca8addecfc0d7cb7ec2b4b375fba3a0.s3tc.ctex"
+path.etc2="res://.godot/imported/pursuer_abomination_Color_b293d99e-e8a4-4a09-a567-10a05ccf4119.jpg-6ca8addecfc0d7cb7ec2b4b375fba3a0.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/actors/pursuer_abomination_Color_b293d99e-e8a4-4a09-a567-10a05ccf4119.jpg"
-dest_files=["res://.godot/imported/pursuer_abomination_Color_b293d99e-e8a4-4a09-a567-10a05ccf4119.jpg-6ca8addecfc0d7cb7ec2b4b375fba3a0.s3tc.ctex"]
+dest_files=["res://.godot/imported/pursuer_abomination_Color_b293d99e-e8a4-4a09-a567-10a05ccf4119.jpg-6ca8addecfc0d7cb7ec2b4b375fba3a0.s3tc.ctex", "res://.godot/imported/pursuer_abomination_Color_b293d99e-e8a4-4a09-a567-10a05ccf4119.jpg-6ca8addecfc0d7cb7ec2b4b375fba3a0.etc2.ctex"]
 
 [params]
 

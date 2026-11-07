@@ -2,7 +2,7 @@ extends Node3D
 
 var velocity := Vector3(0,0,-28)
 var damage := 20.0
-var life := 2.0
+var life := 3.5
 var pierce := 0
 var hit_targets: Array[Node3D] = []
 

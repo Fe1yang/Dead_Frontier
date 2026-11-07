@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ig8dphvkmjuq"
 path.s3tc="res://.godot/imported/german_shepherd_NormalGL_3ca719b2-b973-4436-85c3-3f9b785e418f.png-e08820de285ca76701605d0550b79d60.s3tc.ctex"
+path.etc2="res://.godot/imported/german_shepherd_NormalGL_3ca719b2-b973-4436-85c3-3f9b785e418f.png-e08820de285ca76701605d0550b79d60.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pets/german_shepherd_NormalGL_3ca719b2-b973-4436-85c3-3f9b785e418f.png"
-dest_files=["res://.godot/imported/german_shepherd_NormalGL_3ca719b2-b973-4436-85c3-3f9b785e418f.png-e08820de285ca76701605d0550b79d60.s3tc.ctex"]
+dest_files=["res://.godot/imported/german_shepherd_NormalGL_3ca719b2-b973-4436-85c3-3f9b785e418f.png-e08820de285ca76701605d0550b79d60.s3tc.ctex", "res://.godot/imported/german_shepherd_NormalGL_3ca719b2-b973-4436-85c3-3f9b785e418f.png-e08820de285ca76701605d0550b79d60.etc2.ctex"]
 
 [params]
 

@@ -45,7 +45,7 @@ func configure(type: String, difficulty: float) -> void:
 		"runner": health=26*difficulty; speed=5.2+difficulty*0.15; damage=14; reward=2; radius=0.36
 		"brute": health=150*difficulty; speed=5.6+difficulty*0.10; damage=32; reward=5; radius=0.80
 		# The bomber waddles in slow and fat; it never swings, it detonates.
-		"bomber","bomber_female": health=120*difficulty; speed=2.7+difficulty*0.08; damage=30; reward=6; radius=0.66
+		"bomber","bomber_female": health=120*difficulty; speed=4.4+difficulty*0.08; damage=30; reward=6; radius=0.66
 		"jockey": health=68*difficulty; speed=7.4+difficulty*0.16; damage=22; reward=3; radius=0.48
 		"banshee": health=210*difficulty; speed=1.65+difficulty*0.05; damage=28; reward=8; radius=0.46
 		_: health=44*difficulty; speed=3.65+difficulty*0.1; damage=18; reward=1
@@ -65,6 +65,7 @@ func configure(type: String, difficulty: float) -> void:
 	if not ResourceLoader.exists(asset): asset="res://assets/models/actors/zombie_walker_universal.glb" # bomber models land later
 	model = load(asset).instantiate()
 	# The jockey rig is authored facing -Z; turn it so its head leads toward the player.
+	# Bomber is already authored facing +Z (toward the player): no rotation.
 	if kind=="jockey": model.rotation.y=PI
 	if kind=="brute": model.scale*=BRUTE_SCALE
 	add_child(model)
@@ -124,7 +125,8 @@ func _make_health_bar() -> void:
 	bar_fill.position = bar.position+Vector3(0,0,0.012)
 	add_child(bar); add_child(bar_fill)
 	bar.visible = kind in ["brute","banshee"] or kind.begins_with("bomber"); bar_fill.visible = bar.visible
-	if kind.begins_with("bomber"): _make_pustules()
+	# No bile sacs: user rejected the yellow-white pustules as ugly. Bomber reads via
+	# silhouette + health bar only.
 
 ## Glowing bile sacs across the gut: the visual warning that this one explodes.
 var pustule_mat: StandardMaterial3D
@@ -215,7 +217,7 @@ func collision_height() -> float:
 	match kind:
 		"brute": return 2.35*BRUTE_SCALE
 		"banshee": return 2.60
-		"jockey": return 1.05
+		"jockey": return 1.30
 		_: return 2.02
 
 func tick(delta: float) -> void:
@@ -256,8 +258,7 @@ func tick(delta: float) -> void:
 	bar.visible=kind in ["brute","banshee"] or kind.begins_with("bomber") or health<max_health
 	bar_fill.visible=bar.visible
 	bar_fill.scale.x=clampf(health/max_health,0,1)
-	# The bile sacs throb as the bomber waddles in.
-	if pustule_mat: pustule_mat.emission_energy_multiplier=1.35+0.75*(0.5+0.5*sin(age*5.0))
+	# (bile sacs removed — no pustule throb)
 
 ## The Banshee keeps her distance: she walks backwards ahead of the survivor as fast as the
 ## survivor runs, drifting closer and further (roughly 9-19 m ahead), so she can't be outrun

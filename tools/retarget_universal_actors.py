@@ -22,6 +22,8 @@ SOURCES = {
     'riley': ('survivor_riley_hd.glb', 'survivor_riley_universal.glb', True, True),
     'maya': ('survivor_maya_hd.v3.bak.glb', 'survivor_maya_universal.glb', True, True),
     'maya_tactical': ('survivor_maya_hd.glb', 'survivor_maya_tactical_universal.glb', True, True),
+    'jian': ('survivor_jian_hd.glb', 'survivor_jian_universal.glb', True, False),
+    'jian_scout': ('survivor_jian_hd.v3quad.bak.glb', 'survivor_jian_scout_universal.glb', True, False),
 }
 selected = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else ['male']
 UPPER_PREFIXES = ('spine_', 'neck_', 'head', 'clavicle_', 'upperarm_', 'lowerarm_', 'hand_', 'index_', 'middle_', 'pinky_', 'ring_', 'thumb_')
@@ -320,6 +322,41 @@ def refine_armpit_weights(rig, target):
             changed += 1
     print('ARMPIT_WEIGHTS', changed)
 
+def refine_arm_chain(rig, target):
+    # Bulkier or narrower bodies fool the nearest-surface transfer: sleeve, wrist and
+    # shoulder-cap verts land on the mannequin's neck/head/spine and the run pose then
+    # drags the arms across the face. For every vert in the arm band where an arm-chain
+    # bone is clearly the closest anatomy (closer than head/neck AND spine), strip the
+    # foreign weights and rank among clavicle/upperarm/lowerarm/hand only. On bodies
+    # that already transfer cleanly this is a no-op, so it runs for every survivor.
+    inv = rig.matrix_world.inverted()
+    head_bones = [rig.data.bones['Head'], rig.data.bones['neck_01']]
+    spine_bones = [rig.data.bones['spine_02'], rig.data.bones['spine_03']]
+    for side in ('l', 'r'):
+        sign = 1.0 if side == 'l' else -1.0
+        arm_bones = [rig.data.bones[n + '_' + side] for n in ('clavicle', 'upperarm', 'lowerarm', 'hand')]
+        changed = 0
+        for vertex in target.data.vertices:
+            point = inv @ (target.matrix_world @ vertex.co)
+            if abs(point.x) < 0.08 or not (1.10 < point.z < 1.66):
+                continue
+            if point.x * sign < 0.0:
+                continue
+            d_arm = min(segment_distance(point, b) for b in arm_bones)
+            d_head = min(segment_distance(point, b) for b in head_bones)
+            d_spine = min(segment_distance(point, b) for b in spine_bones)
+            if not (d_arm < d_head and d_arm < d_spine + 0.02):
+                continue
+            ranked = sorted((segment_distance(point, bone), bone.name) for bone in arm_bones)[:3]
+            weights = [(name, 1.0 / max(distance, 0.002) ** 4) for distance, name in ranked]
+            total = sum(weight for _, weight in weights)
+            for group in target.vertex_groups:
+                group.remove([vertex.index])
+            for name, weight in weights:
+                target.vertex_groups[name].add([vertex.index], weight / total, 'REPLACE')
+            changed += 1
+        print('ARM_CHAIN', side, changed)
+
 def refine_arm_weights(rig, target):
     # T-pose sleeves sit at head height; any weight they borrow from the neck/head or
     # torso leaves the sleeve hanging mid-air as a "wing" once the arms drop in the
@@ -342,6 +379,42 @@ def refine_arm_weights(rig, target):
                 target.vertex_groups[name].add([vertex.index], weight / total, 'REPLACE')
             changed += 1
         print('ARM_WEIGHTS', side, changed)
+
+def refine_neckside_weights(rig, target):
+    # Dense Tripo collars (Jian) transfer trapezius weights to the clavicle, and
+    # the clavicle's aim rotation drags the whole side of the neck up over the
+    # chin — "shoulder eats the face". Any clavicle-dominant vert inside the
+    # neck column (neck+head height band, off-centre) belongs to neck/head/spine
+    # instead. Deltoid verts are upperarm-dominant and stay untouched.
+    neck = rig.data.bones['neck_01']
+    head = rig.data.bones['Head']
+    spine = rig.data.bones['spine_03']
+    z_lo = neck.head_local.z - 0.03
+    z_hi = head.tail_local.z + 0.01
+    bones = [neck, head, spine]
+    inv = rig.matrix_world.inverted()
+    changed = 0
+    for vertex in target.data.vertices:
+        point = inv @ (target.matrix_world @ vertex.co)
+        if point.z < z_lo or point.z > z_hi:
+            continue
+        if abs(point.x) < 0.055 or abs(point.x) > 0.34:
+            continue
+        if not vertex.groups:
+            continue
+        dominant = max(vertex.groups, key=lambda g: g.weight)
+        if not target.vertex_groups[dominant.group].name.startswith('clavicle'):
+            continue
+        ranked = sorted((segment_distance(point, bone), bone.name) for bone in bones)[:3]
+        weights = [(name, 1.0 / max(distance, 0.002) ** 4) for distance, name in ranked]
+        total = sum(weight for _, weight in weights)
+        for group in target.vertex_groups:
+            group.remove([vertex.index])
+        for name, weight in weights:
+            target.vertex_groups[name].add([vertex.index], weight / total, 'REPLACE')
+        changed += 1
+    print('NECKSIDE_WEIGHTS', changed)
+
 
 def refine_shoulder_weights(rig, target):
     # Shoulder/armpit verts that grabbed neck or torso weights droop and pinch when the
@@ -463,6 +536,174 @@ def slim_female(rig, target):
         bpy.ops.object.mode_set(mode='OBJECT')
         print('SLIM_FEMALE_RIG spine bones shortened 6%% toward waist z=%.3f' % waist_arm)
 
+def weld_shards(target):
+    # Tripo v3.1 quad-mode exports arrive as one object but hundreds of
+    # unwelded shards (visually coincident boundaries, separate topologies).
+    # At rest they look perfect; under animation each shard follows its own
+    # nearest bone and the body shears apart ("hands at chin"). Weld first
+    # with a tiny threshold — real geometry survives, shard-boundary
+    # duplicates fuse — then drop any true stacked duplicate shells.
+    import bmesh
+    before = len(target.data.vertices)
+    bm = bmesh.new()
+    bm.from_mesh(target.data)
+    merged = bmesh.ops.remove_doubles(bm, verts=list(bm.verts), dist=0.0001)
+    bm.to_mesh(target.data)
+    bm.free()
+    print('WELD_SHARDS', before, '->', len(target.data.vertices),
+          'merged', len((merged or {}).get('target', [])))
+    dedup_shells(target)
+
+
+def dedup_shells(target):
+    # Tripo's high-poly generations can contain several full copies of the body stacked
+    # at (nearly) the same spot. Left alone, every copy receives noisy nearest-surface
+    # weights and the copies slide apart in game — "stacked chunks of meat". Separate
+    # loose parts, cluster them by bounds centre, and keep only the largest cluster;
+    # genuinely separate accessories (pouches, bedroll) sit far apart and survive.
+    before = len(target.data.vertices)
+    snapshot = set(bpy.context.scene.objects)
+    bpy.ops.object.select_all(action='DESELECT')
+    target.select_set(True)
+    bpy.context.view_layer.objects.active = target
+    bpy.ops.object.mode_set(mode='EDIT')
+    bpy.ops.mesh.select_all(action='SELECT')
+    bpy.ops.mesh.separate(type='LOOSE')
+    bpy.ops.object.mode_set(mode='OBJECT')
+    parts = [o for o in bpy.context.scene.objects if o not in snapshot and o.type == 'MESH']
+    clusters = []  # [{'center': Vector, 'objs': [object]}]
+    for o in sorted([target] + parts, key=lambda p: -len(p.data.vertices)):
+        c = [o.matrix_world @ Vector(cor) for cor in o.bound_box]
+        center = sum(c, Vector()) / 8.0
+        placed = False
+        for cl in clusters:
+            if (cl['center'] - center).length < 0.025:
+                cl['objs'].append(o)
+                placed = True
+                break
+        if not placed:
+            clusters.append({'center': center, 'objs': [o]})
+    keep = max(clusters, key=lambda cl: sum(len(o.data.vertices) for o in cl['objs']))
+    if target not in keep['objs']:
+        # the container kept a junk layer: swap its geometry for a kept part
+        main = keep['objs'][0]
+        target.data = main.data
+        bpy.data.objects.remove(main, do_unlink=True)
+        keep['objs'] = [target] + [o for o in keep['objs'] if o != main]
+    else:
+        keep['objs'] = [o for o in keep['objs']]
+    for cl in clusters:
+        if cl is keep:
+            continue
+        for o in cl['objs']:
+            bpy.data.objects.remove(o, do_unlink=True)
+    rest = [o for o in keep['objs'] if o != target]
+    if rest:
+        bpy.ops.object.select_all(action='DESELECT')
+        target.select_set(True)
+        for o in rest:
+            o.select_set(True)
+        bpy.context.view_layer.objects.active = target
+        bpy.ops.object.join()
+    target.name = 'HighDetailCharacter'
+    print('DEDUP_SHELLS', before, '->', len(target.data.vertices),
+          'parts', len(parts) + 1, 'clusters', len(clusters),
+          'kept', sum(len(o.data.vertices) for o in keep['objs']))
+
+
+def match_tpose(rig, target):
+    # Some generated bodies come with the arms hanging at the sides (A-pose/compact,
+    # total width ~ body width). The nearest-surface weight transfer then maps sleeve
+    # and hand verts onto the mannequin's chest/spine and the run pose drags the arms
+    # across the face. Swing the arm bands up to the mannequin's T-pose BEFORE the
+    # transfer: pivot at the upperarm head, wrist from the lowest far-lateral verts,
+    # rotate every vert near the pivot->wrist line onto the mannequin hand direction.
+    # T-pose bodies measure ~0-3 degrees here, so this is a no-op for them.
+    for side, sgn in (('l', 1.0), ('r', -1.0)):
+        pivot = rig.data.bones['upperarm_' + side].head_local.copy()
+        wrist_man = rig.data.bones['hand_' + side].head_local.copy()
+        band = [v.index for v in target.data.vertices
+                if v.co.z > 0.6 and v.co.z < pivot.z + 0.08 and sgn * v.co.x > 0.08]
+        print('TPOSE_PROBE', side, 'band', len(band), 'pivot', tuple(round(v, 3) for v in pivot))
+        if not band:
+            continue
+        lat_max = max(sgn * target.data.vertices[i].co.x for i in band)
+        lows = sorted(band, key=lambda i: target.data.vertices[i].co.z)[:max(6, len(band) // 20)]
+        wrist_cur = sum((target.data.vertices[i].co for i in lows), Vector()) / len(lows)
+        print('TPOSE_PROBE', side, 'lat_max', round(lat_max, 3), 'wrist_cur', tuple(round(v, 3) for v in wrist_cur))
+        if sgn * wrist_cur.x < 0.35 * lat_max:  # nothing hanging out there: nothing to do
+            continue
+        v1 = wrist_cur - pivot
+        v2 = wrist_man - pivot
+        angle = v1.angle(v2)
+        print('TPOSE_PROBE', side, 'angle_deg', round(math.degrees(angle), 2))
+        if angle < math.radians(5.0):
+            continue
+        axis = v1.cross(v2)
+        if axis.length < 1e-6:
+            continue
+        axis.normalize()
+        rot = Quaternion(axis, angle).to_matrix().to_4x4()
+        arm_dir = v1.normalized()
+        changed = 0
+        for i in band:
+            co = target.data.vertices[i].co
+            rel = co - pivot
+            along = rel.dot(arm_dir)
+            if along < -0.06 or along > v1.length + 0.18:
+                continue
+            perp = (rel - arm_dir * along).length
+            if perp > 0.17:
+                continue
+            target.data.vertices[i].co = pivot + (rot @ rel)
+            changed += 1
+        print('TPOSE_MATCH', side, 'degrees', round(math.degrees(angle), 1), 'verts', changed)
+
+
+def fix_stylized_proportions(target, low, high):
+    # Tripo generations come out stylized: an oversized head and short legs next to
+    # the realistic Mason body. Rebalance before skinning so Jian matches the cast:
+    #   * everything below the waist stretches down ~8% (feet stay on the floor)
+    #   * the head above the neck ring shrinks ~15% toward the neck axis, fading in
+    #     over the lower head so the jawline does not pinch
+    # Total height is then re-normalized, so the silhouette ends up with a smaller
+    # head and longer legs at exactly the mannequin's height.
+    height = high - low
+    waist_z = low + height * 0.53
+    neck_z = low + height * 0.80
+    ring = [v.co for v in target.data.vertices if abs(v.co.z - neck_z) < height * 0.012]
+    if ring:
+        px = sum(c.x for c in ring) / len(ring)
+        py = sum(c.y for c in ring) / len(ring)
+    else:
+        px = py = 0.0
+    head_changed = leg_changed = 0
+    for v in target.data.vertices:
+        co = v.co
+        if co.z < waist_z:
+            co.z = low + (co.z - low) * 1.08
+            leg_changed += 1
+        if co.z > neck_z:
+            t = min(1.0, (co.z - neck_z) / max(height * 0.18, 0.001))
+            t = t * t * (3.0 - 2.0 * t)
+            s = 1.0 - 0.15 * t
+            co.x = px + (co.x - px) * s
+            co.y = py + (co.y - py) * s
+            head_changed += 1
+    print('PROPORTIONS legs_stretched', leg_changed, 'head_shrunk', head_changed,
+          'pivot', (round(px, 3), round(py, 3)), 'waist', round(waist_z, 3), 'neck', round(neck_z, 3))
+    # Re-normalize: total height and the ground plane must match the mannequin again.
+    t_low, t_high = bounds(target)
+    s = (high - low) / max(t_high.z - t_low.z, 0.001)
+    for v in target.data.vertices:
+        v.co.x = (v.co.x - px) * s + px
+        v.co.y = (v.co.y - py) * s + py
+        v.co.z = low + (v.co.z - t_low.z) * s
+    t_low, t_high = bounds(target)
+    target.location += Vector((-(t_low.x + t_high.x) / 2 + px * 0.0, -(t_low.y + t_high.y) / 2, low - t_low.z))
+    bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+
+
 def transfer_mesh(rig, source_mesh, filename, slim=False):
     before = set(bpy.context.scene.objects)
     bpy.ops.import_scene.gltf(filepath=str(ROOT / 'assets' / 'models' / 'generated' / filename))
@@ -479,6 +720,8 @@ def transfer_mesh(rig, source_mesh, filename, slim=False):
     target.rotation_mode = 'XYZ'
     target.rotation_euler.z = -math.pi / 2
     bpy.ops.object.transform_apply(location=False, rotation=True, scale=False)
+    if not os.environ.get('RETARGET_SKIP_DEDUP'):
+        weld_shards(target)
     source_low, source_high = bounds(source_mesh)
     target_low, target_high = bounds(target)
     factor = (source_high.z - source_low.z) / (target_high.z - target_low.z)
@@ -487,6 +730,9 @@ def transfer_mesh(rig, source_mesh, filename, slim=False):
     target_low, target_high = bounds(target)
     target.location += Vector((-(target_low.x + target_high.x) / 2, -(target_low.y + target_high.y) / 2, source_low.z - target_low.z))
     bpy.ops.object.transform_apply(location=True, rotation=False, scale=False)
+    if 'jian' in filename:
+        fix_stylized_proportions(target, source_low.z, source_high.z)
+    match_tpose(rig, target)
     # Decimation is OFF: ratio 0.32 collapsed face UV seams into thin sliver
     # triangles that rendered as black streaks in Godot. Keep the original
     # Tripo topology (~28k tris) — the slivers and shading asymmetry disappear.
@@ -516,6 +762,8 @@ def transfer_mesh(rig, source_mesh, filename, slim=False):
         refine_head_weights(rig, target)
         refine_arm_weights(rig, target)
         refine_armpit_weights(rig, target)
+        refine_arm_chain(rig, target)
+        refine_neckside_weights(rig, target)
     if slim:
         slim_female(rig, target)
     missing = sum(1 for v in target.data.vertices if not v.groups)
@@ -582,3 +830,7 @@ for key in selected:
         export_apply=False,
     )
     print('UNIVERSAL_ACTOR_EXPORTED', key, path, 'actions', [a.name for a in bpy.data.actions])
+    if os.environ.get('RETARGET_SAVE_BLEND'):
+        blend = ROOT / 'diagnostics' / ('retarget_%s.blend' % key)
+        bpy.ops.wm.save_as_mainfile(filepath=str(blend))
+        print('BLEND_SAVED', blend)

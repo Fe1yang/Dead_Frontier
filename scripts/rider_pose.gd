@@ -38,10 +38,11 @@ func _process_modification() -> void:
 		# Determine which way is "outward" for this leg from where the hip actually is.
 		var hip:=_g(sk,bones["thigh_"+side]).origin
 		if hip.dot(right)*s<0.0: out=-out
-		# Knees hug the tank: thighs mostly forward, slightly down and a touch out.
-		_aim(sk,bones["thigh_"+side],bones["calf_"+side],fwd+down*0.28+out*0.26)
-		# Calves drop to the pegs, heels a little back.
-		_aim(sk,bones["calf_"+side],bones["foot_"+side],down+fwd*0.12-out*0.08)
+		# Knees OUTSIDE the tank (not through it): thighs forward, barely down, wide out.
+		# Old fwd+down*0.28+out*0.26 drove the thigh through the tank top (BIKE 0.84 / CAR 1.51).
+		_aim(sk,bones["thigh_"+side],bones["calf_"+side],fwd+down*0.06+out*0.50)
+		# Calves drop to the pegs, more vertical now that knees sit high and wide.
+		_aim(sk,bones["calf_"+side],bones["foot_"+side],down+fwd*0.04-out*0.04)
 		# Boots flat on the pegs.
 		var foot: int=bones["foot_"+side]
 		var fg:=_g(sk,foot)

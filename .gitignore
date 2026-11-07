@@ -5,4 +5,25 @@ build/
 
 # Blender sources & model backups (import on CI has no Blender; game uses .glb)
 assets/blender/
+assets/models/source/
+*.blend
+*.blend1
+*.blend.import
 backup_models_*/
+
+# Generated/experimental models and backups never shipped in the build
+assets/models/generated/
+assets/models/environment/*.bak
+assets/models/environment/cabin_interior_*
+assets/models/actors/survivor_jian_universal*
+assets/models/actors/*_before_fullfix.glb
+tools/cabin_probe.glb
+__pycache__/
+*.pyc
+
+# Orphan import metadata for deleted backup/recut art
+assets/ui/store/*_recut.png.import
+assets/ui/store/*.bak.png.import
+*.bak
+*.bak2
+*.bak.*

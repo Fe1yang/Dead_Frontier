@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://x2bi2yxbbo7k"
 path.s3tc="res://.godot/imported/zombie_bomber_female_universal_NormalGL_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe.png-d2b0bcb068558e99b31351e1bd56ff64.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_bomber_female_universal_NormalGL_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe.png-d2b0bcb068558e99b31351e1bd56ff64.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_bomber_female_universal_NormalGL_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe.png"
-dest_files=["res://.godot/imported/zombie_bomber_female_universal_NormalGL_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe.png-d2b0bcb068558e99b31351e1bd56ff64.s3tc.ctex"]
+dest_files=["res://.godot/imported/zombie_bomber_female_universal_NormalGL_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe.png-d2b0bcb068558e99b31351e1bd56ff64.s3tc.ctex", "res://.godot/imported/zombie_bomber_female_universal_NormalGL_a9c80cdb-f25a-4228-ad9a-c780fb6b7bbe.png-d2b0bcb068558e99b31351e1bd56ff64.etc2.ctex"]
 
 [params]
 

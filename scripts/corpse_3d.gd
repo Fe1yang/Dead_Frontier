@@ -13,29 +13,23 @@ func _ready() -> void:
 		_add_body(i)
 	_make_blood()
 
+const BloodPoolC := preload("res://scripts/blood_pool_3d.gd")
+
 func _make_blood() -> void:
-	# One connected irregular pool, plus separated droplets. Everything sits just above
-	# the ground and is generated once, so there are no animated decals or z-fighting quads.
-	var st:=SurfaceTool.new()
-	st.begin(Mesh.PRIMITIVE_TRIANGLES)
-	_add_blood_pool(st,Vector3(0,0.014,0),1.04 if body_count>1 else 0.66,1.34 if body_count>1 else 1.10,32)
-	for i in range(8 if body_count>1 else 5):
-		var angle: float=_rng.randf_range(0,TAU)
-		var distance: float=_rng.randf_range(0.82,1.42) if body_count>1 else _rng.randf_range(0.60,1.14)
-		var center:=Vector3(cos(angle)*distance,0.014,sin(angle)*distance)
-		_add_blood_pool(st,center,_rng.randf_range(0.035,0.11),_rng.randf_range(0.045,0.16),10)
-	var blood:=MeshInstance3D.new()
-	blood.name="Dried blood beneath corpses"
-	blood.mesh=st.commit()
-	var material:=StandardMaterial3D.new()
-	material.albedo_color=Color(0.30,0.035,0.025,0.78)
-	material.roughness=0.98
-	material.metallic_specular=0.0
-	material.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.cull_mode=BaseMaterial3D.CULL_DISABLED
-	blood.material_override=material
-	blood.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(blood)
+	# Same wet pool look as kill blood, not flat paint.
+	for i in range(2 if body_count>1 else 1):
+		var pool: Node3D = BloodPoolC.new()
+		add_child(pool)
+		pool.setup(1.4 if body_count>1 else 0.9,_rng.randi(),9999.0,true)
+		pool.position=Vector3(0,0.014,0)
+		pool.scale=Vector3.ONE*(1.4 if body_count>1 else 0.9)
+		pool.rotation.y=_rng.randf_range(0,TAU)
+	var extra: Node3D = BloodPoolC.new()
+	add_child(extra)
+	extra.setup(_rng.randf_range(0.35,0.6),_rng.randi(),9999.0,false)
+	extra.position=Vector3(_rng.randf_range(-0.6,0.6),0.016,_rng.randf_range(-0.6,0.6))
+	extra.scale=Vector3.ONE*0.5
+	extra.rotation.y=_rng.randf_range(0,TAU)
 
 func _add_blood_pool(st: SurfaceTool,center: Vector3,rx: float,rz: float,points: int) -> void:
 	var ring: Array[Vector3]=[]

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://seuthmwqee6j"
 path.s3tc="res://.godot/imported/Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-ebfb0a0c3840dc8cf2d71d9e976f7708.s3tc.ctex"
+path.etc2="res://.godot/imported/Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-ebfb0a0c3840dc8cf2d71d9e976f7708.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={}
@@ -13,7 +14,7 @@ generator_parameters={}
 [deps]
 
 source_file="res://assets/models/source/textures/Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg"
-dest_files=["res://.godot/imported/Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-ebfb0a0c3840dc8cf2d71d9e976f7708.s3tc.ctex"]
+dest_files=["res://.godot/imported/Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-ebfb0a0c3840dc8cf2d71d9e976f7708.s3tc.ctex", "res://.godot/imported/Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-ebfb0a0c3840dc8cf2d71d9e976f7708.etc2.ctex"]
 
 [params]
 

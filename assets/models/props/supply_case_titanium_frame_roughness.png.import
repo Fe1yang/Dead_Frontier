@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dqlgiejx4oubo"
 path.s3tc="res://.godot/imported/supply_case_titanium_frame_roughness.png-de78382a3ecaee0e345c0a8f6055b5ed.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_case_titanium_frame_roughness.png-de78382a3ecaee0e345c0a8f6055b5ed.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/props/supply_case_titanium_frame_roughness.png"
-dest_files=["res://.godot/imported/supply_case_titanium_frame_roughness.png-de78382a3ecaee0e345c0a8f6055b5ed.s3tc.ctex"]
+dest_files=["res://.godot/imported/supply_case_titanium_frame_roughness.png-de78382a3ecaee0e345c0a8f6055b5ed.s3tc.ctex", "res://.godot/imported/supply_case_titanium_frame_roughness.png-de78382a3ecaee0e345c0a8f6055b5ed.etc2.ctex"]
 
 [params]
 

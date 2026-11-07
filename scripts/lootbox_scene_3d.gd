@@ -86,6 +86,13 @@ func open_case(reward_id: String) -> void:
 		reward.add_child(dog)
 		var mf:=load("res://scripts/model_fix.gd")
 		dog.position.y=mf.fit_pet(dog,0.9)-0.35; mf.play_animation(dog,"Dog_Idle"); return
+	if reward_id.begins_with("char_"):
+		# a paid survivor won from the case: owned for good, shown standing in the box
+		var chars: Array=(load("res://scripts/lobby_scene_3d.gd") as GDScript).CHARACTERS
+		var ci:=clampi(int(reward_id.trim_prefix("char_")),0,chars.size()-1)
+		var actor: Node3D=(load(chars[ci].asset) as PackedScene).instantiate() as Node3D
+		reward.add_child(actor)
+		actor.position.y=-0.35; actor.scale=Vector3.ONE*0.62
 	if ResourceLoader.exists(path):
 		var model: Node3D=(load(path) as PackedScene).instantiate() as Node3D
 		model.scale=Vector3.ONE*(1.35 if reward_id.begins_with("w_") else 1.1); reward.add_child(model)

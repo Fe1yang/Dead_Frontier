@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cl3l8kg5q1r0h"
 path.s3tc="res://.godot/imported/czech_wolfdog_NormalGL_559c98d4-feaf-4965-9caf-90ae58c81a87.png-8ebee6d2c039b0e523224dd8ac718478.s3tc.ctex"
+path.etc2="res://.godot/imported/czech_wolfdog_NormalGL_559c98d4-feaf-4965-9caf-90ae58c81a87.png-8ebee6d2c039b0e523224dd8ac718478.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pets/czech_wolfdog_NormalGL_559c98d4-feaf-4965-9caf-90ae58c81a87.png"
-dest_files=["res://.godot/imported/czech_wolfdog_NormalGL_559c98d4-feaf-4965-9caf-90ae58c81a87.png-8ebee6d2c039b0e523224dd8ac718478.s3tc.ctex"]
+dest_files=["res://.godot/imported/czech_wolfdog_NormalGL_559c98d4-feaf-4965-9caf-90ae58c81a87.png-8ebee6d2c039b0e523224dd8ac718478.s3tc.ctex", "res://.godot/imported/czech_wolfdog_NormalGL_559c98d4-feaf-4965-9caf-90ae58c81a87.png-8ebee6d2c039b0e523224dd8ac718478.etc2.ctex"]
 
 [params]
 

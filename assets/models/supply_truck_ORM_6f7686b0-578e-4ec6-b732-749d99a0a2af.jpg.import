@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c0m6k8uuc4b0m"
 path.s3tc="res://.godot/imported/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-e658dfdbba3adf16fbf3978accd52704.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-e658dfdbba3adf16fbf3978accd52704.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg"
-dest_files=["res://.godot/imported/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-e658dfdbba3adf16fbf3978accd52704.s3tc.ctex"]
+dest_files=["res://.godot/imported/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-e658dfdbba3adf16fbf3978accd52704.s3tc.ctex", "res://.godot/imported/supply_truck_ORM_6f7686b0-578e-4ec6-b732-749d99a0a2af.jpg-e658dfdbba3adf16fbf3978accd52704.etc2.ctex"]
 
 [params]
 

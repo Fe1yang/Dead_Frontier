@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://tr17gvk0ublr"
 path.s3tc="res://.godot/imported/survivor_riley_universal_Color_754964c6-cbf4-4c60-810e-e2f9e7592989.jpg-697571c502a488cfc515a9d57a039208.s3tc.ctex"
+path.etc2="res://.godot/imported/survivor_riley_universal_Color_754964c6-cbf4-4c60-810e-e2f9e7592989.jpg-697571c502a488cfc515a9d57a039208.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/survivor_riley_universal_Color_754964c6-cbf4-4c60-810e-e2f9e7592989.jpg"
-dest_files=["res://.godot/imported/survivor_riley_universal_Color_754964c6-cbf4-4c60-810e-e2f9e7592989.jpg-697571c502a488cfc515a9d57a039208.s3tc.ctex"]
+dest_files=["res://.godot/imported/survivor_riley_universal_Color_754964c6-cbf4-4c60-810e-e2f9e7592989.jpg-697571c502a488cfc515a9d57a039208.s3tc.ctex", "res://.godot/imported/survivor_riley_universal_Color_754964c6-cbf4-4c60-810e-e2f9e7592989.jpg-697571c502a488cfc515a9d57a039208.etc2.ctex"]
 
 [params]
 

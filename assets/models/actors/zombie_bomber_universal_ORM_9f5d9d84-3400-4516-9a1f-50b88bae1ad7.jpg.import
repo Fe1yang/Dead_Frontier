@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cq0bmaoaj02ee"
 path.s3tc="res://.godot/imported/zombie_bomber_universal_ORM_9f5d9d84-3400-4516-9a1f-50b88bae1ad7.jpg-1d424d9910623d16f050b67c4ca4787b.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_bomber_universal_ORM_9f5d9d84-3400-4516-9a1f-50b88bae1ad7.jpg-1d424d9910623d16f050b67c4ca4787b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_bomber_universal_ORM_9f5d9d84-3400-4516-9a1f-50b88bae1ad7.jpg"
-dest_files=["res://.godot/imported/zombie_bomber_universal_ORM_9f5d9d84-3400-4516-9a1f-50b88bae1ad7.jpg-1d424d9910623d16f050b67c4ca4787b.s3tc.ctex"]
+dest_files=["res://.godot/imported/zombie_bomber_universal_ORM_9f5d9d84-3400-4516-9a1f-50b88bae1ad7.jpg-1d424d9910623d16f050b67c4ca4787b.s3tc.ctex", "res://.godot/imported/zombie_bomber_universal_ORM_9f5d9d84-3400-4516-9a1f-50b88bae1ad7.jpg-1d424d9910623d16f050b67c4ca4787b.etc2.ctex"]
 
 [params]
 

@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://da28rysx5rco0"
 path.s3tc="res://.godot/imported/czech_wolfdog_Color_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-a9f7fc7b2e4d2e20625547f1bfe3e39d.s3tc.ctex"
+path.etc2="res://.godot/imported/czech_wolfdog_Color_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-a9f7fc7b2e4d2e20625547f1bfe3e39d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pets/czech_wolfdog_Color_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg"
-dest_files=["res://.godot/imported/czech_wolfdog_Color_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-a9f7fc7b2e4d2e20625547f1bfe3e39d.s3tc.ctex"]
+dest_files=["res://.godot/imported/czech_wolfdog_Color_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-a9f7fc7b2e4d2e20625547f1bfe3e39d.s3tc.ctex", "res://.godot/imported/czech_wolfdog_Color_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-a9f7fc7b2e4d2e20625547f1bfe3e39d.etc2.ctex"]
 
 [params]
 

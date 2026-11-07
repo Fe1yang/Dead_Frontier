@@ -9,10 +9,11 @@ const GunGripIK=preload("res://scripts/gun_grip_ik.gd")
 const ModelFix=preload("res://scripts/model_fix.gd")
 const IdleLife=preload("res://scripts/idle_life.gd")
 const CHARACTERS:=[
-	{"asset":"res://assets/models/actors/survivor_male_universal.glb","name":"MASON","lobby_clavicle":8.0,"lobby_out":0.18,"lobby_fwd":0.04,"lobby_palm_twist":-15.0},
-	{"asset":"res://assets/models/actors/survivor_riley_universal.glb","name":"RILEY","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.06,"lobby_fwd":0.03,"lobby_clavicle":5.0,"lobby_bend":14.0},
-	{"asset":"res://assets/models/actors/survivor_medic_universal.glb","name":"DARIUS","lobby_clavicle":8.0,"lobby_out":0.18,"lobby_fwd":0.04,"lobby_palm_twist":-15.0,"perk":"perk_darius"},
-	{"asset":"res://assets/models/actors/survivor_maya_universal.glb","name":"MAYA","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.06,"lobby_fwd":0.03,"lobby_clavicle":5.0,"lobby_bend":14.0,"perk":"perk_maya"}]
+	{"asset":"res://assets/models/actors/survivor_male_universal.glb","name":"MASON","lobby_clavicle":8.0,"lobby_out":0.18,"lobby_fwd":0.04,"lobby_palm_twist":-15.0,"lobby_bend":0.0},
+	{"asset":"res://assets/models/actors/survivor_riley_universal.glb","name":"RILEY","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.16,"lobby_fwd":0.04,"lobby_clavicle":8.0,"lobby_bend":6.0},
+	{"asset":"res://assets/models/actors/survivor_medic_universal.glb","name":"DARIUS","lobby_clavicle":6.0,"lobby_out":0.14,"lobby_fwd":0.08,"lobby_palm_twist":-10.0,"lobby_bend":8.0,"perk":"perk_darius"},
+	{"asset":"res://assets/models/actors/survivor_maya_universal.glb","name":"MAYA","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.06,"lobby_fwd":0.03,"lobby_clavicle":5.0,"lobby_bend":14.0,"perk":"perk_maya"},
+	{"asset":"res://assets/models/actors/survivor_jian_scout_universal.glb","name":"JIAN","lobby_clavicle":1.0,"lobby_out":0.45,"lobby_fwd":0.12,"lobby_palm_twist":-15.0,"lobby_bend":0.0,"perk":"perk_jian"}]
 const PETS:=[
 	{"asset":"res://assets/models/pets/doberman.glb","name":"杜宾犬","length":1.10},
 	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.16},
@@ -45,25 +46,43 @@ var bulb_light: SpotLight3D
 var bulb_mat: StandardMaterial3D
 var ember_light: OmniLight3D
 var ember_mat: StandardMaterial3D
+var bulb_base:=1.4
+var ember_base:=0.6
 
+var bike: Node3D
+var focus_vehicle:=false
+const VEHICLE_STAGE_SCALES:=[0.42,0.57,0.76] # BIKE / SPORT / CAR lobby preview sizes
+func set_vehicle_visual(i: int) -> void:
+	if is_instance_valid(bike):
+		bike.scale=Vector3.ONE*float(VEHICLE_STAGE_SCALES[clampi(i,0,2)])
 func _ready() -> void:
 	position=ORIGIN
 	_build_set()
+	# Vehicle display on the lobby stage (same glb the game mounts)
+	if ResourceLoader.exists("res://assets/models/motorcycle.glb"):
+		bike=(load("res://assets/models/motorcycle.glb") as PackedScene).instantiate() as Node3D
+		bike.position=STAND+Vector3(0,-0.06,-0.35)
+		bike.rotation.y=PI # head-on: front of the bike square to the camera
+		bike.scale=Vector3.ONE*1.0 # normal size
+		bike.visible=false # only when the vehicle tab is tapped
+		add_child(bike); ModelFix.double_sided(bike)
 
 ## Framing: on the survivors tab the camera moves in so the survivor fills the shot (whole body,
 ## the dog still at their side); on the pets tab it eases back out to the wider two-shot.
 const SOLO_POS:=Vector3(-0.08,0.92,4.15)   # centred on the survivor (STAND.x), close in
 const SOLO_TARGET:=Vector3(-0.08,0.50,0.0)
-var pet_zoom:=0.0      # 0 = survivor close-up, 1 = survivor and dog
 var focus_pets:=false  # set by main_3d when the pets tab is open
 
 func camera_position() -> Vector3:
-	var e:=pet_zoom*pet_zoom*(3.0-2.0*pet_zoom)
-	return ORIGIN+SOLO_POS.lerp(CAMERA_POS,e)+Vector3(sin(time*0.3)*0.04,sin(time*0.45)*0.02,0)
+	if focus_vehicle:
+		return ORIGIN+Vector3(-0.08,0.95,3.4)
+	# Fixed solo framing for both tabs (no zoom/scale on tab switch per user request).
+	return ORIGIN+SOLO_POS+Vector3(sin(time*0.3)*0.04,sin(time*0.45)*0.02,0)
 
 func camera_target() -> Vector3:
-	var e:=pet_zoom*pet_zoom*(3.0-2.0*pet_zoom)
-	return ORIGIN+SOLO_TARGET.lerp(CAMERA_TARGET,e)
+	if focus_vehicle:
+		return ORIGIN+Vector3(-0.08,0.45,0.0)
+	return ORIGIN+SOLO_TARGET
 
 var actor_asset:=""
 func show_character(index: int, asset_override:="") -> void:
@@ -73,20 +92,40 @@ func show_character(index: int, asset_override:="") -> void:
 		# A character whose model isn't in this build falls back to the first survivor.
 		index=0; asset_path=String(CHARACTERS[0].asset)
 	if index==actor_index and asset_path==actor_asset and is_instance_valid(actor): return
-	if is_instance_valid(actor): actor.queue_free()
+	if is_instance_valid(actor):
+		# Preview taps land right after a switch: queue_free keeps the old body valid
+		# for a frame and the early-return below reuses it. Free now so the preview shows.
+		if actor.is_queued_for_deletion():
+			remove_child(actor); actor.free()
+		else:
+			actor.queue_free()
+	actor_index=-1; actor_asset=""
 	actor_index=index; actor_asset=asset_path
 	actor=(load(asset_path) as PackedScene).instantiate() as Node3D
 	actor.position=STAND; actor.scale=Vector3.ONE*ACTOR_SCALE
+	# Riley slimmed in Blender (0.82/0.88/0.97): tighten the arms out/forward so the
+	# jacket no longer pulls wrinkles across the back.
+	if index==1:
+		actor.scale=Vector3.ONE*ACTOR_SCALE
 	add_child(actor); ModelFix.double_sided(actor)
-	_foot_shadow()
+	actor.visible=false # lobby preview hidden: tapping avatars below only swaps equipment, no 3D figure on the platform
+	if index==4: ModelFix.matte(actor) # Jian skin came out plastic-glossy; force matte
 	actor_anim=actor.find_child("AnimationPlayer",true,false) as AnimationPlayer
-	if actor_anim: actor_anim.stop() # the lobby is a static, natural standing pose only
+	if actor_anim:
+		# Full-body idle: play the looped idle clip so the whole body lives (legs, hips,
+		# breathing). ArmsRelaxed still overrides the arms in _process_modification.
+		var idle_clip: String="Idle"
+		if not actor_anim.has_animation(idle_clip):
+			for c in actor_anim.get_animation_list():
+				if "Idle" in c or "idle" in c: idle_clip=c; break
+		if actor_anim.has_animation(idle_clip): actor_anim.play(idle_clip)
 	var skeleton:=actor.find_child("Skeleton3D",true,false) as Skeleton3D
 	if skeleton:
 		skeleton.reset_bone_poses()
 		# breathing, weight shift and look-around on spine/neck/head only; added first so the
 		# relaxed-arms pass below still hangs the arms naturally from the moving shoulders
-		idle_life=IdleLife.new(); idle_life.setup(skeleton); skeleton.add_child(idle_life)
+		# Each character gets its own idle personality from IdleLife.PROFILES (index 0..4).
+		idle_life=IdleLife.new(); idle_life.setup(skeleton,index); skeleton.add_child(idle_life)
 		var arms:=ArmsRelaxed.new(); arms.body=actor
 		arms.hand_offset={"r":GunGripIK.mesh_offset(actor,"hand_r"),"l":GunGripIK.mesh_offset(actor,"hand_l")}
 		arms.setup_from_model(actor,skeleton)
@@ -131,10 +170,9 @@ func show_pet(path: String) -> void:
 	for p in PETS:
 		if p.asset==path: length=float(p.get("length",1.1))
 	add_child(pet); ModelFix.double_sided(pet)
-	pet.position=PET_SPOT+Vector3(0,ModelFix.fit_pet(pet,length*ACTOR_SCALE),0) # real dog size
+	# dog stands where the survivor stands (STAND), same framing, so the camera never hops
+	pet.position=STAND+Vector3(0,ModelFix.fit_pet(pet,length*ACTOR_SCALE),0)
 	ModelFix.play_animation(pet,"Dog_Idle")
-	# Contact shadow under the dog, sized to its body length.
-	pet_shadow=_blob_shadow(Vector2(length*0.95,length*0.6),Vector3(PET_SPOT.x,0.022,PET_SPOT.z))
 
 func drag(dx: float) -> void:
 	spin+=dx*0.012; spin_velocity=dx*0.012*60.0
@@ -142,30 +180,39 @@ func drag(dx: float) -> void:
 func _process(delta: float) -> void:
 	if not visible: return
 	time+=delta
-	pet_zoom=move_toward(pet_zoom,1.0 if focus_pets else 0.0,delta*1.6)
+	if is_instance_valid(bike): bike.visible=focus_vehicle
+	if is_instance_valid(pet): pet.visible=focus_pets
+	# (No pet_zoom easing: camera stays fixed so switching pets->characters does not scale.)
 	# The hanging lamp buzzes and the table lantern breathes — the den runs on a generator.
 	if bulb_light:
 		# Softer buzz so the floor never looks like it is strobing.
 		var f:=0.92+0.08*(0.6*sin(time*11.0)+0.4*sin(time*27.7+1.3))
-		bulb_light.light_energy=3.3*f; bulb_mat.emission_energy_multiplier=2.4*f
+		bulb_light.light_energy=bulb_base*f
+		if bulb_mat: bulb_mat.emission_energy_multiplier=2.4*f
 	if ember_light:
 		var g:=0.72+0.28*(0.5*sin(time*6.3)+0.5*sin(time*15.1+0.7))
-		ember_light.light_energy=0.85*g; ember_mat.emission_energy_multiplier=2.0*g
+		ember_light.light_energy=ember_base*g
+		if ember_mat: ember_mat.emission_energy_multiplier=2.0*g
 	intro_turn=maxf(0.0,intro_turn-delta*1.8)
 	if absf(spin_velocity)>0.01:
 		spin+=spin_velocity*delta; spin_velocity=lerpf(spin_velocity,0.0,1.0-exp(-delta*3.0))
 	else:
 		# Ease back to facing the camera when the player lets go.
 		spin=lerp_angle(spin,0.0,1.0-exp(-delta*1.2))
-	# On the pets tab the drag spins the dog; on the survivors tab it spins the survivor.
+	# On the pets/vehicle tabs the drag spins the dog/bike; on the survivors tab it spins the survivor.
 	var spin_pet: bool=focus_pets and is_instance_valid(pet)
+	var spin_vehicle: bool=focus_vehicle and is_instance_valid(bike)
 	if is_instance_valid(actor):
 		var t:=intro_turn*intro_turn*(3.0-2.0*intro_turn)
-		actor.rotation.y=(0.0 if spin_pet else spin)+t*1.1
+		actor.rotation.y=(0.0 if spin_pet or spin_vehicle else spin)+t*1.1
 		actor.position.y=STAND.y+t*0.06 # settles down onto the rug as the turn finishes
 	if is_instance_valid(pet):
 		if spin_pet: pet.rotation.y=spin
 		else: pet.rotation.y=lerp_angle(pet.rotation.y,0.0,1.0-exp(-delta*1.2))
+	if is_instance_valid(bike):
+		# head-on front view sits at PI; dragging adds around that
+		if spin_vehicle: bike.rotation.y=PI+spin
+		else: bike.rotation.y=lerp_angle(bike.rotation.y,PI,1.0-exp(-delta*1.2))
 
 func _mat(color: Color,rough:=0.8,metal:=0.0) -> StandardMaterial3D:
 	var m:=StandardMaterial3D.new(); m.albedo_color=color; m.roughness=rough; m.metallic=metal; return m
@@ -198,6 +245,152 @@ func _glow(node: MeshInstance3D,color: Color,energy: float) -> StandardMaterial3
 	m.emission_enabled=true; m.emission=color; m.emission_energy_multiplier=energy; return m
 
 func _build_set() -> void:
+	# The safehouse is a modelled concrete bunker interior with its own floor, walls,
+	# blast door, boarded window and props. If the GLB is missing (or fails to load)
+	# the old box room below still stands in.
+	if _build_safehouse(): return
+	_build_set_legacy()
+
+const SAFEHOUSE_ASSET:="res://assets/models/environment/safehouse_interior.glb"
+const STONE_WALL_TEX:="res://assets/models/environment/stone_wall_diff.jpg" # legacy, no longer used (bricks are procedural now)
+
+## Procedural aged brick: runtime-generated so no external texture is needed.
+## Dark red-brown courses, grey mortar, per-brick grime and value jitter, sooty patches —
+## a damp basement/bunker feel for the post-apocalypse safehouse.
+var _brick_tex: ImageTexture
+var _brick_tex_h: ImageTexture # non-transposed, for BoxMesh faces (horizontal courses)
+func _brick_texture(transpose:=true) -> ImageTexture:
+	if transpose and _brick_tex and _brick_tex.get_image():
+		return _brick_tex
+	if not transpose and _brick_tex_h and _brick_tex_h.get_image():
+		return _brick_tex_h
+	var img:=Image.create(256,256,false,Image.FORMAT_RGB8)
+	var rng:=RandomNumberGenerator.new(); rng.seed=20261107
+	var mortar:=Color("4a4642")
+	var bw:=32; var bh:=16; var gap:=2
+	for row in range(img.get_height()/bh):
+		var y0:=row*bh
+		var xoff:=(bw/2) if row%2==1 else 0
+		# Mortar bed (top gap of each course).
+		for y in range(y0, min(y0+gap, img.get_height())):
+			for x in range(img.get_width()):
+				img.set_pixel(x,y,mortar)
+		for col in range(-1, img.get_width()/bw+2):
+			var x0:=col*bw+xoff
+			# Per-brick tint: dark red-brown, jittered, some bricks sootier.
+			var v:=rng.randf_range(0.62,0.82)
+			if rng.randf()<0.15: v*=rng.randf_range(0.55,0.75)
+			var warm:=rng.randf_range(-0.05,0.06)
+			var b:=Color(0.40*v+warm*0.3, 0.26*v+warm*0.15, 0.20*v)
+			for y in range(y0+gap, min(y0+bh, img.get_height())):
+				for x in range(max(x0+gap,0), min(x0+bw, img.get_width())):
+					var n:=rng.randf_range(0.92,1.06)
+					img.set_pixel(x,y,Color(b.r*n,b.g*n,b.b*n))
+		# Vertical mortar joints for this course.
+		for col in range(-1, img.get_width()/bw+2):
+			var x0:=col*bw+xoff
+			for y in range(y0+gap, min(y0+bh, img.get_height())):
+				for x in range(max(x0,0), min(x0+gap, img.get_width())):
+					img.set_pixel(x,y,mortar)
+	if not transpose:
+		# BoxMesh faces use normal UVs: keep courses horizontal (no transpose).
+		_brick_tex_h=ImageTexture.create_from_image(img)
+		return _brick_tex_h
+	# The GLB wall UVs run the texture's u-axis down the wall: transpose so the
+	# brick courses read horizontal instead of vertical.
+	var tr:=Image.create(256,256,false,Image.FORMAT_RGB8)
+	for ty in range(256):
+		for tx in range(256):
+			tr.set_pixel(tx,ty,img.get_pixel(ty,tx))
+	_brick_tex=ImageTexture.create_from_image(tr)
+	return _brick_tex
+
+func _stone_mat(transpose:=true) -> StandardMaterial3D:
+	var m:=StandardMaterial3D.new()
+	m.albedo_texture=_brick_texture(transpose)
+	m.roughness=0.95
+	m.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	if transpose:
+		# GLB wall UVs already tile the whole wall: keep bricks fine and sharp.
+		m.uv1_scale=Vector3(2.5,1.2,1.0)
+	else:
+		# Panel (5.6x3.12m, BoxMesh UV 0..1): horizontal courses, small bricks
+		# (~0.23m wide x ~0.08m tall), not the transposed vertical layout.
+		m.uv1_scale=Vector3(3.0,2.5,1.0)
+	return m
+
+## Brick only on the genuine Safe_brick patch (back wall). The GLB merges geometry by
+## material, so Safe_concrete/Safe_white_paint also contain box/crate faces — bricking
+## those nodes put wall brick texture on the crates (user reported). Keep them original.
+func _apply_stone_to_safehouse(safe: Node3D) -> void:
+	for name in ["Safe_brick"]:
+		var wall_node:=safe.find_child(name,true,false) as MeshInstance3D
+		if is_instance_valid(wall_node):
+			wall_node.material_override=_stone_mat()
+	# White floor tiles wash out the lobby's white line icons (map/bag/shop...).
+	# Darken the GLB floor to a mid-dark concrete so the icons stay readable.
+	for name in ["Safe_floor","Safe_floor_dark"]:
+		var floor_node:=safe.find_child(name,true,false) as MeshInstance3D
+		if is_instance_valid(floor_node):
+			floor_node.material_override=_mat(Color("423f39"),0.92)
+
+func _build_safehouse() -> bool:
+	if not ResourceLoader.exists(SAFEHOUSE_ASSET): return false
+	var packed:=load(SAFEHOUSE_ASSET) as PackedScene
+	if packed==null: return false
+	var safe:=packed.instantiate() as Node3D
+	if safe==null: return false
+	safe.name="SafehouseInterior"; add_child(safe)
+	_apply_stone_to_safehouse(safe)
+	# Back brick wall as a separate thin panel (GLB wall meshes are merged with crate
+	# faces, so bricking them bricks the crates too — panel keeps crates original).
+	var back_wall:=_box("Brick back wall",Vector3(0,1.56,-3.28),Vector3(5.6,3.12,0.06),Color("382f27"),0.95)
+	back_wall.material_override=_stone_mat(false)
+	# Key light on the survivor + rim from behind: the character is the focal point.
+	# Background lights stay dim so the wall and props recede.
+	var key:=SpotLight3D.new(); key.position=Vector3(0.0,1.75,4.3)
+	key.light_color=Color("f2e2cc"); key.light_energy=1.8; key.spot_range=8.0
+	key.spot_angle=26.0; key.spot_attenuation=0.8; add_child(key)
+	key.look_at_from_position(ORIGIN+Vector3(0.0,1.75,4.3),ORIGIN+Vector3(-0.08,1.02,0.0))
+	var rim:=SpotLight3D.new(); rim.position=Vector3(-1.6,2.7,-3.3)
+	rim.light_color=Color("9fc8e8"); rim.light_energy=1.2; rim.spot_range=8.0
+	rim.spot_angle=34.0; rim.spot_attenuation=0.9; add_child(rim)
+	rim.look_at_from_position(ORIGIN+Vector3(-1.6,2.7,-3.3),ORIGIN+Vector3(-0.08,1.35,0.0))
+	# Cold moonlight from just inside the window (no shadow: the old spot sat outside
+	# the wall and was fully blocked, so the room got no light at all).
+	var moon:=SpotLight3D.new(); moon.position=Vector3(1.04,2.0,-2.8)
+	moon.light_color=Color("8fc0f5"); moon.light_energy=1.6; moon.spot_range=10.0
+	moon.spot_angle=48.0; moon.spot_attenuation=1.0; moon.shadow_enabled=false
+	add_child(moon)
+	moon.look_at_from_position(ORIGIN+Vector3(1.04,2.0,-2.8),ORIGIN+Vector3(0.30,0.05,-1.10))
+	# Cold fluorescent over the workbench (the buzzing bulb channel) + a cold cage-lamp splash.
+	bulb_light=SpotLight3D.new(); bulb_light.position=Vector3(0.95,2.56,-2.62)
+	bulb_light.light_color=Color("a8e0f5"); bulb_light.light_energy=1.4
+	bulb_light.spot_range=6.0; bulb_light.spot_angle=58.0; bulb_light.spot_attenuation=0.9
+	add_child(bulb_light)
+	bulb_light.look_at_from_position(ORIGIN+Vector3(0.95,2.56,-2.62),ORIGIN+Vector3(0.95,0.90,-3.00))
+	var cage:=OmniLight3D.new(); cage.position=Vector3(1.04,2.30,-2.30)
+	cage.light_color=Color("9fd8e8"); cage.light_energy=0.8; cage.omni_range=4.2; cage.omni_attenuation=1.2
+	add_child(cage)
+	# Warm lanterns: sill lantern breathes (the ember channel), bench + footlocker steady.
+	ember_light=OmniLight3D.new(); ember_light.position=Vector3(0.70,1.38,-3.05)
+	ember_light.light_color=Color("ffb45c"); ember_light.light_energy=0.6
+	ember_light.omni_range=2.9; ember_light.omni_attenuation=1.3; add_child(ember_light)
+	var bench_lantern:=OmniLight3D.new(); bench_lantern.position=Vector3(1.34,1.16,-2.85)
+	bench_lantern.light_color=Color("ffb45c"); bench_lantern.light_energy=0.4
+	bench_lantern.omni_range=2.4; add_child(bench_lantern)
+	var locker_lantern:=OmniLight3D.new(); locker_lantern.position=Vector3(-1.06,0.72,-1.40)
+	locker_lantern.light_color=Color("ffb45c"); locker_lantern.light_energy=0.4
+	locker_lantern.omni_range=2.6; add_child(locker_lantern)
+	# Red emergency lamp over the blast door, and a low cool fill so faces stay readable.
+	var emergency:=OmniLight3D.new(); emergency.position=Vector3(-1.70,2.36,-3.05)
+	emergency.light_color=Color("ff3a28"); emergency.light_energy=0.4
+	emergency.omni_range=2.4; add_child(emergency)
+	var fill:=OmniLight3D.new(); fill.position=Vector3(0,1.62,3.0)
+	fill.light_color=Color("8fa8bc"); fill.light_energy=0.25; fill.omni_range=6.0; add_child(fill)
+	return true
+
+func _build_set_legacy() -> void:
 	# "Stay Alive" safehouse: a fortified warehouse lounge. Leather couch and coffee table
 	# under a STAY ALIVE banner, a wall of pinned maps and photos, a humming TV, supply
 	# shelves, an EXIT door with a green sign, sandbags and barrels, a mezzanine loft and
@@ -208,8 +401,10 @@ func _build_set() -> void:
 	for s in [[-1.4,-1.7,1.3,0.9,8.0],[1.6,-0.6,1.0,0.7,-14.0],[-0.3,1.3,1.6,0.8,22.0],[2.3,1.6,0.8,0.6,4.0],[-2.6,0.9,0.9,0.7,-30.0]]:
 		var stain:=_box("Floor stain",Vector3(s[0],0.002,s[1]),Vector3(s[2],0.004,s[3]),Color("211f1b"),1.0)
 		stain.rotation.y=deg_to_rad(s[4])
-	# Tall warehouse shell: dark timber walls, high ceiling with exposed beams.
-	_box("Back wall",Vector3(0,2.75,-3.35),Vector3(9,5.5,.22),Color("382f27"),0.93)
+	# Tall warehouse shell: dark timber walls with an aged brick back wall (procedural).
+	var back_wall:=_box("Back wall",Vector3(0,2.75,-3.35),Vector3(9,5.5,.22),Color("382f27"),0.93)
+	var legacy_stone:=_stone_mat(); legacy_stone.uv1_scale=Vector3(4.0,2.0,1.0)
+	back_wall.material_override=legacy_stone
 	_box("Left wall",Vector3(-4.4,2.75,0),Vector3(.20,5.5,7.4),Color("322b24"),0.93)
 	_box("Right wall",Vector3(4.4,2.75,0),Vector3(.20,5.5,7.4),Color("322b24"),0.93)
 	_box("Ceiling",Vector3(0,5.52,0),Vector3(9,.18,7.6),Color("241f1a"),0.95)
@@ -281,7 +476,7 @@ func _build_set() -> void:
 	_cyl("Lantern cap",Vector3(-0.32,0.71,-1.35),0.052,0.05,Color("2f2b26"),0.6,0.5)
 	_cyl("Lantern chimney",Vector3(-0.32,0.76,-1.35),0.018,0.06,Color("24211d"),0.6,0.5)
 	ember_light=OmniLight3D.new(); ember_light.position=Vector3(-0.32,0.85,-1.3); ember_light.light_color=Color("ff9e4e")
-	ember_light.light_energy=0.85; ember_light.omni_range=2.8; add_child(ember_light)
+	ember_light.light_energy=0.85; ember_light.omni_range=2.8; ember_base=0.85; add_child(ember_light)
 	# Big red rug underfoot — worn centre, dark border.
 	var rug:=_box("Old rug",Vector3(0.1,0.013,0.2),Vector3(2.7,.012,2.1),Color("5e2f26"),1.0); rug.rotation.y=deg_to_rad(2.0)
 	_box("Rug border",Vector3(0.1,0.004,0.2),Vector3(2.76,.006,2.16),Color("3f241d"),1.0).rotation.y=deg_to_rad(2.0)
@@ -295,7 +490,7 @@ func _build_set() -> void:
 	shade.mesh=smesh; shade.position=Vector3(0.15,3.32,0.35); shade.material_override=_mat(Color("2f3233"),0.55,0.6); add_child(shade)
 	bulb_mat=_glow(_ball("Lamp bulb",Vector3(0.15,3.24,0.35),Vector3(.1,.12,.1),Color("ffc98c"),0.3),Color("ffc98c"),2.4)
 	bulb_light=SpotLight3D.new(); bulb_light.position=Vector3(0.15,3.26,0.35); bulb_light.light_color=Color("ffc384")
-	bulb_light.light_energy=3.3; bulb_light.spot_range=9.0; bulb_light.spot_angle=46.0; add_child(bulb_light)
+	bulb_light.light_energy=3.3; bulb_base=3.3; bulb_light.spot_range=9.0; bulb_light.spot_angle=46.0; add_child(bulb_light)
 	bulb_light.look_at_from_position(ORIGIN+Vector3(0.15,3.26,0.35),ORIGIN+Vector3(0.15,0.6,0.1))
 	# TV on a crate, tuned to a dead city's last broadcast.
 	_box("TV crate",Vector3(-1.8,0.32,-2.5),Vector3(.85,.64,.7),Color("57503f"),0.9)

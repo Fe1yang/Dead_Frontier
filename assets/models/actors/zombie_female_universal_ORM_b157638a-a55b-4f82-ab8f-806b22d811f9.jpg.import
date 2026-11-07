@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://yhknnuqc7oln"
 path.s3tc="res://.godot/imported/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-64583c1598779785dc8527e215c65fe8.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-64583c1598779785dc8527e215c65fe8.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg"
-dest_files=["res://.godot/imported/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-64583c1598779785dc8527e215c65fe8.s3tc.ctex"]
+dest_files=["res://.godot/imported/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-64583c1598779785dc8527e215c65fe8.s3tc.ctex", "res://.godot/imported/zombie_female_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-64583c1598779785dc8527e215c65fe8.etc2.ctex"]
 
 [params]
 

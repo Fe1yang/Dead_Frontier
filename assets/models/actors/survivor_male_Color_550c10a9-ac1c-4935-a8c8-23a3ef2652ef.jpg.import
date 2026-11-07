@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ga11qxigmrwq"
 path.s3tc="res://.godot/imported/survivor_male_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-e3c8bf5891254efb602ce4369ad09a79.s3tc.ctex"
+path.etc2="res://.godot/imported/survivor_male_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-e3c8bf5891254efb602ce4369ad09a79.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/survivor_male_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg"
-dest_files=["res://.godot/imported/survivor_male_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-e3c8bf5891254efb602ce4369ad09a79.s3tc.ctex"]
+dest_files=["res://.godot/imported/survivor_male_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-e3c8bf5891254efb602ce4369ad09a79.s3tc.ctex", "res://.godot/imported/survivor_male_Color_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.jpg-e3c8bf5891254efb602ce4369ad09a79.etc2.ctex"]
 
 [params]
 

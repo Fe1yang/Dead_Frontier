@@ -31,6 +31,7 @@ var bold: Font
 var portraits: Array[Texture2D]=[]
 var pet_portraits: Array[Texture2D]=[]
 var coin_tex: Texture2D
+var silver_tex: Texture2D
 var can_tex: Texture2D
 var airdrop_tex: Texture2D
 var voucher_tex: Texture2D
@@ -39,6 +40,7 @@ var glow_tex: GradientTexture2D
 var hud_portraits: Array[Texture2D]=[]
 var skin_portraits: Array[Texture2D]=[]
 var menu_art: Texture2D
+var loading_art: Array[Texture2D] = []
 # Small print and photos are drawn on a child layer without the worn-paint shader so they stay legible.
 const CLEAN_TEXT_BELOW:=28 # Latin text smaller than this stays clean
 const CLEAN_CJK_BELOW:=44 # dense CJK glyphs need to be much larger before wear is readable
@@ -100,11 +102,12 @@ func _ready() -> void:
 	clean=Control.new(); clean.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	clean.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(clean); clean.draw.connect(_draw_clean)
-	portraits=[load("res://assets/ui/male_hd_portrait.png"),load("res://assets/ui/riley_hd_portrait.png"),load("res://assets/ui/medic_hd_portrait.png"),load("res://assets/ui/maya_hd_portrait.png")]
+	portraits=[load("res://assets/ui/male_hd_portrait.png"),load("res://assets/ui/riley_hd_portrait.png"),load("res://assets/ui/medic_hd_portrait.png"),load("res://assets/ui/maya_hd_portrait.png"),load("res://assets/ui/jian_hd_portrait.png")]
 	pet_portraits=[load("res://assets/ui/pets/doberman.png"),load("res://assets/ui/pets/german_shepherd.png"),load("res://assets/ui/pets/czech_wolfdog.png"),load("res://assets/ui/pets/tibetan_mastiff.png")]
 	airdrop_tex=load("res://assets/ui/airdrop.png") if ResourceLoader.exists("res://assets/ui/airdrop.png") else null
 	can_tex=load("res://assets/ui/currency/can.png")
 	coin_tex=load("res://assets/ui/currency/coin.png"); voucher_tex=load("res://assets/ui/currency/voucher.png")
+	silver_tex=load("res://assets/ui/currency/silver_coin.png") if ResourceLoader.exists("res://assets/ui/currency/silver_coin.png") else coin_tex
 	for p in StoreCatalog.PACKS+StoreCatalog.OFFERS:
 		var path: String="res://assets/ui/store/%s.png"%p.id
 		pack_art[p.id]=load(path) if ResourceLoader.exists(path) else null
@@ -112,6 +115,7 @@ func _ready() -> void:
 	glow_tex=GradientTexture2D.new(); glow_tex.gradient=grad; glow_tex.fill=GradientTexture2D.FILL_RADIAL; glow_tex.fill_from=Vector2(0.5,0.5); glow_tex.fill_to=Vector2(1.0,0.5); glow_tex.width=128; glow_tex.height=128
 	hud_portraits=[load("res://assets/ui/male_hud_gray.png"),load("res://assets/ui/riley_hud_gray.png"),load("res://assets/ui/medic_hud_gray.png"),load("res://assets/ui/maya_hud_gray.png")]
 	menu_art=load("res://assets/ui/title_screen.png")
+	loading_art=[load("res://assets/ui/loading/loading_1_corn.png"),load("res://assets/ui/loading/loading_2_snowroad.png"),load("res://assets/ui/loading/loading_3_graveyard.png"),load("res://assets/ui/loading/loading_4_city.png")]
 	for i in range(3):
 		brush_button.append(load("res://assets/ui/brush_button_%d.png"%i))
 		brush_panel.append(load("res://assets/ui/brush_panel_%d.png"%i))
@@ -122,7 +126,7 @@ func _process(_delta: float) -> void:
 	# The main menu now draws its own HUD lettering (title + buttons), so the worn-paint
 	# shader stays on in every state — except the cover: the title poster is finished art
 	# and the wear shader tears holes into its bright lettering and sky.
-	if material: (material as ShaderMaterial).set_shader_parameter("strength",0.0 if game.state=="cover" else 1.0)
+	if material: (material as ShaderMaterial).set_shader_parameter("strength",0.0 if game.state in ["cover","loading","terms"] else 1.0)
 	queue_redraw()
 
 func _draw() -> void:
@@ -131,6 +135,7 @@ func _draw() -> void:
 	if game.state in ["playing","paused","health_ad"]: _draw_hud()
 	elif game.state=="intro": _draw_intro()
 	elif game.state=="cover": _draw_cover()
+	elif game.state=="loading": _draw_loading()
 	elif game.state=="terms": _draw_terms()
 	elif game.state=="gameover": _draw_hud(); clean_ops.clear(); _draw_gameover()
 	elif game.state=="shop": _draw_shop()
@@ -477,6 +482,27 @@ func _draw_cover() -> void:
 	if menu_art: draw_texture_rect(menu_art,Rect2(0,0,540,960),false)
 	else: draw_rect(Rect2(0,0,540,960),INK)
 
+func _draw_loading() -> void:
+	# ONE loading art per run, full-screen, randomly picked at _begin_loading and kept
+	# unchanged until progress reaches 100%. No switching, no black panel.
+	# Everything goes through clean_ops (the clean Control has NO grunge shader),
+	# so the HD art stays pristine — the main Control's worn-paint shader would
+	# chew black holes through the bright moon and sky.
+	if game.loading_order.size()>0 and loading_art.size()>0:
+		var idx: int=int(game.loading_order[game.loading_idx % game.loading_order.size()])
+		if idx>=0 and idx<loading_art.size() and loading_art[idx]:
+			clean_ops.append(["texture",loading_art[idx],Rect2(0,0,540,960)])
+	else:
+		_box(Rect2(0,0,540,960),INK)
+	var zh: bool=game.language_code.begins_with("zh") if game.language_code else true
+	var dots: String="..." if int(game.elapsed*2.0)%4<3 else "."
+	var label: String=("加载中%s"%dots) if zh else ("LOADING%s"%dots)
+	_clean_center(font,Vector2(270,868),label,22,WHITE,true)
+	var bar := Rect2(108,884,324,10)
+	_box(bar,Color(1,1,1,0.22),Color(1,1,1,0.6),1)
+	_box(Rect2(bar.position,Vector2(maxf(1.0,bar.size.x*game.loading_progress),bar.size.y)),Color("ff5030"))
+	_clean_center(font,Vector2(270,914),"%d%%"%int(game.loading_progress*100),13,WHITE,true)
+
 func _crate_icon(c: Vector2,col: Color) -> void:
 	# Line-art supply crate, same weight as the settings gear on the poster.
 	var w:=2.6
@@ -509,8 +535,9 @@ func _draw_lootbox() -> void:
 		_text_center(ShopText.text(lang,"case_hint"),Vector2(270,752),16,MUTED)
 	if not game.lootbox_message.is_empty(): _text_center(game.lootbox_message,Vector2(270,786),14,Color("ef9b82"))
 	var action: String=ShopText.text(lang,"case_again" if game.lootbox_scene.revealed else "case_open")
-	_button(Rect2(80,790,380,66),action+"  ·  "+str(game.LOOTBOX_COST)+" "+ShopText.text(lang,"coins"),false)
-	_text_center(ShopText.text(lang,"case_balance")+": "+str(game.bank_coins),Vector2(270,889),16,GOLD)
+	_button(game.LOOTBOX_GOLD_RECT,action+"  ·  %d %s"%[game.LOOTBOX_COST,ShopText.text(lang,"coins")],false)
+	_button(game.LOOTBOX_VOUCHER_RECT,action+"  ·  1 %s"%ShopText.text(lang,"voucher"),false)
+	_text_center("%s: %s  ·  %s: %d" % [ShopText.text(lang,"case_balance"),str(game.bank_coins),ShopText.text(lang,"voucher"),game.bank_vouchers],Vector2(270,889),16,GOLD)
 
 func _draw_map() -> void:
 	var lang: String=game.language_code
@@ -527,13 +554,27 @@ func _draw_settings() -> void:
 	draw_rect(Rect2(0,0,540,960),Color(0.018,0.022,0.023,0.88))
 	_bold_text("SETTINGS",Vector2(42,100),32,WHITE)
 	_text("AUDIO / GAMEPLAY",Vector2(44,132),14,MUTED)
-	_button(Rect2(66,220,408,70),"SFX  /  "+("OFF" if game.sound.muted else "ON"),false)
-	_button(Rect2(66,316,408,70),game.localize("reload_auto") if game.auto_reload else game.localize("reload_manual"),false)
-	_button(Rect2(66,412,408,70),"文   "+game.localize("language"),false)
 	var lang: String=game.language_code
+	_volume_slider(game.SLIDER_MUSIC,ShopText.text(lang,"vol_music"),game.sound.music_volume)
+	_volume_slider(game.SLIDER_SFX,ShopText.text(lang,"vol_sfx"),game.sound.sfx_volume)
+	_button(Rect2(66,348,408,70),game.localize("reload_auto") if game.auto_reload else game.localize("reload_manual"),false)
+	_button(Rect2(66,436,408,70),"文   "+game.localize("language"),false)
 	var sep: String="：" if lang in ["zh_CN","zh_TW","ja"] else ": "
-	_button(Rect2(66,508,408,70),"Aa   %s%s%s"%[ShopText.text(lang,"text_size"),sep,ShopText.text(lang,"ts_%d"%game.text_size)],false)
+	_button(Rect2(66,524,408,70),"Aa   %s%s%s"%[ShopText.text(lang,"text_size"),sep,ShopText.text(lang,"ts_%d"%game.text_size)],false)
 	_button(Rect2(66,810,408,64),game.localize("back"),true)
+
+## A painted volume bar: name on the left, track with a red fill and a round knob, percent.
+func _volume_slider(track: Rect2,label: String,value: float) -> void:
+	var row:=Rect2(66,track.position.y-14,408,track.size.y+28)
+	_panel(row,Color(0.06,0.07,0.07,0.92),LINE,0)
+	_bold_text(label,Vector2(84,track.get_center().y+9),22,WHITE)
+	var bar:=Rect2(track.position.x,track.get_center().y-5,track.size.x,10)
+	draw_rect(bar,Color(1,1,1,0.16))
+	var slider_red:=Color("e8402f")
+	draw_rect(Rect2(bar.position,Vector2(bar.size.x*value,bar.size.y)),slider_red)
+	var knob:=Vector2(bar.position.x+bar.size.x*value,bar.get_center().y)
+	draw_circle(knob,14,WHITE); draw_circle(knob,8,slider_red)
+	clean_ops.append(["text",bold,Vector2(track.end.x+12,track.get_center().y+7),"%d%%"%roundi(value*100.0),_scaled(17),WHITE])
 
 func _draw_character_select() -> void:
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the
@@ -546,6 +587,7 @@ func _draw_character_select() -> void:
 	draw_rect(Rect2(0,0,540,62),Color(0.015,0.018,0.019,0.72))
 	draw_rect(Rect2(0,game.LOBBY_BAND_TOP,540,960-game.LOBBY_BAND_TOP),Color(0.015,0.018,0.019,0.82))
 	_wallet(game.WALLET_LOBBY,true,game.LOBBY_WALLET_SCALE)
+	_energy_refill_timer(game.WALLET_LOBBY,game.LOBBY_WALLET_SCALE)
 	if game.offer_active() and game.state=="character_select": _offer_badge(game.OFFER_BADGE)
 	if game.state=="character_select":
 		_side_button(game.SIDE_SIGNIN,"signin",ProgressCatalog.text(lang,"signin"),game.signin_available())
@@ -557,9 +599,9 @@ func _draw_character_select() -> void:
 		_side_button(game.SIDE_MAP,"map",ExtraText.text(lang,"map"),false)
 		_airdrop_button(lang)
 	_gear_icon(game.LOBBY_GEAR.get_center(),0.72)
-	for t in range(3):
+	for t in range(4):
 		var tab: Rect2=game.lobby_tab_rect(t); var tab_on: bool=game.lobby_tab==t
-		_text_center(ExtraText.text(lang,"skins") if t==2 else ShopText.text(lang,"chars" if t==0 else "pets"),Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
+		_text_center("载具" if t==3 else (ExtraText.text(lang,"skins") if t==2 else ShopText.text(lang,"chars" if t==0 else "pets")),Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
 	# Perk tag for the selected survivor, right of the tabs (only Darius has one for now).
 	if game.lobby_tab==0 and game.character_choice<game.lobby.CHARACTERS.size():
 		var perk_key: String=String(game.lobby.CHARACTERS[game.character_choice].get("perk",""))
@@ -581,11 +623,7 @@ func _draw_character_select() -> void:
 		_box(pr,Color(0,0,0,0.62))
 		var pc:=pr.get_center()
 		clean_ops.append(["line",PackedVector2Array([pc+Vector2(-5*side,-12),pc+Vector2(6*side,0),pc+Vector2(-5*side,12)]),WHITE,3.0])
-	# Switch arrows beside the survivor.
-	# big switch arrows, vertically centred on the 3D area between the top bar and the picker
-	for side in [-1,1]:
-		var ac: Vector2=game.lobby_arrow_rect(side).get_center()
-		_text_center("‹" if side<0 else "›",ac+Vector2(0,26),72,Color(1,1,1,0.85))
+	# (Big switch arrows beside the survivor removed per user request — switch via cards.)
 	if game.lobby_toast>0.0:
 		var a: float=minf(1.0,game.lobby_toast*2.0)
 		_panel(Rect2(170,600,200,46),Color(0.02,0.025,0.026,0.92*a),Color(RED,a),0)
@@ -596,6 +634,15 @@ func _draw_character_select() -> void:
 		_text_center(tt,Vector2(270,630),16,Color(1,1,1,a))
 	var can_start: bool=game.stamina.value>=game.stamina.RUN_COST
 	_button(game.LOBBY_START,game.localize("start")+"   ›",can_start)
+	# Cost ON the red START button (right side, same size as wallet can above): can-icon + "-10".
+	var cost_txt: String="-%d"%game.stamina.RUN_COST
+	var ctw: float=bold.get_string_size(cost_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(19)).x
+	var icon_sz: float=34.0*game.LOBBY_WALLET_SCALE
+	var total_w: float=icon_sz+6+ctw
+	var cx0: float=game.LOBBY_START.end.x-14-total_w
+	var cy: float=game.LOBBY_START.get_center().y-icon_sz*0.5
+	clean_ops.append(["texture",can_tex,Rect2(cx0,cy,icon_sz,icon_sz)])
+	_clean_text(bold,Vector2(cx0+icon_sz+6,cy+icon_sz-5),cost_txt,19,WHITE)
 	if not can_start and not game.ad_run_used:
 		var ad: Rect2=game.LOBBY_AD_RUN
 		_box(ad,Color("292316",0.98)); _frame(ad,Color(BRASS_LIGHT,0.85),1.0)
@@ -610,6 +657,11 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	var vis:=card.intersection(view)
 	if vis.size.y<4.0 or vis.size.x<4.0: return
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
+	if game.lobby_tab==3:
+		var vehicle_names: Array=["摩托车","跑风","装甲车"]
+		_panel(vis,Color(0.10,0.11,0.115,0.94),RED if whole else LINE,0)
+		if whole: _text_center(String(vehicle_names[clampi(i,0,2)]),Vector2(card.get_center().x,card.end.y-9),12,WHITE)
+		return
 	var pets: bool=game.lobby_tab==1
 	if game.lobby_tab==2:
 		if i>=game.lobby.SKINS.size():
@@ -720,7 +772,7 @@ func _draw_shop() -> void:
 	var lang: String=game.language_code
 	_text(ShopText.text(lang,"pick"),Vector2(151,91),13,MUTED)
 	_button(Rect2(404,24,112,48),ShopText.text(lang,"cases"),true)
-	_wallet(game.WALLET_SHOP)
+	_wallet_shop_only(game.WALLET_SHOP)
 	# plain entry into the store, next to the balance
 	var sb: Rect2=game.SHOP_STORE_BTN
 	var st:=StoreCatalog.text(game.language_code,"store").to_upper()+"  ›"
@@ -730,7 +782,7 @@ func _draw_shop() -> void:
 	if game.shop_items.is_empty(): return
 	var item: Dictionary=game.shop_items[game.shop_index]
 	var level: int=game.meta_upgrades.get(item.id,0); var cost: int=game.item_cost(item)
-	var maxed: bool=level>=int(item.max_level); var affordable: bool=game.bank_coins>=cost
+	var maxed: bool=level>=int(item.max_level); var affordable: bool=game.bank_silver>=cost
 	# Item card: name, effect, level pips.
 	_panel(Rect2(30,642,480,128),Color(0.075,0.08,0.082,0.94),LINE,0); draw_rect(Rect2(30,642,5,128),RED)
 	_bold_text(ShopText.text(lang,item.name_key),Vector2(52,684),26,WHITE)
@@ -745,7 +797,7 @@ func _draw_shop() -> void:
 	_button(Rect2(430,786,80,60),"›",false)
 	var label: String
 	if maxed: label=ShopText.text(lang,"max")
-	else: label="%s  %d %s"%[ShopText.text(lang,"upgrade"),cost,ShopText.text(lang,"coins")]
+	else: label="%s  %d %s"%[ShopText.text(lang,"upgrade"),cost,ShopText.text(lang,"silver")]
 	_button(Rect2(124,786,292,60),label,affordable and not maxed)
 	# Quick-pick chips for every item.
 	for i in range(game.shop_items.size()):
@@ -827,14 +879,13 @@ func _draw_pause() -> void:
 	_bold_text(game.localize("paused"),Vector2(114,370),42,WHITE)
 	_box(Rect2(110,387,94,3),PAINT_RED)
 	# Settings leads the list; restarting mid-run is free and says so.
-	_button(Rect2(66,468,408,58),game.localize("settings"),false)
-	_button(Rect2(66,540,408,58),game.localize("reload_auto") if game.auto_reload else game.localize("reload_manual"),false)
-	_button(Rect2(66,620,408,68),game.localize("resume"),true)
-	_button(Rect2(66,704,408,58),game.localize("shop"),false)
-	var restart_label: String=game.localize("restart")
-	if game.language_code.begins_with("zh"): restart_label+="（不耗罐头）"
-	_button(Rect2(66,780,408,58),restart_label,false)
-	_button(Rect2(66,856,408,58),GameText.text(game.language_code,"main_menu"),false)
+	# Keep running sits on top, so getting back into the run is the first thing under the thumb.
+	_button(Rect2(66,468,408,68),game.localize("resume"),true)
+	_button(Rect2(66,552,408,58),game.localize("settings"),false)
+	_button(Rect2(66,626,408,58),game.localize("reload_auto") if game.auto_reload else game.localize("reload_manual"),false)
+	_button(Rect2(66,700,408,58),game.localize("shop"),false)
+	_button(Rect2(66,774,408,58),game.localize("restart"),false)
+	_button(Rect2(66,848,408,58),GameText.text(game.language_code,"main_menu"),false)
 
 func _draw_revive_button(rect: Rect2) -> void:
 	# Rewarded-ad revive: explicit reward and AD label, presented as a restrained brass console.
@@ -1011,14 +1062,19 @@ static func _compact(n: int) -> String:
 static func _clock(seconds: int) -> String:
 	return "%02d:%02d:%02d"%[seconds/3600,(seconds/60)%60,seconds%60]
 
+## Can refill countdown. Hours stay unpadded ("0:59:00") because a full refill never exceeds a
+## couple of hours and the shorter string fits under the lobby's can counter.
+static func _clock_refill(seconds: int) -> String:
+	return "%d:%02d:%02d"%[seconds/3600,(seconds/60)%60,seconds%60]
+
 func _clean_text(f: Font,pos: Vector2,value: String,size: int,color: Color,shadow:=true) -> void:
 	size=_scaled(size)
 	if shadow: clean_ops.append(["text",f,pos+Vector2(1,2),value,size,Color(0,0,0,0.6)])
 	clean_ops.append(["text",f,pos,value,size,color])
 
-func _clean_center(f: Font,center: Vector2,value: String,size: int,color: Color) -> void:
+func _clean_center(f: Font,center: Vector2,value: String,size: int,color: Color,shadow:=true) -> void:
 	var w:=f.get_string_size(value,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(size)).x
-	_clean_text(f,Vector2(center.x-w/2,center.y),value,size,color)
+	_clean_text(f,Vector2(center.x-w/2,center.y),value,size,color,shadow)
 
 ## Flat fill (only for full-screen dimming and scroll masks).
 func _box(rect: Rect2,bg: Color,border:=Color(0,0,0,0),width:=0,radius:=0) -> void:
@@ -1070,20 +1126,50 @@ func _plus_button(rect: Rect2) -> void:
 	clean_ops.append(["line",PackedVector2Array([c+Vector2(-h,0),c+Vector2(h,0)]),WHITE,3.0])
 	clean_ops.append(["line",PackedVector2Array([c+Vector2(0,-h),c+Vector2(0,h)]),WHITE,3.0])
 
-## Can energy, coin and voucher balances with a + beside each (all open the store).
+## Can energy, coin, silver and voucher balances with a + beside each (all open the store).
 func _wallet(origin: Vector2,plus:=true,k:=1.0) -> void:
 	var cans: String="%d/%d"%[game.stamina.value,game.stamina.CAP]
-	var coins:=_compact(game.bank_coins); var vouchers:=_compact(game.bank_vouchers)
+	var coins:=_compact(game.bank_coins); var silver:=_compact(game.bank_silver); var vouchers:=_compact(game.bank_vouchers)
 	var ts:=int(round(24*k))
-	game.wallet_text_w=Vector3(bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(coins,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(vouchers,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x)
+	game.wallet_text_w=Vector4(bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(coins,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(silver,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(vouchers,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x)
 	var w: Dictionary=game.wallet_layout(origin,k)
 	clean_ops.append(["texture",can_tex,w.can_icon])
 	_clean_text(bold,w.can_text,cans,ts,WHITE)
-	clean_ops.append(["texture",coin_tex,w.coin_icon])
-	_clean_text(bold,w.coin_text,coins,ts,GOLD)
+	clean_ops.append(["texture",silver_tex,w.coin_icon])
+	_clean_text(bold,w.coin_text,silver,ts,Color(0.85,0.90,1.0))
+	clean_ops.append(["texture",coin_tex,w.silver_icon])
+	_clean_text(bold,w.silver_text,coins,ts,GOLD)
 	clean_ops.append(["texture",voucher_tex,w.v_icon])
 	_clean_text(bold,w.v_text,vouchers,ts,VOUCHER_COL)
-	if plus: _plus_button(w.can_plus); _plus_button(w.coin_plus); _plus_button(w.v_plus)
+	if plus: _plus_button(w.can_plus); _plus_button(w.coin_plus); _plus_button(w.silver_plus); _plus_button(w.v_plus)
+
+## Shop ONLY: silver + gold (fits left of the shop button, nothing clips).
+func _wallet_shop_only(origin: Vector2,plus:=true,k:=1.0) -> void:
+	var coins:=_compact(game.bank_coins); var silver:=_compact(game.bank_silver)
+	var ts:=int(round(24*k))
+	game.wallet_text_w=Vector4(bold.get_string_size(silver,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(coins,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,0,0)
+	var w: Dictionary=game.wallet_layout_shop(origin,k)
+	clean_ops.append(["texture",silver_tex,w.coin_icon])
+	_clean_text(bold,w.coin_text,silver,ts,Color(0.85,0.90,1.0))
+	clean_ops.append(["texture",coin_tex,w.silver_icon])
+	_clean_text(bold,w.silver_text,coins,ts,GOLD)
+	if plus: _plus_button(w.coin_plus); _plus_button(w.silver_plus)
+
+## How long until the can balance is back at CAP. Centred under the lobby's can counter so the two
+## read as one block, and hidden while already full. Bigger than the old corner label so the
+## hh:mm:ss digits stay legible at arm's length.
+func _energy_refill_timer(origin: Vector2,k:=1.0) -> void:
+	var secs: int=game.stamina.seconds_to_full()
+	if secs<=0: return
+	# Same string and size as _wallet() so the countdown is centred on the digits above it.
+	var ts: int=roundi(24*k)
+	var cans: String="%d/%d"%[game.stamina.value,game.stamina.CAP]
+	var cx: float=origin.x+42*k+bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x*0.5
+	var txt: String=_clock_refill(secs)
+	# Cap the size: at the "large" text setting the top bar has no room for a second full-size line.
+	var fs: int=mini(18,_scaled(18))
+	var tw: float=bold.get_string_size(txt,HORIZONTAL_ALIGNMENT_LEFT,-1,fs).x
+	clean_ops.append(["text",bold,Vector2(cx-tw*0.5,origin.y+50*k),txt,fs,Color(1,1,1,0.8)])
 
 func _toast(y: float) -> void:
 	if game.store_toast<=0.0 or game.store_toast_text.is_empty(): return
@@ -1146,7 +1232,7 @@ func _di_price(r: Rect2,label: String,mode:="buy") -> void:
 	while bold.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(size)).x>r.size.x-16 and size>14: size-=1
 	_clean_center(bold,Vector2(r.get_center().x,r.get_center().y+_scaled(size)*0.36),label,size,BRASS_LIGHT)
 
-const KIND_TILE:={"cans":Color("6f6240"),"coins":Color("5b6638"),"vouchers":Color("7e3447"),"bundle":Color("3d6766"),"offer":Color("7a5a1c")}
+const KIND_TILE:={"cans":Color("6f6240"),"coins":Color("5b6638"),"silver":Color("4a5a68"),"vouchers":Color("7e3447"),"bundle":Color("3d6766"),"offer":Color("7a5a1c"),"vehicle":Color("2e5a6a"),"character":Color("6a3e3e"),"pet":Color("3e5a3a"),"skin":Color("5a4a6a")}
 
 func _draw_store() -> void:
 	var lang: String=game.language_code
@@ -1160,7 +1246,7 @@ func _draw_store() -> void:
 		var r: Rect2=game.store_screen_rect(it)
 		if not r.intersects(view): continue
 		if it.has("header"):
-			var key: String={"offer":"limited","bundle":"bundles","character":"characters","pet":"pets","skin":"skins","cans":"can_packs","coins":"coin_packs","vouchers":"voucher_packs"}[it.header]
+			var key: String={"offer":"limited","bundle":"bundles","vehicle":"vehicles","character":"characters","pet":"pets","skin":"skins","cans":"can_packs","coins":"coin_packs","silver":"silver_packs","vouchers":"voucher_packs"}[it.header]
 			_di_label(r.position+Vector2(2,22),StoreCatalog.text(lang,key),HILITE if it.header=="offer" else Color(1,1,1,0.55))
 		elif it.has("can_ad"): _store_can_ad(r,lang)
 		else: _store_row(r,it.pack,cur,lang)
@@ -1240,19 +1326,23 @@ func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 	match kind:
 		"cans": label=StoreCatalog.text(lang,"can_packs")
 		"coins": label=StoreCatalog.text(lang,"coin_packs")
+		"silver": label=StoreCatalog.text(lang,"silver_packs")
 		"vouchers": label=StoreCatalog.text(lang,"voucher_packs")
 		_: label=StoreCatalog.text(lang,p.name)
 	# Currency rows need no caption: the icon says it. Characters and skins draw their own name below.
-	if not kind in ["cans","coins","vouchers","character","pet","skin"]: _di_label(Vector2(x,y),label,HILITE if kind=="offer" else Color(1,1,1,0.55))
+	if not kind in ["cans","coins","silver","vouchers","character","pet","skin","vehicle"]: _di_label(Vector2(x,y),label,HILITE if kind=="offer" else Color(1,1,1,0.55))
 	if kind=="cans":
 		y-=6.0
 		clean_ops.append(["texture",can_tex,Rect2(x,y+10,30,30)])
 		_clean_text(bold,Vector2(x+38,y+38),_grouped(int(p.cans)),34,WHITE)
-	elif kind in ["coins","vouchers"]:
+	elif kind in ["coins","silver","vouchers"]:
 		y-=6.0
 		var coins: bool=kind=="coins"
-		clean_ops.append(["texture",coin_tex if coins else voucher_tex,Rect2(x,y+10,30,30) if coins else Rect2(x-2,y+13,44,27)])
-		_clean_text(bold,Vector2(x+(38 if coins else 48),y+38),_grouped(int(p.coins if coins else p.vouchers)),34,WHITE)
+		var is_silver: bool=kind=="silver"
+		var amount: int=int(p.silver) if is_silver else (int(p.coins) if coins else int(p.vouchers))
+		var tex: Texture2D=silver_tex if is_silver else (coin_tex if coins else voucher_tex)
+		clean_ops.append(["texture",tex,Rect2(x,y+10,30,30) if not is_silver and not coins else Rect2(x-2,y+13,44,27) if not coins and not is_silver else Rect2(x,y+10,30,30)])
+		_clean_text(bold,Vector2(x+(48 if not coins and not is_silver else 38),y+38),_grouped(amount),34,WHITE)
 		if int(p.bonus)>0: _clean_text(bold,Vector2(x,y+66),"+%d%% %s"%[int(p.bonus),StoreCatalog.text(lang,"bonus").to_upper()],14,HILITE,false)
 	elif kind=="offer" and int(p.get("cans",0))>0:
 		clean_ops.append(["texture",can_tex,Rect2(x,y+10,34,34)])
@@ -1267,6 +1357,13 @@ func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 		var sk2: Dictionary=game.lobby.SKINS[int(p.get("skin",0))]
 		_clean_text(bold,Vector2(x,y+30),RunText.text(String(sk2.get("name","")),lang),30,WHITE,false)
 		_clean_text(font,Vector2(x,y+58),game.character_name(int(sk2.get("char",-1))),14,MUTED,false)
+		_clean_text(font,Vector2(x,y+84),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
+	elif kind=="vehicle":
+		# Bought vehicle: name, auto-ride line, one-time tag.
+		var v_name: String=String(p.get("name","bike"))
+		var v_desc: String=String(v_name)+"_desc"
+		_clean_text(bold,Vector2(x,y+30),StoreCatalog.text(lang,v_name),30,WHITE,false)
+		_clean_text(font,Vector2(x,y+58),StoreCatalog.text(lang,v_desc),14,MUTED,false)
 		_clean_text(font,Vector2(x,y+84),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
 	elif kind=="pet":
 		# A dog bought outright: name, plus a hint that cases can still drop it (1% jackpot).
@@ -1464,10 +1561,9 @@ func _red_dot(pos: Vector2) -> void:
 	for i in range(16): pts.append(pos+Vector2(cos(TAU*i/16.0),sin(TAU*i/16.0))*7.0)
 	clean_ops.append(["poly",pts,Color("e23a35")])
 
-## Lobby side buttons: just a white line icon on a soft dark shadow and a small label, no frame.
+## Lobby side buttons: just a white line icon and a small label, no frame, no shadow.
 func _side_button(r: Rect2,icon: String,label: String,dot: bool) -> void:
 	var c:=r.position+Vector2(r.size.x/2,30)
-	if glow_tex: clean_ops.append(["tinted",glow_tex,Rect2(c-Vector2(40,40),Vector2(80,80)),Color(0,0,0,0.55)])
 	var ic: Color=WHITE
 	var ac: Color=HILITE if dot else WHITE
 	match icon:
@@ -1519,7 +1615,7 @@ func _side_button(r: Rect2,icon: String,label: String,dot: bool) -> void:
 			clean_ops.append(["line",PackedVector2Array([c+Vector2(17,12),c+Vector2(5,-1)]),ic,1.5])
 	var ls:=13
 	while bold.get_string_size(label.to_upper(),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ls)).x>r.size.x+6 and ls>8: ls-=1
-	_clean_center(bold,Vector2(r.get_center().x,r.end.y-6),label.to_upper(),ls,WHITE)
+	_clean_center(bold,Vector2(r.get_center().x,r.end.y-6),label.to_upper(),ls,WHITE,false)
 	if dot: _red_dot(r.position+Vector2(r.size.x-10,6))
 
 func _circle_pts(c: Vector2,r: float,n:=12) -> PackedVector2Array:
@@ -1622,8 +1718,9 @@ func _draw_bag() -> void:
 		_box(r,Color(0.06,0.065,0.068,0.80)); _frame(r,Color(1,1,1,0.14),1.0)
 		var icon:=Rect2(r.get_center()+Vector2(-26,-46),Vector2(52,52))
 		if it.id=="coins": clean_ops.append(["texture",coin_tex,icon])
+		elif it.id=="silver": clean_ops.append(["texture",silver_tex,icon])
 		else: clean_ops.append(["texture",voucher_tex,Rect2(r.get_center()+Vector2(-36,-40),Vector2(72,42))])
-		_clean_center(bold,Vector2(r.get_center().x,r.end.y-34),_grouped(int(it.count)),20,GOLD if it.id=="coins" else VOUCHER_COL)
+		_clean_center(bold,Vector2(r.get_center().x,r.end.y-34),_grouped(int(it.count)),20,GOLD if it.id=="coins" else (Color(0.85,0.90,1.0) if it.id=="silver" else VOUCHER_COL))
 		_clean_center(font,Vector2(r.get_center().x,r.end.y-12),ExtraText.text(lang,"item_"+String(it.id)),12,MUTED)
 	_toast(860)
 
@@ -1912,13 +2009,14 @@ func _draw_payfail() -> void:
 
 
 var _terms_lines_cache: PackedStringArray
+var _terms_loaded: bool = false
 
-## Wrapped text lines of the legal disclaimer (markdown '#' stripped, word-wrapped to 480px).
+## Wrapped text lines of the legal disclaimer (markdown '#' stripped, word-wrapped to 400px).
 func _terms_lines() -> PackedStringArray:
-	if _terms_lines_cache != null: return _terms_lines_cache
+	if _terms_loaded: return _terms_lines_cache
 	var txt: String = FileAccess.get_file_as_string("res://assets/legal/terms.txt").replace("#","")
 	var size: int = _scaled(15)
-	var maxw: float = 480.0
+	var maxw: float = 400.0
 	var out: PackedStringArray = []
 	for raw_line in txt.split("\n", false):
 		var line: String = raw_line.strip_edges(false, true)
@@ -1933,6 +2031,7 @@ func _terms_lines() -> PackedStringArray:
 			else: cur = trial
 		if not cur.is_empty(): out.append(cur)
 	_terms_lines_cache = out
+	_terms_loaded = true
 	return _terms_lines_cache
 
 ## Pixels of scrollable overflow in the terms text area; the game clamps terms_scroll to this.
@@ -1940,11 +2039,17 @@ func terms_max_scroll() -> float:
 	var lh: int = _scaled(21)
 	return maxf(0.0, _terms_lines().size() * lh - game.TERMS_TEXT_AREA.size.y)
 
-## First-launch legal gate: full-screen terms, scrollable, Agree / Disagree.
+## First-launch legal gate: a small solid-black window over the login page (cover).
+## The cover poster stays fully visible around the window (no full-screen black),
+## everything outside the window is the unmodified poster.
 func _draw_terms() -> void:
 	var zh: bool = game.language_code.begins_with("zh")
-	_box(Rect2(0, 0, 540, 960), Color("0d0f10"))
-	_section(Vector2(-1, 64), "DEAD FRONTIER · TERMS OF USE & DISCLAIMER", 22)
+	# Background is still the login poster itself.
+	_draw_cover()
+	var panel: Rect2 = game.TERMS_PANEL
+	_box(panel, Color(0, 0, 0, 1))
+	_frame(panel, Color(1, 1, 1, 0.5), 2.0)
+	_section(Vector2(-1, 228), "DREADLINE · TERMS OF USE & DISCLAIMER", 22)
 	var area: Rect2 = game.TERMS_TEXT_AREA
 	var size: int = _scaled(15)
 	var lh: int = _scaled(21)

@@ -1,7 +1,8 @@
 extends Node3D
-## Selected dog runs just ahead of the survivor (front-left or front-right, by breed) and
-## pounces on zombies in front of him. The legs are posed every frame by dog_gallop.gd (the
-## baked Dog_Run clip hardly moves them); Dog_Bite plays for the bite. Scaled to real size.
+## Dogs run in formation around the survivor — front-left, front-right, left side, right
+## side (road runs -Z) — and pounce on zombies in front of him. The legs are posed every
+## frame by dog_gallop.gd (the baked Dog_Run clip hardly moves them); Dog_Bite plays for
+## the bite. Scaled to real size. Duplicates of the same breed can fill different slots.
 
 const LobbyScene=preload("res://scripts/lobby_scene_3d.gd")
 const ModelFix=preload("res://scripts/model_fix.gd")
@@ -28,9 +29,12 @@ const BARK_FAR:=preload("res://assets/audio/dog_bark_distant.mp3")
 const BARK_SEGMENTS:=[[0.0,0.78],[0.0,1.36],[2.19,2.95],[3.36,3.92],[4.38,4.98]]  # seconds in BARK_NEAR
 const BARK_GAP:=Vector2(10.0,18.0)  # random wait between barks
 const FAR_DISTANCE:=3.2  # further than this from the survivor counts as "far away"
-## Where the dog runs relative to the survivor: beside him and a little ahead (the road runs -Z).
-static func follow_offset(breed_index: int) -> Vector3:
-	return Vector3(-1.0 if breed_index%2==0 else 1.0,0,-1.5)
+## Formation slots around the survivor (the road runs -Z, so -Z is ahead): the two front
+## slots first, then the two flanks. slot 0 = front-left, 1 = front-right, 2 = left side,
+## 3 = right side. Position no longer depends on the breed, so duplicate breeds can stack.
+const FORMATION_OFFSETS:=[Vector3(-1.1,0,-1.6),Vector3(1.1,0,-1.6),Vector3(-1.5,0,-0.2),Vector3(1.5,0,-0.2)]
+static func follow_offset(slot_index: int) -> Vector3:
+	return FORMATION_OFFSETS[clampi(slot_index,0,FORMATION_OFFSETS.size()-1)]
 
 var game: Node
 var model: Node3D
@@ -39,6 +43,7 @@ var cooldown:=0.35
 var age:=0.0
 var bite_time:=0.0
 var breed:=0
+var slot_index:=0
 var base_y:=0.0
 var gallop: RefCounted
 var anim: AnimationPlayer
@@ -46,8 +51,9 @@ var bark_player: AudioStreamPlayer
 var bark_wait:=0.0
 var bark_stop:=0.0
 
-func setup(index: int) -> void:
+func setup(index: int, slot:=0) -> void:
 	breed=clampi(index,0,LobbyScene.PETS.size()-1)
+	slot_index=clampi(slot,0,FORMATION_OFFSETS.size()-1)
 	model=(load(LobbyScene.PETS[breed].asset) as PackedScene).instantiate() as Node3D
 	add_child(model); ModelFix.double_sided(model)
 	base_y=ModelFix.fit_pet(model,float(LobbyScene.PETS[breed].get("length",1.1)))
@@ -110,7 +116,7 @@ func tick(delta: float) -> void:
 	if not is_instance_valid(model): return
 	age+=delta; cooldown=maxf(0.0,cooldown-delta); bite_time=maxf(0.0,bite_time-delta)
 	if not _valid_target(): _acquire_target()
-	var follow: Vector3=game.player.position+follow_offset(breed)
+	var follow: Vector3=game.player.position+follow_offset(slot_index)
 	var desired: Vector3=follow
 	var attacking: bool=false
 	if _valid_target():
@@ -134,9 +140,13 @@ func tick(delta: float) -> void:
 		position+=flat_delta.normalized()*minf(distance,speed*delta)
 		position.x=clampf(position.x,-3.25,3.25)
 		position.y=0.0
-	# While accompanying the survivor, keep the nose pointed down the road. Only an
-	# actual attack turns the dog towards its target; lateral follow corrections are strafes.
-	var facing: Vector3=flat_delta if attacking and flat_delta.length()>0.05 else Vector3.FORWARD
+	# Facing: turn toward the target when attacking or when catching up from behind
+	# (recruited far ahead/behind on the road). Otherwise nose down the road.
+	var facing: Vector3
+	if flat_delta.length()>0.05 and (attacking or distance>2.0):
+		facing=flat_delta
+	else:
+		facing=Vector3.FORWARD
 	var yaw: float=atan2(facing.x,facing.z)
 	rotation.y=lerp_angle(rotation.y,yaw,1.0-exp(-delta*12.0))
 	model.position.y=base_y

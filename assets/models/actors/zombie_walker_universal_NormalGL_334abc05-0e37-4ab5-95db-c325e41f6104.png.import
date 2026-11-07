@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://3n2l23g74et1"
 path.s3tc="res://.godot/imported/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png-0b600fc4b58cea4f47eac9c3c5a9b9e1.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png-0b600fc4b58cea4f47eac9c3c5a9b9e1.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png"
-dest_files=["res://.godot/imported/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png-0b600fc4b58cea4f47eac9c3c5a9b9e1.s3tc.ctex"]
+dest_files=["res://.godot/imported/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png-0b600fc4b58cea4f47eac9c3c5a9b9e1.s3tc.ctex", "res://.godot/imported/zombie_walker_universal_NormalGL_334abc05-0e37-4ab5-95db-c325e41f6104.png-0b600fc4b58cea4f47eac9c3c5a9b9e1.etc2.ctex"]
 
 [params]
 

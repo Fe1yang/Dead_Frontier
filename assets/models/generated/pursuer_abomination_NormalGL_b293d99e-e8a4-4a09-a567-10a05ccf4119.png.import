@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c5x7f088pgho0"
 path.s3tc="res://.godot/imported/pursuer_abomination_NormalGL_b293d99e-e8a4-4a09-a567-10a05ccf4119.png-17efeb6a70f736aeb6c9044335d7b7b9.s3tc.ctex"
+path.etc2="res://.godot/imported/pursuer_abomination_NormalGL_b293d99e-e8a4-4a09-a567-10a05ccf4119.png-17efeb6a70f736aeb6c9044335d7b7b9.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/generated/pursuer_abomination_NormalGL_b293d99e-e8a4-4a09-a567-10a05ccf4119.png"
-dest_files=["res://.godot/imported/pursuer_abomination_NormalGL_b293d99e-e8a4-4a09-a567-10a05ccf4119.png-17efeb6a70f736aeb6c9044335d7b7b9.s3tc.ctex"]
+dest_files=["res://.godot/imported/pursuer_abomination_NormalGL_b293d99e-e8a4-4a09-a567-10a05ccf4119.png-17efeb6a70f736aeb6c9044335d7b7b9.s3tc.ctex", "res://.godot/imported/pursuer_abomination_NormalGL_b293d99e-e8a4-4a09-a567-10a05ccf4119.png-17efeb6a70f736aeb6c9044335d7b7b9.etc2.ctex"]
 
 [params]
 

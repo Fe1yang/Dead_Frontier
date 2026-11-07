@@ -42,6 +42,12 @@ const PRODUCTS:={
 	"coins_7":"com.deadfrontier.coins.5000",
 	"coins_8":"com.deadfrontier.coins.50000",
 	"coins_9":"com.deadfrontier.coins.500000",
+	"silver_1":"com.deadfrontier.silver.300",
+	"silver_2":"com.deadfrontier.silver.1650",
+	"silver_3":"com.deadfrontier.silver.3500",
+	"silver_4":"com.deadfrontier.silver.7400",
+	"silver_5":"com.deadfrontier.silver.19500",
+	"silver_6":"com.deadfrontier.silver.41000",
 	"vouchers_1":"com.deadfrontier.vouchers.1",
 	"vouchers_2":"com.deadfrontier.vouchers.5",
 	"vouchers_3":"com.deadfrontier.vouchers.10",
@@ -56,6 +62,7 @@ const PRODUCTS:={
 	# Unlockable survivors / outfits / companions: one-time (Non-Consumable) purchases.
 	"char_darius":"com.deadfrontier.char.darius",
 	"char_maya":"com.deadfrontier.char.maya",
+	"char_jian":"com.deadfrontier.char.jian",
 	"skin_maya_tactical":"com.deadfrontier.skin.maya.tactical",
 	"pet_0":"com.deadfrontier.pet.0",
 	"pet_1":"com.deadfrontier.pet.1",
@@ -64,7 +71,7 @@ const PRODUCTS:={
 }
 ## Non-Consumable ids: restore re-applies these from Transaction.currentEntitlements;
 ## consumables must NOT be listed here (re-granting them on restore would duplicate rewards).
-const NON_CONSUMABLE:=["removeads","char_darius","char_maya","skin_maya_tactical",
+const NON_CONSUMABLE:=["removeads","char_darius","char_maya","char_jian","skin_maya_tactical",
 	"pet_0","pet_1","pet_2","pet_3"]
 
 var mode:="none"            # "storekit", "sim" (editor / debug only) or "none"

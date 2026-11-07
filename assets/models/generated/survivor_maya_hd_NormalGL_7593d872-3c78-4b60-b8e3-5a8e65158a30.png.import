@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c2l8komksg6pn"
 path.s3tc="res://.godot/imported/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png-da77217dcb9bf1681c9c326225f9939d.s3tc.ctex"
+path.etc2="res://.godot/imported/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png-da77217dcb9bf1681c9c326225f9939d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/generated/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png"
-dest_files=["res://.godot/imported/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png-da77217dcb9bf1681c9c326225f9939d.s3tc.ctex"]
+dest_files=["res://.godot/imported/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png-da77217dcb9bf1681c9c326225f9939d.s3tc.ctex", "res://.godot/imported/survivor_maya_hd_NormalGL_7593d872-3c78-4b60-b8e3-5a8e65158a30.png-da77217dcb9bf1681c9c326225f9939d.etc2.ctex"]
 
 [params]
 

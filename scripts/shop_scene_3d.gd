@@ -67,7 +67,7 @@ func _ready() -> void:
 func reset_view(first_id: String) -> void:
 	focus_id=""; cam_pos=CAMERA_POS; cam_target=CAMERA_TARGET; cam_fov=CAMERA_FOV; celebrate=0.0
 	for key in props: props[key].scale=Vector3.ONE
-	auto_focus_timer=0.55
+	auto_focus_timer=-1.0 # stay on the overview until the player picks an item
 	set_meta("first_id",first_id)
 
 func focus(id: String) -> void:

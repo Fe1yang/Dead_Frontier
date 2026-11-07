@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkemccqlnhgk5"
 path.s3tc="res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg"
-dest_files=["res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.s3tc.ctex"]
+dest_files=["res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.s3tc.ctex", "res://.godot/imported/zombie_juggernaut_universal_ORM_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-b74712010763b30b2f1b07d98017edf0.etc2.ctex"]
 
 [params]
 

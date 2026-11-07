@@ -635,9 +635,9 @@ def road(variant):
             if arm in zebra_avenue:
                 for k in range(8):
                     cube('Intersection zebra paint',(-3.22+k*.92,arm*(half+.15+zlen/2),.0012),(.60,zlen,.0024),'zebra_paint')
-            alen=8.0-(half+zlen+.60)
-            if alen>1.8:
-                cube('Avenue centre dash',(0,arm*(half+zlen+.60+alen/2),.011),(.13,alen,.015),'paint',.004)
+            # Centre dashes run unbroken past the junction: the line sits just above the
+            # zebra plane, so it reads as continuous whether the crossing is shown or not.
+            cube('Avenue centre dash',(0,arm*((8.2+half)/2.0),.0036),(.13,8.0-half-.20,.0012),'paint')
         # The cross street is a real road too: edge lines plus its own centre dashes
         # (doubled on the boulevard crossing), kept clear of the avenue box.
         dash_y=(-.30,.30) if d>=10.0 else (0.0,)

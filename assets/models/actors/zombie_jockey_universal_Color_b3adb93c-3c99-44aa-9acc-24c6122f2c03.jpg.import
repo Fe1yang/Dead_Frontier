@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://h256eeh77qlc"
 path.s3tc="res://.godot/imported/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-e541de603df759eb11885782d5b621c6.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-e541de603df759eb11885782d5b621c6.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg"
-dest_files=["res://.godot/imported/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-e541de603df759eb11885782d5b621c6.s3tc.ctex"]
+dest_files=["res://.godot/imported/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-e541de603df759eb11885782d5b621c6.s3tc.ctex", "res://.godot/imported/zombie_jockey_universal_Color_b3adb93c-3c99-44aa-9acc-24c6122f2c03.jpg-e541de603df759eb11885782d5b621c6.etc2.ctex"]
 
 [params]
 

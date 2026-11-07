@@ -5,6 +5,9 @@ var voices: Array[AudioStreamPlayer] = []
 var stop_times: Array[float] = []
 var cursor := 0
 var muted := false
+# Independent volume sliders (Settings): 0..1 linear, applied to the Music and SFX buses.
+var music_volume := 0.8
+var sfx_volume := 1.0
 var last_id := ""
 var music: AudioStreamPlayer
 var music_state_name := ""
@@ -23,6 +26,8 @@ const SHOP_TRACKS := ["res://assets/audio/dead_run_theme.wav","res://assets/audi
 var shop_music: AudioStreamPlayer
 var shop_streams: Array = []
 ## States that are the main screen, including the popups shown over it.
+## Note: "terms" is NOT here — it sits over the cover (login page), so it keeps the
+## login/title music, not the lobby music.
 const LOBBY_STATES:=["character_select","signin","offer"]
 var chase_streams: Array = []
 var chase_index := -1
@@ -30,6 +35,11 @@ var chase_index := -1
 const STORM_TRACK := "res://assets/audio/chase_storm.mp3"
 var storm_stream: AudioStream
 var storm := false
+## Rain ambience: looped along with the chase music whenever the weather is rain/storm.
+const RAIN_TRACK := "res://assets/audio/rain_thunder.mp3"
+var rain_stream: AudioStream
+var rain: AudioStreamPlayer
+var raining := false
 ## Played the moment night falls in a run (main_3d calls night_fell), then the rotation carries on.
 const NIGHT_TRACK := "res://assets/audio/night_fall.mp3"
 var night_stream: AudioStream
@@ -52,6 +62,7 @@ func _ready() -> void:
 	# case rewards: tada for an upgrade, level-up for a dog (the best pull)
 	streams["tada"] = load("res://assets/audio/tada.mp3")
 	streams["level_up"] = load("res://assets/audio/level_up.mp3")
+	streams["coin_get"] = load("res://assets/audio/get_coin.mp3")
 	streams["thunder"] = _tone(2.2, 70.0, 28.0, 0.55, true)
 	streams["shot"] = streams["rifle"]
 	streams["hit"] = _tone(0.055, 95.0, 58.0, 0.24, true)
@@ -59,8 +70,10 @@ func _ready() -> void:
 	streams["hurt"] = _tone(0.22, 85.0, 42.0, 0.45, true)
 	streams["gate"] = _tone(0.28, 330.0, 880.0, 0.28, false)
 	streams["pickup"] = _tone(0.20, 520.0, 940.0, 0.24, false)
+	_ensure_buses()
 	for i in range(16):
 		var voice := AudioStreamPlayer.new()
+		voice.bus="SFX"
 		add_child(voice)
 		voices.append(voice)
 		stop_times.append(0.0)
@@ -103,10 +116,17 @@ func _ready() -> void:
 	shop_music.finished.connect(_next_shop_track)
 	chase=AudioStreamPlayer.new(); chase.volume_db=-12.0; add_child(chase)
 	chase.finished.connect(_next_chase_track)
+	if ResourceLoader.exists(RAIN_TRACK):
+		rain_stream=load(RAIN_TRACK)
+		if rain_stream is AudioStreamMP3: (rain_stream as AudioStreamMP3).loop=true
+		rain=AudioStreamPlayer.new(); rain.stream=rain_stream; rain.volume_db=-10.0; rain.bus="Music"; add_child(rain)
 	var fanfare_stream=load(RECORD_FANFARE)
 	if fanfare_stream:
 		fanfare=AudioStreamPlayer.new(); fanfare.stream=fanfare_stream; fanfare.volume_db=-2.0
 		add_child(fanfare); fanfare.finished.connect(_fanfare_finished)
+	for p in [music,title_music,lobby_music,shop_music,chase,fanfare]:
+		if is_instance_valid(p): p.bus="Music"
+	apply_volumes()
 	music_state("cover")
 
 func _process(delta: float) -> void:
@@ -123,8 +143,9 @@ func music_state(state: String) -> void:
 		if should_play and not music.playing: music.play()
 		elif not should_play and music.playing: music.stop()
 	if is_instance_valid(title_music):
-		# The start screen plays the login track; everything else keeps its own music.
-		var title_on:=not muted and state=="cover"
+		# The start screen (login page) plays the login track; the terms window sits on
+		# top of it, so "terms" keeps the same login music.
+		var title_on:=not muted and state in ["cover","terms"]
 		if title_on and not title_music.playing: title_music.play()
 		elif not title_on and title_music.playing: title_music.stop()
 	if is_instance_valid(lobby_music):
@@ -144,6 +165,10 @@ func music_state(state: String) -> void:
 			chase.stream_paused=false
 		elif not chase.playing:
 			_next_chase_track()
+	if is_instance_valid(rain):
+		var rain_on:=raining and not muted and music_state_name in ["intro","playing"]
+		if rain_on and not rain.playing: rain.play()
+		elif not rain_on and rain.playing: rain.stop()
 
 ## Random next lobby track, never the same one twice in a row (same rule as the chase rotation).
 func _next_lobby_track() -> void:
@@ -173,6 +198,12 @@ func _next_chase_track() -> void:
 	var pick: AudioStream=options[randi()%options.size()]
 	chase_index=chase_streams.find(pick)
 	chase.stream=pick; chase.stream_paused=false; chase.play()
+
+func set_rain(on: bool) -> void:
+	raining=on
+	if is_instance_valid(rain):
+		if on and not muted and not rain.playing: rain.play()
+		elif (not on or muted) and rain.playing: rain.stop()
 
 func night_fell() -> void:
 	if not is_instance_valid(chase) or not music_state_name in ["intro","playing","paused","health_ad"]: return
@@ -205,12 +236,16 @@ func play(id: String) -> void:
 	voice.stream = streams[id]
 	voice.pitch_scale = randf_range(0.92,1.08) if id=="zombie" else 1.0
 	voice.volume_db = -1.0
-	if id in ["rifle","smg"]: voice.volume_db=-8.0
-	elif id=="pistol_near": voice.volume_db=-16.0 # close-range pistol crack was startling
-	elif id=="pistol_far": voice.volume_db=-15.0
-	elif id=="shotgun": voice.volume_db=-5.0
-	elif id=="sniper": voice.volume_db=-3.0
+	# Gunshots levelled to about the pistol's loudness (measured: rifle -11, smg -14.5,
+	# shotgun -7, sniper -18, pistol -7 LUFS raw), so no gun is much louder than another.
+	if id=="rifle": voice.volume_db=-12.0
+	elif id=="smg": voice.volume_db=-10.0
+	elif id=="pistol_near": voice.volume_db=-16.0
+	elif id=="pistol_far": voice.volume_db=-12.0
+	elif id=="shotgun": voice.volume_db=-15.0
+	elif id=="sniper": voice.volume_db=-4.0
 	elif id=="zombie": voice.volume_db=-6.0
+	elif id in ["coin_get","tada","level_up"]: voice.volume_db=-14.0 # claim/jingle quieter
 	if id=="explosion": voice.volume_db-=0.92 # Ten percent lower linear amplitude.
 	voice.play()
 	stop_times[voice.get_index()] = 0.0
@@ -255,3 +290,18 @@ func _tone(duration: float, start_hz: float, end_hz: float, volume: float, noisy
 	stream.stereo = false
 	stream.data = bytes
 	return stream
+
+
+func _ensure_buses() -> void:
+	for bus_name in ["Music","SFX"]:
+		if AudioServer.get_bus_index(bus_name)<0:
+			AudioServer.add_bus(); var i:=AudioServer.bus_count-1
+			AudioServer.set_bus_name(i,bus_name); AudioServer.set_bus_send(i,"Master")
+
+## Push the two slider values onto their buses (0 = silent).
+func apply_volumes() -> void:
+	_ensure_buses()
+	for pair in [["Music",music_volume],["SFX",sfx_volume]]:
+		var i:=AudioServer.get_bus_index(String(pair[0])); var v: float=clampf(float(pair[1]),0.0,1.0)
+		AudioServer.set_bus_mute(i,v<=0.001)
+		AudioServer.set_bus_volume_db(i,linear_to_db(maxf(v,0.001)))

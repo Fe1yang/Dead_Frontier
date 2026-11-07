@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://k5escn5rahop"
 path.s3tc="res://.godot/imported/czech_wolfdog_ORM_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-3988da0dfc784f3b79347da4496a66cb.s3tc.ctex"
+path.etc2="res://.godot/imported/czech_wolfdog_ORM_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-3988da0dfc784f3b79347da4496a66cb.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pets/czech_wolfdog_ORM_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg"
-dest_files=["res://.godot/imported/czech_wolfdog_ORM_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-3988da0dfc784f3b79347da4496a66cb.s3tc.ctex"]
+dest_files=["res://.godot/imported/czech_wolfdog_ORM_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-3988da0dfc784f3b79347da4496a66cb.s3tc.ctex", "res://.godot/imported/czech_wolfdog_ORM_559c98d4-feaf-4965-9caf-90ae58c81a87.jpg-3988da0dfc784f3b79347da4496a66cb.etc2.ctex"]
 
 [params]
 

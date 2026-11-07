@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://b8i2lw0rkwe0i"
 path.s3tc="res://.godot/imported/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png-dbb8ee2a9b79b2af7eedc37592b3d31e.s3tc.ctex"
+path.etc2="res://.godot/imported/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png-dbb8ee2a9b79b2af7eedc37592b3d31e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png"
-dest_files=["res://.godot/imported/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png-dbb8ee2a9b79b2af7eedc37592b3d31e.s3tc.ctex"]
+dest_files=["res://.godot/imported/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png-dbb8ee2a9b79b2af7eedc37592b3d31e.s3tc.ctex", "res://.godot/imported/survivor_male_universal_NormalGL_550c10a9-ac1c-4935-a8c8-23a3ef2652ef.png-dbb8ee2a9b79b2af7eedc37592b3d31e.etc2.ctex"]
 
 [params]
 

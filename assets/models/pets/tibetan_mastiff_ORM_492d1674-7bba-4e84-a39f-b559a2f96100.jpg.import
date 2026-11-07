@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bla75barcqp26"
 path.s3tc="res://.godot/imported/tibetan_mastiff_ORM_492d1674-7bba-4e84-a39f-b559a2f96100.jpg-f9b5280e95691555123d0ab5815c715f.s3tc.ctex"
+path.etc2="res://.godot/imported/tibetan_mastiff_ORM_492d1674-7bba-4e84-a39f-b559a2f96100.jpg-f9b5280e95691555123d0ab5815c715f.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pets/tibetan_mastiff_ORM_492d1674-7bba-4e84-a39f-b559a2f96100.jpg"
-dest_files=["res://.godot/imported/tibetan_mastiff_ORM_492d1674-7bba-4e84-a39f-b559a2f96100.jpg-f9b5280e95691555123d0ab5815c715f.s3tc.ctex"]
+dest_files=["res://.godot/imported/tibetan_mastiff_ORM_492d1674-7bba-4e84-a39f-b559a2f96100.jpg-f9b5280e95691555123d0ab5815c715f.s3tc.ctex", "res://.godot/imported/tibetan_mastiff_ORM_492d1674-7bba-4e84-a39f-b559a2f96100.jpg-f9b5280e95691555123d0ab5815c715f.etc2.ctex"]
 
 [params]
 

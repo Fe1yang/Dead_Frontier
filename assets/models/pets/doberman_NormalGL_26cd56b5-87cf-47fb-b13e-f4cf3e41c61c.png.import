@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://dkq18wlk2co5n"
 path.s3tc="res://.godot/imported/doberman_NormalGL_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c.png-5d734c3f106958f806d7126f24ef3fa0.s3tc.ctex"
+path.etc2="res://.godot/imported/doberman_NormalGL_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c.png-5d734c3f106958f806d7126f24ef3fa0.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pets/doberman_NormalGL_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c.png"
-dest_files=["res://.godot/imported/doberman_NormalGL_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c.png-5d734c3f106958f806d7126f24ef3fa0.s3tc.ctex"]
+dest_files=["res://.godot/imported/doberman_NormalGL_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c.png-5d734c3f106958f806d7126f24ef3fa0.s3tc.ctex", "res://.godot/imported/doberman_NormalGL_26cd56b5-87cf-47fb-b13e-f4cf3e41c61c.png-5d734c3f106958f806d7126f24ef3fa0.etc2.ctex"]
 
 [params]
 

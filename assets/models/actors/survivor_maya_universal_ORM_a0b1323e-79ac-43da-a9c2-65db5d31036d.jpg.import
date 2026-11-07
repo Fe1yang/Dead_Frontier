@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://6vlyqrwmkiqy"
-path="res://.godot/imported/survivor_maya_universal_ORM_a0b1323e-79ac-43da-a9c2-65db5d31036d.jpg-c420da1066132994a1ade2e49f299900.ctex"
+path.s3tc="res://.godot/imported/survivor_maya_universal_ORM_a0b1323e-79ac-43da-a9c2-65db5d31036d.jpg-c420da1066132994a1ade2e49f299900.s3tc.ctex"
+path.etc2="res://.godot/imported/survivor_maya_universal_ORM_a0b1323e-79ac-43da-a9c2-65db5d31036d.jpg-c420da1066132994a1ade2e49f299900.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ab1762d69e2942c40e7aadf83698d962"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/survivor_maya_universal_ORM_a0b1323e-79ac-43da-a9c2-65db5d31036d.jpg"
-dest_files=["res://.godot/imported/survivor_maya_universal_ORM_a0b1323e-79ac-43da-a9c2-65db5d31036d.jpg-c420da1066132994a1ade2e49f299900.ctex"]
+dest_files=["res://.godot/imported/survivor_maya_universal_ORM_a0b1323e-79ac-43da-a9c2-65db5d31036d.jpg-c420da1066132994a1ade2e49f299900.s3tc.ctex", "res://.godot/imported/survivor_maya_universal_ORM_a0b1323e-79ac-43da-a9c2-65db5d31036d.jpg-c420da1066132994a1ade2e49f299900.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

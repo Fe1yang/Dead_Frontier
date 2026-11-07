@@ -17,11 +17,28 @@ func _ready() -> void:
 	model.rotation.y=PI # faces -Z, down the road after the survivor
 	add_child(model)
 	ModelFix.double_sided(model) # no white see-through specks on the skin
+	# Matte out the abomination: lightened skin + close rim stay, but roughness high so
+	# the sun / rim / fill never turns wet-leather highlights. Keep metallic / specular low.
+	for m in model.find_children("*","MeshInstance3D",true,false):
+		var mi:=m as MeshInstance3D
+		var src: Material=mi.material_override
+		if src==null and mi.mesh: src=mi.mesh.surface_get_material(0)
+		if src is StandardMaterial3D:
+			var bright: StandardMaterial3D=(src as StandardMaterial3D).duplicate() as StandardMaterial3D
+			bright.albedo_color=bright.albedo_color.lightened(0.30)
+			bright.roughness=clampf(maxf(bright.roughness,0.92),0.92,1.0)
+			bright.metallic=0.0
+			bright.metallic_specular=0.15
+			bright.specular_mode=BaseMaterial3D.SPECULAR_SCHLICK_GGX
+			mi.material_override=bright
+	var glow:=OmniLight3D.new()
+	glow.light_color=Color("ffe0b8"); glow.light_energy=0.35; glow.omni_range=6.0; glow.omni_attenuation=1.1
+	glow.position=Vector3(0,2.2,-1.5); add_child(glow)
 	anim=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
 	if is_instance_valid(anim) and anim.has_animation("Pursuer_Run"):
 		var clip:=anim.get_animation("Pursuer_Run")
 		clip.loop_mode=Animation.LOOP_LINEAR
-		anim.speed_scale=1.359 # calibrated from exported stance-foot travel to match the 3.5 m/s road
+		anim.speed_scale=0.90 # slowed for the opening: heavy stride, no ice-skate slide
 		anim.play("Pursuer_Run")
 	else:
 		push_error("Pursuer custom run animation is missing")

@@ -32,6 +32,14 @@ const PACKS:=[
 	{"id":"coins_7","kind":"coins","coins":5000,"vouchers":0,"tier":3,"bonus":0,"glow":"red","rays":12},
 	{"id":"coins_8","kind":"coins","coins":50000,"vouchers":0,"tier":5,"bonus":0,"glow":"violet","rays":16},
 	{"id":"coins_9","kind":"coins","coins":500000,"vouchers":0,"tier":6,"bonus":0,"glow":"violet","rays":16},
+	# Silver packs: same 6 amounts as coins, about half price (tier one step below gold).
+	# They grant the separate silver wallet, not gold. Art reuses the coin pile shape.
+	{"id":"silver_1","kind":"silver","silver":300,"vouchers":0,"tier":0,"bonus":0,"glow":"silver","rays":6,"art":"silver_1"},
+	{"id":"silver_2","kind":"silver","silver":1650,"vouchers":0,"tier":1,"bonus":10,"glow":"silver","rays":6,"art":"silver_2"},
+	{"id":"silver_3","kind":"silver","silver":3500,"vouchers":0,"tier":2,"bonus":17,"glow":"silver","rays":8,"art":"silver_3"},
+	{"id":"silver_4","kind":"silver","silver":7400,"vouchers":0,"tier":3,"bonus":23,"glow":"silver","rays":10,"art":"silver_4"},
+	{"id":"silver_5","kind":"silver","silver":19500,"vouchers":0,"tier":4,"bonus":30,"glow":"silver","rays":12,"art":"silver_5"},
+	{"id":"silver_6","kind":"silver","silver":41000,"vouchers":0,"tier":5,"bonus":37,"glow":"silver","rays":16,"art":"silver_6"},
 	{"id":"vouchers_1","kind":"vouchers","coins":0,"vouchers":1,"tier":0,"bonus":0,"glow":"red","rays":6},
 	{"id":"vouchers_2","kind":"vouchers","coins":0,"vouchers":5,"tier":2,"bonus":0,"glow":"red","rays":6},
 	{"id":"vouchers_3","kind":"vouchers","coins":0,"vouchers":10,"tier":3,"bonus":0,"glow":"red","rays":8},
@@ -42,23 +50,29 @@ const PACKS:=[
 	# one-time App Store purchase. `char` indexes lobby.CHARACTERS, `skin` indexes lobby.SKINS.
 	{"id":"char_darius","kind":"character","name":"char_darius","char":2,"perk":"perk_darius","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"gold","rays":8},
 	{"id":"char_maya","kind":"character","name":"char_maya","char":3,"perk":"perk_maya","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"violet","rays":10},
+	{"id":"char_jian","kind":"character","name":"char_jian","char":4,"perk":"perk_jian","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"teal","rays":8},
 	{"id":"skin_maya_tactical","kind":"skin","name":"skin_maya_tactical","skin":1,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"amber","rays":8},
 	{"id":"pet_0","kind":"pet","name":"pets","pet":0,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"gold","rays":8},
 	{"id":"pet_1","kind":"pet","name":"pets","pet":1,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"amber","rays":8},
 	{"id":"pet_2","kind":"pet","name":"pets","pet":2,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"violet","rays":10},
 	{"id":"pet_3","kind":"pet","name":"pets","pet":3,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"red","rays":10},
+	{"id":"vehicle_bike","kind":"vehicle","vehicle":"BIKE","name":"bike","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"teal","rays":12,"art":"vehicle_bike"},
+	{"id":"vehicle_sport","kind":"vehicle","vehicle":"SPORT","name":"sport","coins":0,"vouchers":0,"tier":4,"bonus":0,"once":true,"glow":"amber","rays":12,"art":"vehicle_sport"},
+	{"id":"vehicle_car","kind":"vehicle","vehicle":"CAR","name":"car","coins":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"red","rays":16,"art":"vehicle_car"},
 ]
 
 ## Limited-time offers: one pops up every two to three days (see main_3d.maybe_show_offer) and
 ## stays for OFFER_HOURS. "was" is the tier the contents would normally cost; the badge shows
 ## the saving between the two US prices.
 const OFFER_HOURS:=6
-const GLOW:={"gold":Color(1.0,0.72,0.25),"amber":Color(1.0,0.48,0.15),"red":Color(0.95,0.2,0.15),"violet":Color(0.62,0.32,1.0)}
+const GLOW:={"gold":Color(1.0,0.72,0.25),"amber":Color(1.0,0.48,0.15),"red":Color(0.95,0.2,0.15),"violet":Color(0.62,0.32,1.0),"silver":Color(0.85,0.90,1.0),"teal":Color(0.15,0.78,0.72)}
 const OFFERS:=[
 	{"id":"offer_supply","kind":"offer","name":"offer_supply","art":"bundle_supply","coins":8000,"vouchers":2,"tier":2,"was":4,"bonus":0,"glow":"violet","rays":12},
 	{"id":"offer_arms","kind":"offer","name":"offer_arms","art":"bundle_starter","coins":2000,"vouchers":8,"tier":3,"was":4,"bonus":0,"glow":"violet","rays":10},
 	{"id":"offer_hoard","kind":"offer","name":"offer_hoard","art":"bundle_legend","coins":30000,"vouchers":10,"tier":4,"was":5,"bonus":0,"glow":"violet","rays":16},
 	{"id":"offer_cans","kind":"offer","name":"can_packs","art":"cans_4","cans":150,"coins":0,"vouchers":0,"tier":2,"was":3,"bonus":0,"glow":"amber","rays":12},
+	{"id":"offer_legend_high","kind":"offer","name":"offer_hoard","art":"bundle_legend","coins":60000,"vouchers":20,"tier":5,"was":6,"bonus":0,"glow":"violet","rays":16},
+	{"id":"offer_cans_high","kind":"offer","name":"can_packs","art":"cans_6","cans":600,"coins":0,"vouchers":0,"tier":5,"was":6,"bonus":0,"glow":"violet","rays":16},
 ]
 static func offer(id: String) -> Dictionary:
 	for o in OFFERS:
@@ -142,9 +156,9 @@ static func format_amount(c: Array,amount: float) -> String:
 
 ## Store words for all 20 languages. Missing keys fall back to English.
 const T:={
-	"en":{"pay_failed":"Top-up failed","pay_failed_msg":"The purchase didn't go through and nothing was added. Check your connection and try again.","retry":"Retry","close":"Close","limited":"Limited offer","ends":"Ends in","was":"Was","offer_supply":"Supply drop","offer_arms":"Arms deal","offer_hoard":"Gold hoard","buy":"Buy","characters":"Survivors","skins":"Skins","pets":"Pets","store":"Store","bundles":"Best value","coin_packs":"Coins","voucher_packs":"Vouchers","once":"Once only","owned":"Purchased","note":"Approximate local prices. The App Store charges the final amount.","pay_soon":"Payments are not connected yet","test_grant":"Test purchase: added","starter":"Starter pack","supply":"Supply pack","legend":"Legend pack","bonus":"bonus"},
-	"zh_CN":{"pay_failed":"充值失败","pay_failed_msg":"本次购买没有完成，奖励未发放。请检查网络后重试。","retry":"重试","close":"关闭","limited":"限时礼包","ends":"剩余","was":"原价","offer_supply":"补给空投","offer_arms":"军火特惠","offer_hoard":"黄金宝藏","buy":"购买","characters":"角色","skins":"皮肤","pets":"宠物","store":"商店","bundles":"超值礼包","coin_packs":"金币","voucher_packs":"券","once":"限购一次","owned":"已购买","note":"价格为当地参考价，最终以 App Store 结算为准。","pay_soon":"支付功能尚未接入","test_grant":"测试购买：已到账","starter":"新手礼包","supply":"补给礼包","legend":"传奇礼包","bonus":"赠送"},
-	"zh_TW":{"pay_failed":"儲值失敗","pay_failed_msg":"本次購買沒有完成，獎勵未發放。請檢查網路後重試。","retry":"重試","close":"關閉","limited":"限時禮包","ends":"剩餘","was":"原價","offer_supply":"補給空投","offer_arms":"軍火特惠","offer_hoard":"黃金寶藏","buy":"購買","characters":"角色","skins":"造型","pets":"寵物","store":"商店","bundles":"超值禮包","coin_packs":"金幣","voucher_packs":"券","once":"限購一次","owned":"已購買","note":"價格為當地參考價，最終以 App Store 結帳為準。","pay_soon":"支付功能尚未接入","test_grant":"測試購買：已到帳","starter":"新手禮包","supply":"補給禮包","legend":"傳奇禮包","bonus":"贈送"},
+	"en":{"pay_failed":"Top-up failed","pay_failed_msg":"The purchase didn't go through and nothing was added. Check your connection and try again.","retry":"Retry","close":"Close","limited":"Limited offer","ends":"Ends in","was":"Was","offer_supply":"Supply drop","offer_arms":"Arms deal","offer_hoard":"Gold hoard","buy":"Buy","characters":"Survivors","skins":"Skins","pets":"Pets","vehicles":"Vehicles","bike":"Motorcycle","bike_desc":"Ride it for the first 1000m every run, until it breaks","sport":"Sport Bike","sport_desc":"Faster, harder-hitting ride · first 1000m every run, until it breaks","car":"Armored Car","car_desc":"Fastest, heaviest ride · first 1000m every run, until it breaks","store":"Store","bundles":"Best value","coin_packs":"Coins","silver_packs":"Silver","voucher_packs":"Vouchers","once":"Once only","owned":"Purchased","note":"Approximate local prices. The App Store charges the final amount.","pay_soon":"Payments are not connected yet","test_grant":"Test purchase: added","starter":"Starter pack","supply":"Supply pack","legend":"Legend pack","bonus":"bonus"},
+	"zh_CN":{"pay_failed":"充值失败","pay_failed_msg":"本次购买没有完成，奖励未发放。请检查网络后重试。","retry":"重试","close":"关闭","limited":"限时礼包","ends":"剩余","was":"原价","offer_supply":"补给空投","offer_arms":"军火特惠","offer_hoard":"黄金宝藏","buy":"购买","characters":"角色","skins":"皮肤","pets":"宠物","vehicles":"载具","bike":"摩托车","bike_desc":"每局前1000米自动骑乘，直到损坏","sport":"跑风","sport_desc":"速度更快、撞击更强 · 每局前1000米自动骑乘，直到损坏","car":"装甲车","car_desc":"最快、最重 · 每局前1000米自动骑乘，直到损坏","store":"商店","bundles":"超值礼包","coin_packs":"金币","silver_packs":"银币","voucher_packs":"券","once":"限购一次","owned":"已购买","note":"价格为当地参考价，最终以 App Store 结算为准。","pay_soon":"支付功能尚未接入","test_grant":"测试购买：已到账","starter":"新手礼包","supply":"补给礼包","legend":"传奇礼包","bonus":"赠送"},
+	"zh_TW":{"pay_failed":"儲值失敗","pay_failed_msg":"本次購買沒有完成，獎勵未發放。請檢查網路後重試。","retry":"重試","close":"關閉","limited":"限時禮包","ends":"剩餘","was":"原價","offer_supply":"補給空投","offer_arms":"軍火特惠","offer_hoard":"黃金寶藏","buy":"購買","characters":"角色","skins":"造型","pets":"寵物","store":"商店","bundles":"超值禮包","coin_packs":"金幣","silver_packs":"銀幣","voucher_packs":"券","once":"限購一次","owned":"已購買","note":"價格為當地參考價，最終以 App Store 結帳為準。","pay_soon":"支付功能尚未接入","test_grant":"測試購買：已到帳","starter":"新手禮包","supply":"補給禮包","legend":"傳奇禮包","bonus":"贈送"},
 	"ja":{"pay_failed":"購入に失敗しました","pay_failed_msg":"購入が完了せず、アイテムは付与されていません。通信環境を確認して再度お試しください。","retry":"再試行","close":"閉じる","limited":"期間限定","ends":"残り","was":"通常","offer_supply":"補給投下","offer_arms":"武器特価","offer_hoard":"黄金の山","buy":"購入","characters":"キャラクター","skins":"スキン","pets":"ペット","store":"ショップ","bundles":"お得なパック","coin_packs":"コイン","voucher_packs":"チケット","once":"1回限り","owned":"購入済み","note":"価格は目安です。最終金額は App Store で確定します。","pay_soon":"決済はまだ接続されていません","test_grant":"テスト購入：付与しました","starter":"スターターパック","supply":"補給パック","legend":"レジェンドパック","bonus":"ボーナス"},
 	"ko":{"pay_failed":"충전 실패","pay_failed_msg":"구매가 완료되지 않아 보상이 지급되지 않았습니다. 네트워크를 확인한 뒤 다시 시도하세요.","retry":"다시 시도","close":"닫기","limited":"기간 한정","ends":"남은 시간","was":"정가","offer_supply":"보급 투하","offer_arms":"무기 특가","offer_hoard":"황금 더미","buy":"구매","characters":"캐릭터","skins":"스킨","pets":"반려견","store":"상점","bundles":"특가 패키지","coin_packs":"코인","voucher_packs":"쿠폰","once":"1회 한정","owned":"구매 완료","note":"현지 참고 가격입니다. 최종 금액은 App Store에서 결제됩니다.","pay_soon":"결제가 아직 연결되지 않았습니다","test_grant":"테스트 구매: 지급 완료","starter":"스타터 팩","supply":"보급 팩","legend":"전설 팩","bonus":"보너스"},
 	"es":{"pay_failed":"Error en la recarga","pay_failed_msg":"La compra no se completó y no se añadió nada. Revisa tu conexión e inténtalo de nuevo.","retry":"Reintentar","close":"Cerrar","limited":"Oferta limitada","ends":"Termina en","was":"Antes","offer_supply":"Suministros","offer_arms":"Trato de armas","offer_hoard":"Tesoro de oro","buy":"Comprar","characters":"Personajes","skins":"Aspectos","pets":"Mascotas","store":"Tienda","bundles":"Mejor valor","coin_packs":"Monedas","voucher_packs":"Vales","once":"Solo una vez","owned":"Comprado","note":"Precios locales aproximados. El App Store cobra el importe final.","pay_soon":"Los pagos aún no están conectados","test_grant":"Compra de prueba: añadido","starter":"Pack inicial","supply":"Pack de suministros","legend":"Pack legendario","bonus":"extra"},

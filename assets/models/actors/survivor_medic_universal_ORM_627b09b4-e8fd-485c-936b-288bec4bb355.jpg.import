@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cqg0bfn56j6gf"
 path.s3tc="res://.godot/imported/survivor_medic_universal_ORM_627b09b4-e8fd-485c-936b-288bec4bb355.jpg-4b75c7bc81313b9ae1d687809324370b.s3tc.ctex"
+path.etc2="res://.godot/imported/survivor_medic_universal_ORM_627b09b4-e8fd-485c-936b-288bec4bb355.jpg-4b75c7bc81313b9ae1d687809324370b.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/survivor_medic_universal_ORM_627b09b4-e8fd-485c-936b-288bec4bb355.jpg"
-dest_files=["res://.godot/imported/survivor_medic_universal_ORM_627b09b4-e8fd-485c-936b-288bec4bb355.jpg-4b75c7bc81313b9ae1d687809324370b.s3tc.ctex"]
+dest_files=["res://.godot/imported/survivor_medic_universal_ORM_627b09b4-e8fd-485c-936b-288bec4bb355.jpg-4b75c7bc81313b9ae1d687809324370b.s3tc.ctex", "res://.godot/imported/survivor_medic_universal_ORM_627b09b4-e8fd-485c-936b-288bec4bb355.jpg-4b75c7bc81313b9ae1d687809324370b.etc2.ctex"]
 
 [params]
 

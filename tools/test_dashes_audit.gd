@@ -9,7 +9,10 @@ func _run() -> void:
 	root.add_child(game); await process_frame
 	game.set_process(false); game.state="playing"; game.hud.visible=false
 	game.set_weather("clear"); game.distance=0.0; game._apply_day_night()
-	for v in [1,4,8,14,15,20]:
+	for r in game.roads:
+		var zn:=r.find_child("CITY_zebra_paint",true,false) as Node3D
+		if zn: zn.visible=false
+	for v in [4,5,11,23]:
 		for i in range(game.roads.size()): game.roads[i].position.z=(6-i)*16.0
 		game.roads[v].position.z=0.0
 		game.camera.position=Vector3(0,26.0,0.01)

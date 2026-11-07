@@ -18,7 +18,7 @@ func _run() -> void:
 	game.set_process(false)
 	game.stamina.set_process(false)
 	var s: Node=game.stamina
-	assert(s.CAP==50 and s.RUN_COST==10 and s.REGEN_SECONDS==180)
+	assert(s.CAP==50 and s.RUN_COST==10 and s.REGEN_SECONDS==216)
 
 	s.value=50; s.updated_at=s.now(); game.enter_lobby(); game.start_run()
 	assert(s.value==40 and game.state in ["intro","playing"])
@@ -119,5 +119,5 @@ func _run() -> void:
 	assert(game.spend_vouchers(1) and game.bank_vouchers==0 and game.state=="character_select")
 	print("RESOURCE_VOUCHER_SHORTAGE_PASS pack=vouchers_1 purchase=1 exact_spend=no_popup")
 
-	print("STAMINA_TEST_PASS consume=10 regen=180s cap=50 overfill=yes disabled_start=yes one_ad_run=yes store_ads=yes can_offer=yes resource_packs=yes")
+	print("STAMINA_TEST_PASS consume=10 regen=216s cap=50 overfill=yes disabled_start=yes one_ad_run=yes store_ads=yes can_offer=yes resource_packs=yes")
 	quit()

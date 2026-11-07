@@ -26,9 +26,10 @@ bpy.context.scene.collection.objects.link(root)
 tops = [o for o in bpy.data.objects if o != root and o.parent is None]
 for o in tops: o.parent = root
 
-def world_bounds():
+def world_bounds(column_only=False):
     # Evaluated (armature-deformed) vertices: the raw mesh object transform ignores
-    # the skeleton's scale, which would shrink the framing by ~100x.
+    # the skeleton's scale. column_only keeps the torso column |x|,|y|<0.35, dropping
+    # stray junk (e.g. a hidden 2x2 plane one metre under the feet) from the framing.
     dg = bpy.context.evaluated_depsgraph_get()
     lo = Vector((1e9,)*3); hi = Vector((-1e9,)*3)
     for ob in meshes:
@@ -36,16 +37,17 @@ def world_bounds():
         me = ev.to_mesh()
         for v in me.vertices:
             w = ev.matrix_world @ v.co
+            if column_only and (abs(w.x) > 0.35 or abs(w.y) > 0.35): continue
             lo = Vector(map(min, lo, w)); hi = Vector(map(max, hi, w))
         ev.to_mesh_clear()
     return lo, hi
 
-low, high = world_bounds()
+low, high = world_bounds(column_only=True)
 h = high.z - low.z
-s = 1.86 / h
+s = 1.80 / h
 root.scale = (s, s, s)
 bpy.context.view_layer.update()
-low2, high2 = world_bounds()
+low2, high2 = world_bounds(column_only=True)
 root.location = Vector((-(low2.x + high2.x) / 2, -(low2.y + high2.y) / 2, -low2.z))
 bpy.context.view_layer.update()
 
@@ -75,10 +77,9 @@ area('Rim', (0, 2.0, 3.7), 380, 2.0, (1.0, 0.92, 0.80))
 bpy.ops.object.camera_add(location=(0, -4.0, 1.70))
 cam = bpy.context.object
 cam.rotation_euler = (Vector((0, 0, 1.58)) - cam.location).to_track_quat('-Z', 'Y').to_euler()
-cam.data.type = 'ORTHO'; cam.data.ortho_scale = float(__import__('sys').argv[-1]) if __import__('sys').argv[-1].replace('.','').isdigit() else 0.74
+cam.data.type = 'ORTHO'; cam.data.ortho_scale = 0.74
 scene.camera = cam
 
-print('DBG h=',h,'cam=',scene.camera.data.type,scene.camera.data.ortho_scale,'loc=',tuple(scene.camera.location))
 scene.render.filepath = str(out)
 bpy.ops.render.render(write_still=True)
 print('PORTRAIT_RENDERED', model, scene.render.filepath)

@@ -10,12 +10,16 @@ const MODELS := {
 	"flashbang": preload("res://assets/models/flashbang.glb"),
 	"launcher": preload("res://assets/models/weapons/launcher.glb"),
 	"fire_round": preload("res://assets/models/fire_round.glb"),
-	"coin": preload("res://assets/models/coin_stack.glb")
+	"coin": preload("res://assets/models/coin_stack.glb"),
+	"silver_coin": preload("res://assets/models/coin_stack.glb")
 }
-const DISPLAY_SCALES := {"medkit": 1.35, "armor": 0.55, "helmet": 1.60, "ammo": 1.25, "grenade": 2.0, "flashbang": 2.0, "launcher": 0.9, "fire_round": 2.4, "coin": 0.55}
-const GROUND_OFFSETS := {"medkit": 0.0, "armor": -0.535, "helmet": 0.0, "ammo": 0.0, "grenade": 0.02, "flashbang": 0.02, "launcher": 0.12, "fire_round": 0.03, "coin": 0.0}
-const LABELS := {"medkit": "MED", "armor": "ARMOR", "helmet": "HELMET", "ammo": "AMMO", "grenade": "FRAG", "flashbang": "FLASH", "launcher": "LAUNCHER", "fire_round": "INCENDIARY", "coin": "COINS"}
-const COLORS := {"medkit": Color("ff7668"), "armor": Color("72d9e5"), "helmet": Color("b6d38a"), "ammo": Color("ffd275"), "grenade": Color("b6d38a"), "flashbang": Color("bdefff"), "launcher": Color("ff9b55"), "fire_round": Color("ff6547"), "coin": Color("d6b265")}
+# One coin mesh, two metals: gold stays gold, silver reuses the same pile tinted.
+const GOLD_ALBEDO:=Color(1.0,0.80,0.32)
+const SILVER_ALBEDO:=Color(0.52,0.58,0.66)
+const DISPLAY_SCALES := {"medkit": 1.35, "armor": 0.55, "helmet": 1.60, "ammo": 1.25, "grenade": 2.0, "flashbang": 2.0, "launcher": 0.9, "fire_round": 2.4, "coin": 0.55, "silver_coin": 0.55}
+const GROUND_OFFSETS := {"medkit": 0.0, "armor": -0.535, "helmet": 0.0, "ammo": 0.0, "grenade": 0.02, "flashbang": 0.02, "launcher": 0.12, "fire_round": 0.03, "coin": 0.0, "silver_coin": 0.0}
+const LABELS := {"medkit": "MED", "armor": "ARMOR", "helmet": "HELMET", "ammo": "AMMO", "grenade": "FRAG", "flashbang": "FLASH", "launcher": "LAUNCHER", "fire_round": "INCENDIARY", "coin": "COINS", "silver_coin": "SILVER"}
+const COLORS := {"medkit": Color("ff7668"), "armor": Color("72d9e5"), "helmet": Color("b6d38a"), "ammo": Color("ffd275"), "grenade": Color("b6d38a"), "flashbang": Color("bdefff"), "launcher": Color("ff9b55"), "fire_round": Color("ff6547"), "coin": Color("d6b265"), "silver_coin": Color("9ea8b4")}
 
 var kind := "ammo"
 var value := 1
@@ -26,6 +30,7 @@ var time := 0.0
 var base_yaw := 0.0
 var scatter_elapsed := 0.0
 var coin_pieces: Array[Dictionary]=[]
+var coin_light: OmniLight3D
 
 func _ready() -> void:
 	visual = Node3D.new()
@@ -36,11 +41,37 @@ func _ready() -> void:
 	visual.add_child(model_instance)
 	base_yaw = -0.35 if kind=="armor" else 0.12
 	visual.rotation.y = base_yaw
-	if kind=="coin": _prepare_coin_scatter()
-	var light:=OmniLight3D.new(); light.position=Vector3(0,0.20 if kind=="coin" else 0.58,0)
-	light.light_color=COLORS[kind]; light.light_energy=0.07 if kind=="coin" else 0.38
-	light.omni_range=0.70 if kind=="coin" else 1.55; add_child(light)
+	if kind in ["coin","silver_coin"]:
+		_tint_coin_metal(SILVER_ALBEDO if kind=="silver_coin" else GOLD_ALBEDO)
+		_prepare_coin_scatter()
+	var _is_coin: bool = kind in ["coin","silver_coin"]
+	# NO GLOW for coins in match (gold + silver): no OmniLight, no emission, no twinkle.
+	if not _is_coin:
+		var light:=OmniLight3D.new(); light.position=Vector3(0,0.58,0)
+		light.light_color=COLORS[kind]; light.light_energy=0.38
+		light.omni_range=1.55
+		add_child(light)
 	_label(LABELS[kind],COLORS[kind])
+
+## Reuses the gold pile mesh for silver: retints every coin material in place.
+## The skull relief keeps its shape — only metalness/roughness/tint change.
+## NO GLOW (user request): emission OFF for both gold and silver coins in match.
+func _tint_coin_metal(albedo: Color) -> void:
+	for mi in model_instance.find_children("*","MeshInstance3D",true,false):
+		var mesh_inst:=mi as MeshInstance3D
+		if mesh_inst.mesh==null: continue
+		var src: Material=mesh_inst.material_override
+		if src==null: src=mesh_inst.mesh.surface_get_material(0)
+		if not (src is StandardMaterial3D): continue
+		var mat: StandardMaterial3D=(src as StandardMaterial3D).duplicate() as StandardMaterial3D
+		mat.albedo_color=albedo
+		mat.metallic=0.9
+		mat.metallic_specular=1.0
+		mat.roughness=0.48 if kind=="silver_coin" else 0.24
+		mat.emission_enabled=false
+		mat.emission=Color(0,0,0,1)
+		mat.emission_energy_multiplier=0.0
+		mesh_inst.material_override=mat
 
 func _prepare_coin_scatter() -> void:
 	for node in model_instance.get_children():
@@ -51,14 +82,16 @@ func _prepare_coin_scatter() -> void:
 
 func _label(text: String,color: Color) -> void:
 	var label:=Label3D.new(); label.text=RunText.text("l_"+kind) if RunText.text("l_"+kind)!="l_"+kind else text
-	label.font=RunText.font(); label.font_size=32 if kind=="coin" else 42; label.pixel_size=0.0032 if kind=="coin" else 0.004
-	label.modulate=color; label.outline_modulate=Color("101513"); label.outline_size=6 if kind=="coin" else 7
-	label.billboard=BaseMaterial3D.BILLBOARD_ENABLED; label.position=Vector3(0,0.34 if kind=="coin" else 0.82,0); add_child(label)
+	var _is_coin:=kind in ["coin","silver_coin"]
+	label.font=RunText.font(); label.font_size=32 if _is_coin else 42; label.pixel_size=0.0032 if _is_coin else 0.004
+	label.modulate=color; label.outline_modulate=Color("101513"); label.outline_size=6 if _is_coin else 7
+	label.billboard=BaseMaterial3D.BILLBOARD_ENABLED; label.position=Vector3(0,0.34 if _is_coin else 0.82,0); add_child(label)
 
 func tick(delta: float) -> void:
 	time+=delta
 	position.z+=3.5*delta
-	if kind=="coin":
+	if kind in ["coin","silver_coin"]:
+		# NO GLOW: no twinkle / breathing light for coins (gold + silver).
 		scatter_elapsed+=delta
 		var t: float=clampf(scatter_elapsed/0.48,0.0,1.0); var spread: float=1.0-pow(1.0-t,3.0)
 		for piece in coin_pieces:

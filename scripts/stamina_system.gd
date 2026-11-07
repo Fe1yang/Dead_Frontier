@@ -5,7 +5,7 @@ signal changed
 
 const CAP:=50
 const RUN_COST:=10
-const REGEN_SECONDS:=180
+const REGEN_SECONDS:=216  # 50 cans x 216s = 10800s: a full 3-hour refill from empty
 
 var value:=CAP
 var updated_at:=0
@@ -58,6 +58,12 @@ func add(amount: int) -> void:
 func seconds_to_next() -> int:
 	if value>=CAP: return 0
 	return maxi(0,REGEN_SECONDS-maxi(0,now()-updated_at)%REGEN_SECONDS)
+
+## Seconds until the balance is back at CAP: the next can plus every can after it. A full (or
+## overfilled) balance has nothing to wait for, so it returns 0 and the lobby hides the counter.
+func seconds_to_full() -> int:
+	if value>=CAP: return 0
+	return seconds_to_next()+(CAP-value-1)*REGEN_SECONDS
 
 func load_config(config: ConfigFile) -> void:
 	value=maxi(0,int(config.get_value("wallet","cans",CAP)))

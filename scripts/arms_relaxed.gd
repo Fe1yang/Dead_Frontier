@@ -18,10 +18,17 @@ extends SkeletonModifier3D
 ## the T-pose sculpted shoulder rips when the arm drops vertically, so the female
 ## idle keeps the elbows bent and the hands hovering in front of the hips.
 @export var base_bend:=0.0
+## Half-fist finger curl (degrees at the proximal phalanx): no hand hangs with
+## fingers perfectly straight -- a relaxed hand is a natural half-fist. Applied
+## to index/middle/ring/pinky; the thumb tucks ~60% as much.
 ## Per-side extras for idle actions (set every frame by IdleLife): forward lift of the arm
 ## (same units as `forward`) and a forward elbow bend in degrees.
 var lift:={"r":0.0,"l":0.0}
 var bend:={"r":0.0,"l":0.0}
+## Half-fist curl in degrees (proximal phalanx); middle knuckle curls ~1.3x as much.
+## Default 0: bone-space finger curl tears the low-poly male glove (see Mason right hand).
+## Half-fist is baked into the mesh in Blender instead (tools/fix_riley_hand.py).
+var finger_curl:=0.0
 ## extra roll of the whole arm about its own axis (degrees, mirrored per side), so a bent
 ## forearm swings in across the body instead of out to the side
 var roll:={"r":0.0,"l":0.0}
@@ -168,3 +175,31 @@ func _process_modification() -> void:
 			var arm_dir: Vector3=(_g(sk,hd).origin-_g(sk,lo).origin).normalized()
 			var bax: Vector3=arm_dir.cross(fwd)
 			if bax.length()>0.0001: _rotate_global(sk,lo,Quaternion(bax.normalized(),deg_to_rad(b)*weight))
+		# 5. Half-fist: curl every finger toward the palm (bind fingers are dead straight).
+		if absf(finger_curl)>0.5 and palm_axis.has(side):
+			var palm_n: Vector3=(_g(sk,hd).basis*(palm_axis[side] as Vector3)).normalized()
+			var hand_o: Vector3=_g(sk,hd).origin
+			for finger in ["index","middle","ring","pinky"]:
+				for ph in [1,2,3]:
+					var fname: String="%s_%02d_%s"%[finger,ph,side]
+					var fb: int=sk.find_bone(fname)
+					if fb<0: continue
+					var fdir: Vector3=(_g(sk,fb).origin-hand_o)
+					if fdir.length()<0.001: continue
+					# curl axis = palm normal x finger direction (sign chosen so the tip moves toward the palm)
+					var ax2: Vector3=palm_n.cross(fdir.normalized())
+					if ax2.length()<0.001: continue
+					var deg: float=finger_curl*(1.3 if ph==2 else (1.0 if ph==1 else 0.8))
+					# finger tips curl toward the palm normal: +rotation about palm x finger moves the
+					# tip away from the palm, so apply negative angle.
+					_rotate_global(sk,fb,Quaternion(ax2.normalized(),-deg_to_rad(deg)*weight))
+			# thumb: lighter curl, tucks across the front of the fist
+			for ph in [1,2,3]:
+				var tname: String="thumb_%02d_%s"%[ph,side]
+				var tb: int=sk.find_bone(tname)
+				if tb<0: continue
+				var tdir: Vector3=(_g(sk,tb).origin-hand_o)
+				if tdir.length()<0.001: continue
+				var tax: Vector3=palm_n.cross(tdir.normalized())
+				if tax.length()<0.001: continue
+				_rotate_global(sk,tb,Quaternion(tax.normalized(),-deg_to_rad(finger_curl*0.6)*weight))

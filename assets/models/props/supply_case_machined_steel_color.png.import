@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://clpvn16ri1p45"
 path.s3tc="res://.godot/imported/supply_case_machined_steel_color.png-7f8831d52f1db05248288d47aacf7441.s3tc.ctex"
+path.etc2="res://.godot/imported/supply_case_machined_steel_color.png-7f8831d52f1db05248288d47aacf7441.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/props/supply_case_machined_steel_color.png"
-dest_files=["res://.godot/imported/supply_case_machined_steel_color.png-7f8831d52f1db05248288d47aacf7441.s3tc.ctex"]
+dest_files=["res://.godot/imported/supply_case_machined_steel_color.png-7f8831d52f1db05248288d47aacf7441.s3tc.ctex", "res://.godot/imported/supply_case_machined_steel_color.png-7f8831d52f1db05248288d47aacf7441.etc2.ctex"]
 
 [params]
 

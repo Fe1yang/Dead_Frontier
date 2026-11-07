@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ua5g6y31xcg1"
 path.s3tc="res://.godot/imported/survivor_riley_universal_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg-b6c0e60fc5c973c3b84c5b6635cbeb57.s3tc.ctex"
+path.etc2="res://.godot/imported/survivor_riley_universal_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg-b6c0e60fc5c973c3b84c5b6635cbeb57.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/survivor_riley_universal_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg"
-dest_files=["res://.godot/imported/survivor_riley_universal_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg-b6c0e60fc5c973c3b84c5b6635cbeb57.s3tc.ctex"]
+dest_files=["res://.godot/imported/survivor_riley_universal_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg-b6c0e60fc5c973c3b84c5b6635cbeb57.s3tc.ctex", "res://.godot/imported/survivor_riley_universal_ORM_8d4a68b5-65cb-40f3-86df-ec8c8f5d4967.jpg-b6c0e60fc5c973c3b84c5b6635cbeb57.etc2.ctex"]
 
 [params]
 

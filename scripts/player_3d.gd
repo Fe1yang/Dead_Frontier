@@ -76,9 +76,20 @@ const BIKE_DURABILITY := 100.0
 ## zombies — higher ram = less durability spent per zombie run down). The CAR row is ready for
 ## the day a car joins the vehicle crates: faster than the bike and hits much harder.
 const VEHICLE_STATS := {
-	"BIKE": {"speed": 2.1, "side": 1.55, "ram": 1.0},
-	"CAR": {"speed": 2.7, "side": 1.6, "ram": 1.8},
+	"BIKE": {"speed": 2.9, "side": 1.8, "ram": 1.1},
+	"SPORT": {"speed": 3.2, "side": 1.75, "ram": 1.5},
+	"CAR": {"speed": 3.6, "side": 1.7, "ram": 1.9},
 }
+## Seat fit per vehicle (lift_y, back_z), measured from motorcycle.glb parts:
+## BIKE scale 1.0: seat top ~0.77, tank top ~0.84; CAR scale 1.8: seat top ~1.38, tank top ~1.51.
+## Rider pelvis rest height is 0.917 for ALL 5 survivors (same rig), so one row per
+## vehicle covers every character — but BIKE and CAR must NOT share a row.
+const SEAT_FIT := {
+	"BIKE": Vector2(0.08, 0.15),
+	"SPORT": Vector2(0.30, 0.22),
+	"CAR": Vector2(0.54, 0.30),
+}
+const VEHICLE_SCALE := {"BIKE":1.0,"SPORT":1.35,"CAR":1.8}
 
 func vehicle_speed() -> float:
 	return float(VEHICLE_STATS.get(vehicle, {}).get("speed", 1.0)) if vehicle != "" else 1.0
@@ -166,6 +177,14 @@ func set_character(index: int, asset_override:="") -> void:
 func heal_scale() -> float:
 	return 2.0 if character==2 else 1.0
 
+## Jian the scavenger: years of stripping the dead city taught him what is worth
+## carrying — every ammo box yields half again as much, and coins stretch 25% further.
+func scavenger_ammo_scale() -> float:
+	return 1.5 if character==4 else 1.0
+
+func scavenger_coin_scale() -> float:
+	return 1.25 if character==4 else 1.0
+
 ## Maya's field instinct: she slowly patches herself up when she's hurting (never past
 ## 60% — it is a survival net, not sustain), and every hit she takes floods her with
 ## adrenaline: a short burst of extra speed to get clear.
@@ -196,7 +215,11 @@ func mount_vehicle(id: String) -> void:
 	vehicle=id; vehicle_durability=BIKE_DURABILITY
 	vehicle_model=(load("res://assets/models/motorcycle.glb") as PackedScene).instantiate() as Node3D
 	vehicle_model.position=Vector3(0,0,0.05)
+	vehicle_model.scale=Vector3.ONE*float(VEHICLE_SCALE.get(id,1.0))
 	add_child(vehicle_model); ModelFix.double_sided(vehicle_model)
+	# Seat the rider on THIS vehicle's seat (per-vehicle lift/back, see SEAT_FIT).
+	if is_instance_valid(model):
+		model.position.z=float(SEAT_FIT.get(id,Vector2.ZERO).y)
 	if is_instance_valid(skeleton):
 		rider=(load("res://scripts/rider_pose.gd") as GDScript).new() as SkeletonModifier3D
 		rider.set("body",model); skeleton.add_child(rider)
@@ -204,6 +227,7 @@ func mount_vehicle(id: String) -> void:
 ## Back on foot (bike broken or the run reset): drop the pose; the run cycle never stopped.
 func dismount_vehicle() -> void:
 	vehicle=""
+	if is_instance_valid(model): model.position=Vector3.ZERO
 	if is_instance_valid(vehicle_model): vehicle_model.queue_free(); vehicle_model=null
 	if is_instance_valid(rider): rider.queue_free(); rider=null
 
@@ -212,8 +236,13 @@ func _tick_vehicle_visual(delta: float) -> void:
 	for w in ["WheelFrontPivot","WheelRearPivot"]:
 		var pivot:=vehicle_model.find_child(w,true,false) as Node3D
 		if pivot: pivot.rotation.x+=delta*10.0
+	# Lean into sideways moves like a real bike instead of pure translation.
+	var lateral: float=0.0
+	if is_instance_valid(self):
+		lateral=clampf((position.x-target_x)*1.4,-1.0,1.0)
+	vehicle_model.rotation.z=lerpf(vehicle_model.rotation.z,-lateral*0.42,1.0-exp(-delta*9.0))
 
-const CHARACTER_ASSETS := ["survivor_male_universal","survivor_riley_universal","survivor_medic_universal","survivor_maya_universal"]
+const CHARACTER_ASSETS := ["survivor_male_universal","survivor_riley_universal","survivor_medic_universal","survivor_maya_universal","survivor_jian_scout_universal"]
 ## Female characters run on the female-captured clips (narrower stance, no male hip sway).
 const FEMALE_CHARACTERS := [1, 3]  # riley, maya
 
@@ -427,9 +456,13 @@ func set_weapon(id: String) -> void:
 
 func set_aim(direction: Vector3) -> void:
 	if direction.length()<0.01: return
-	# Full 360° aim: the survivor turns on the spot to shoot whatever is picked,
-	# including the horde (or the beast) coming up from behind.
+	# Never aim back over the shoulder while running forward: that turns the survivor round
+	# and the two-handed stance reads as crossed arms. Keep aim in the forward half.
+	# (Restored from grip-final-formal validated version.)
 	direction.y=0.0
+	if direction.z>-0.05:
+		direction.z=-0.05
+		if absf(direction.x)<0.05: direction.x=0.0; direction.z=-1.0
 	aim_direction = direction.normalized()
 	var yaw: float=PI+atan2(-aim_direction.x,-aim_direction.z)
 	if is_instance_valid(model): model.rotation.y=yaw
@@ -473,8 +506,11 @@ func tick(delta: float) -> void:
 	position.x = clampf(position.x,-3.15,3.15)
 	walk_time += delta*6.6
 	if is_instance_valid(animation_player) and animation_player.current_animation==run_clip:
-		animation_player.speed_scale = RUN_ANIM_SPEED*effective_move_mult()   # feet keep pace with the road (speed buff too)
-	model.position.y = 0.0
+		# On a vehicle the run cycle freezes (rider pose holds the legs); animating it
+		# under the pose makes the legs vibrate. Arms stay on the gun via grip IK.
+		animation_player.speed_scale = 0.0 if vehicle!="" else RUN_ANIM_SPEED*effective_move_mult()
+	# Seated lift per vehicle (SEAT_FIT) so pelvis sits ON the seat, not through it.
+	model.position.y = float(SEAT_FIT.get(vehicle,Vector2.ZERO).x) if vehicle!="" else 0.0
 	if is_instance_valid(grip):
 		# Dip the gun while reloading; per-weapon support-hand reach along the barrel.
 		# Long guns are held lower (stock against the chest) so the stock and scope don't go

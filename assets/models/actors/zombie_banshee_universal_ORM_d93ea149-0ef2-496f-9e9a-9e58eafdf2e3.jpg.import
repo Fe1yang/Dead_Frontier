@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c3cex7x7bb00m"
 path.s3tc="res://.godot/imported/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-60b449e10d1db7c248d894a953418fcb.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-60b449e10d1db7c248d894a953418fcb.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg"
-dest_files=["res://.godot/imported/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-60b449e10d1db7c248d894a953418fcb.s3tc.ctex"]
+dest_files=["res://.godot/imported/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-60b449e10d1db7c248d894a953418fcb.s3tc.ctex", "res://.godot/imported/zombie_banshee_universal_ORM_d93ea149-0ef2-496f-9e9a-9e58eafdf2e3.jpg-60b449e10d1db7c248d894a953418fcb.etc2.ctex"]
 
 [params]
 

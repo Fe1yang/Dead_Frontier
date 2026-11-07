@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c1f1u8d3e2tyw"
-path="res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.ctex"
+path.s3tc="res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.s3tc.ctex"
+path.etc2="res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/polyhaven/red_brick_plaster_patch_02/red_brick_plaster_patch_02_diff_2k.jpg"
-dest_files=["res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.ctex"]
+dest_files=["res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.s3tc.ctex", "res://.godot/imported/red_brick_plaster_patch_02_diff_2k.jpg-105eb3279ec5c3dc9a243427acc8ae7a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -23,7 +25,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -37,4 +39,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

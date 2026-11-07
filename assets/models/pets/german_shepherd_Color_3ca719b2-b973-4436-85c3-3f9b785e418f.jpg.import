@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bp20nsv5r30yt"
 path.s3tc="res://.godot/imported/german_shepherd_Color_3ca719b2-b973-4436-85c3-3f9b785e418f.jpg-c0304e7bcbda5e16d94fa8ef83b1f211.s3tc.ctex"
+path.etc2="res://.godot/imported/german_shepherd_Color_3ca719b2-b973-4436-85c3-3f9b785e418f.jpg-c0304e7bcbda5e16d94fa8ef83b1f211.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/pets/german_shepherd_Color_3ca719b2-b973-4436-85c3-3f9b785e418f.jpg"
-dest_files=["res://.godot/imported/german_shepherd_Color_3ca719b2-b973-4436-85c3-3f9b785e418f.jpg-c0304e7bcbda5e16d94fa8ef83b1f211.s3tc.ctex"]
+dest_files=["res://.godot/imported/german_shepherd_Color_3ca719b2-b973-4436-85c3-3f9b785e418f.jpg-c0304e7bcbda5e16d94fa8ef83b1f211.s3tc.ctex", "res://.godot/imported/german_shepherd_Color_3ca719b2-b973-4436-85c3-3f9b785e418f.jpg-c0304e7bcbda5e16d94fa8ef83b1f211.etc2.ctex"]
 
 [params]
 
