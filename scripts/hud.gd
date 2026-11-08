@@ -979,7 +979,7 @@ func _draw_gameover() -> void:
 	clean_ops.append(["text",bold,Vector2(80,y+78),total,_scaled(36),GOLD])
 	if game.run_double_bonus>0:
 		var tw: float=bold.get_string_size(total,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(36)).x
-		clean_ops.append(["text",bold,Vector2(88+tw,y+78),"×2",_scaled(24),HILITE])
+		clean_ops.append(["text",bold,Vector2(88+tw,y+78),"200%",_scaled(24),HILITE])
 	_text(GameText.text(lang,"wallet")+"  %d"%game.bank_coins,Vector2(80,y+104),14,MUTED)
 	if game.last_reward>0:
 		var mode:="done" if game.run_double_bonus>0 else ("busy" if game.ad_pending=="run_double" else "ready")
