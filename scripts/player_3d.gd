@@ -241,7 +241,13 @@ func mount_vehicle(id: String) -> void:
 			for s2 in range(m2.mesh.get_surface_count()):
 				var bm:=m2.mesh.surface_get_material(s2) as BaseMaterial3D
 				if bm!=null:
-					bm.metallic=0.95; bm.roughness=0.18; bm.metallic_specular=0.9
+					# NOT metallic: with no reflection probe a metal surface renders black.
+					# Glossy dielectric + rim = sun highlights that slide over the paint.
+					bm.metallic=0.0; bm.roughness=0.18; bm.metallic_specular=1.0
+					bm.rim_enabled=true; bm.rim=0.55; bm.rim_tint=1.0
+					bm.emission_enabled=true
+					bm.emission=Color(0.42,0.30,0.10)
+					bm.emission_energy_multiplier=0.35
 	if id=="TANK":
 		vehicle_model.rotation.y=PI
 		# a crew sits INSIDE a tank: drop the survivor model and its attachments
