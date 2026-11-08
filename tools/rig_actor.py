@@ -237,7 +237,10 @@ for k in keep:
     alts.add(k)
     alts.add(k.replace("_Loop", "") + "_Loop")
     alts.add(k.replace("_Loop", ""))
+KEEP_ALL = MODE in ("pursuer",)
 for action in list(bpy.data.actions):
+    if KEEP_ALL:
+        break
     if action.name not in alts:
         bpy.data.actions.remove(action)
 print("ACTIONS", [a.name for a in bpy.data.actions])
