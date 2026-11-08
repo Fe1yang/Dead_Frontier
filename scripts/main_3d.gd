@@ -2252,6 +2252,7 @@ func _wants_to_fire() -> bool:
 	return true
 
 func _fire() -> bool:
+	if is_instance_valid(player) and player.vehicle=="TANK": return false  # cannon only
 	if not player.can_fire(): return false
 	if player.weapon=="LAUNCHER": return _fire_launcher()
 	var sound_id: String=player.weapon.to_lower()
@@ -4547,8 +4548,6 @@ func _fire_cannon() -> void:
 	_burst(muzzle,Color("8a7f68"),8)
 	var beam:=EffectScript.new(); beam.position=muzzle
 	add_child(beam); effects.append(beam)
-	var ring:=EffectScript.new(); ring.position=Vector3(muzzle.x,0.12,muzzle.z); ring.life=0.4; ring.total_life=0.4
-	add_child(ring); ring.make_shockwave(Color(1.0,0.78,0.36,0.9),1.15); effects.append(ring)
 	sound.play("explosion"); shake=maxf(shake,0.5)
 	# dynamic damage: every zombie standing in the lane takes its own full health
 	for i in range(zombies.size()-1,-1,-1):

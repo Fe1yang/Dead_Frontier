@@ -717,7 +717,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 		var vid: String=String(vids[vi])
 		var von: bool=game.vehicle_owned(String(vnames[vi]))
 		var vsel: bool=von or game.vehicle_choice==vi
-		_panel(vis,Color(0.10,0.11,0.115,0.94) if vsel else Color(0.05,0.055,0.06,0.80),RED if vsel and whole else LINE,0)
+		_panel(vis,Color(0.10,0.11,0.115,0.94) if vsel else Color(0.05,0.055,0.06,0.80),RED if von and whole else LINE,0)
 		var vtex: Texture2D=_store_art(vid)
 		var vr2:=Rect2(card.position+Vector2(4,4),card.size-Vector2(8,30))
 		var vvis:=vr2.intersection(view)
@@ -734,8 +734,8 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 				clean_ops.append(["line",varc,Color(1,1,1,0.9),3.0])
 				_box(Rect2(vlc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
 		if whole:
-			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold","tank"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if vsel else MUTED)
-			if vsel: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
+			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold","tank"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if von else MUTED)
+			if von: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 		return
 	var pets: bool=game.lobby_tab==1
 	if game.lobby_tab==2:
