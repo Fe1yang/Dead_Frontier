@@ -34,6 +34,13 @@ const LobbySceneScript=preload("res://scripts/lobby_scene_3d.gd")
 const DisasterDressing=preload("res://scripts/disaster_dressing_3d.gd") # Kimi: blood, drag marks, rubble, idle watchers on every block
 const BloodPoolScript=preload("res://scripts/blood_pool_3d.gd")
 const MAX_BLOOD_POOLS:=60
+## Concurrent zombies are capped: every one is a skinned model, and 26 at once is what a
+## phone cannot do. The wave quota still arrives, just in two or three ranks.
+const MAX_ALIVE_ZOMBIES:=14
+## The city loop is 384 m and the run looks straight down it, so the whole loop used to be
+## submitted every frame. Blocks fade out 190 m away instead.
+const VIEW_CULL_END:=190.0
+const VIEW_CULL_FADE:=26.0
 const BossChaserScript=preload("res://scripts/boss_chaser_3d.gd")
 # Sky domes (Poly Haven, CC0, 2K HDR): a broken-cloud sky for clear runs, a heavy overcast for rain and fog.
 # Procedural cloud sky from the user's sky pack (shaders/sky_clouds.gdshader); one material,
@@ -301,10 +308,19 @@ var run_time:=0.0
 var distance:=0.0
 var kills:=0
 var wave:=0
-## Zombies arrive in pulses, not a flat trickle: a dense surge, then a breather, repeat.
-## Early surges are short; deep into a run they stretch long with only brief lulls between.
+## 尸潮: zombies arrive in waves instead of a trickle. Each wave is a fixed quota that
+## bursts in as one pack; the wave is over the moment the road is clear again, and a calm
+## window follows before the next one. Clearing fast is what buys the breather.
 var surge:=false
-var phase_timer:=0.0
+var phase_timer:=0.0        # calm countdown until the next wave
+var wave_quota:=0           # zombies still to spawn in this wave
+var wave_timeout:=0.0       # a stuck straggler can never hold the run hostage
+var wave_clear_banner:=0.0  # "WAVE CLEAR" banner timer
+## Screen-space confirmation for the buff taken at a gate: the gate itself is already
+## behind the camera at the instant it resolves, so its flare is invisible.
+var gate_toast:=0.0
+var gate_toast_text := ""
+var gate_toast_color := Color.WHITE
 var best_distance:=0
 ## The opening chase plays once; after that (saved locally) runs start straight away.
 var intro_seen:=false
@@ -503,9 +519,11 @@ func _setup_world() -> void:
 	env.fog_enabled=true; env.fog_light_color=Color("c9c8b8"); env.fog_density=0.0012; env.fog_sky_affect=0.015
 	we.environment=env; add_child(we); world_env=env
 	var sun:=DirectionalLight3D.new(); sun.rotation_degrees=Vector3(-34,-155,0)
-	sun.light_color=Color("ffe4b5"); sun.light_energy=0.95; sun.shadow_enabled=true; sun.directional_shadow_max_distance=180
-	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS; sun.directional_shadow_blend_splits=true
-	sun.shadow_opacity=0.76; sun.shadow_blur=1.45; sun.shadow_bias=0.035; sun.shadow_normal_bias=0.65
+	sun.light_color=Color("ffe4b5"); sun.light_energy=0.95; sun.shadow_enabled=true; sun.directional_shadow_max_distance=90
+	# Two splits inside 90 m instead of four across 180 m. The old setup re-drew most of the
+	# city once per split, and that shadow pass is what pinned the phone near 20 fps.
+	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS; sun.directional_shadow_blend_splits=true
+	sun.shadow_opacity=0.76; sun.shadow_blur=1.1; sun.shadow_bias=0.035; sun.shadow_normal_bias=0.65
 	add_child(sun); sun_light=sun
 	var rim:=DirectionalLight3D.new(); rim.rotation_degrees=Vector3(-38,145,0); rim.light_color=Color("d0dbe2"); rim.light_energy=0.14
 	rim.sky_mode=DirectionalLight3D.SKY_MODE_LIGHT_ONLY # the sky shader's sun follows the main sun only
@@ -551,6 +569,15 @@ func _randomize_zebra(road: Node3D) -> void:
 	var z:=road.find_child("CITY_zebra_paint",true,false) as Node3D
 	if z: z.visible=rng.randf()<0.16
 
+## Fade every mesh of a block out at VIEW_CULL_END so only the near city is drawn.
+func _apply_cull_range(root: Node) -> void:
+	for node in root.find_children("*","MeshInstance3D",true,false):
+		var mi:=node as MeshInstance3D
+		if mi==null: continue
+		mi.visibility_range_end=VIEW_CULL_END
+		mi.visibility_range_end_margin=VIEW_CULL_FADE
+		mi.visibility_range_fade_mode=GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
+
 func _build_road() -> void:
 	# A 384 m city loop using all 24 authored districts; palette and architecture both vary.
 	for i in range(ROAD_COUNT):
@@ -570,6 +597,7 @@ func _build_road() -> void:
 			continue
 		road.position=Vector3(0,0,ROAD_BEHIND-i*ROAD_SEGMENT); add_child(road)
 		EnvironmentMaterials.apply(road,i); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
+		_apply_cull_range(road)
 		_randomize_zebra(road)
 		_setup_streetlamp(road,i)
 		if road.has_meta("watcher"): watchers.append(road.get_meta("watcher"))
@@ -685,15 +713,17 @@ func _process(delta: float) -> void:
 	# Road events ramp up over the run: an almost empty street at the start, busier later,
 	# and never two things on the same stretch of road (see _road_clear).
 	var ramp: float=_pace()
-	# 尸潮节奏：密集潮 -> 喘息 -> 更密的潮。前期潮短、后期潮长，给玩家明确的松紧节奏。
-	phase_timer-=delta
-	if phase_timer<=0:
-		surge=not surge
-		if surge:
-			wave+=1; wave_banner=2.0; sound.play("gate")
-			phase_timer=lerpf(9.0,26.0,ramp)*rng.randf_range(0.85,1.15)
-		else:
-			phase_timer=lerpf(7.0,10.5,ramp)*rng.randf_range(0.85,1.15)
+	# Wave director: fight a wave, clear it, breathe, repeat. A wave ends when the road is
+	# clear rather than on a timer, so a clean sweep is rewarded with a longer breather.
+	wave_clear_banner=maxf(0.0,wave_clear_banner-delta)
+	gate_toast=maxf(0.0,gate_toast-delta)
+	if surge:
+		wave_timeout-=delta
+		if wave_quota<=0 and _living_zombies()==0: _end_wave(ramp)
+		elif wave_timeout<=0.0: _end_wave(ramp)
+	else:
+		phase_timer-=delta
+		if phase_timer<=0.0: _begin_wave(ramp)
 	growl_timer-=delta
 	if growl_timer<=0:
 		if not zombies.is_empty(): sound.play("zombie")
@@ -718,11 +748,15 @@ func _process(delta: float) -> void:
 			_fire(); shot_timer=player.fire_interval
 		elif player.ammo<=0 and auto_reload:
 			request_reload()
-	spawn_timer-=delta
-	if spawn_timer<=0:
-		_spawn_zombie()
-		# 潮期 ~1s 一只压到 0.32s 一只；喘息期稀疏得多，给玩家喘口气。
-		spawn_timer=(maxf(0.32,0.95-run_time*0.0022) if surge else maxf(1.5,2.9-run_time*0.004))*rng.randf_range(0.82,1.16)
+	if surge and wave_quota>0:
+		spawn_timer-=delta
+		if spawn_timer<=0:
+			if _living_zombies()>=MAX_ALIVE_ZOMBIES:
+				spawn_timer=0.2   # hold the pack back until the road thins out
+			else:
+				_spawn_zombie(); wave_quota-=1
+				# One pack: ~0.4 s apart early, ~0.2 s deep in the run.
+				spawn_timer=lerpf(0.42,0.22,ramp)*rng.randf_range(0.85,1.15)
 	gate_timer-=delta
 	if gate_timer<=0:
 		if _road_clear(-40.0): _spawn_gate(); gate_timer=lerpf(11.0,7.5,ramp)*rng.randf_range(0.9,1.15)
@@ -886,7 +920,7 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 	revive_used=false; revive_count=0; revive_pending=false; revive_invulnerable=0.0; jockey_introduced=false; banshee_introduced=false; banshee_warning=0.0
 	_chase_reset()
 	spawn_timer=1.6; gate_timer=9.0; barrel_timer=32.0; crate_timer=20.0; obstacle_timer=24.0; pickup_timer=12.0; shot_timer=0; growl_timer=3.5; hint_time=7; damage_flash=0; new_gate_index=0; gates_since_epic=0
-	surge=false; phase_timer=4.5  # a calm opening before the first 尸潮
+	surge=false; phase_timer=4.5; wave_quota=0; wave_timeout=0.0; wave_clear_banner=0.0  # a calm opening before the first 尸潮
 	aim_direction=Vector3.FORWARD; aim_target=null; left_stick=Vector2.ZERO; right_stick=Vector2.ZERO; _release_touches()
 	shop_truck.visible=false; player.visible=true; camera.fov=52; camera.position=Vector3(0,6.4,13.5)
 	runs_this_launch+=1; run_start_best=best_distance; new_record=false; record_banner=0.0
@@ -1087,12 +1121,14 @@ func _setup_weather_overlay() -> void:
 	lightning_flash.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	lightning_flash.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT); weather_layer.add_child(lightning_flash)
 
+## Weather is a blind box: clear most of the time, and the atmospheric variants are rare
+## enough to feel like a small event when they land (and cheap enough not to punish).
 func _roll_weather() -> String:
 	var roll:=rng.randf()
-	if roll<0.35: return "clear"
-	if roll<0.60: return "rain"
-	if roll<0.75: return "storm"
-	return "fog"
+	if roll<0.72: return "clear"   # 72%
+	if roll<0.86: return "rain"    # 14%
+	if roll<0.96: return "fog"     # 10%
+	return "storm"                 # 4%
 
 func set_weather(kind: String) -> void:
 	weather=kind
@@ -2332,7 +2368,7 @@ func _revive_after_reward() -> void:
 		if is_instance_valid(z) and _flat_distance(z.position,player.position)<13.0:
 			_burst(z.position+Vector3(0,1.0,0),Color("ff9b55"),8)
 			zombies.erase(z); z.queue_free()
-	state="playing"; damage_flash=0.0; spawn_timer=1.8; shot_timer=0.25
+	state="playing"; damage_flash=0.0; spawn_timer=1.8; shot_timer=0.25; surge=false; wave_quota=0; wave_clear_banner=0.0; phase_timer=3.2
 	# Back on your feet: the beast loses your trail for a moment before the next ambush.
 	if is_instance_valid(chaser) and not chase_active: chaser.queue_free(); chaser=null
 	next_chase_at=maxf(next_chase_at,distance+150.0)
@@ -2344,11 +2380,42 @@ func _count_zombie_kind(type: String) -> int:
 		if is_instance_valid(z) and not z.dead and z.kind==type: count+=1
 	return count
 
+## ---- wave director ------------------------------------------------------------------
+## Waves beat a flat trickle: a burst you can clean out, then a real breather. The quota
+## grows by two per wave and stops at 26, so late waves are dense but still clearable.
+func _wave_size() -> int:
+	return clampi(4+wave*2,6,26)
+
+## Difficulty steps up with the wave number and stops at 2.1 (it used to grow with run
+## time without a ceiling, which turned every gun into a peashooter by ten minutes).
+func _wave_difficulty() -> float:
+	return minf(1.0+0.08*float(maxi(0,wave-1)),2.1)
+
+func _living_zombies() -> int:
+	var count:=0
+	for z in zombies:
+		if is_instance_valid(z) and not z.dead: count+=1
+	return count
+
+func _begin_wave(ramp: float) -> void:
+	wave+=1; surge=true; wave_banner=2.0; sound.play("gate")
+	wave_quota=_wave_size()
+	wave_timeout=lerpf(30.0,45.0,ramp)  # generous: normally the road clearing ends the wave
+	spawn_timer=minf(spawn_timer,0.45)
+
+func _end_wave(ramp: float) -> void:
+	surge=false; wave_quota=0
+	wave_clear_banner=2.2
+	phase_timer=lerpf(6.5,3.8,ramp)*rng.randf_range(0.9,1.1)
+	# Clean sweep: a small patch-up, so a good wave pushes the run forward instead of only
+	# draining it. Deep in a run the breather - and the heal - are smaller.
+	if is_instance_valid(player):
+		player.health=minf(player.max_health,player.health+player.max_health*lerpf(0.07,0.04,ramp))
+
 func _spawn_zombie(at_z:=-85.0,forced_kind:="") -> void:
-	# Health used to scale without a ceiling: by ten minutes a walker carried ~500 HP
-	# and even the sniper looked like it did nothing. Cap the multiplier and let the
-	# late game get harder through numbers and specials instead of bullet sponges.
-	var difficulty:=minf(1.0+pow(run_time/55.0,1.15)*0.65,2.1)
+	# Health steps up per wave and stops at 2.1 (see _wave_difficulty): the late game gets
+	# harder through numbers and specials, not through bullet sponges.
+	var difficulty:=_wave_difficulty()
 	var z:=ZombieScript.new(); var roll:=rng.randf(); var kind:=forced_kind
 	if kind.is_empty():
 		# Unlock order: walker -> runner(female) -> jockey -> brute(juggernaut) -> banshee -> bomber.
@@ -2926,6 +2993,12 @@ func _tick_watchers(delta: float) -> void:
 	for w in watchers:
 		if not is_instance_valid(w) or w.dead: continue
 		var anim: AnimationPlayer=w.animation_player
+		# Skeleton animation is CPU work even when the model is culled, so freeze the
+		# roadside watchers once they are far enough away that nobody can read them.
+		if (w.global_position-player.global_position).length()>90.0:
+			if anim and anim.speed_scale>0.0: anim.speed_scale=0.0
+			continue
+		if anim and anim.speed_scale<=0.0: anim.speed_scale=1.0
 		var sitting: bool=w.get_meta("sitting",false)
 		var base_yaw: float=w.get_meta("base_yaw",0.0)
 		var gp: Vector3=w.global_position
@@ -3136,12 +3209,19 @@ func _drop_pickup(at: Vector3) -> void:
 
 func _tick_gates(delta: float) -> void:
 	for i in range(gates.size()-1,-1,-1):
-		var g=gates[i]; var old_z: float=g.position.z; g.tick(delta)
-		if not g.resolved and old_z<player.position.z and g.position.z>=player.position.z:
+		var g=gates[i]; g.tick(delta)
+		# Resolve as soon as the gate reaches the survivor. Requiring it to have been behind
+		# at the start of the frame lost buffs on vehicles: _scroll_extra pushes gates forward
+		# after this check, so a gate could step past the player between two frames and then
+		# never resolve again.
+		if not g.resolved and g.position.z>=player.position.z:
 			var choice: Dictionary=g.choose(player.position.x)
 			if not choice.is_empty():
 				player.apply_upgrade(choice.id,float(choice.get("value",-1)))
-				sound.play("gate"); _popup(player.position+Vector3(0,2.6,0),String(choice.label[1]) if choice.has("label") else choice.detail,g.chosen_color().lightened(0.3))
+				sound.play("gate")
+				var taken: String=String(choice.label[1]) if choice.has("label") else String(choice.detail)
+				_popup(player.position+Vector3(0,2.6,0),taken,g.chosen_color().lightened(0.3))
+				gate_toast_text=taken; gate_toast_color=g.chosen_color().lightened(0.45); gate_toast=2.2
 		if g.fade<=0 or g.position.z>14: gates.remove_at(i); g.queue_free()
 
 func _spawn_barrel() -> void:

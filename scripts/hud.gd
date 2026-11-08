@@ -302,6 +302,17 @@ func _draw_hud() -> void:
 		var a: float=minf(1,game.wave_banner)
 		draw_rect(Rect2(232,214,76,3),Color(0.71,0.12,0.15,a))
 		_text_center(game.localize("wave")+" %02d"%game.wave,Vector2(270,256),40,Color(WHITE.r,WHITE.g,WHITE.b,a))
+	elif game.wave_clear_banner>0:
+		var c: float=minf(1,game.wave_clear_banner)
+		draw_rect(Rect2(214,214,112,3),Color(0.38,0.62,0.24,c))
+		_text_center(game.localize("wave_cleared"),Vector2(270,256),26,Color(WHITE.r,WHITE.g,WHITE.b,c))
+	if game.gate_toast>0.0:
+		# What the gate actually gave you, in plain text, for two seconds.
+		var t: float=clampf(game.gate_toast,0.0,1.0)
+		var gcol: Color=game.gate_toast_color
+		draw_rect(Rect2(120,288,300,32),Color(0.02,0.03,0.03,0.6*t))
+		draw_rect(Rect2(120,288,300,32),Color(gcol.r,gcol.g,gcol.b,0.55*t),false,1.0)
+		_text_center(game.gate_toast_text,Vector2(270,304),17,Color(gcol.r,gcol.g,gcol.b,t))
 	if game.chase_active:
 		# Chase segment: flashing red banner and a proximity bar that drains as the beast closes in.
 		var pulse: float=0.70+0.30*sin(Time.get_ticks_msec()/90.0)
