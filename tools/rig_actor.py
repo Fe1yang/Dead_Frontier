@@ -179,7 +179,7 @@ def bind_heat(target):
     return sum(1 for v in target.data.vertices if v.groups)
 
 proxy = None
-for voxel in (0.008, 0.015, 0.025, 0.04):
+for voxel in (0.03, 0.05, 0.08, 0.015):
     cand = body.copy()
     cand.data = body.data.copy()
     bpy.context.collection.objects.link(cand)

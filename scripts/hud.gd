@@ -1390,7 +1390,7 @@ func _draw_store() -> void:
 		var r: Rect2=game.store_screen_rect(it)
 		if not r.intersects(view): continue
 		if it.has("header"):
-			var key: String={"offer":"limited","bundle":"bundles","vehicle":"vehicles","character":"characters","pet":"pets","skin":"skins","cans":"can_packs","coins":"coin_packs","silver":"silver_packs","vouchers":"voucher_packs"}[it.header]
+			var key: String={"offer":"limited","bundle":"bundles","pass":"passes","vehicle":"vehicles","character":"characters","pet":"pets","skin":"skins","cans":"can_packs","coins":"coin_packs","silver":"silver_packs","vouchers":"voucher_packs"}[it.header]
 			_di_label(r.position+Vector2(2,22),StoreCatalog.text(lang,key),HILITE if it.header=="offer" else Color(1,1,1,0.55))
 		elif it.has("can_ad"): _store_can_ad(r,lang)
 		else: _store_row(r,it.pack,cur,lang)
