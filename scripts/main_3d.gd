@@ -2785,10 +2785,40 @@ func _clear_lane_for_banshee(at_z: float,preferred: float) -> float:
 func _wants_to_fire() -> bool:
 	return true
 
+## Flamethrower: instead of bullets, everything inside a forward cone catches fire. Zombies
+## burn for their own duration and take damage over time (see ZombieScript.ignite).
+const FLAME_RANGE := 9.0
+const FLAME_HALF_ANGLE := 8.0
+const FLAME_BURN_SECONDS := 2.5
+const FLAME_BURN_FRACTION := 0.06
+func _fire_flame() -> bool:
+	var fwd: Vector3 = aim_direction.normalized()
+	var origin: Vector3 = player.muzzle_position()
+	var hit := 0
+	for z in zombies:
+		if not is_instance_valid(z) or z.dead: continue
+		var d: Vector3 = z.position - origin
+		d.y = 0.0
+		var dist: float = d.length()
+		if dist > FLAME_RANGE: continue
+		var flat_fwd: Vector3 = Vector3(fwd.x, 0.0, fwd.z).normalized()
+		if dist > 0.4 and flat_fwd.dot(d.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)): continue
+		z.ignite(FLAME_BURN_SECONDS, z.max_health * FLAME_BURN_FRACTION)
+		hit += 1
+	player.fire()
+	sound.play("shotgun")
+	if hit > 0:
+		_burst(origin + flat_fwd_of(fwd) * 1.2, Color("ff9b35"), 3)
+	return true
+
+func flat_fwd_of(v: Vector3) -> Vector3:
+	return Vector3(v.x, 0.0, v.z).normalized()
+
 func _fire() -> bool:
 	if is_instance_valid(player) and player.vehicle in ["TANK","SEDAN"]: return false  # cannon only / no guns in the car
 	if not player.can_fire(): return false
 	if player.weapon=="LAUNCHER": return _fire_launcher()
+	if player.weapon=="FLAME": return _fire_flame()
 	var sound_id: String=player.weapon.to_lower()
 	if player.weapon=="PISTOL":
 		var near_target:=is_instance_valid(aim_target) and _flat_distance(player.position,aim_target.position)<14.0

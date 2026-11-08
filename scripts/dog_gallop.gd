@@ -35,6 +35,14 @@ const LEGS:={
 	"F_L":[FRONT_KEYS,0.48],"F_R":[FRONT_KEYS,0.56]}
 
 var sk: Skeleton3D
+## Per-breed tuning. Big cats have longer legs and a springier spine than the dogs the
+## original key poses were tuned on, so they get a faster stride and a smaller swing:
+##   stride  seconds per stride (smaller = quicker)
+##   amp     multiplies every joint angle (smaller = shorter reach, no over-swing)
+##   spine   multiplies the body/chest/neck flex
+var stride:=STRIDE
+var amp:=1.0
+var spine:=1.0
 var ids:={}
 var rest_rot:={}
 var body_rest:=Vector3.ZERO
@@ -42,8 +50,11 @@ var phase:=0.0
 const BITE_TIME:=0.45
 var bite_t:=0.0
 
-func _init(skeleton: Skeleton3D) -> void:
+func _init(skeleton: Skeleton3D,opts:={}) -> void:
 	sk=skeleton
+	stride=maxf(0.12,float(opts.get("stride",STRIDE)))
+	amp=float(opts.get("amp",1.0))
+	spine=float(opts.get("spine",1.0))
 	var names:=["body","chest","neck","head","tail_1","tail_2"]
 	for leg in LEGS: names.append_array([leg+"_upper",leg+"_lower",leg+"_paw"])
 	for bone_name in names:
@@ -86,19 +97,19 @@ func bite() -> void:
 	bite_t=BITE_TIME
 
 func step(delta: float,rate:=1.0) -> void:
-	phase=fmod(phase+delta*rate/STRIDE,1.0)
+	phase=fmod(phase+delta*rate/stride,1.0)
 	for leg in LEGS:
 		var cfg: Array=LEGS[leg]
 		var pose:=_sample(cfg[0],fposmod(phase-float(cfg[1]),1.0))
-		_rot(leg+"_upper",pose[0])
-		_rot(leg+"_lower",pose[1])
-		_rot(leg+"_paw",pose[2])
+		_rot(leg+"_upper",pose[0]*amp)
+		_rot(leg+"_lower",pose[1]*amp)
+		_rot(leg+"_paw",pose[2]*amp)
 	# Spine flexes (collected) when all four paws gather under the body and extends in flight.
 	var flex:=cos(TAU*(phase-0.25))
-	_rot("body",5.0*flex)
-	_rot("chest",-9.0*flex)
-	_rot("neck",7.0*flex)
-	_rot("head",-5.0*flex)
+	_rot("body",5.0*flex*spine)
+	_rot("chest",-9.0*flex*spine)
+	_rot("neck",7.0*flex*spine)
+	_rot("head",-5.0*flex*spine)
 	if bite_t>0.0:
 		bite_t=maxf(0.0,bite_t-delta)
 		var swing:=sin((1.0-bite_t/BITE_TIME)*PI)

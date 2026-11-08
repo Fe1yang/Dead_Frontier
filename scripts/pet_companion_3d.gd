@@ -117,7 +117,7 @@ func run_beside(target_position: Vector3,delta: float) -> void:
 func _animate(delta: float) -> void:
 	if bite_time>0.0:
 		ModelFix.play_animation(model,"Dog_Bite",false)
-	if gallop!=null and gallop.has_method("bite"): gallop.bite()
+		if gallop!=null and gallop.has_method("bite"): gallop.bite()
 		return
 	if anim and anim.is_playing():
 		anim.stop(); (gallop.sk as Skeleton3D).reset_bone_poses()
