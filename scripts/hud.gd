@@ -1506,7 +1506,7 @@ func _info_tip(at: Vector2,title: String,subtitle: String,body: String) -> void:
 
 func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 	var kind: String=p.kind
-	var owned: bool=bool(p.get("once",false)) and game.pack_owned(String(p.id))
+	var owned: bool=game.all_access or (bool(p.get("once",false)) and game.pack_owned(String(p.id)))
 	if kind=="pet" and game.pet_owned(int(p.get("pet",-1))): owned=true # a dog won from a case is owned too
 	_di_row(r)
 	if kind=="offer":

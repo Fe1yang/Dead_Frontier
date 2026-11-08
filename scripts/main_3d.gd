@@ -1741,6 +1741,14 @@ func _track_play_time(delta: float) -> void:
 
 ## Called whenever the player lands in the lobby. Pops an offer only if the gap since the last
 ## one has passed and today's play time is still short; otherwise does nothing.
+## True when the player already owns what this bundle sells, so it must never pop.
+func _offer_owned(o: Dictionary) -> bool:
+	if all_access: return true  # Cheat Code: nothing left to sell
+	if o.has("vehicle") and owned_vehicle==String(o.vehicle): return true
+	if o.has("char") and owned_characters.has(int(o.char)): return true
+	if o.has("pet") and owned_pets.has(int(o.pet)): return true
+	return false
+
 func maybe_show_offer(force:=false) -> bool:
 	if "--smoke-test" in OS.get_cmdline_user_args() and not force: return false
 	if offer_active(): return false
@@ -1754,8 +1762,8 @@ func maybe_show_offer(force:=false) -> bool:
 	# one different bundle a day: never pick the one shown last time
 	var pool: Array=[]
 	for it in StoreCatalog.OFFERS:
-		if String(it.id)!=last_offer_id: pool.append(it)
-	if pool.is_empty(): pool=StoreCatalog.OFFERS
+		if String(it.id)!=last_offer_id and not _offer_owned(it): pool.append(it)
+	if pool.is_empty(): return false
 	var o: Dictionary=pool[rng.randi()%pool.size()]
 	last_offer_id=String(o.id)
 	offer_id=o.id; offer_expires=now+StoreCatalog.OFFER_HOURS*3600
@@ -2226,7 +2234,7 @@ var lobby_tab:=0          # 0 = survivors, 1 = pets, 2 = skins, 3 = vehicle
 var vehicle_choice:=0 # which vehicle card is shown in the lobby stage (0 scrambler, 1 sport, 2 cruiser)
 ## The lobby only showcases the four bikes; the tank and the black saloon are played but never
 ## displayed here (user's call).
-const LOBBY_VEHICLE_CARDS:=4
+const LOBBY_VEHICLE_CARDS:=3   # bikes only: the tank and the saloon are never shown
 var lobby_scroll:=0.0
 var lobby_press:=Vector2(-1,-1)
 var lobby_dragged:=false

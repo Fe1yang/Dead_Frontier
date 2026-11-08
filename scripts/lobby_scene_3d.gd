@@ -118,8 +118,8 @@ func _ready() -> void:
 
 ## Framing: on the survivors tab the camera moves in so the survivor fills the shot (whole body,
 ## the dog still at their side); on the pets tab it eases back out to the wider two-shot.
-const SOLO_POS:=Vector3(-0.08,0.92,4.15)   # centred on the survivor (STAND.x), close in
-const SOLO_TARGET:=Vector3(-0.08,0.50,0.0)
+const SOLO_POS:=Vector3(-0.08,1.45,6.6)   # the wide framing the tank preview used
+const SOLO_TARGET:=Vector3(-0.08,0.85,0.0)
 var focus_pets:=false  # set by main_3d when the pets tab is open
 
 func camera_position() -> Vector3:
