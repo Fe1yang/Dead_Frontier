@@ -82,9 +82,9 @@ func _ready() -> void:
 	weapon_pivot.rotation.y = PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0
 	var path := "res://assets/models/rifle.glb" if weapon_id=="RIFLE" else "res://assets/models/weapons/"+weapon_id.to_lower()+".glb"
 	if weapon_id in ["ARMOR","HELMET"]: path = "res://assets/models/"+weapon_id.to_lower()+".glb"
-	if weapon_id=="BIKE": path = "res://assets/models/vehicles/bike_scrambler.glb"
-	if weapon_id=="SPORT": path = "res://assets/models/vehicles/bike_sport.glb"
-	if weapon_id=="CRUISER": path = "res://assets/models/vehicles/bike_cruiser.glb"
+	if weapon_id=="BIKE": path = "res://assets/models/vehicles/bike_paid.glb"
+	if weapon_id=="SPORT": path = "res://assets/models/vehicles/bike_paid2.glb"
+	if weapon_id=="CRUISER": path = "res://assets/models/vehicles/bike_paid3.glb"
 	if is_pet():
 		var pi := pet_index()
 		weapon_model = (load(LobbyScene.PETS[pi].asset) as PackedScene).instantiate() as Node3D
