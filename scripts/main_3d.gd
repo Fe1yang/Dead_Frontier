@@ -4420,9 +4420,6 @@ func _pointer_down(pos: Vector2) -> bool:
 			if stamina.value>=stamina.RUN_COST: _begin_loading("run")
 			else: store_toast_text=StoreCatalog.text(language_code,"no_cans"); store_toast=2.4
 			return true
-		if LOBBY_GEAR.grow(8).has_point(pos): toggle_loadout(); return true
-		if LOBBY_GEAR_PET.grow(8).has_point(pos): toggle_pet_equip(); return true
-		if LOBBY_GEAR_VEHICLE.grow(8).has_point(pos): toggle_vehicle_equip(); return true
 		return true
 	elif state=="settings":
 		if SLIDER_MUSIC.grow(8).has_point(pos): volume_drag="music"; _set_volume_from(pos.x); return true

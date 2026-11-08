@@ -678,9 +678,6 @@ func _draw_character_select() -> void:
 		_side_button(game.SIDE_BAG,"bag",ExtraText.text(lang,"bag"),false)
 		_side_button(game.SIDE_MAP,"map",ExtraText.text(lang,"map"),false)
 		_airdrop_button(lang)
-	_gear_button(game.LOBBY_GEAR,game.loadout_on)
-	_gear_button(game.LOBBY_GEAR_PET,game.pet_equipped)
-	_gear_button(game.LOBBY_GEAR_VEHICLE,game.vehicle_equipped)
 	for t in [0, 1, 3]:
 		var tab: Rect2=game.lobby_tab_rect(t); var tab_on: bool=game.lobby_tab==t
 		_text_center("载具" if t==3 else ShopText.text(lang,"chars" if t==0 else "pets"),Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
@@ -921,12 +918,17 @@ func _draw_shop() -> void:
 	var level: int=game.meta_upgrades.get(item.id,0); var cost: int=game.item_cost(item)
 	var maxed: bool=level>=int(item.max_level); var affordable: bool=game.bank_silver>=cost
 	# Item card: name, effect, level pips.
-	_panel(Rect2(30,642,480,128),Color(0.075,0.08,0.082,0.94),LINE,0); draw_rect(Rect2(30,642,5,128),RED)
+	# darker card so the gold level pips and the name read at a glance
+	_panel(Rect2(30,642,480,128),Color(0.035,0.04,0.042,0.97),Color(LINE,1.0),0); draw_rect(Rect2(30,642,5,128),RED)
 	_bold_text(ShopText.text(lang,item.name_key),Vector2(52,684),26,WHITE)
 	_text(ShopText.text(lang,item.detail_key),Vector2(53,714),15,MUTED)
 	for i in range(int(item.max_level)):
 		var pip:=Rect2(53+i*34,734,28,14)
-		draw_rect(pip,GOLD if i<level else Color("2b3132"))
+		var filled: bool=i<level
+		# Filled pips bright gold, empty ones a clearly readable dark slate with an outline:
+		# the old empty colour vanished into the card.
+		draw_rect(pip,Color("ffd75e") if filled else Color("6d7877"))
+		draw_rect(pip,Color("0b0e0e") if filled else Color(0.55,0.60,0.59,0.75),false,1.0)
 	_text("LV %d / %d"%[level,item.max_level],Vector2(232,747),13,GOLD)
 	_text("%d / %d"%[game.shop_index+1,game.shop_items.size()],Vector2(452,684),13,MUTED)
 	# Prev / upgrade / next.

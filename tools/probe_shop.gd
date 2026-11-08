@@ -7,13 +7,13 @@ func _run() -> void:
 	for i in range(10):
 		await process_frame
 	main = current_scene
-	await create_timer(1.0).timeout
+	await create_timer(0.9).timeout
 	paused = false
 	main.call("enter_lobby")
-	await create_timer(0.5).timeout
+	await create_timer(0.3).timeout
 	main.call("open_shop")
-	await create_timer(1.4).timeout
+	await create_timer(0.9).timeout
 	await RenderingServer.frame_post_draw
-	root.get_viewport().get_texture().get_image().save_png("res://tools/shop_armor.png")
+	root.get_viewport().get_texture().get_image().save_png("res://tools/shop_upgrade.png")
 	print("SHOP_DONE")
 	quit()
