@@ -1484,6 +1484,18 @@ func buy_lootbox(use_voucher:=false) -> bool:
 		item=rare_pool[rng.randi_range(0,rare_pool.size()-1)]
 	elif not cheap_pool.is_empty() and r<0.04:
 		item=cheap_pool[rng.randi_range(0,cheap_pool.size()-1)]
+	elif (not cheap_pool.is_empty() or not rare_pool.is_empty()) and r<0.14:
+		# 10% band: a puzzle piece for one of the paid items still missing
+		var puzzle_pool: Array=cheap_pool + rare_pool
+		var pp: Dictionary=puzzle_pool[rng.randi_range(0,puzzle_pool.size()-1)]
+		var pid:=String(pp.id)
+		puzzle_pieces[pid]=int(puzzle_pieces.get(pid,0))+1
+		var got:=int(puzzle_pieces[pid])
+		lootbox_reward_title="%s  %d/50"%[StoreCatalog.text(language_code,String(pp.get("name",pid))),got]
+		lootbox_message=""
+		lootbox_scene.open_case("ammo")
+		sound.play("gate"); _save()
+		return true
 	elif not char_candidates.is_empty() and candidates.is_empty():
 		item=char_candidates[rng.randi_range(0,char_candidates.size()-1)]
 	elif not pet_candidates.is_empty() and candidates.is_empty():
@@ -2472,6 +2484,7 @@ func go_to_lobby() -> void:
 
 ## Both passes pay out once per calendar day. Rewards stack if a player owns both.
 const PASS_REWARDS:={"pass_weekly":{"coins":200,"cans":30},"pass_monthly":{"coins":500,"cans":100}}
+var puzzle_pieces:={}  # store id -> pieces collected (50 unlocks that item)
 var all_access:=false  # "unlock everything" pack: no ads, endless coins and rations
 var passes:={}        # pass id -> true while the subscription is live
 var pass_days:={}     # pass id -> "YYYY-MM-DD" of the last payout
@@ -4533,7 +4546,7 @@ func _load_save() -> void:
 	for f in ["--smoke-test","--soak-test","--lootbox-test","--stamina-test","--capture","--capture-medic","--capture-bike"]:
 		if f in OS.get_cmdline_user_args(): isolated=true; break
 	if not isolated and (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK):
-		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2); quality_high=bool(c.get_value("display","quality_high",true)); owned_vehicle=str(c.get_value("vehicles","owned","")); loadout_on=bool(c.get_value("run","loadout_on",true)); passes=c.get_value("pass","owned",{}); pass_days=c.get_value("pass","days",{}); all_access=bool(c.get_value("pass","all_access",false))
+		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2); quality_high=bool(c.get_value("display","quality_high",true)); owned_vehicle=str(c.get_value("vehicles","owned","")); loadout_on=bool(c.get_value("run","loadout_on",true)); passes=c.get_value("pass","owned",{}); pass_days=c.get_value("pass","days",{}); puzzle_pieces=c.get_value("puzzle","pieces",{}); all_access=bool(c.get_value("pass","all_access",false))
 		if owned_vehicle=="CAR": owned_vehicle="CRUISER" # old save name for the third bike
 		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
 		terms_accepted=bool(c.get_value("legal","terms_v1",false))
@@ -4579,7 +4592,7 @@ func _read_muted() -> bool:
 	return bool(c.get_value("audio","muted",false)) if (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK) else false
 func _save() -> void:
 	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--lootbox-test" in OS.get_cmdline_user_args() or "--stamina-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-medic" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args(): return # test and capture runs must never touch the player's real save
-	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("run","loadout_on",loadout_on); c.set_value("pass","owned",passes); c.set_value("pass","days",pass_days); c.set_value("pass","all_access",all_access); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("display","quality_high",quality_high); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
+	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("run","loadout_on",loadout_on); c.set_value("puzzle","pieces",puzzle_pieces); c.set_value("pass","owned",passes); c.set_value("pass","days",pass_days); c.set_value("pass","all_access",all_access); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("display","quality_high",quality_high); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
 	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","silver",bank_silver); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","ads_offer_shows",ads_offer_shows); c.set_value("store","iap_ledger",iap_ledger.keys()); c.set_value("legal","terms_v1",terms_accepted)
 	c.set_value("can_ads","day",can_ad_day); c.set_value("can_ads","count",can_ad_count)
 	c.set_value("offer","id",offer_id); c.set_value("offer","expires",offer_expires); c.set_value("offer","next",next_offer_at); c.set_value("offer","play_day",play_day); c.set_value("offer","play_seconds",play_seconds_today)
