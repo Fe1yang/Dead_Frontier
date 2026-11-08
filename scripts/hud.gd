@@ -1321,6 +1321,16 @@ func _draw_store() -> void:
 	var end_y: float=game.STORE_TOP-game.store_scroll+game.store_content_height()-30.0
 	if end_y<view.end.y: _clean_center(font,Vector2(270,end_y),StoreCatalog.text(lang,"note"),12,Color(1,1,1,0.45))
 	clean_ops=saved
+	# hover: the row clips its blurb, so the full ability text pops over it
+	var mp: Vector2=hover_point
+	if mouse_hover and view.has_point(mp):
+		for it2 in game.store_layout():
+			if not it2.has("pack"): continue
+			var pk: Dictionary=it2.pack
+			if String(pk.get("kind",""))!="vehicle": continue
+			if (game.store_screen_rect(it2) as Rect2).has_point(mp):
+				_vehicle_tip(mp,pk,lang)
+				break
 	var max_scroll: float=game.store_max_scroll()
 	if max_scroll>0.0:
 		var bar_h: float=view.size.y*view.size.y/(view.size.y+max_scroll)
@@ -1365,6 +1375,47 @@ func _clip_text(f: Font, s: String, size: int, max_w: float) -> String:
 		out=out.substr(0,out.length()-1)
 		if f.get_string_size(out+String.chr(8230),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(size)).x<=max_w: return out+String.chr(8230)
 	return ""
+
+## True only while a real mouse is moving: touch leaves the pointer parked, and a
+## tooltip stuck on the last tap looks like a bug on the phone.
+var mouse_hover:=false
+var hover_point:=Vector2(-1,-1)
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		mouse_hover=true; hover_point=(event as InputEventMouseMotion).position
+	elif event is InputEventScreenTouch or event is InputEventScreenDrag: mouse_hover=false
+
+## Greedy wrap for the hover card (the store row itself keeps a single clipped line).
+func _wrap_text(f: Font, s: String, size: int, max_w: float) -> Array:
+	var lines: Array=[]
+	var cur: String=""
+	for ch in s:
+		var nxt: String=cur+String(ch)
+		if cur!="" and f.get_string_size(nxt,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(size)).x>max_w:
+			lines.append(cur); cur=String(ch)
+		else:
+			cur=nxt
+	if cur!="": lines.append(cur)
+	return lines
+
+## Full ability text on a framed card, kept inside the screen no matter where the pointer is.
+func _vehicle_tip(at: Vector2,p: Dictionary,lang: String) -> void:
+	var key: String=String(p.get("name","bike"))
+	var title: String=StoreCatalog.text(lang,key)
+	var body: String=StoreCatalog.text(lang,key+"_desc")
+	var size:=15
+	var lines: Array=_wrap_text(font,body,size,320.0)
+	var w: float=352.0
+	var h: float=34.0+float(lines.size())*(_scaled(size)+7.0)+12.0
+	var pos:=Vector2(clampf(at.x-w*0.5,8.0,532.0-w),clampf(at.y-h-18.0,8.0,game.ui_h-h-8.0))
+	var panel:=Rect2(pos,Vector2(w,h))
+	_box(panel,Color(0.02,0.022,0.026,0.97))
+	_frame(panel,Color(1,0.82,0.45,0.85),1.0)
+	_clean_text(bold,pos+Vector2(14,24),title,18,WHITE,false)
+	_clean_text(font,pos+Vector2(14,42),StoreCatalog.text(lang,"vehicles"),11,Color(1,1,1,0.45),false)
+	for i in range(lines.size()):
+		_clean_text(font,pos+Vector2(14,58.0+float(i)*(_scaled(size)+7.0)),String(lines[i]),size,MUTED,false)
 
 func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 	var kind: String=p.kind
