@@ -1217,10 +1217,10 @@ func wallet_layout(origin: Vector2,k:=1.0) -> Dictionary:
 	var silver_plus:=Rect2(Vector2(silver_icon.end.x+11*k+gw+11*k,origin.y+3*k),Vector2(28,28)*k)
 	var v_icon:=Rect2(Vector2(silver_plus.end.x+14*k,origin.y+2*k),Vector2(50,31)*k)
 	var v_plus:=Rect2(Vector2(v_icon.end.x+6*k+vw+8*k,origin.y+3*k),Vector2(28,28)*k)
-	return {"can_icon":Rect2(origin,Vector2(34,34)*k),"can_text":origin+Vector2(42,26)*k,"can_plus":can_plus,
-		"coin_icon":coin_icon,"coin_text":Vector2(coin_icon.end.x+11*k,origin.y+26*k),"coin_plus":coin_plus,
-		"silver_icon":silver_icon,"silver_text":Vector2(silver_icon.end.x+11*k,origin.y+26*k),"silver_plus":silver_plus,
-		"v_icon":v_icon,"v_text":Vector2(v_icon.end.x+6*k,origin.y+26*k),"v_plus":v_plus}
+	return {"can_icon":Rect2(origin,Vector2(34,34)*k),"can_text":origin+Vector2(42,24.5)*k,"can_plus":can_plus,
+		"coin_icon":coin_icon,"coin_text":Vector2(coin_icon.end.x+11*k,origin.y+24.5*k),"coin_plus":coin_plus,
+		"silver_icon":silver_icon,"silver_text":Vector2(silver_icon.end.x+11*k,origin.y+24.5*k),"silver_plus":silver_plus,
+		"v_icon":v_icon,"v_text":Vector2(v_icon.end.x+6*k,origin.y+24.5*k),"v_plus":v_plus}
 
 func wallet_layout_shop(origin: Vector2,k:=1.0) -> Dictionary:
 	# Shop ONLY: silver + gold. wallet_text_w.x = silver width, .y = gold width (set by hud._wallet_shop_only).
@@ -1230,8 +1230,8 @@ func wallet_layout_shop(origin: Vector2,k:=1.0) -> Dictionary:
 	var coin_plus:=Rect2(Vector2(coin_icon.end.x+11*k+sw+11*k,origin.y+3*k),Vector2(28,28)*k)
 	var silver_icon:=Rect2(Vector2(coin_plus.end.x+15*k,origin.y),Vector2(34,34)*k)
 	var silver_plus:=Rect2(Vector2(silver_icon.end.x+11*k+gw+11*k,origin.y+3*k),Vector2(28,28)*k)
-	return {"coin_icon":coin_icon,"coin_text":Vector2(coin_icon.end.x+11*k,origin.y+26*k),"coin_plus":coin_plus,
-		"silver_icon":silver_icon,"silver_text":Vector2(silver_icon.end.x+11*k,origin.y+26*k),"silver_plus":silver_plus}
+	return {"coin_icon":coin_icon,"coin_text":Vector2(coin_icon.end.x+11*k,origin.y+24.5*k),"coin_plus":coin_plus,
+		"silver_icon":silver_icon,"silver_text":Vector2(silver_icon.end.x+11*k,origin.y+24.5*k),"silver_plus":silver_plus}
 
 func _wallet_plus_hit(origin: Vector2,pos: Vector2,k:=1.0) -> bool:
 	var w: Dictionary=wallet_layout_shop(origin,k) if origin==WALLET_SHOP else wallet_layout(origin,k)

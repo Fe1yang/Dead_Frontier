@@ -1178,6 +1178,23 @@ func _plus_button(rect: Rect2) -> void:
 	clean_ops.append(["line",PackedVector2Array([c+Vector2(0,-h),c+Vector2(0,h)]),WHITE,3.0])
 
 ## Can energy, coin, silver and voucher balances with a + beside each (all open the store).
+## Plate behind the wallet row, measured from the row itself: the store header used a
+## fixed bar that cut the + buttons and the last balance off at the screen edge.
+func _wallet_plate(origin: Vector2,k:=1.0) -> void:
+	var ts:=int(round(24*k))
+	var cans: String="%d/%d"%[game.stamina.value,game.stamina.CAP]
+	game.wallet_text_w=Vector4(
+		bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,
+		bold.get_string_size(_compact(game.bank_coins),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,
+		bold.get_string_size(_compact(game.bank_silver),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,
+		bold.get_string_size(_compact(game.bank_vouchers),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x)
+	var w: Dictionary=game.wallet_layout(origin,k)
+	var right: float=(w.v_plus as Rect2).end.x+12.0*k
+	var left: float=origin.x-12.0*k
+	var plate:=Rect2(Vector2(left,origin.y-9.0*k),Vector2(right-left,52.0*k))
+	_box(plate,Color(0.035,0.037,0.041,0.92))
+	_frame(plate,Color(1,1,1,0.10),1.0)
+
 func _wallet(origin: Vector2,plus:=true,k:=1.0) -> void:
 	var cans: String="%d/%d"%[game.stamina.value,game.stamina.CAP]
 	var coins:=_compact(game.bank_coins); var silver:=_compact(game.bank_silver); var vouchers:=_compact(game.bank_vouchers)
@@ -1317,7 +1334,10 @@ func _draw_store() -> void:
 	var rl: String=ExtraText.text(lang,"restore"); var rsz:=15
 	while bold.get_string_size(rl,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(rsz)).x>rs.size.x-12 and rsz>9: rsz-=1
 	_clean_center(bold,Vector2(rs.get_center().x,rs.get_center().y+_scaled(rsz)*0.36),rl,rsz,WHITE)
-	_wallet(Vector2(90,82),false)
+	# k=0.82 keeps all four balances inside 540 px, and the plate is measured
+	# from the row so nothing hangs off the header bar.
+	_wallet_plate(Vector2(84,84),0.82)
+	_wallet(Vector2(84,84),false,0.82)
 	_toast(870)
 
 func _store_can_ad(r: Rect2,lang: String) -> void:
@@ -1335,6 +1355,17 @@ func _store_can_ad(r: Rect2,lang: String) -> void:
 
 ## One store row: muted colour tile with the animated pack art, small grey kind label, big
 ## white amount, extras in small text, price box on the right.
+## Truncate a label so it can never run under the price box: the vehicle description
+## used to spill across the row and out of the card.
+func _clip_text(f: Font, s: String, size: int, max_w: float) -> String:
+	if max_w<=8.0: return s
+	if f.get_string_size(s,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(size)).x<=max_w: return s
+	var out: String=s
+	while out.length()>1:
+		out=out.substr(0,out.length()-1)
+		if f.get_string_size(out+String.chr(8230),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(size)).x<=max_w: return out+String.chr(8230)
+	return ""
+
 func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 	var kind: String=p.kind
 	var owned: bool=bool(p.get("once",false)) and game.pack_owned(String(p.id))
@@ -1403,24 +1434,26 @@ func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 		# Paid survivor: portrait in the tile, big name, perk line, one-time tag.
 		_clean_text(bold,Vector2(x,y+30),game.character_name(int(p.get("char",0))),30,WHITE,false)
 		_clean_text(font,Vector2(x,y+58),RunText.text(String(p.get("perk","")),lang),14,MUTED,false)
-		_clean_text(font,Vector2(x,y+84),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
+		_clean_text(font,Vector2(x,y+78),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
 	elif kind=="skin":
 		var sk2: Dictionary=game.lobby.SKINS[int(p.get("skin",0))]
 		_clean_text(bold,Vector2(x,y+30),RunText.text(String(sk2.get("name","")),lang),30,WHITE,false)
 		_clean_text(font,Vector2(x,y+58),game.character_name(int(sk2.get("char",-1))),14,MUTED,false)
-		_clean_text(font,Vector2(x,y+84),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
+		_clean_text(font,Vector2(x,y+78),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
 	elif kind=="vehicle":
 		# Bought vehicle: name, auto-ride line, one-time tag.
 		var v_name: String=String(p.get("name","bike"))
 		var v_desc: String=String(v_name)+"_desc"
-		_clean_text(bold,Vector2(x,y+30),StoreCatalog.text(lang,v_name),30,WHITE,false)
-		_clean_text(font,Vector2(x,y+58),StoreCatalog.text(lang,v_desc),14,MUTED,false)
-		_clean_text(font,Vector2(x,y+84),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
+		var price_r: Rect2=game.store_price_rect(r,false)
+		var text_w: float=price_r.position.x-x-14.0
+		_clean_text(bold,Vector2(x,y+30),_clip_text(bold,StoreCatalog.text(lang,v_name),30,text_w),30,WHITE,false)
+		_clean_text(font,Vector2(x,y+58),_clip_text(font,StoreCatalog.text(lang,v_desc),14,text_w),14,MUTED,false)
+		_clean_text(font,Vector2(x,y+78),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
 	elif kind=="pet":
 		# A dog bought outright: name, plus a hint that cases can still drop it (1% jackpot).
 		_clean_text(bold,Vector2(x,y+30),game.pet_name(int(p.get("pet",0))),30,WHITE,false)
 		_clean_text(font,Vector2(x,y+58),ExtraText.text(lang,"pet_locked"),14,MUTED,false)
-		_clean_text(font,Vector2(x,y+84),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
+		_clean_text(font,Vector2(x,y+78),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
 	else:
 		clean_ops.append(["texture",coin_tex,Rect2(x,y+10,26,26)])
 		_clean_text(bold,Vector2(x+32,y+33),_grouped(int(p.coins)),26,WHITE)
