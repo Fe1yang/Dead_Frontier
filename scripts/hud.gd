@@ -109,7 +109,7 @@ func _ready() -> void:
 	clean.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(clean); clean.draw.connect(_draw_clean)
 	portraits=[load("res://assets/ui/male_hd_portrait.png"),load("res://assets/ui/riley_hd_portrait.png"),load("res://assets/ui/medic_hd_portrait.png"),load("res://assets/ui/maya_hd_portrait.png")]
-	pet_portraits=[load("res://assets/ui/pets/doberman.png"),load("res://assets/ui/pets/german_shepherd.png"),load("res://assets/ui/pets/czech_wolfdog.png"),load("res://assets/ui/pets/tibetan_mastiff.png")]
+	pet_portraits=[load("res://assets/ui/pets/doberman.png"),load("res://assets/ui/pets/german_shepherd.png"),load("res://assets/ui/pets/czech_wolfdog.png"),load("res://assets/ui/pets/tibetan_mastiff.png"),load("res://assets/ui/pets/white_tiger.png"),load("res://assets/ui/pets/lion.png")]
 	airdrop_tex=load("res://assets/ui/airdrop.png") if ResourceLoader.exists("res://assets/ui/airdrop.png") else null
 	can_tex=load("res://assets/ui/currency/can.png")
 	coin_tex=load("res://assets/ui/currency/coin.png"); voucher_tex=load("res://assets/ui/currency/voucher.png")
@@ -927,12 +927,10 @@ func _draw_shop() -> void:
 		# outline read clearly against the dark card even on a phone at arm's length.
 		var pip:=Rect2(53+i*40,732,34,17)
 		var filled: bool=i<level
-		if filled:
-			draw_rect(pip,Color("ffd75e"))
-			draw_rect(pip,Color("0b0e0e"),false,2.0)
-		else:
-			draw_rect(pip,Color("0d1111"))
-			draw_rect(pip,Color("b9c2c1"),false,2.0)
+		# White slot, filled yellow once that level is bought. Drawn through _box (the clean
+		# layer) because the card background is a clean op too: an immediate draw_rect would
+		# sit BEHIND it and come out washed out.
+		_box(pip,Color("ffd75e") if filled else Color("f4f6f5"),Color("0b0e0e"),2.0)
 	_text("LV %d / %d"%[level,item.max_level],Vector2(232,747),13,GOLD)
 	_text("%d / %d"%[game.shop_index+1,game.shop_items.size()],Vector2(452,684),13,MUTED)
 	# Prev / upgrade / next.

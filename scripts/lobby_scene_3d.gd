@@ -19,7 +19,8 @@ const PETS:=[
 	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.16},
 	{"asset":"res://assets/models/pets/czech_wolfdog.glb","name":"捷克狼犬","length":0.98,"yaw":1.5708},
 	{"asset":"res://assets/models/pets/tibetan_mastiff.glb","name":"藏獒","length":1.10},
-	{"asset":"res://assets/models/pets/white_tiger.glb","name":"白虎","length":1.70}]
+	{"asset":"res://assets/models/pets/white_tiger.glb","name":"白虎","length":1.70},
+	{"asset":"res://assets/models/pets/lion.glb","name":"狮子","length":1.55}]
 ## Outfit skins: same survivor, different body. `char` indexes CHARACTERS; the first entry
 ## per character is the default look. Skins never change stats — Maya keeps her perk either way.
 const SKINS:=[
@@ -236,6 +237,11 @@ func show_pet(path: String) -> void:
 	for p in PETS:
 		if p.asset==path: length=float(p.get("length",1.1))
 	add_child(pet); ModelFix.double_sided(pet)
+	# same as in the run: the generated pet GLBs arrive with shadow casting off
+	for mi in pet.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m != null:
+			m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	# dog stands where the survivor stands (STAND), same framing, so the camera never hops
 	var yaw:=0.0
 	for p in PETS:

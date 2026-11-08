@@ -10,7 +10,7 @@ const DogGallop=preload("res://scripts/dog_gallop.gd")
 ## Bite damage climbs with the breed (doberman, shepherd, wolfdog, mastiff). Only the mastiff
 ## takes a fresh walker down in one bite, and no bite ever finishes a Juggernaut ("brute"):
 ## the dog wears it down and the survivor has to shoot it dead.
-const BITE_DAMAGE_BY_BREED:=[16.0,26.0,40.0,72.0,1000000.0]  # 4 = white tiger: one bite kills
+const BITE_DAMAGE_BY_BREED:=[16.0,26.0,40.0,72.0,1000000.0,1000000.0]  # 4 = white tiger, 5 = lion: one bite kills
 static func bite_damage(breed_index: int) -> float:
 	return BITE_DAMAGE_BY_BREED[clampi(breed_index,0,BITE_DAMAGE_BY_BREED.size()-1)]
 const BITE_INTERVAL:=1.35
@@ -58,11 +58,23 @@ func setup(index: int, slot:=0) -> void:
 	model=ModelFix.spawn(String(LobbyScene.PETS[breed].asset))
 	if model==null: return
 	add_child(model); ModelFix.double_sided(model)
+	# Generated pet GLBs import with shadows off (or the shadow never lands on the road):
+	# turn casting on for every surface so the animal has a shadow like the survivor does.
+	for mi in model.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m != null:
+			m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 	base_y=ModelFix.fit_pet(model,float(LobbyScene.PETS[breed].get("length",1.1)))
 	model.position.y=base_y
 	anim=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
 	if anim: anim.stop()
+	# find the skeleton by TYPE: generated rigs name it after the armature (TigerArm),
+	# so the old name lookup silently skipped the gallop and the pet slid along.
 	var skeleton:=model.find_child("Skeleton3D",true,false) as Skeleton3D
+	if skeleton==null:
+		for n in model.find_children("*","Skeleton3D",true,false):
+			skeleton=n as Skeleton3D
+			break
 	if skeleton: gallop=DogGallop.new(skeleton)
 	bark_player=AudioStreamPlayer.new(); add_child(bark_player)
 	bark_wait=randf_range(4.0,8.0)  # first bark a few seconds into the run

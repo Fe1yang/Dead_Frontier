@@ -59,11 +59,13 @@ const PACKS:=[
 	{"id":"pet_2","kind":"pet","name":"pets","pet":2,"coins":0,"vouchers":0,"tier":2,"usd":6.99,"bonus":0,"once":true,"glow":"violet","rays":10},
 	{"id":"pet_3","kind":"pet","name":"pets","pet":3,"coins":0,"vouchers":0,"tier":2,"usd":7.99,"bonus":0,"once":true,"glow":"red","rays":10},
 	{"id":"pet_4","kind":"pet","name":"pets","pet":4,"coins":0,"vouchers":0,"tier":5,"usd":24.99,"bonus":0,"once":true,"glow":"gold","rays":20},
+{"id":"pet_5","kind":"pet","name":"pets","pet":5,"coins":0,"vouchers":0,"tier":5,"usd":24.99,"bonus":0,"once":true,"glow":"gold","rays":20},
 	{"id":"vehicle_bike","kind":"vehicle","vehicle":"BIKE","name":"bike","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"teal","rays":12,"art":"vehicle_bike"},
 	{"id":"vehicle_sport","kind":"vehicle","vehicle":"SPORT","name":"sport","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"amber","rays":12,"art":"vehicle_sport"},
 	{"id":"vehicle_car","kind":"vehicle","vehicle":"CRUISER","name":"cruiser","coins":0,"vouchers":0,"tier":4,"bonus":0,"once":true,"glow":"red","rays":16,"art":"vehicle_cruiser"},
 	{"id":"vehicle_gold","kind":"vehicle","vehicle":"GOLD","name":"gold","coins":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":20,"art":"vehicle_gold"},
 	{"id":"vehicle_tank","kind":"vehicle","vehicle":"TANK","name":"tank","coins":0,"vouchers":0,"tier":6,"bonus":0,"once":true,"glow":"silver","rays":24,"art":"vehicle_tank"},
+{"id":"weapon_flame","kind":"special","weapon":"FLAME","name":"flame","coins":0,"vouchers":0,"tier":5,"usd":4.99,"bonus":0,"once":true,"glow":"gold","rays":14},
 	{"id":"vehicle_sedan","kind":"vehicle","vehicle":"SEDAN","name":"sedan","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"silver","rays":18,"art":"vehicle_sedan"},
 ]
 
