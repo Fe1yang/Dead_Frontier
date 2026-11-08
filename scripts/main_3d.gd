@@ -2061,6 +2061,7 @@ func go_to_lobby() -> void:
 	enter_lobby()
 
 func enter_lobby() -> void:
+	_dev_unlock_all()
 	if pet_equipped and not pet_owned(pet_choice): pet_equipped=false
 	# Locked content can never stay selected (old saves predate the store).
 	if not character_owned(character_choice): character_choice=0
@@ -4560,3 +4561,16 @@ func _fire_cannon() -> void:
 		_hit_zombie(z,1e9,"torso",z.global_position+Vector3(0,1.0,0))
 	player.vehicle_durability-=CANNON_COST
 	if player.vehicle_durability<=0.0: _vehicle_breakdown()
+
+## DEV ONLY: unlock every purchasable thing on this account, so the vehicles can be
+## tested without going through the store / ad flow. Flip to false before shipping.
+const DEV_UNLOCK_ALL:=true
+func _dev_unlock_all() -> void:
+	if not DEV_UNLOCK_ALL: return
+	for p in StoreCatalog.PACKS:
+		if bool(p.get("once",false)): store_owned[String(p.id)]=true
+		if p.has("char"): owned_characters[int(p.char)]=true
+		if p.has("skin"): owned_skins[int(p.skin)]=true
+		if p.has("pet"): owned_pets[int(p.pet)]=true
+	if owned_vehicle=="": owned_vehicle="TANK"
+	_save()
