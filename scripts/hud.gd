@@ -923,12 +923,16 @@ func _draw_shop() -> void:
 	_bold_text(ShopText.text(lang,item.name_key),Vector2(52,684),26,WHITE)
 	_text(ShopText.text(lang,item.detail_key),Vector2(53,714),15,MUTED)
 	for i in range(int(item.max_level)):
-		var pip:=Rect2(53+i*34,734,28,14)
+		# Bigger slots, drawn as hollow boxes when empty: a filled gold block and a bright
+		# outline read clearly against the dark card even on a phone at arm's length.
+		var pip:=Rect2(53+i*40,732,34,17)
 		var filled: bool=i<level
-		# Filled pips bright gold, empty ones a clearly readable dark slate with an outline:
-		# the old empty colour vanished into the card.
-		draw_rect(pip,Color("ffd75e") if filled else Color("6d7877"))
-		draw_rect(pip,Color("0b0e0e") if filled else Color(0.55,0.60,0.59,0.75),false,1.0)
+		if filled:
+			draw_rect(pip,Color("ffd75e"))
+			draw_rect(pip,Color("0b0e0e"),false,2.0)
+		else:
+			draw_rect(pip,Color("0d1111"))
+			draw_rect(pip,Color("b9c2c1"),false,2.0)
 	_text("LV %d / %d"%[level,item.max_level],Vector2(232,747),13,GOLD)
 	_text("%d / %d"%[game.shop_index+1,game.shop_items.size()],Vector2(452,684),13,MUTED)
 	# Prev / upgrade / next.
