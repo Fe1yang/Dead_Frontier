@@ -1942,6 +1942,11 @@ func _lobby_release(pos: Vector2) -> void:
 		if lobby_card_rect(i).has_point(pos):
 			if lobby_tab==3:
 				vehicle_choice=i; lobby.set_vehicle_visual(i)
+				# tapping an owned vehicle EQUIPS it: vehicle_choice is only the preview,
+				# so the run used to keep mounting whatever was stored before.
+				var vkey: String=String(["BIKE","SPORT","CRUISER","GOLD","TANK"][clampi(i,0,4)])
+				if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank"][clampi(i,0,4)])):
+					owned_vehicle=vkey; _save()
 			elif lobby_tab==2:
 				if i<lobby.SKINS.size(): select_skin(i)
 				else: lobby_toast=1.6; lobby_toast_key="coming"
@@ -4539,8 +4544,8 @@ func _soak_test() -> void:
 ## Tank shell: a bright tracer down the lane, everything in it dies, the tank wears out.
 const CANNON_PERIOD:=1.25
 const CANNON_COST:=13.0
-const CANNON_RANGE:=18.0
-const CANNON_HALF_WIDTH:=1.9
+const CANNON_RANGE:=42.0
+const CANNON_HALF_WIDTH:=2.1
 func _fire_cannon() -> void:
 	var muzzle:=player.position+Vector3(0,1.55,1.05)
 	# tracer + muzzle blast
