@@ -2519,9 +2519,6 @@ func _hit_zombie(z: Node3D,amount: float,part:="torso",hit_position:=Vector3.ZER
 		var reward: int=int(round(float(z.reward)*player.coin_mult))
 		kills+=1; sound.play("kill")
 		_drop_coins(z.global_position,reward,String(z.kind))
-		# GOLD bike: anything the rider kills from the saddle also shakes out a gold pile.
-		if player.vehicle=="GOLD":
-			_drop_coins(z.global_position+Vector3(0,0,0.35),maxi(1,int(round(float(z.reward)))),"brute")
 		if player.kill_heal>0.0: player.health=minf(player.max_health,player.health+player.kill_heal*player.heal_scale())
 		if player.drop_chance>0.0 and rng.randf()<player.drop_chance: _drop_pickup(z.global_position)
 		_progress("kills",1)
@@ -2928,7 +2925,9 @@ const GOLD_COIN_KINDS:=["brute","banshee","bomber","bomber_female"]
 
 func _drop_coins(at: Vector3,amount: int,zombie_kind: String) -> void:
 	var pickup:=PickupScript.new()
-	pickup.kind="coin" if zombie_kind in GOLD_COIN_KINDS else "silver_coin"
+	# riding the golden bike converts every drop to gold - never silver, never both
+	var as_gold: bool=(zombie_kind in GOLD_COIN_KINDS) or (is_instance_valid(player) and player.vehicle=="GOLD")
+	pickup.kind="coin" if as_gold else "silver_coin"
 	pickup.value=maxi(1,amount); pickup.source_kind=zombie_kind
 	pickup.position=Vector3(clampf(at.x,-2.75,2.75),0,at.z); add_child(pickup); pickups.append(pickup)
 
