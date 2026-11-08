@@ -1491,7 +1491,18 @@ func buy_lootbox(use_voucher:=false) -> bool:
 		var pid:=String(pp.id)
 		puzzle_pieces[pid]=int(puzzle_pieces.get(pid,0))+1
 		var got:=int(puzzle_pieces[pid])
-		lootbox_reward_title="%s  %d/50"%[StoreCatalog.text(language_code,String(pp.get("name",pid))),got]
+		var label:=StoreCatalog.text(language_code,String(pp.get("name",pid)))
+		if got>=50:
+			# pity pays out: the pieces become the item
+			puzzle_pieces.erase(pid)
+			if pp.has("char"): owned_characters[int(pp.char)]=true
+			elif pp.has("pet"): owned_pets[int(pp.pet)]=true
+			elif pp.has("vehicle"): owned_vehicle=String(pp.vehicle)
+			store_owned[pid]=true
+			lootbox_reward_title="%s  ✓"%label
+			sound.play("level_up")
+		else:
+			lootbox_reward_title="%s  %d/50"%[label,got]
 		lootbox_message=""
 		lootbox_scene.open_case("ammo")
 		sound.play("gate"); _save()
