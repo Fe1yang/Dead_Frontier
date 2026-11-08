@@ -23,7 +23,7 @@ func _run() -> void:
 		if String(m["name"]).contains("spawn_crate"): fn = String(m["name"]); break
 	print("crate spawner=", fn)
 	if fn != "":
-		main.call(fn, -7.0)
+		main.call(fn)
 	await create_timer(1.0).timeout
 	var crates = main.get("crates")
 	print("crates=", crates.size() if crates != null else "null")

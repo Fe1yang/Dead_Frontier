@@ -461,6 +461,11 @@ func _build_safehouse() -> bool:
 	_apply_stone_to_safehouse(safe)
 	# Open the window: drop the glass pane and repaint the night card behind it as daylight sky,
 	# with a few rooftop silhouettes so the opening reads as "outside" instead of a black slot.
+	# The olive canvas sheet hanging by the window: it read as a green sheet of paper over the
+	# window, so it goes.
+	var canvas := safe.find_child("Safe_canvas", true, false) as MeshInstance3D
+	if is_instance_valid(canvas):
+		canvas.visible = false
 	var glass := safe.find_child("Safe_glass", true, false) as MeshInstance3D
 	if is_instance_valid(glass):
 		glass.visible = false

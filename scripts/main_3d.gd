@@ -62,6 +62,7 @@ const ROAD_COUNT:=24
 const ROAD_LOOP:=ROAD_SEGMENT*ROAD_COUNT
 const ROAD_BEHIND:=56.0 # city blocks kept behind the player for intro/chase shots
 const DAY_NIGHT_CYCLE_METRES:=20000.0 # day at 0 m, night at 10 km, day again at 20 km
+var day_start_offset:=0.0  # metres into the 20 km cycle where this run begins
 var night_amount:=0.0
 var night_announced:=false   # the night song has played for the current dark stretch
 
@@ -962,6 +963,10 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 		if state=="cover": enter_lobby()
 		return
 	equip_menu_index=-1
+	# A run can open at dawn, noon, dusk or the dead of night: pick a random
+	# point in the day-night cycle, then the 20 km cycle carries on from there.
+	day_start_offset=rng.randf()*DAY_NIGHT_CYCLE_METRES
+	night_announced=false
 	_clear_world(); state="playing"; run_time=0; distance=0; kills=0; wave=0; run_coins=0; run_silver=0; run_double_bonus=0; run_double_silver=0; ad_pending=""; last_reward=0; last_silver_reward=0; survival_bonus=0
 	kill_counts.clear(); kill_coins.clear(); run_counted_distance=0.0; run_counted=false
 	for road in roads: _refresh_watcher(road)
@@ -1309,7 +1314,7 @@ func set_weather(kind: String) -> void:
 ## 15 km, reaches night at 10 km, and returns to the original daylight at 20 km.
 func _apply_day_night() -> void:
 	if world_env==null or weather_base.is_empty(): return
-	var cycle_distance: float=distance if state in ["playing","intro","paused","gameover"] else 0.0
+	var cycle_distance: float=(distance+day_start_offset) if state in ["playing","intro","paused","gameover"] else 0.0
 	var phase: float=fposmod(cycle_distance,DAY_NIGHT_CYCLE_METRES)/DAY_NIGHT_CYCLE_METRES
 	night_amount=0.5-0.5*cos(phase*TAU)
 	# The first song of every night: starts the moment the sky turns dark.
