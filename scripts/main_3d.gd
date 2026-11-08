@@ -4559,6 +4559,7 @@ func _fire_cannon() -> void:
 		if absf(z.global_position.x-player.position.x)>CANNON_HALF_WIDTH: continue
 		_blood_spray(z.global_position+Vector3(0,1.0,0),22)
 		_hit_zombie(z,1e9,"torso",z.global_position+Vector3(0,1.0,0))
+	player.cannon_kick=1.0
 	player.vehicle_durability-=CANNON_COST
 	if player.vehicle_durability<=0.0: _vehicle_breakdown()
 

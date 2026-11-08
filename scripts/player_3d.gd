@@ -70,6 +70,7 @@ var character := 0
 var vehicle := ""
 var vehicle_durability := 0.0
 var vehicle_model: Node3D
+var cannon_kick:=0.0  # tank hull recoil, 1.0 right after a shot
 var rider: SkeletonModifier3D
 const BIKE_DURABILITY := 100.0
 ## Per-vehicle feel: forward speed, side-step pace, and ram power (how hard it plows through
@@ -228,6 +229,8 @@ func mount_vehicle(id: String) -> void:
 	vehicle_model=(load(path) as PackedScene).instantiate() as Node3D
 	vehicle_model.position=Vector3(0,0,0.05)
 	add_child(vehicle_model); ModelFix.double_sided(vehicle_model)
+	# the tank GLB faces +Z; the survivor runs -Z, so turn the hull around
+	if id=="TANK": vehicle_model.rotation.y=PI
 	# Seat the rider on THIS vehicle's seat (per-vehicle lift/back, see SEAT_FIT).
 	if is_instance_valid(model):
 		model.position.z=float(SEAT_FIT.get(id,Vector2.ZERO).y)
@@ -248,6 +251,12 @@ func _tick_vehicle_visual(delta: float) -> void:
 		var pivot:=vehicle_model.find_child(w,true,false) as Node3D
 		if pivot: pivot.rotation.x+=delta*10.0
 	# Lean into sideways moves like a real bike instead of pure translation.
+	if vehicle=="TANK":
+		# tracked hull: never lean, just kick back from the cannon and settle
+		vehicle_model.rotation.z=lerpf(vehicle_model.rotation.z,0.0,1.0-exp(-delta*9.0))
+		cannon_kick=maxf(0.0,cannon_kick-delta*3.6)
+		vehicle_model.position.z=0.05+cannon_kick*0.22
+		return
 	var lateral: float=0.0
 	if is_instance_valid(self):
 		lateral=clampf((position.x-target_x)*1.4,-1.0,1.0)
