@@ -331,6 +331,9 @@ var new_gate_index:=0
 var elapsed:=0.0
 var auto_reload:=true
 var touch_controls:=false
+## A tap that moves the player from one screen to the next (pause -> lobby) must not
+## also press whatever button happens to sit under the same finger on the new screen.
+var lobby_swallow_tap:=0.0
 var mouse_position:=Vector2(270,390)
 var aim_direction:=Vector3.FORWARD
 var aim_target: Node3D
@@ -548,6 +551,7 @@ func _freeze_visuals(frozen: bool) -> void:
 
 func _process(delta: float) -> void:
 	elapsed+=delta
+	lobby_swallow_tap=maxf(0.0,lobby_swallow_tap-delta)
 	# Before the run starts, compile one of everything in the hidden warm-up viewport:
 	# a menu stutter costs nothing, the same compile mid-run costs the player a freeze.
 	if state!="playing": _warm_up_tick()
@@ -2147,6 +2151,9 @@ func go_to_lobby() -> void:
 	enter_lobby()
 
 func enter_lobby() -> void:
+	# Swallow the tap that brought us here: iOS sends an emulated mouse event for the
+	# same finger, and that second press landed on the lobby Start button underneath.
+	lobby_swallow_tap=0.45
 	_dev_unlock_all()
 	if pet_equipped and not pet_owned(pet_choice): pet_equipped=false
 	# Locked content can never stay selected (old saves predate the store).
@@ -2515,13 +2522,6 @@ func _tick_zombies(delta: float) -> void:
 					ignited+=1
 			if ignited>0:
 				_popup(z.position+Vector3(0,2.8,0),RunText.text("banshee_frenzy"),Color("ff8a4f"))
-		for other in zombies:
-			if other==z or not is_instance_valid(other): continue
-			var dx: float=z.position.x-other.position.x
-			var dz: float=z.position.z-other.position.z
-			var spacing: float=(z.radius+other.radius)*0.88
-			if absf(dz)<1.15 and absf(dx)<spacing:
-				z.position.x=clampf(z.position.x+(1.0 if dx>=0 else -1.0)*(spacing-absf(dx))*delta*2.2,-3.05,3.05)
 		_avoid_barrels(z,delta)
 		_avoid_obstacles(z,delta)
 		_avoid_crater(z,delta)
@@ -2537,6 +2537,44 @@ func _tick_zombies(delta: float) -> void:
 			else:
 				_hurt_player(z.damage); _burst(z.position+Vector3(0,1,0),Color("91a85c"),8); zombies.remove_at(i); z.queue_free()
 		elif z.position.z>13: zombies.remove_at(i); z.queue_free()
+	_separate_zombies()
+
+## Zombies only advance along +Z, so a fast one (jockey 7.4 m/s) used to walk
+## straight through a slow one (banshee 1.65, brute 5.6) and the models overlapped.
+## Resolve every pair as two circles: spread sideways first (that is what makes a
+## horde), and when the kerb blocks the sideways move, stop the trailing one from
+## overtaking - it queues up behind instead of clipping through.
+func _separate_zombies() -> void:
+	var count:=zombies.size()
+	for i in range(count):
+		var a=zombies[i]
+		if not is_instance_valid(a) or a.dead: continue
+		for j in range(i+1,count):
+			var b=zombies[j]
+			if not is_instance_valid(b) or b.dead: continue
+			var dx: float=a.position.x-b.position.x
+			var dz: float=a.position.z-b.position.z
+			var min_dist: float=(a.radius+b.radius)+0.05
+			var d2: float=dx*dx+dz*dz
+			if d2>=min_dist*min_dist: continue
+			var d: float=sqrt(maxf(d2,0.0001))
+			var overlap: float=min_dist-d
+			var nx: float=dx/d
+			var nz: float=dz/d
+			var half: float=overlap*0.5
+			a.position.x=clampf(a.position.x+nx*half,-3.05,3.05)
+			b.position.x=clampf(b.position.x-nx*half,-3.05,3.05)
+			# The kerb may have eaten the sideways correction; take what is left along Z,
+			# and only from the one further from the survivor (never shove him into a bite).
+			var rx: float=a.position.x-b.position.x
+			var rz: float=a.position.z-b.position.z
+			var rd: float=sqrt(rx*rx+rz*rz)
+			if rd>=min_dist: continue
+			var need: float=min_dist-rd
+			if a.kind=="banshee": b.position.z-=need
+			elif b.kind=="banshee": a.position.z-=need
+			elif a.position.z<=b.position.z: a.position.z-=need
+			else: b.position.z-=need
 
 func _avoid_barrels(z: Node3D,delta: float) -> void:
 	for barrel in barrels:
@@ -3665,7 +3703,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		mouse_position=event.position
 		if state=="playing" and not touch_controls: _update_mouse_aim()
-	elif event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT:
+	elif event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not touch_controls:
+		# iOS emulates a mouse press for every finger. Without this guard a single tap
+		# ran _pointer_down twice, once for the touch and once for the emulated mouse.
 		if event.pressed: _pointer_down(event.position)
 	elif event is InputEventScreenTouch:
 		touch_controls=true
@@ -3763,6 +3803,7 @@ func _pointer_down(pos: Vector2) -> bool:
 				return true
 		return true
 	elif state=="character_select":
+		if lobby_swallow_tap>0.0: return true
 		if _wallet_plus_hit(WALLET_LOBBY,pos,LOBBY_WALLET_SCALE): return true
 		if SIDE_SIGNIN.has_point(pos): open_signin(); return true
 		if SIDE_TASKS.has_point(pos): open_tasks(); return true
@@ -4756,5 +4797,6 @@ func _dev_unlock_all() -> void:
 		if p.has("char"): owned_characters[int(p.char)]=true
 		if p.has("skin"): owned_skins[int(p.skin)]=true
 		if p.has("pet"): owned_pets[int(p.pet)]=true
-	if owned_vehicle=="": owned_vehicle="TANK"
+	# Never hand the player a vehicle: this used to equip the TANK as a side effect of
+	# the dev unlock, so every run after one visit to the lobby started mounted on it.
 	_save()
