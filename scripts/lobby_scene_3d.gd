@@ -468,7 +468,6 @@ func _build_safehouse() -> bool:
 	if is_instance_valid(night):
 		night.material_override = _mat(Color("8fb2d6"), 1.0)
 		_glow(night, Color("6d90b4"), 0.9)
-			safe.add_child(tie)
 	# Back brick wall as a separate thin panel (GLB wall meshes are merged with crate
 	# faces, so bricking them bricks the crates too — panel keeps crates original).
 	var back_wall:=_box("Brick back wall",Vector3(0,1.56,-3.28),Vector3(5.6,3.12,0.06),Color("382f27"),0.95)

@@ -31,9 +31,9 @@ const PACKS:=[
 	{"id":"coins_4","kind":"coins","coins":7400,"vouchers":0,"tier":4,"bonus":23,"glow":"amber","rays":10},
 	{"id":"coins_5","kind":"coins","coins":19500,"vouchers":0,"tier":5,"bonus":30,"glow":"red","rays":12},
 	{"id":"coins_6","kind":"coins","coins":41000,"vouchers":0,"tier":6,"bonus":37,"glow":"violet","rays":16},
-	{"id":"coins_7","kind":"coins","coins":5000,"vouchers":0,"tier":3,"bonus":0,"glow":"red","rays":12},
-	{"id":"coins_8","kind":"coins","coins":50000,"vouchers":0,"tier":5,"bonus":0,"glow":"violet","rays":16},
-	{"id":"coins_9","kind":"coins","coins":500000,"vouchers":0,"tier":6,"bonus":0,"glow":"violet","rays":16},
+	{"id":"coins_7","kind":"coins","coins":5000,"vouchers":0,"tier":3,"bonus":0,"glow":"red","rays":12,"art":"coins_3"},
+	{"id":"coins_8","kind":"coins","coins":50000,"vouchers":0,"tier":5,"bonus":0,"glow":"violet","rays":16,"art":"coins_6"},
+	{"id":"coins_9","kind":"coins","coins":500000,"vouchers":0,"tier":6,"bonus":0,"glow":"violet","rays":16,"art":"coins_6"},
 	# Silver packs: same 6 amounts as coins, about half price (tier one step below gold).
 	# They grant the separate silver wallet, not gold. Art reuses the coin pile shape.
 	{"id":"silver_1","kind":"silver","silver":300,"vouchers":0,"tier":0,"bonus":0,"glow":"silver","rays":6,"art":"silver_1"},
@@ -88,7 +88,9 @@ static func offer(id: String) -> Dictionary:
 	return {}
 
 static func discount(o: Dictionary) -> int:
-	return int(round((1.0-float(TIERS[int(o.tier)])/float(TIERS[int(o.was)]))*100.0))
+	var now: float=float(o.get("usd",TIERS[clampi(int(o.tier),0,TIERS.size()-1)]))
+	var was: float=float(TIERS[clampi(int(o.get("was",o.tier)),0,TIERS.size()-1)])
+	return int(round((1.0-now/was)*100.0))
 
 ## code: [symbol, symbol after the number?, decimals, decimal mark, thousands mark, prices per tier]
 const CURRENCIES:={
