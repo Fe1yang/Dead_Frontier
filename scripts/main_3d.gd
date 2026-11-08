@@ -11,6 +11,7 @@ const RunText=preload("res://scripts/run_text.gd")
 const IapScript=preload("res://scripts/iap_service.gd")
 const BarrelScript=preload("res://scripts/barrel_3d.gd")
 const WeaponCrateScript=preload("res://scripts/weapon_crate_3d.gd")
+const BarrelRollScript=preload("res://scripts/barrel_roll_3d.gd")
 const CRATE_WEAPONS:=["SMG","SHOTGUN","SNIPER","PISTOL","LAUNCHER","RIFLE"]
 const CRATE_TIER:={"HELMET":0.9,"ARMOR":1.0,"PISTOL":0.7,"RIFLE":0.9,"SMG":1.0,"SHOTGUN":1.1,"SNIPER":1.25,"LAUNCHER":1.5,"BIKE":1.2}
 const RoadObstacleScript=preload("res://scripts/road_obstacle_3d.gd")
@@ -280,6 +281,7 @@ var watchers: Array=[]   # roadside zombies (scenery that can be shot), owned by
 var kill_counts:={}      # kind -> kills this run
 var kill_coins:={}       # kind -> coins earned from those kills
 var crate_timer:=3.0
+var roller_timer:=11.0   # rolling reward barrels: a new wave every few seconds
 var obstacles: Array=[]
 var pickups: Array=[]
 var effects: Array=[]
@@ -651,6 +653,10 @@ func _process(delta: float) -> void:
 	if crate_timer<=0:
 		if _road_clear(-46.0): _spawn_crates(); crate_timer=lerpf(30.0,17.0,ramp)*rng.randf_range(0.85,1.2)
 		else: crate_timer=1.5
+	roller_timer-=delta
+	if roller_timer<=0:
+		if _road_clear(-48.0): _spawn_rollers(); roller_timer=lerpf(26.0,16.0,ramp)*rng.randf_range(0.85,1.2)
+		else: roller_timer=1.5
 	obstacle_timer-=delta
 	if obstacle_timer<=0:
 		if _road_clear(-48.0): _spawn_obstacle_pattern(); obstacle_timer=lerpf(20.0,11.0,ramp)*rng.randf_range(0.85,1.2)
@@ -3003,6 +3009,52 @@ func _spawn_crates() -> void:
 		elif player.vehicle=="" and rng.randf()<0.06: id="CRUISER"
 		crate.setup(id,_crate_hits(id)); crate.position=Vector3(x,0,z); add_child(crate); crates.append(crate)
 
+## ---- Rolling reward barrels --------------------------------------------------------------
+## A wave of up to three barrels rolls down the road, each carrying a pet / weapon / vehicle
+## that turns slowly above it and a hit counter on its front face. They are 0.9 m wide and
+## the lanes are 2.4 m apart, so even three at once leave a 1.5 m gap between each pair: the
+## road is never walled off, there is always somewhere to slip through.
+const ROLLER_LANES:=[-2.4,0.0,2.4]
+
+func _spawn_rollers() -> void:
+	var alive:=0
+	for c in crates:
+		if is_instance_valid(c) and c.has_method("is_roller") and not c.broken: alive+=1
+	if alive>=2: return                     # never more than two rolling at once
+	var want:=mini(2-alive,rng.randi_range(1,2))
+	var xs: Array=[]
+	var lanes: Array=ROLLER_LANES.duplicate()
+	lanes.shuffle()
+	var tries:=0
+	while xs.size()<want and tries<16:
+		tries+=1
+		var x: float=float(lanes[rng.randi_range(0,lanes.size()-1)])+rng.randf_range(-0.28,0.28)
+		var ok: bool=absf(x)<2.9
+		for other in xs:
+			if absf(x-float(other))<2.0: ok=false   # keep a passable gap between them
+		if ok: xs.append(x)
+	for x in xs:
+		if not _crate_spot_clear(x,-48.0): continue
+		var clash:=false
+		for c in crates:
+			if is_instance_valid(c) and absf(c.position.x-x)<1.3 and absf(c.position.z-(-48.0))<4.0: clash=true; break
+		if clash: continue
+		var id:=_roller_id()
+		var barrel:=BarrelRollScript.new()
+		barrel.setup(id,_crate_hits(id))
+		barrel.position=Vector3(x,0,-48.0)
+		add_child(barrel); crates.append(barrel)
+## Pets, weapons and the paid bikes can ride a barrel. The tank never does.
+func _roller_id() -> String:
+	var roll:=rng.randf()
+	if roll<0.20:
+		return "PET_%d"%rng.randi_range(0,lobby.PETS.size()-1)
+	if roll<0.42 and player.vehicle=="":
+		var v: Array=["BIKE","SPORT","CRUISER"]
+		return String(v[rng.randi_range(0,v.size()-1)])
+	var choices: Array=CRATE_WEAPONS.duplicate(); choices.erase(player.weapon)
+	return String(choices[rng.randi_range(0,choices.size()-1)])
+
 func _break_crate(crate: Node3D) -> void:
 	sound.play("pickup"); shake=maxf(shake,0.35)
 	var center: Vector3=crate.position+Vector3(0,0.55,0)
@@ -3042,6 +3094,14 @@ func _tick_crates(delta: float) -> void:
 	var hand: Vector3=player.position+Vector3(0,1.25,0.1)
 	for i in range(crates.size()-1,-1,-1):
 		var c=crates[i]; c.tick(delta,hand)
+		# A rolling barrel is solid: it hurts like a wreck or a crater, then rolls on.
+		if c.has_method("is_roller") and not c.broken:
+			c.contact_tick(delta)
+			if c.hit_cooldown<=0.0 and c.touches(player.position):
+				c.hit_cooldown=1.2
+				_hurt_player(c.contact_damage)
+				shake=maxf(shake,0.4)
+				_burst(player.position+Vector3(0,0.55,0),Color("c8a06a"),8)
 		if not c.broken: _rescale_crate(c)
 		# Crates are not solid: the runner can run straight through them.
 		if c.arrived or (c.broken and c.flight>1.5):
