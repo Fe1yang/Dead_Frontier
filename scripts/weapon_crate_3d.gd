@@ -3,6 +3,9 @@ extends Node3D
 ## weapon it holds spinning above it. Shoot it down to 0 and the weapon flies to the player.
 
 const TRUCK_PATH := "res://assets/models/supply_truck.glb"
+## When the truck crate mesh cannot be found, the case is an ammo can (the model the game
+## already ships) instead of a plain green block.
+const AMMO_CAN_PATH := "res://assets/models/ammo_pickup.glb"
 const CRATE_SCALE := 2.9
 const FLIGHT_TIME := 0.55
 const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.62,"CRUISER":0.62}
@@ -45,6 +48,18 @@ static func _cache_meshes() -> void:
 	if latch: latch_mesh = latch.mesh
 	truck.free()
 
+## AABB of every mesh under `node`, in that node's own space.
+static func _bounds_of(node: Node3D) -> AABB:
+	var box := AABB(); var first := true
+	var inv := node.global_transform.affine_inverse()
+	for mi in node.find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m == null or m.mesh == null: continue
+		var b: AABB = (inv * m.global_transform) * m.get_aabb()
+		box = b if first else box.merge(b)
+		first = false
+	return box
+
 func setup(id: String,hits: int) -> void:
 	weapon_id = id
 	hits_left = maxi(1,hits)
@@ -61,8 +76,21 @@ func _ready() -> void:
 			var l := MeshInstance3D.new(); l.mesh = latch_mesh; l.scale = Vector3.ONE*s
 			l.position = Vector3(0,0.15*s,0.22*s); body.add_child(l)
 	else:
-		var fallback := MeshInstance3D.new(); var box := BoxMesh.new(); box.size = Vector3(1.22,0.76,1.07)
-		fallback.mesh = box; fallback.position = Vector3(0,0.38,0); body.add_child(fallback)
+		var can_height := 0.78
+		if ResourceLoader.exists(AMMO_CAN_PATH):
+			var can := (load(AMMO_CAN_PATH) as PackedScene).instantiate() as Node3D
+			if can != null:
+				body.add_child(can)
+				var span := _bounds_of(can)
+				var k := 1.26 / maxf(span.size.x, maxf(span.size.y, span.size.z))
+				can.scale = Vector3.ONE * k
+				can.position = Vector3(-span.get_center().x * k, -span.position.y * k, -span.get_center().z * k)
+				can_height = span.size.y * k
+		if can_height <= 0.01:
+			var fallback := MeshInstance3D.new(); var box := BoxMesh.new(); box.size = Vector3(1.22,0.76,1.07)
+			fallback.mesh = box; fallback.position = Vector3(0,0.38,0); body.add_child(fallback)
+		# the can is low: bring the band and the counter down onto its lid
+		s = 1.0 if can_height > 0.5 else 0.55
 	# Red danger band so the crate reads as "shoot me" from the chase camera.
 	var band := MeshInstance3D.new(); var band_mesh := BoxMesh.new()
 	band_mesh.size = Vector3(0.48*s+0.02,0.075*s,0.42*s+0.02); band.mesh = band_mesh
