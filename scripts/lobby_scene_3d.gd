@@ -61,6 +61,8 @@ const VEHICLE_MODELS:=[
 ## One preview scale for all three: they are real-size models, so the cruiser stays
 ## longer/taller than the scrambler instead of being faked with different scales.
 const VEHICLE_STAGE_SCALE:=0.75
+## The tank is 3.4 m long, so it gets its own preview scale and camera pull-back.
+const VEHICLE_SCALE_BY_MODEL:=[0.75,0.75,0.75,0.75,0.60]
 ## Where the turntable rests: a 3/4 angle reads better than dead-on.
 const VEHICLE_YAW:=PI+0.55
 const VEHICLE_CAM_POS:=Vector3(-0.08,1.02,4.35)
@@ -76,7 +78,7 @@ func set_vehicle_visual(i: int) -> void:
 	bike=(load(path) as PackedScene).instantiate() as Node3D
 	bike.position=STAND+Vector3(0,0.0,-0.35) # models already rest on y=0
 	bike.rotation.y=VEHICLE_YAW # 3/4 view: head-on hid the whole silhouette
-	bike.scale=Vector3.ONE*VEHICLE_STAGE_SCALE
+	bike.scale=Vector3.ONE*float(VEHICLE_SCALE_BY_MODEL[clampi(i,0,VEHICLE_SCALE_BY_MODEL.size()-1)])
 	bike.visible=focus_vehicle
 	add_child(bike); ModelFix.double_sided(bike)
 	_fit_vehicle()
@@ -122,12 +124,14 @@ var focus_pets:=false  # set by main_3d when the pets tab is open
 
 func camera_position() -> Vector3:
 	if focus_vehicle:
+		if bike_index==4: return ORIGIN+Vector3(-0.08,1.45,6.6)
 		return ORIGIN+VEHICLE_CAM_POS
 	# Fixed solo framing for both tabs (no zoom/scale on tab switch per user request).
 	return ORIGIN+SOLO_POS+Vector3(sin(time*0.3)*0.04,sin(time*0.45)*0.02,0)
 
 func camera_target() -> Vector3:
 	if focus_vehicle:
+		if bike_index==4: return ORIGIN+Vector3(-0.08,0.85,0.0)
 		return ORIGIN+VEHICLE_CAM_TARGET
 	return ORIGIN+SOLO_TARGET
 
