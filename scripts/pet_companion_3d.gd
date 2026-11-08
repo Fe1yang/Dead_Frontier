@@ -41,7 +41,11 @@ const LION_GROWL_PATH:="res://assets/audio/lion_growl.mp3"
 const LION_GAP:=Vector2(22.0,40.0)
 ## The tiger and the lion share one voice pool: any of the four clips may play.
 const TIGER_BREED:=4
-const BIG_CAT_SOUNDS:=["res://assets/audio/lion_roar.mp3","res://assets/audio/lion_growl.mp3","res://assets/audio/tiger_attack.mp3","res://assets/audio/tiger_roar.mp3"]  # random wait between barks
+## ambience: roars and growls only
+const BIG_CAT_SOUNDS:=["res://assets/audio/lion_roar.mp3","res://assets/audio/lion_growl.mp3","res://assets/audio/tiger_roar.mp3"]
+## the attack clip fires on the bite itself, not on the ambience timer
+const TIGER_ATTACK_PATH:="res://assets/audio/tiger_attack.mp3"
+const BITE_VOICE_CHANCE:=0.35  # random wait between barks
 const FAR_DISTANCE:=3.2  # further than this from the survivor counts as "far away"
 ## Formation slots around the survivor (the road runs -Z, so -Z is ahead): the two front
 ## slots first, then the two flanks. slot 0 = front-left, 1 = front-right, 2 = left side,
@@ -131,6 +135,14 @@ func _animate(delta: float) -> void:
 	if bite_time>0.0:
 		ModelFix.play_animation(model,"Dog_Bite",false)
 		if gallop!=null and gallop.has_method("bite"): gallop.bite()
+		# bite voice: occasional, and never layered over a roar that is still playing
+		if (breed==TIGER_BREED or breed==LION_BREED) and not bark_player.playing and randf()<BITE_VOICE_CHANCE:
+			var atk:=load(TIGER_ATTACK_PATH) as AudioStream
+			if atk!=null:
+				bark_player.stream=atk
+				bark_player.volume_db=-8.0
+				bark_player.pitch_scale=randf_range(0.96,1.06)
+				bark_player.play()
 		return
 	if anim and anim.is_playing():
 		anim.stop(); (gallop.sk as Skeleton3D).reset_bone_poses()
