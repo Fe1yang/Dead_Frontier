@@ -2217,6 +2217,9 @@ const LOBBY_BAND_TOP:=684.0   # the dark band behind tabs, strip and start butto
 ## Main screen list: one column on the left with 角色 / 宠物 tabs; it scrolls vertically.
 var lobby_tab:=0          # 0 = survivors, 1 = pets, 2 = skins, 3 = vehicle
 var vehicle_choice:=0 # which vehicle card is shown in the lobby stage (0 scrambler, 1 sport, 2 cruiser)
+## The lobby only showcases the four bikes; the tank and the black saloon are played but never
+## displayed here (user's call).
+const LOBBY_VEHICLE_CARDS:=4
 var lobby_scroll:=0.0
 var lobby_press:=Vector2(-1,-1)
 var lobby_dragged:=false
@@ -2241,7 +2244,7 @@ func lobby_view_rect() -> Rect2:
 
 func lobby_item_count() -> int:
 	if lobby_tab==2: return maxi(LOBBY_SLOTS,lobby.SKINS.size())
-	if lobby_tab==3: return 6 # BIKE / SPORT / CRUISER / GOLD / TANK / SEDAN in the lobby vehicle tab
+	if lobby_tab==3: return LOBBY_VEHICLE_CARDS # bikes only: the tank and the saloon are not shown in the lobby
 	return maxi(LOBBY_SLOTS,lobby.CHARACTERS.size()) if lobby_tab==0 else maxi(LOBBY_SLOTS,lobby.PETS.size())
 
 func lobby_max_scroll() -> float:

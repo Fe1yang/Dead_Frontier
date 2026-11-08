@@ -243,8 +243,10 @@ func _build_back_wall() -> void:
 		["res://assets/models/weapons/pistol.glb",0.26,Vector3(1.55,2.40,-0.95)],
 		["res://assets/models/weapons/pistol.glb",0.26,Vector3(1.90,2.40,-0.95)]]
 	for item in rack:
-		# Same yaw as every other gun: _prop already turns the barrel onto the X axis.
-		var held:=_prop(item[0],item[1],item[2],0.0,true,false)
+		# Same lay-flat as every other gun, then half a turn so the pistol presents the face
+		# the player reads instead of the mirror of the rest of the rack.
+		var is_pistol:=String(item[0]).ends_with("pistol.glb")
+		var held:=_prop(item[0],item[1],item[2],PI if is_pistol else 0.0,true,false)
 		var file: String=String(item[0]).get_file()
 		if RACK_KEYS.has(file) and not props.has(RACK_KEYS[file]): _register(RACK_KEYS[file],held)
 		# two pegs under each weapon

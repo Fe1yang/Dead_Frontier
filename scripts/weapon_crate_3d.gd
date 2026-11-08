@@ -69,7 +69,21 @@ func _ready() -> void:
 	_cache_meshes()
 	body = Node3D.new(); body.name = "Body"; add_child(body)
 	var s := CRATE_SCALE # all three bikes are full-size drops in the same crate
-	if crate_mesh:
+	# The case is the game's own ammo can, not the green truck crate (user's call).
+	var can_used := false
+	if ResourceLoader.exists(AMMO_CAN_PATH):
+		var can := (load(AMMO_CAN_PATH) as PackedScene).instantiate() as Node3D
+		if can != null:
+			body.add_child(can)
+			var span := _bounds_of(can)
+			var k := 1.26 / maxf(span.size.x, maxf(span.size.y, span.size.z))
+			can.scale = Vector3.ONE * k
+			can.position = Vector3(-span.get_center().x * k, -span.position.y * k, -span.get_center().z * k)
+			can_used = true
+			s = 1.0
+	if can_used:
+		pass
+	elif crate_mesh:
 		var c := MeshInstance3D.new(); c.mesh = crate_mesh; c.scale = Vector3.ONE*s
 		c.position = Vector3(0,0.15*s,0); body.add_child(c)
 		if latch_mesh:
