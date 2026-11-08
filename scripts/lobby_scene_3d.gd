@@ -464,17 +464,29 @@ func _build_safehouse() -> bool:
 	var glass := safe.find_child("Safe_glass", true, false) as MeshInstance3D
 	if is_instance_valid(glass):
 		glass.visible = false
+	# Curtains: two gathered canvas panels either side of the opening, tied near the middle,
+	# so the window reads as a real window instead of a bare hole.
+	var frame_pt := safe.to_local(glass.global_transform.origin) if is_instance_valid(glass) else Vector3(-0.4, 1.4, -3.35)
+	for side in [-1.0, 1.0]:
+		var panel := MeshInstance3D.new()
+		var bm := BoxMesh.new()
+		bm.size = Vector3(0.52, 2.2, 0.10)
+		panel.mesh = bm
+		panel.material_override = _mat(Color("6d6a4c"), 1.0)
+		panel.position = frame_pt + Vector3(side * 0.95, 0.55, 0.14)
+		panel.rotation.y = deg_to_rad(6.0 * side)
+		safe.add_child(panel)
+		var tie := MeshInstance3D.new()
+		var tm := BoxMesh.new()
+		tm.size = Vector3(0.32, 0.12, 0.14)
+		tie.mesh = tm
+		tie.material_override = _mat(Color("8a8460"), 0.9)
+		tie.position = panel.position + Vector3(0, -0.15, 0.02)
+		safe.add_child(tie)
 	var night := safe.find_child("Safe_night", true, false) as MeshInstance3D
 	if is_instance_valid(night):
 		night.material_override = _mat(Color("8fb2d6"), 1.0)
 		_glow(night, Color("6d90b4"), 0.9)
-		var wp := night.global_transform.origin
-		var spans := [-1.15, 0.05, 1.25]
-		for i in range(spans.size()):
-			var h := 0.9 + float(i % 2) * 0.5
-			var roof := _box("Rooftop", to_local(wp + Vector3(spans[i], -0.45, 0.30)),
-				Vector3(0.9, h, 0.35), Color("1b2028"), 0.95)
-			roof.material_override = _mat(Color("1b2028"), 0.95)
 	# Back brick wall as a separate thin panel (GLB wall meshes are merged with crate
 	# faces, so bricking them bricks the crates too — panel keeps crates original).
 	var back_wall:=_box("Brick back wall",Vector3(0,1.56,-3.28),Vector3(5.6,3.12,0.06),Color("382f27"),0.95)

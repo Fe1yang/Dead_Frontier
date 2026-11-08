@@ -1579,10 +1579,11 @@ func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 		_clean_text(font,Vector2(x,y+58),game.character_name(int(sk2.get("char",-1))),14,MUTED,false)
 		_clean_text(font,Vector2(x,y+78),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
 	elif kind=="pass":
-		_clean_text(bold,Vector2(x,y+30),StoreCatalog.text(lang,"pass_weekly"),26,WHITE,false)
+		var pkey: String=String(p.get("name","pass_weekly"))
+		_clean_text(bold,Vector2(x,y+30),StoreCatalog.text(lang,pkey),26,WHITE,false)
 		var pw: Rect2=game.store_price_rect(r,false)
 		var ptw: float=pw.position.x-x-14.0
-		_clean_text(font,Vector2(x,y+56),_clip_text(font,StoreCatalog.text(lang,"pass_weekly_desc"),13,ptw),13,MUTED,false)
+		_clean_text(font,Vector2(x,y+56),_clip_text(font,StoreCatalog.text(lang,pkey+"_desc"),13,ptw),13,MUTED,false)
 	elif kind=="vehicle":
 		# Bought vehicle: name, auto-ride line, one-time tag.
 		var v_name: String=String(p.get("name","bike"))
