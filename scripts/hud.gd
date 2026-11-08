@@ -651,6 +651,12 @@ func _loadout_toggle(r: Rect2) -> void:
 		clean_ops.append(["line",PackedVector2Array([r.position+Vector2(11,15),r.end-Vector2(11,15)]),Color("e0453d"),2.5])
 
 func _draw_character_select() -> void:
+	# dropdown over a survivor card: tap it to wear them
+	if game.lobby_tab==0 and int(game.equip_menu_index)>=0:
+		var er: Rect2=game.equip_menu_rect()
+		_panel(er,Color(0.03,0.034,0.038,0.97),Color(1.0,0.82,0.45,0.9),1)
+		var etxt: String="装备" if String(game.language_code).begins_with("zh") else "EQUIP"
+		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the
 	# frame: one column on the left with 角色 / 宠物 tabs over a vertically scrolling list.
 	var lang: String=game.language_code
@@ -731,7 +737,6 @@ func _draw_character_select() -> void:
 		if tk in ["pet_locked","char_locked","skin_locked","stay_tuned","airdrop_tomorrow"]: _panel(Rect2(270-tw*0.5,600,tw,46),Color(0.02,0.025,0.026,0.92*a),Color(RED,a),0)
 		_text_center(tt,Vector2(270,630),16,Color(1,1,1,a))
 	var can_start: bool=game.stamina.value>=game.stamina.RUN_COST
-	_loadout_toggle(game.LOBBY_LOADOUT)
 	_button(game.LOBBY_START,game.localize("start")+"   ›",can_start)
 	# Cost ON the red START button (right side, same size as wallet can above): can-icon + "-10".
 	var cost_txt: String="-%d"%game.stamina.RUN_COST
@@ -1663,6 +1668,12 @@ func _draw_offer_popup() -> void:
 	_discount_flag(Vector2(art_r.end.x-70,art_r.position.y-12),StoreCatalog.discount(o))
 	var title_key: String=String(o.get("name","limited"))
 	_clean_center(bold,Vector2(p.get_center().x,art_r.end.y+36),StoreCatalog.text(lang,title_key),26,WHITE)
+	# selling point: what the bundle actually does in the run
+	if o.has("desc_key"):
+		var blurb: String=StoreCatalog.text(lang,String(o.desc_key))
+		var wrapped: Array=_wrap_text(font,blurb,13,380.0)
+		for wi in range(mini(wrapped.size(),2)):
+			_clean_center(font,Vector2(p.get_center().x,art_r.end.y+60.0+float(wi)*18.0),String(wrapped[wi]),13,MUTED)
 	var y: float=art_r.end.y+76
 	if int(o.get("cans",0))>0:
 		clean_ops.append(["texture",can_tex,Rect2(p.get_center().x-82,y-30,40,40)])

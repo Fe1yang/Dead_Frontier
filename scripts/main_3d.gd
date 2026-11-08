@@ -145,6 +145,7 @@ var owned_characters:={}      # char index -> true
 var owned_skins:={}           # lobby.SKINS index -> true
 var owned_vehicle:=""
 ## Lobby loadout switch. false = no vehicle and no pet in the run (testing).
+var equip_menu_index:=-1  # survivor card whose EQUIP dropdown is open
 var loadout_on:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
 const VEHICLE_AUTO_RANGE:=1000.0 # bought bike auto-rides every run until this distance (or durability runs out)
 var vehicle_auto_active:=false
@@ -960,6 +961,7 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 		# icons stay on screen for anyone who actually WANTS to buy or watch an ad.
 		if state=="cover": enter_lobby()
 		return
+	equip_menu_index=-1
 	_clear_world(); state="playing"; run_time=0; distance=0; kills=0; wave=0; run_coins=0; run_silver=0; run_double_bonus=0; run_double_silver=0; ad_pending=""; last_reward=0; last_silver_reward=0; survival_bonus=0
 	kill_counts.clear(); kill_coins.clear(); run_counted_distance=0.0; run_counted=false
 	for road in roads: _refresh_watcher(road)
@@ -1629,7 +1631,9 @@ func pack_price(p: Dictionary,cur: String) -> String:
 	if iap and iap.mode=="storekit":
 		var t: String=iap.price(String(p.id))
 		return t if t!="" else "…"
-	if iap and iap.mode=="sim": return StoreCatalog.price_text(cur,int(p.tier))
+	if iap and iap.mode=="sim":
+		if p.has("usd"): return StoreCatalog.bundle_price(cur,float(p.usd))
+		return StoreCatalog.price_text(cur,int(p.tier))
 	return "—"
 
 ## The struck-through "was" price of an offer is only known from our own table, so it is shown
@@ -2236,13 +2240,18 @@ func lobby_item_count() -> int:
 func lobby_max_scroll() -> float:
 	return maxf(0.0,lobby_item_count()*LOBBY_STEP-(LOBBY_STEP-LOBBY_CARD.x)+12.0-lobby_view_rect().size.x)
 
+## The EQUIP dropdown sits just above the survivor card it belongs to.
+func equip_menu_rect() -> Rect2:
+	var c:=lobby_card_rect(clampi(equip_menu_index,0,maxi(0,lobby_item_count()-1)))
+	return Rect2(c.position.x-6.0,c.position.y-62.0,c.size.x+12.0,54.0)
+
 func lobby_card_rect(i: int) -> Rect2:
 	return Rect2(LOBBY_LEFT_X+i*LOBBY_STEP-lobby_scroll,LOBBY_STRIP_Y,LOBBY_CARD.x,LOBBY_CARD.y)
 
 func set_lobby_tab(t: int) -> void:
 	if t == 2: return   # the skins tab was removed
 	if t==lobby_tab: return
-	lobby_tab=t; lobby_scroll=0.0
+	lobby_tab=t; lobby_scroll=0.0; equip_menu_index=-1
 	lobby.focus_pets=t==1
 	lobby.focus_vehicle=t==3
 
@@ -2251,6 +2260,10 @@ func _lobby_release(pos: Vector2) -> void:
 	if lobby_press.x<0: return
 	var was_drag:=lobby_dragged; lobby_press=Vector2(-1,-1); lobby_dragged=false
 	if was_drag or not lobby_view_rect().has_point(pos): return
+	if equip_menu_index>=0:
+		if equip_menu_rect().has_point(pos):
+			select_character(equip_menu_index); equip_menu_index=-1; return
+		equip_menu_index=-1  # tapping elsewhere closes the dropdown
 	for i in range(lobby_item_count()):
 		if lobby_card_rect(i).has_point(pos):
 			if lobby_tab==3:
@@ -2266,7 +2279,12 @@ func _lobby_release(pos: Vector2) -> void:
 			elif lobby_tab==1:
 				if i<lobby.PETS.size(): select_pet(i)
 				else: lobby_toast=1.6; lobby_toast_key="coming"
-			elif i<lobby.CHARACTERS.size(): select_character(i)
+			elif i<lobby.CHARACTERS.size():
+				# preview the survivor and offer the dropdown; wearing them is a second tap
+				if character_owned(i):
+					equip_menu_index=i
+					lobby.show_character(i,character_asset(i))
+				else: select_character(i)
 			else: lobby_toast=1.6; lobby_toast_key="coming"
 			return
 
@@ -4333,7 +4351,7 @@ func _pointer_down(pos: Vector2) -> bool:
 		if lobby_view_rect().has_point(pos): lobby_press=pos; lobby_dragged=false; return true
 		if LOBBY_AD_RUN.grow(8).has_point(pos) and not ad_run_used and stamina.value<stamina.RUN_COST:
 			request_reward_ad("free_run"); return true
-		if LOBBY_LOADOUT.has_point(pos):
+		if false and LOBBY_LOADOUT.has_point(pos):  # GEAR toggle retired: equip lives on the cards
 			toggle_loadout(); return true
 		if LOBBY_START.has_point(pos):
 			if stamina.value>=stamina.RUN_COST: _begin_loading("run")
