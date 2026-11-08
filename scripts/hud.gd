@@ -603,6 +603,7 @@ func _draw_settings() -> void:
 	var sep: String="：" if lang in ["zh_CN","zh_TW","ja"] else ": "
 	_button(Rect2(66,524,408,70),"Aa   %s%s%s"%[ShopText.text(lang,"text_size"),sep,ShopText.text(lang,"ts_%d"%game.text_size)],false)
 	_button(Rect2(66,612,408,70),Localization.text(lang,"control_layout"),false)
+	_button(game.SETTINGS_QUALITY,Localization.text(lang,"quality")+sep+Localization.text(lang,"quality_high" if game.quality_high else "quality_fast"),false)
 	_button(Rect2(66,810,408,64),game.localize("back"),true)
 
 ## Settings -> Control layout. Draws the same sticks and buttons the run uses, at their

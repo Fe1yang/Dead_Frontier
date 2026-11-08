@@ -38,9 +38,11 @@ const MAX_BLOOD_POOLS:=60
 ## phone cannot do. The wave quota still arrives, just in two or three ranks.
 const MAX_ALIVE_ZOMBIES:=14
 ## The city loop is 384 m and the run looks straight down it, so the whole loop used to be
-## submitted every frame. Blocks fade out 190 m away instead.
-const VIEW_CULL_END:=190.0
+## submitted every frame. Blocks fade out at the preset distance instead.
+const VIEW_CULL_END_HIGH:=250.0
+const VIEW_CULL_END_FAST:=190.0
 const VIEW_CULL_FADE:=26.0
+var view_cull_end:=VIEW_CULL_END_HIGH
 const BossChaserScript=preload("res://scripts/boss_chaser_3d.gd")
 # Sky domes (Poly Haven, CC0, 2K HDR): a broken-cloud sky for clear runs, a heavy overcast for rain and fog.
 # Procedural cloud sky from the user's sky pack (shaders/sky_clouds.gdshader); one material,
@@ -112,6 +114,8 @@ var map_scene: Node3D
 var lobby: Node3D
 var settings_return_state:="cover"
 var text_size:=1 # 0 small, 1 medium (default), 2 large: for players who need bigger text
+## HIGH is the authored look (the build 16 picture); FAST is for older phones.
+var quality_high:=true
 var lobby_toast:=0.0
 ## Second currency (券), bought in the store; nothing spends it yet.
 var bank_vouchers:=0
@@ -371,6 +375,7 @@ const PAUSE_BUTTON:=Rect2(476,8,58,58)
 ## Settings -> Control layout. The two rows sit above the play field, away from
 ## every control the player is dragging underneath.
 const CTRL_RESET:=Rect2(66,152,196,58)
+const SETTINGS_QUALITY:=Rect2(66,700,408,70)
 const CTRL_SAVE:=Rect2(278,152,196,58)
 const CTRL_KEYS:=["stick_left","stick_right","btn_reload","btn_swap","btn_frag","btn_flash","btn_fire","pause"]
 ## Saved position of every movable control, in real viewport coordinates.
@@ -394,6 +399,8 @@ func _ready() -> void:
 	rng.randomize()
 	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
 	_setup_world(); _build_road()
+	view_cull_end=VIEW_CULL_END_HIGH if quality_high else VIEW_CULL_END_FAST
+	_apply_quality()
 	# Every screen is drawn for a 9:16 portrait rectangle. A tall phone (the iPhone 15
 	# Plus is 19.5:9) used to EXPAND the canvas, so the lobby grew a dead black band
 	# under it and the camera staged a frame the design never had. Keep the original
@@ -519,11 +526,10 @@ func _setup_world() -> void:
 	env.fog_enabled=true; env.fog_light_color=Color("c9c8b8"); env.fog_density=0.0012; env.fog_sky_affect=0.015
 	we.environment=env; add_child(we); world_env=env
 	var sun:=DirectionalLight3D.new(); sun.rotation_degrees=Vector3(-34,-155,0)
-	sun.light_color=Color("ffe4b5"); sun.light_energy=0.95; sun.shadow_enabled=true; sun.directional_shadow_max_distance=90
-	# Two splits inside 90 m instead of four across 180 m. The old setup re-drew most of the
-	# city once per split, and that shadow pass is what pinned the phone near 20 fps.
-	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS; sun.directional_shadow_blend_splits=true
-	sun.shadow_opacity=0.76; sun.shadow_blur=1.1; sun.shadow_bias=0.035; sun.shadow_normal_bias=0.65
+	sun.light_color=Color("ffe4b5"); sun.light_energy=0.95; sun.shadow_enabled=true; sun.directional_shadow_max_distance=180
+	# Authored look; _apply_quality swaps to two splits over 90 m when the player picks FAST.
+	sun.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS; sun.directional_shadow_blend_splits=true
+	sun.shadow_opacity=0.76; sun.shadow_blur=1.45; sun.shadow_bias=0.035; sun.shadow_normal_bias=0.65
 	add_child(sun); sun_light=sun
 	var rim:=DirectionalLight3D.new(); rim.rotation_degrees=Vector3(-38,145,0); rim.light_color=Color("d0dbe2"); rim.light_energy=0.14
 	rim.sky_mode=DirectionalLight3D.SKY_MODE_LIGHT_ONLY # the sky shader's sun follows the main sun only
@@ -569,12 +575,26 @@ func _randomize_zebra(road: Node3D) -> void:
 	var z:=road.find_child("CITY_zebra_paint",true,false) as Node3D
 	if z: z.visible=rng.randf()<0.16
 
-## Fade every mesh of a block out at VIEW_CULL_END so only the near city is drawn.
+## Quality preset, saved with the rest of the settings. HIGH is the authored look: 2x MSAA,
+## four shadow splits over 180 m and the city drawn to 250 m. FAST trades those for frame
+## rate. Textures, models, materials and effects are identical in both.
+func _apply_quality() -> void:
+	view_cull_end=VIEW_CULL_END_HIGH if quality_high else VIEW_CULL_END_FAST
+	var vp:=get_viewport()
+	if vp: vp.msaa_3d=Viewport.MSAA_2X if quality_high else Viewport.MSAA_DISABLED
+	if is_instance_valid(sun_light):
+		sun_light.directional_shadow_max_distance=180.0 if quality_high else 90.0
+		sun_light.directional_shadow_mode=DirectionalLight3D.SHADOW_PARALLEL_4_SPLITS if quality_high else DirectionalLight3D.SHADOW_PARALLEL_2_SPLITS
+		sun_light.shadow_blur=1.45 if quality_high else 1.1
+	for road in roads:
+		if is_instance_valid(road): _apply_cull_range(road)
+
+## Fade every mesh of a block out at view_cull_end so only the near city is drawn.
 func _apply_cull_range(root: Node) -> void:
 	for node in root.find_children("*","MeshInstance3D",true,false):
 		var mi:=node as MeshInstance3D
 		if mi==null: continue
-		mi.visibility_range_end=VIEW_CULL_END
+		mi.visibility_range_end=view_cull_end
 		mi.visibility_range_end_margin=VIEW_CULL_FADE
 		mi.visibility_range_fade_mode=GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 
@@ -4015,6 +4035,7 @@ func _pointer_down(pos: Vector2) -> bool:
 		if Rect2(66,436,408,70).has_point(pos): open_language(); return true
 		if Rect2(66,524,408,70).has_point(pos): text_size=(text_size+1)%3; _save(); return true
 		if Rect2(66,612,408,70).has_point(pos): ctrl_drag=""; state="controls"; return true
+		if SETTINGS_QUALITY.has_point(pos): quality_high=not quality_high; _apply_quality(); _save(); return true
 		if Rect2(66,810,408,64).has_point(pos): state=settings_return_state; return true
 	elif state=="controls":
 		if CTRL_RESET.has_point(pos):
@@ -4092,7 +4113,7 @@ func _load_save() -> void:
 	for f in ["--smoke-test","--soak-test","--lootbox-test","--stamina-test","--capture","--capture-medic","--capture-bike"]:
 		if f in OS.get_cmdline_user_args(): isolated=true; break
 	if not isolated and (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK):
-		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2); owned_vehicle=str(c.get_value("vehicles","owned",""))
+		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2); quality_high=bool(c.get_value("display","quality_high",true)); owned_vehicle=str(c.get_value("vehicles","owned",""))
 		if owned_vehicle=="CAR": owned_vehicle="CRUISER" # old save name for the third bike
 		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
 		terms_accepted=bool(c.get_value("legal","terms_v1",false))
@@ -4138,7 +4159,7 @@ func _read_muted() -> bool:
 	return bool(c.get_value("audio","muted",false)) if (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK) else false
 func _save() -> void:
 	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--lootbox-test" in OS.get_cmdline_user_args() or "--stamina-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-medic" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args(): return # test and capture runs must never touch the player's real save
-	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
+	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("display","quality_high",quality_high); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
 	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","silver",bank_silver); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","ads_offer_shows",ads_offer_shows); c.set_value("store","iap_ledger",iap_ledger.keys()); c.set_value("legal","terms_v1",terms_accepted)
 	c.set_value("can_ads","day",can_ad_day); c.set_value("can_ads","count",can_ad_count)
 	c.set_value("offer","id",offer_id); c.set_value("offer","expires",offer_expires); c.set_value("offer","next",next_offer_at); c.set_value("offer","play_day",play_day); c.set_value("offer","play_seconds",play_seconds_today)
