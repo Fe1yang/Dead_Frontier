@@ -460,6 +460,22 @@ func _build_safehouse() -> bool:
 	if safe==null: return false
 	safe.name="SafehouseInterior"; add_child(safe)
 	_apply_stone_to_safehouse(safe)
+	# Red rug: the GLB ships it washed pink.
+	var rug_node:=safe.find_child("Safe_rug",true,false) as MeshInstance3D
+	if is_instance_valid(rug_node):
+		rug_node.material_override=_mat(Color("7d1616"),1.0)
+	# Drop the olive canvas that hung over the window, open the glass, and brighten the night
+	# card behind it so the window reads as daylight sky instead of a dark slot.
+	var canvas_node:=safe.find_child("Safe_canvas",true,false) as MeshInstance3D
+	if is_instance_valid(canvas_node):
+		canvas_node.visible=false
+	var glass_node:=safe.find_child("Safe_glass",true,false) as MeshInstance3D
+	if is_instance_valid(glass_node):
+		glass_node.visible=false
+	var night_node:=safe.find_child("Safe_night",true,false) as MeshInstance3D
+	if is_instance_valid(night_node):
+		night_node.material_override=_mat(Color("8fb2d6"),1.0)
+		_glow(night_node,Color("6d90b4"),0.9)
 	# Open the window: drop the glass pane and repaint the night card behind it as daylight sky,
 	# with a few rooftop silhouettes so the opening reads as "outside" instead of a black slot.
 	# The olive canvas sheet hanging by the window: it read as a green sheet of paper over the

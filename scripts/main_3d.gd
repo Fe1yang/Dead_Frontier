@@ -1028,7 +1028,7 @@ func _begin_intro() -> void:
 	if ResourceLoader.exists(BossChaserScript.MODEL_PATH):
 		chaser=BossChaserScript.new(); add_child(chaser); chaser.position=player.position+CHASER_OFFSET
 	var horde:= [
-		["jockey",Vector3(1.3,0,5.0)],
+		["brute",Vector3(1.3,0,5.0)],
 		["runner",Vector3(-2.2,0,5.6)],
 		["runner",Vector3(2.4,0,6.3)],
 		["walker",Vector3(-2.7,0,8.4)],
