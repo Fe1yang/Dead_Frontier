@@ -1241,6 +1241,7 @@ func _wallet_plus_hit(origin: Vector2,pos: Vector2,k:=1.0) -> bool:
 
 func open_store() -> void:
 	if state=="store": return
+	sound.music_state("store")
 	store_return_state=state; state="store"; store_scroll=0.0; store_press=Vector2(-1,-1)
 	if store_currency.is_empty(): store_currency=StoreCatalog.device_currency()
 	_release_touches()
