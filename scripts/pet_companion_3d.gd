@@ -21,7 +21,12 @@ const ACQUIRE_RANGE:=10.0
 ## (behind him, sliding off the bottom of the screen) are left alone.
 const AHEAD_MARGIN:=0.3   # a new target must be at least this far in front of the survivor
 const GIVE_UP_BEHIND:=0.6  # drop a target once it falls this far behind him
-const GALLOP_RATE:=1.25  # stride speed matched to how fast the street scrolls past (Kimi's tuning)
+const GALLOP_RATE:=1.25
+## Per-breed gait overrides; breeds not listed use the dog tuning.
+const GAIT_OVERRIDES:={
+	4: {"stride":0.40, "amp":0.92, "spine":1.10},   # white tiger
+	5: {"stride":0.37, "amp":0.88, "spine":1.18},   # lion: quicker, springier, shorter reach
+}  # stride speed matched to how fast the street scrolls past (Kimi's tuning)
 ## Barking: only now and then, so it never nags. Near the survivor the close bark plays (one or
 ## two barks cut from the clip); once the dog has run off after a zombie, the distant one.
 # Lazy paths: preloading imported audio also aborts the first import pass on a clean checkout.
@@ -33,7 +38,10 @@ const BARK_GAP:=Vector2(10.0,18.0)
 const LION_BREED:=5
 const LION_ROAR_PATH:="res://assets/audio/lion_roar.mp3"
 const LION_GROWL_PATH:="res://assets/audio/lion_growl.mp3"
-const LION_GAP:=Vector2(22.0,40.0)  # random wait between barks
+const LION_GAP:=Vector2(22.0,40.0)
+## The tiger and the lion share one voice pool: any of the four clips may play.
+const TIGER_BREED:=4
+const BIG_CAT_SOUNDS:=["res://assets/audio/lion_roar.mp3","res://assets/audio/lion_growl.mp3","res://assets/audio/tiger_attack.mp3","res://assets/audio/tiger_roar.mp3"]  # random wait between barks
 const FAR_DISTANCE:=3.2  # further than this from the survivor counts as "far away"
 ## Formation slots around the survivor (the road runs -Z, so -Z is ahead): the two front
 ## slots first, then the two flanks. slot 0 = front-left, 1 = front-right, 2 = left side,
@@ -80,7 +88,10 @@ func setup(index: int, slot:=0) -> void:
 		for n in model.find_children("*","Skeleton3D",true,false):
 			skeleton=n as Skeleton3D
 			break
-	if skeleton: gallop=DogGallop.new(skeleton)
+	if skeleton:
+		# Big cats (white tiger 4, lion 5) get their own stride: longer legs, faster cadence,
+		# slightly shorter reach so the paws do not over-swing, and a springier spine.
+		gallop=DogGallop.new(skeleton,GAIT_OVERRIDES.get(breed,{}))
 	bark_player=AudioStreamPlayer.new(); add_child(bark_player)
 	bark_wait=randf_range(LION_GAP.x,LION_GAP.y) if breed==LION_BREED else randf_range(4.0,8.0)  # first bark a few seconds into the run
 
@@ -91,19 +102,21 @@ func _tick_bark(delta: float) -> void:
 		if bark_stop<=0.0: bark_player.stop()
 	bark_wait-=delta
 	if bark_wait>0.0 or bark_player.playing: return
-	var is_lion:=breed==LION_BREED
+	var is_lion:=breed==LION_BREED or breed==TIGER_BREED
 	var gap:=LION_GAP if is_lion else BARK_GAP
 	bark_wait=randf_range(gap.x,gap.y)
 	if game==null or (game.get("sound")!=null and game.sound.muted): return
 	var away:=Vector2(position.x-game.player.position.x,position.z-game.player.position.z).length()
 	if away>FAR_DISTANCE:
-		var far:=load(LION_GROWL_PATH if is_lion else BARK_FAR_PATH) as AudioStream
+		var far_path:=String(BIG_CAT_SOUNDS[randi()%BIG_CAT_SOUNDS.size()]) if is_lion else BARK_FAR_PATH
+		var far:=load(far_path) as AudioStream
 		if far==null: return
 		bark_player.stream=far; bark_player.volume_db=-9.0; bark_player.pitch_scale=randf_range(0.95,1.05)
 		bark_player.play(); bark_stop=0.0
 	else:
 		var seg: Array=BARK_SEGMENTS[randi()%BARK_SEGMENTS.size()]
-		var near:=load(LION_ROAR_PATH if is_lion else BARK_NEAR_PATH) as AudioStream
+		var near_path:=String(BIG_CAT_SOUNDS[randi()%BIG_CAT_SOUNDS.size()]) if is_lion else BARK_NEAR_PATH
+		var near:=load(near_path) as AudioStream
 		if near==null: return
 		bark_player.stream=near; bark_player.volume_db=-9.0 if is_lion else -7.0; bark_player.pitch_scale=randf_range(0.94,1.06)
 		bark_player.play(float(seg[0])); bark_stop=(float(seg[1])-float(seg[0]))/bark_player.pitch_scale
