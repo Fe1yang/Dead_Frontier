@@ -10,26 +10,35 @@ var visual: Node3D
 var label: Label3D
 var effect_material: StandardMaterial3D
 
+## The effects are pooled by main_3d: the first call builds the node, every later one
+## just re-arms it (arm/disarm below), so a fight allocates nothing.
 func make_text(text: String,color: Color) -> void:
 	mode="text"
-	label=Label3D.new(); label.text=text; label.font_size=52; label.pixel_size=0.009
-	label.font=load("res://scripts/run_text.gd").font()
-	label.modulate=color; label.outline_size=10; label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
-	add_child(label); visual=label
+	if label==null:
+		label=Label3D.new()
+		label.font=load("res://scripts/run_text.gd").font()
+		label.billboard=BaseMaterial3D.BILLBOARD_ENABLED
+		add_child(label)
+	label.text=text; label.font_size=52; label.pixel_size=0.009; label.outline_size=10
+	label.modulate=color; visual=label
 
 func make_spark(color: Color,size: float) -> void:
 	mode="spark"
-	var n:=MeshInstance3D.new(); var mesh:=SphereMesh.new(); mesh.radius=size; mesh.height=size*2; n.mesh=mesh
-	var m:=StandardMaterial3D.new(); m.albedo_color=color; m.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
-	n.material_override=m; add_child(n); visual=n
+	if visual==null:
+		var n:=MeshInstance3D.new(); var mesh:=SphereMesh.new(); mesh.radius=size; mesh.height=size*2; n.mesh=mesh
+		effect_material=StandardMaterial3D.new(); effect_material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+		n.material_override=effect_material; add_child(n); visual=n
+	effect_material.albedo_color=color
 
 func make_drop(color: Color,size: float) -> void:
 	mode="drop"
-	var n:=MeshInstance3D.new(); var mesh:=SphereMesh.new(); mesh.radius=size; mesh.height=size*2.4
-	mesh.radial_segments=8; mesh.rings=4; n.mesh=mesh
-	var m:=StandardMaterial3D.new(); m.albedo_color=color; m.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
-	n.material_override=m; add_child(n); visual=n
-	if velocity.length()>0.01: n.look_at(global_position+velocity.normalized(),Vector3.UP)
+	if visual==null:
+		var n:=MeshInstance3D.new(); var mesh:=SphereMesh.new(); mesh.radius=size; mesh.height=size*2.4
+		mesh.radial_segments=8; mesh.rings=4; n.mesh=mesh
+		effect_material=StandardMaterial3D.new(); effect_material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+		n.material_override=effect_material; add_child(n); visual=n
+	effect_material.albedo_color=color
+	if velocity.length()>0.01: visual.look_at(global_position+velocity.normalized(),Vector3.UP)
 
 func make_shockwave(color: Color,size: float) -> void:
 	mode="shockwave"
@@ -63,6 +72,17 @@ func _copy_named(node: Node,names: Array) -> void:
 		return
 	if node==null or not is_instance_valid(node): return
 	for child in node.get_children(): _copy_named(child,names)
+
+## Pool support: arm() brings a parked effect back, disarm() puts it away.
+func arm(seconds: float) -> void:
+	life=seconds; total_life=maxf(0.01,seconds); visible=true
+	if label: label.visible=true
+	elif visual: visual.visible=true; visual.scale=Vector3.ONE
+
+func disarm() -> void:
+	life=0.0; visible=false
+	if label: label.visible=false
+	elif visual: visual.visible=false
 
 func tick(delta: float) -> void:
 	life-=delta; position+=velocity*delta; velocity.y+=gravity*delta

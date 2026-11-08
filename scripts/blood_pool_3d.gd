@@ -96,21 +96,32 @@ static func _texture(index: int) -> Texture2D:
 		for i in range(VARIANTS): textures.append(_make_texture(9100+i*37))
 	return textures[index%VARIANTS]
 
+## The mesh and the material are built once (main_3d pools these pools), every later
+## use only swaps the decal texture, so a kill no longer allocates a material.
 func setup(size_m: float,variant: int,life: float,splash:=false) -> void:
 	full_scale = size_m
 	lifetime = life
-	var plane := PlaneMesh.new(); plane.size = Vector2.ONE
-	mesh = plane
-	mat = StandardMaterial3D.new()
+	age = 0.0
+	visible = true
+	if mesh == null:
+		var plane := PlaneMesh.new(); plane.size = Vector2.ONE
+		mesh = plane
+	if mat == null:
+		mat = StandardMaterial3D.new()
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.roughness = 0.18   # wet sheen
+		mat.metallic_specular = 0.7
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		mat.render_priority = -1
+		material_override = mat
+		cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mat.albedo_texture = _splash(variant) if splash else _texture(variant)
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.roughness = 0.18   # wet sheen
-	mat.metallic_specular = 0.7
-	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-	mat.render_priority = -1
-	material_override = mat
-	cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mat.albedo_color = Color(1,1,1,1)
 	scale = Vector3.ONE*0.05
+
+func disarm() -> void:
+	visible = false
+	age = lifetime
 
 func tick(delta: float) -> bool:
 	age += delta

@@ -155,6 +155,32 @@ static func apply(road: Node3D,index: int,zombie_script: GDScript) -> void:
 	# watching the road. They can be shot (kills and coins count) and travel with the city loop.
 	if index%2==0:
 		spawn_watcher(road,index,zombie_script,rng)
+	_merge_quads(root)
+
+## ---- Static merge ---------------------------------------------------------------------
+## The wall stains and bullet chips above are one MeshInstance (and one material) each:
+## 20-30 draw calls per block for a few splinters of paint. Quads that share a material
+## are baked into one mesh instead, which changes no pixel but a lot of draw calls.
+static func _merge_quads(root: Node3D) -> void:
+	var groups: Dictionary={}
+	for child in root.get_children():
+		var mi:=child as MeshInstance3D
+		if mi==null or mi.mesh==null or mi.get("full_scale")!=null: continue  # blood decals animate
+		if not (mi.mesh is PlaneMesh): continue
+		var m:=mi.material_override as BaseMaterial3D
+		if m==null: continue
+		var key: String="%d_%d_%d_%d" % [m.albedo_color.r8, m.albedo_color.g8, m.albedo_color.b8, m.albedo_color.a8]
+		if not groups.has(key): groups[key]=[m,[]]
+		groups[key][1].append(mi)
+	for key in groups.keys():
+		var list: Array=groups[key][1]
+		if list.size()<2: continue
+		var st:=SurfaceTool.new(); st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		for mi in list: st.append_from(mi.mesh,0,mi.transform)
+		var merged:=MeshInstance3D.new(); merged.mesh=st.commit(); merged.material_override=groups[key][0]
+		merged.cast_shadow=GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(merged)
+		for mi in list: mi.queue_free()
 
 const AnimLibrary=preload("res://scripts/anim_library.gd")
 const LegsOut=preload("res://scripts/legs_out.gd")

@@ -285,6 +285,15 @@ var roller_timer:=11.0   # rolling reward barrels: a new wave every few seconds
 var obstacles: Array=[]
 var pickups: Array=[]
 var effects: Array=[]
+# Pooled effects (see _fx_spark_at etc.): a kill re-arms these instead of building
+# 30-40 nodes, meshes and materials in a single frame.
+const FX_SPARK_SIZES:=[0.045,0.062,0.08]
+const FX_DROP_SIZES:=[0.05,0.075,0.10]
+const FX_LABELS:=16
+var fx_sparks: Array=[[],[],[]]
+var fx_drops: Array=[[],[],[]]
+var fx_labels: Array=[]
+var blood_free: Array=[]
 var roads: Array=[]
 var scenery: Array=[]
 var rng:=RandomNumberGenerator.new()
@@ -350,6 +359,9 @@ var right_knob:=Vector2(448,820)
 
 func _ready() -> void:
 	BootTrace.mark("main: _ready start")
+	# 60 fps is what the game is drawn for; uncapped, a 120 Hz phone renders twice
+	# the frames for the same picture, which is pure heat and battery.
+	Engine.max_fps=60
 	rng.randomize()
 	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
 	_setup_world(); _build_road()
@@ -536,6 +548,9 @@ func _freeze_visuals(frozen: bool) -> void:
 
 func _process(delta: float) -> void:
 	elapsed+=delta
+	# Before the run starts, compile one of everything in the hidden warm-up viewport:
+	# a menu stutter costs nothing, the same compile mid-run costs the player a freeze.
+	if state!="playing": _warm_up_tick()
 	var from_pause: bool=state=="settings" and settings_return_state=="paused"
 	if (state=="paused" or from_pause)!=_visuals_frozen: _freeze_visuals(state=="paused" or from_pause)
 	if state=="gameover": gameover_time+=delta
@@ -706,6 +721,66 @@ func _begin_loading(target: String) -> void:
 	_release_touches()
 	# Hide the menu-scene runner so it can't flash on the road when loading ends
 	if is_instance_valid(player): player.visible=false
+
+## ---- First-draw warm-up ---------------------------------------------------------
+## GLES3 compiles a shader the first time it is drawn, and the blood decals build
+## their textures in GDScript. Both used to land on the player as 0.2-2 s freezes when
+## a new thing appeared. One of everything is drawn in a hidden 48x48 viewport while the
+## player is still on the cover / lobby: same pipelines, no visible frame, no freeze.
+var warmup_done:=false
+var warmup_view: SubViewport
+var warmup_root: Node3D
+var warmup_queue: Array=[]
+var warmup_nodes: Array=[]
+
+func _warm_up_begin() -> void:
+	warmup_view=SubViewport.new(); warmup_view.size=Vector2i(48,48)
+	warmup_view.render_target_update_mode=SubViewport.UPDATE_ALWAYS
+	add_child(warmup_view)
+	warmup_root=Node3D.new(); warmup_view.add_child(warmup_root)
+	var cam:=Camera3D.new(); cam.position=Vector3(0,0.6,3.0); cam.current=true; warmup_root.add_child(cam)
+	var sun:=DirectionalLight3D.new(); sun.rotation_degrees=Vector3(-40,-30,0); sun.shadow_enabled=true
+	warmup_root.add_child(sun)
+	# procedural decal textures: pure CPU work and the slowest single item
+	for k in range(BloodPoolScript.VARIANTS): BloodPoolScript._texture(k)
+	for k in range(BloodPoolScript.SPLASH_VARIANTS): BloodPoolScript._splash(k)
+	for k in ["walker","runner","brute","jockey","banshee","bomber","bomber_female"]:
+		warmup_queue.append("zombie:"+k)
+	for k in ["medkit","armor","helmet","ammo","grenade","flashbang","launcher","fire_round","coin","silver_coin"]:
+		warmup_queue.append("pickup:"+k)
+	warmup_queue.append("effects")
+
+## Builds one queue item; the viewport keeps drawing it for a frame, which is what
+## compiles the pipeline. Freed as soon as the queue is empty.
+func _warm_up_tick() -> void:
+	if warmup_done: return   # once is enough: the pipelines stay compiled
+	if warmup_view==null: _warm_up_begin()
+	if warmup_queue.is_empty():
+		warmup_done=true
+		if is_instance_valid(warmup_view): warmup_view.queue_free()
+		warmup_view=null; warmup_root=null; warmup_nodes.clear()
+		return
+	var item: String=String(warmup_queue.pop_front())
+	if item=="effects":
+		# one node per effect shape: unshaded spark/drop, alpha blast/shockwave, label text
+		for k in range(5):
+			var fx=EffectScript.new(); warmup_root.add_child(fx); fx.life=0.0; fx.total_life=1.0
+			match k:
+				0: fx.make_spark(Color.WHITE,0.05)
+				1: fx.make_drop(Color.WHITE,0.05)
+				2: fx.make_blast(Color("8e1d12"),0.6)
+				3: fx.make_shockwave(Color("ffd27a"),0.4)
+				_: fx.make_text("0",Color.WHITE)
+			fx.position=Vector3(-1.2+0.6*float(k),0.6,0.0)
+		return
+	var n: Node3D=null
+	if item.begins_with("zombie:"):
+		n=ZombieScript.new(); warmup_root.add_child(n); n.configure(item.trim_prefix("zombie:"),1.0)
+	elif item.begins_with("pickup:"):
+		n=PickupScript.new(); n.kind=item.trim_prefix("pickup:"); warmup_root.add_child(n)
+	if n!=null:
+		n.position=Vector3(0.0,0.0,0.0)
+		warmup_nodes.append(n)
 
 func _finish_loading() -> void:
 	if state!="loading": return
@@ -2560,12 +2635,8 @@ func _bomber_blast(zp: Vector3) -> void:
 			_hit_zombie(z,120.0,"torso",z.position+Vector3(0,1.1,0),Color("ff8a5c"))
 
 func _damage_number(z: Node3D,amount: float,_color: Color) -> void:
-	var e:=EffectScript.new()
-	e.position=z.global_position+Vector3(rng.randf_range(-0.24,0.24),2.78,rng.randf_range(-0.12,0.12))
-	e.velocity=Vector3(rng.randf_range(-0.16,0.16),1.05,0); e.life=0.78; e.total_life=0.78
-	add_child(e); e.make_text("-%d"%maxi(1,roundi(amount)),DAMAGE_RED)
-	e.label.font_size=64; e.label.pixel_size=0.0085; e.label.outline_size=12
-	effects.append(e)
+	_fx_label_at(z.global_position+Vector3(rng.randf_range(-0.24,0.24),2.78,rng.randf_range(-0.12,0.12)),
+		"-%d"%maxi(1,roundi(amount)),DAMAGE_RED,Vector3(rng.randf_range(-0.16,0.16),1.05,0),0.78,true)
 
 ## Blood thrown away from the shooter: one directional splash (random shape out of eight,
 ## random size, angle jittered around the shot) plus flung droplets landing further along.
@@ -2581,27 +2652,29 @@ func _blood_splatter(pos: Vector3,size_m: float,kill: bool) -> void:
 
 func _spawn_blood_pool(pos: Vector3,size_m: float,life: float,splash:=false,dir:=Vector3.ZERO) -> void:
 	if blood_pools.size()>=MAX_BLOOD_POOLS:
-		var oldest=blood_pools.pop_front(); if is_instance_valid(oldest): oldest.queue_free()
-	var pool:=BloodPoolScript.new()
+		var oldest=blood_pools.pop_front()
+		if is_instance_valid(oldest): oldest.disarm(); blood_free.append(oldest)
+	var pool
+	if blood_free.is_empty(): pool=BloodPoolScript.new(); add_child(pool)
+	else: pool=blood_free.pop_back()
 	# Tiny height steps stop overlapping pools from z-fighting on the road.
 	# Sidewalk kills sit at y~0.16 — pool must sit on the pavement, not under it.
 	var base_y: float=0.015 if pos.y<0.05 else pos.y+0.005
 	pool.position=Vector3(pos.x,base_y+0.0008*(blood_pools.size()%12),pos.z)
 	# Splash textures spray toward +U; turn that onto the spray direction. Droplets spin freely.
 	pool.rotation.y=atan2(-dir.z,dir.x) if splash and dir!=Vector3.ZERO else rng.randf()*TAU
-	add_child(pool); pool.setup(size_m,rng.randi(),life,splash); blood_pools.append(pool)
+	pool.setup(size_m,rng.randi(),life,splash); blood_pools.append(pool)
 
 func _tick_blood(delta: float) -> void:
 	for i in range(blood_pools.size()-1,-1,-1):
 		var pool=blood_pools[i]
-		if pool.tick(delta): blood_pools.remove_at(i); pool.queue_free()
+		if pool.tick(delta):
+			blood_pools.remove_at(i); pool.disarm(); blood_free.append(pool)
 
 func _blood_spray(pos: Vector3,count: int) -> void:
 	for i in range(count):
-		var e:=EffectScript.new(); e.position=pos
-		e.velocity=aim_direction*rng.randf_range(1.0,3.8)+Vector3(rng.randf_range(-1.9,1.9),rng.randf_range(0.1,2.8),rng.randf_range(-0.8,0.8))
-		e.gravity=-6.5; e.life=rng.randf_range(0.45,0.85); e.total_life=e.life; add_child(e)
-		e.make_drop(Color("a5282c") if i%3 else Color("651b22"),rng.randf_range(0.045,0.105)); effects.append(e)
+		_fx_drop_at(pos,Color("a5282c") if i%3 else Color("651b22"),rng.randf_range(0.045,0.105),
+			aim_direction*rng.randf_range(1.0,3.8)+Vector3(rng.randf_range(-1.9,1.9),rng.randf_range(0.1,2.8),rng.randf_range(-0.8,0.8)),-6.5,rng.randf_range(0.45,0.85))
 
 func _dismember(z: Node3D,part: String) -> void:
 	var head: Array=["Head","Jaw","Brow","Brow.001","Cheek","Cheek.001","CrownLock","Ear","EyeSocket","EyeWhite","Fringe","HairMass","LowerLip","MouthCavity","NoseBridge","NoseTip","Pupil","Sideburn","Tooth"]
@@ -3394,18 +3467,60 @@ func _tick_pickups(delta: float) -> void:
 			sound.play("pickup"); pickups.remove_at(i); p.queue_free()
 		elif p.position.z>13: pickups.remove_at(i); p.queue_free()
 
+## ---- Pooled effects -----------------------------------------------------------------
+func _fx_release(e) -> void:
+	e.disarm()
+	match String(e.get_meta("fx_kind","")):
+		"spark": fx_sparks[int(e.get_meta("fx_bucket",0))].append(e)
+		"drop": fx_drops[int(e.get_meta("fx_bucket",0))].append(e)
+		_: fx_labels.append(e)
+
+func _fx_spark_at(pos: Vector3,color: Color,size: float,vel: Vector3,grav: float,seconds: float) -> void:
+	var b: int=0 if size<0.052 else (1 if size<0.072 else 2)
+	var pool: Array=fx_sparks[b]
+	var e
+	if pool.is_empty(): e=EffectScript.new(); add_child(e)
+	else: e=pool.pop_back()
+	e.make_spark(color,FX_SPARK_SIZES[b])
+	e.set_meta("fx_kind","spark"); e.set_meta("fx_bucket",b)
+	e.position=pos; e.velocity=vel; e.gravity=grav; e.arm(seconds)
+	effects.append(e)
+
+func _fx_drop_at(pos: Vector3,color: Color,size: float,vel: Vector3,grav: float,seconds: float) -> void:
+	var b: int=0 if size<0.062 else (1 if size<0.088 else 2)
+	var pool: Array=fx_drops[b]
+	var e
+	if pool.is_empty(): e=EffectScript.new(); add_child(e)
+	else: e=pool.pop_back()
+	e.make_drop(color,FX_DROP_SIZES[b])
+	e.set_meta("fx_kind","drop"); e.set_meta("fx_bucket",b)
+	e.position=pos; e.velocity=vel; e.gravity=grav; e.arm(seconds)
+	effects.append(e)
+
+func _fx_label_at(pos: Vector3,text: String,color: Color,vel: Vector3,seconds: float,big: bool) -> void:
+	var e
+	if fx_labels.is_empty(): e=EffectScript.new(); add_child(e)
+	else: e=fx_labels.pop_back()
+	e.make_text(text,color)
+	e.set_meta("fx_kind","label")
+	if big: e.label.font_size=64; e.label.pixel_size=0.0085; e.label.outline_size=12
+	e.position=pos; e.velocity=vel; e.gravity=0.0; e.arm(seconds)
+	effects.append(e)
+
 func _burst(pos: Vector3,color: Color,count: int) -> void:
 	for i in range(count):
-		var e:=EffectScript.new(); e.position=pos; e.velocity=Vector3(rng.randf_range(-2,2),rng.randf_range(0.5,3),rng.randf_range(-2,2)); e.gravity=-5
-		e.life=rng.randf_range(0.35,0.65); e.total_life=e.life; add_child(e); e.make_spark(color,rng.randf_range(0.035,0.075)); effects.append(e)
+		_fx_spark_at(pos,color,rng.randf_range(0.035,0.075),Vector3(rng.randf_range(-2,2),rng.randf_range(0.5,3),rng.randf_range(-2,2)),-5.0,rng.randf_range(0.35,0.65))
 
 func _popup(pos: Vector3,text: String,color: Color) -> void:
-	var e:=EffectScript.new(); e.position=pos; e.velocity=Vector3(0,0.8,0); e.life=0.85; e.total_life=0.85; add_child(e); e.make_text(text,color); effects.append(e)
+	_fx_label_at(pos,text,color,Vector3(0,0.8,0),0.85,false)
 
 func _tick_effects(delta: float) -> void:
 	for i in range(effects.size()-1,-1,-1):
 		var e=effects[i]; e.tick(delta)
-		if e.life<=0: effects.remove_at(i); e.queue_free()
+		if e.life<=0:
+			effects.remove_at(i)
+			if e.has_meta("fx_kind"): _fx_release(e)
+			else: e.queue_free()                     # blasts, shocks and body parts are rare
 
 func _update_mouse_aim() -> void:
 	if not is_instance_valid(camera) or not is_instance_valid(player): return
