@@ -1462,20 +1462,47 @@ func buy_lootbox(use_voucher:=false) -> bool:
 		bank_coins-=LOOTBOX_COST
 	# Dogs and paid characters are the jackpot: a case almost always pays an upgrade — a dog or
 	# a paid character is separate. When every upgrade is maxed the case pays one of those.
+	# Paid content can also drop out of a case, on two tiers of luck:
+	#   1%  -> the expensive shelf (cruiser, white tiger, ...)
+	#   3%  -> the cheap shelf   (survivors, dogs, starter vehicles)
+	# The golden bike and the tank are deliberately excluded: they are store-only.
+	var cheap_pool: Array=[]
+	var rare_pool: Array=[]
+	for cp in StoreCatalog.PACKS:
+		if not bool(cp.get("once",false)): continue
+		var kind:=String(cp.get("kind",""))
+		if not kind in ["character","pet","vehicle"]: continue
+		var cid:=String(cp.id)
+		if cid in ["vehicle_gold","vehicle_tank"]: continue
+		if store_owned.has(cid): continue
+		var price:=float(cp.get("usd",0.0)) if cp.has("usd") else float(StoreCatalog.TIERS[clampi(int(cp.get("tier",0)),0,StoreCatalog.TIERS.size()-1)])
+		if price>10.0: rare_pool.append(cp)
+		else: cheap_pool.append(cp)
 	var item: Dictionary
 	var r:=rng.randf()
-	if not char_candidates.is_empty() and (candidates.is_empty() or r<0.01):
+	if not rare_pool.is_empty() and r<0.01:
+		item=rare_pool[rng.randi_range(0,rare_pool.size()-1)]
+	elif not cheap_pool.is_empty() and r<0.04:
+		item=cheap_pool[rng.randi_range(0,cheap_pool.size()-1)]
+	elif not char_candidates.is_empty() and candidates.is_empty():
 		item=char_candidates[rng.randi_range(0,char_candidates.size()-1)]
-	elif not pet_candidates.is_empty() and (candidates.is_empty() or r<0.02):
+	elif not pet_candidates.is_empty() and candidates.is_empty():
 		item=pet_candidates[rng.randi_range(0,pet_candidates.size()-1)]
 	else:
 		item=candidates[rng.randi_range(0,candidates.size()-1)]
+	var paid_id:=String(item.get("id",""))
 	if item.has("char"):
 		owned_characters[int(item.char)]=true
+		store_owned[paid_id]=true
 		lootbox_reward_title=character_name(int(item.char))+"  ✓"
 	elif item.has("pet"):
 		owned_pets[int(item.pet)]=true
+		store_owned[paid_id]=true
 		lootbox_reward_title=pet_name(int(item.pet))+"  ✓"
+	elif item.has("vehicle"):
+		owned_vehicle=String(item.vehicle)
+		store_owned[paid_id]=true
+		lootbox_reward_title=StoreCatalog.text(language_code,String(item.name))+"  ✓"
 	else:
 		meta_upgrades[item.id]=int(meta_upgrades.get(item.id,0))+1
 		lootbox_reward_title=ShopText.text(language_code,String(item.name_key))+"  +1"
