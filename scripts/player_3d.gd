@@ -80,6 +80,7 @@ const VEHICLE_STATS := {
 	"SPORT": {"speed": 3.2, "side": 1.75, "ram": 1.5},
 	"CRUISER": {"speed": 3.6, "side": 1.7, "ram": 1.9},
 	"GOLD": {"speed": 3.4, "side": 1.72, "ram": 2.2},
+	"TANK": {"speed": 2.0, "side": 0.55, "ram": 3.0},
 }
 ## One GLB per vehicle. All are authored at real-world scale, Y-up, facing -Z (the
 ## survivor's run direction), so they mount without any per-vehicle scaling hacks.
@@ -88,6 +89,7 @@ const VEHICLE_MODELS := {
 	"SPORT": "res://assets/models/vehicles/bike_paid2.glb",
 	"CRUISER": "res://assets/models/vehicles/bike_paid3.glb",
 	"GOLD": "res://assets/models/vehicles/bike_gold.glb",
+	"TANK": "res://assets/models/vehicles/tank_military.glb",
 }
 ## Seat fit per vehicle (lift_y, back_z), measured from each GLB:
 ## scrambler seat top ~0.83, sport ~0.90, cruiser ~0.73. Rider pelvis rest height is
@@ -97,6 +99,7 @@ const SEAT_FIT := {
 	"SPORT": Vector2(0.22, 0.09),
 	"CRUISER": Vector2(0.04, 0.15),
 	"GOLD": Vector2(0.10, 0.14),
+	"TANK": Vector2(1.05, 0.30),
 }
 
 func vehicle_speed() -> float:

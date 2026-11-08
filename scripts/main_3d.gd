@@ -1917,7 +1917,7 @@ func lobby_view_rect() -> Rect2:
 
 func lobby_item_count() -> int:
 	if lobby_tab==2: return maxi(LOBBY_SLOTS,lobby.SKINS.size())
-	if lobby_tab==3: return 4 # BIKE / SPORT / CRUISER / GOLD in the lobby vehicle tab
+	if lobby_tab==3: return 5 # BIKE / SPORT / CRUISER / GOLD / TANK in the lobby vehicle tab
 	return maxi(LOBBY_SLOTS,lobby.CHARACTERS.size()) if lobby_tab==0 else maxi(LOBBY_SLOTS,lobby.PETS.size())
 
 func lobby_max_scroll() -> float:
@@ -2039,7 +2039,7 @@ func vehicle_owned(id: String) -> bool:
 ## equipped name for saves written before store_owned existed.
 func vehicle_is_owned(id: String) -> bool:
 	if store_owned.has(id): return true
-	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER","vehicle_gold":"GOLD"}
+	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER","vehicle_gold":"GOLD","vehicle_tank":"TANK"}
 	var vname: String=String(name_of.get(id,""))
 	return vname!="" and owned_vehicle==vname
 
@@ -2658,12 +2658,20 @@ func _vehicle_breakdown() -> void:
 
 ## Wear and the warning smoke. Under 30 durability the engine coughs gray puffs and sparks.
 var vehicle_smoke:=0.0
+var cannon_cd:=0.0
 var vehicle_dust:=0.0
 func _tick_vehicle(delta: float) -> void:
 	if player.vehicle=="": return
 	# Bought bike: auto-ride only covers the opening stretch; step off at VEHICLE_AUTO_RANGE.
 	if vehicle_auto_active and distance>=VEHICLE_AUTO_RANGE:
 		vehicle_auto_active=false; player.dismount_vehicle(); sound.play("gate"); _popup(player.position+Vector3(0,2.5,0),RunText.text("bike_down"),Color("ffad72")); return
+	# TANK: the cannon fires itself; each shell clears the lane ahead and
+	# costs a chunk of durability, so roughly 6-8 shots wreck it.
+	if player.vehicle=="TANK":
+		cannon_cd-=delta
+		if cannon_cd<=0.0:
+			cannon_cd=CANNON_PERIOD
+			_fire_cannon()
 	player.vehicle_durability-=BIKE_DECAY*delta
 	vehicle_dust-=delta
 	if vehicle_dust<=0.0:
@@ -4524,3 +4532,30 @@ func _soak_test() -> void:
 	assert(run_time>30 and wave>=2 and kills>10 and new_gate_index>=2)
 	print("SOAK_3D_OK time=",snappedf(run_time,0.1)," kills=",kills," gates=",new_gate_index," coins=",run_coins," actors=",zombies.size()+bullets.size()+effects.size())
 	_clear_world(); await get_tree().process_frame; await get_tree().process_frame; get_tree().quit()
+
+## Tank shell: a bright tracer down the lane, everything in it dies, the tank wears out.
+const CANNON_PERIOD:=1.25
+const CANNON_COST:=13.0
+const CANNON_RANGE:=18.0
+const CANNON_HALF_WIDTH:=1.9
+func _fire_cannon() -> void:
+	var muzzle:=player.position+Vector3(0,1.55,1.05)
+	# tracer + muzzle blast
+	_burst(muzzle,Color("ffe3a6"),16)
+	_burst(muzzle,Color("8a7f68"),8)
+	var beam:=EffectScript.new(); beam.position=muzzle
+	add_child(beam); effects.append(beam)
+	var ring:=EffectScript.new(); ring.position=Vector3(muzzle.x,0.12,muzzle.z); ring.life=0.4; ring.total_life=0.4
+	add_child(ring); ring.make_shockwave(Color(1.0,0.78,0.36,0.9),1.15); effects.append(ring)
+	sound.play("explosion"); shake=maxf(shake,0.5)
+	# dynamic damage: every zombie standing in the lane takes its own full health
+	for i in range(zombies.size()-1,-1,-1):
+		var z=zombies[i]
+		if not is_instance_valid(z): continue
+		var dz: float=(player.position.z-z.global_position.z)
+		if dz<=0.0 or dz>CANNON_RANGE: continue
+		if absf(z.global_position.x-player.position.x)>CANNON_HALF_WIDTH: continue
+		_blood_spray(z.global_position+Vector3(0,1.0,0),22)
+		_hit_zombie(z,1e9,"torso",z.global_position+Vector3(0,1.0,0))
+	player.vehicle_durability-=CANNON_COST
+	if player.vehicle_durability<=0.0: _vehicle_breakdown()

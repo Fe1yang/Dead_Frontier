@@ -653,7 +653,7 @@ func _draw_character_select() -> void:
 			for ci in range(game.lobby_item_count()):
 				if not (game.lobby_card_rect(ci) as Rect2).has_point(mpl): continue
 				if game.lobby_tab==3:
-					var vp: Dictionary=game.pack_by_id(["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold"][clampi(ci,0,3)])
+					var vp: Dictionary=game.pack_by_id(["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank"][clampi(ci,0,3)])
 					if not vp.is_empty():
 						var vk2: String=String(vp.get("name","bike"))
 						_info_tip(mpl,StoreCatalog.text(lang,vk2),StoreCatalog.text(lang,"vehicles"),StoreCatalog.text(lang,vk2+"_desc"))
@@ -711,9 +711,9 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
 	if game.lobby_tab==3:
 		# Vehicle card: same anatomy as the pet/skin cards - art, lock overlay, name.
-		var vi: int=clampi(i,0,3)
-		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold"]
-		var vnames: Array=["BIKE","SPORT","CRUISER","GOLD"]
+		var vi: int=clampi(i,0,4)
+		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank"]
+		var vnames: Array=["BIKE","SPORT","CRUISER","GOLD","TANK"]
 		var vid: String=String(vids[vi])
 		var von: bool=game.vehicle_owned(String(vnames[vi]))
 		var vsel: bool=von or game.vehicle_choice==vi
@@ -734,7 +734,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 				clean_ops.append(["line",varc,Color(1,1,1,0.9),3.0])
 				_box(Rect2(vlc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
 		if whole:
-			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if vsel else MUTED)
+			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold","tank"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if vsel else MUTED)
 			if vsel: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 		return
 	var pets: bool=game.lobby_tab==1

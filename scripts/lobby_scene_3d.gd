@@ -56,7 +56,8 @@ const VEHICLE_MODELS:=[
 	"res://assets/models/vehicles/bike_paid.glb",
 	"res://assets/models/vehicles/bike_paid2.glb",
 	"res://assets/models/vehicles/bike_paid3.glb",
-	"res://assets/models/vehicles/bike_gold.glb"]
+	"res://assets/models/vehicles/bike_gold.glb",
+	"res://assets/models/vehicles/tank_military.glb"]
 ## One preview scale for all three: they are real-size models, so the cruiser stays
 ## longer/taller than the scrambler instead of being faked with different scales.
 const VEHICLE_STAGE_SCALE:=0.75
