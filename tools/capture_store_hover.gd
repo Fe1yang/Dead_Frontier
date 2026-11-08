@@ -29,7 +29,7 @@ func _run() -> void:
 			break
 	await create_timer(1.0).timeout
 	for it in main.call("store_layout"):
-		if it.has("pack") and String(it.pack.get("id", "")) == "vehicle_gold":
+		if it.has("pack") and String(it.pack.get("id", "")).begins_with("char_"):
 			var r: Rect2 = main.call("store_screen_rect", it)
 			target = r.get_center()
 			break
@@ -42,6 +42,6 @@ func _run() -> void:
 	print("MOUSE input=", root.get_mouse_position(), " local=", hud.get_local_mouse_position() if hud else "nohud")
 	await RenderingServer.frame_post_draw
 	var img := root.get_viewport().get_texture().get_image()
-	img.save_png("res://tools/store_hover.png")
+	img.save_png("res://tools/store_hover_char.png")
 	print("CAPTURE_OK ", img.get_width(), "x", img.get_height(), " target=", target)
 	quit()

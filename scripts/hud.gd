@@ -645,6 +645,30 @@ func _draw_character_select() -> void:
 	for i in range(game.lobby_item_count()):
 		var card: Rect2=game.lobby_card_rect(i)
 		if card.intersects(view): _lobby_card(card,i,view,lang)
+
+	# hover card for the lobby cards (characters / pets / skins / vehicles)
+	if mouse_hover and game.state=="character_select":
+		var mpl: Vector2=hover_point
+		if game.lobby_view_rect().has_point(mpl):
+			for ci in range(game.lobby_item_count()):
+				if not (game.lobby_card_rect(ci) as Rect2).has_point(mpl): continue
+				if game.lobby_tab==3:
+					var vp: Dictionary=game.pack_by_id(["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold"][clampi(ci,0,3)])
+					if not vp.is_empty():
+						var vk2: String=String(vp.get("name","bike"))
+						_info_tip(mpl,StoreCatalog.text(lang,vk2),StoreCatalog.text(lang,"vehicles"),StoreCatalog.text(lang,vk2+"_desc"))
+				elif game.lobby_tab==2 and ci<game.lobby.SKINS.size():
+					var sk4: Dictionary=game.lobby.SKINS[ci]
+					_info_tip(mpl,RunText.text(String(sk4.get("name","")),lang),game.character_name(int(sk4.get("char",-1))),
+						ExtraText.text(lang,"skin_locked"))
+				elif game.lobby_tab==1 and ci<game.lobby.PETS.size():
+					_info_tip(mpl,game.pet_name(ci),ShopText.text(lang,"pets"),ExtraText.text(lang,"pet_locked"))
+				elif game.lobby_tab==0 and ci<game.lobby.CHARACTERS.size():
+					var ch: Dictionary=game.lobby.CHARACTERS[ci]
+					var perk2: String=String(ch.get("perk",""))
+					_info_tip(mpl,game.character_name(ci),ShopText.text(lang,"chars"),
+						RunText.text(perk2,lang) if perk2!="" else ExtraText.text(lang,"char_locked"))
+				break
 	for side in [-1,1]:
 		if not game.lobby_page_visible(side): continue
 		var pr: Rect2=game.lobby_page_rect(side)
@@ -1327,10 +1351,22 @@ func _draw_store() -> void:
 		for it2 in game.store_layout():
 			if not it2.has("pack"): continue
 			var pk: Dictionary=it2.pack
-			if String(pk.get("kind",""))!="vehicle": continue
-			if (game.store_screen_rect(it2) as Rect2).has_point(mp):
-				_vehicle_tip(mp,pk,lang)
-				break
+			if not (game.store_screen_rect(it2) as Rect2).has_point(mp): continue
+			match String(pk.get("kind","")):
+				"vehicle":
+					var vk: String=String(pk.get("name","bike"))
+					_info_tip(mp,StoreCatalog.text(lang,vk),StoreCatalog.text(lang,"vehicles"),StoreCatalog.text(lang,vk+"_desc"))
+				"character":
+					var perk: String=String(pk.get("perk",""))
+					_info_tip(mp,game.character_name(int(pk.get("char",0))),ShopText.text(lang,"chars"),
+						RunText.text(perk,lang) if perk!="" else ExtraText.text(lang,"char_locked"))
+				"pet":
+					_info_tip(mp,game.pet_name(int(pk.get("pet",0))),ShopText.text(lang,"pets"),ExtraText.text(lang,"pet_locked"))
+				"skin":
+					var sk3: Dictionary=game.lobby.SKINS[int(pk.get("skin",0))]
+					_info_tip(mp,RunText.text(String(sk3.get("name","")),lang),game.character_name(int(sk3.get("char",-1))),
+						ExtraText.text(lang,"skin_locked"))
+			break
 	var max_scroll: float=game.store_max_scroll()
 	if max_scroll>0.0:
 		var bar_h: float=view.size.y*view.size.y/(view.size.y+max_scroll)
@@ -1399,23 +1435,22 @@ func _wrap_text(f: Font, s: String, size: int, max_w: float) -> Array:
 	if cur!="": lines.append(cur)
 	return lines
 
-## Full ability text on a framed card, kept inside the screen no matter where the pointer is.
-func _vehicle_tip(at: Vector2,p: Dictionary,lang: String) -> void:
-	var key: String=String(p.get("name","bike"))
-	var title: String=StoreCatalog.text(lang,key)
-	var body: String=StoreCatalog.text(lang,key+"_desc")
+## Hover card: title, small caption and the full blurb, kept on screen.
+func _info_tip(at: Vector2,title: String,subtitle: String,body: String) -> void:
 	var size:=15
-	var lines: Array=_wrap_text(font,body,size,320.0)
+	var lines: Array=[]
+	if body!="": lines=_wrap_text(font,body,size,320.0)
 	var w: float=352.0
-	var h: float=34.0+float(lines.size())*(_scaled(size)+7.0)+12.0
+	var h: float=34.0+float(maxi(1,lines.size()))*(_scaled(size)+7.0)+12.0
 	var pos:=Vector2(clampf(at.x-w*0.5,8.0,532.0-w),clampf(at.y-h-18.0,8.0,game.ui_h-h-8.0))
 	var panel:=Rect2(pos,Vector2(w,h))
 	_box(panel,Color(0.02,0.022,0.026,0.97))
 	_frame(panel,Color(1,0.82,0.45,0.85),1.0)
 	_clean_text(bold,pos+Vector2(14,24),title,18,WHITE,false)
-	_clean_text(font,pos+Vector2(14,42),StoreCatalog.text(lang,"vehicles"),11,Color(1,1,1,0.45),false)
+	if subtitle!="": _clean_text(font,pos+Vector2(14,42),subtitle,11,Color(1,1,1,0.45),false)
 	for i in range(lines.size()):
 		_clean_text(font,pos+Vector2(14,58.0+float(i)*(_scaled(size)+7.0)),String(lines[i]),size,MUTED,false)
+
 
 func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 	var kind: String=p.kind
