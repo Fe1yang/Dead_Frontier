@@ -125,6 +125,8 @@ func _roll(distance: float) -> void:
 
 func tick(delta: float, player_target: Vector3) -> void:
 	if broken:
+		# The base class moves the wreck with the road; keep the tu mble going too.
+		_roll(3.5*delta)
 		super.tick(delta, player_target)   # the reward keeps flying to the survivor
 		return
 	spin += delta

@@ -39,7 +39,6 @@ window/size/viewport_height=960
 window/size/window_width_override=540
 window/size/window_height_override=960
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep"
 window/handheld/orientation=1
 window/size/min_width=360
 window/size/min_height=640
@@ -51,7 +50,6 @@ enabled=PackedStringArray("res://addons/admob/plugin.cfg")
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="mobile"
 textures/vram_compression/import_etc2_astc=true
 anti_aliasing/quality/msaa_3d=2
 environment/defaults/default_clear_color=Color(0.025, 0.047, 0.043, 1)

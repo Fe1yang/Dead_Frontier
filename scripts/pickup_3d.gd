@@ -28,7 +28,7 @@ func _model(kind_id: String) -> PackedScene:
 # One coin mesh, two metals: gold stays gold, silver reuses the same pile tinted.
 const GOLD_ALBEDO:=Color(1.0,0.80,0.32)
 const SILVER_ALBEDO:=Color(0.52,0.58,0.66)
-const DISPLAY_SCALES := {"medkit": 1.35, "armor": 0.55, "helmet": 1.60, "ammo": 1.25, "grenade": 2.0, "flashbang": 2.0, "launcher": 0.9, "fire_round": 2.4, "coin": 0.55, "silver_coin": 0.55}
+const DISPLAY_SCALES := {"medkit": 1.35, "armor": 0.55, "helmet": 0.33, "ammo": 1.25, "grenade": 2.0, "flashbang": 2.0, "launcher": 0.9, "fire_round": 2.4, "coin": 0.55, "silver_coin": 0.55}
 const GROUND_OFFSETS := {"medkit": 0.0, "armor": -0.535, "helmet": 0.0, "ammo": 0.0, "grenade": 0.02, "flashbang": 0.02, "launcher": 0.12, "fire_round": 0.03, "coin": 0.0, "silver_coin": 0.0}
 const LABELS := {"medkit": "MED", "armor": "ARMOR", "helmet": "HELMET", "ammo": "AMMO", "grenade": "FRAG", "flashbang": "FLASH", "launcher": "LAUNCHER", "fire_round": "INCENDIARY", "coin": "COINS", "silver_coin": "SILVER"}
 const COLORS := {"medkit": Color("ff7668"), "armor": Color("72d9e5"), "helmet": Color("b6d38a"), "ammo": Color("ffd275"), "grenade": Color("b6d38a"), "flashbang": Color("bdefff"), "launcher": Color("ff9b55"), "fire_round": Color("ff6547"), "coin": Color("d6b265"), "silver_coin": Color("9ea8b4")}

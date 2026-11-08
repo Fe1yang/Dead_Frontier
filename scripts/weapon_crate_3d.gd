@@ -166,7 +166,9 @@ func tick(delta: float,player_target: Vector3) -> void:
 		if glow_ring: glow_ring.rotation.x = 0.0
 		if light: light.light_energy = 1.4+0.4*sin(spin*5.0)
 		return
-	# Broken: the weapon arcs into the player's hands.
+	# Broken: the weapon arcs into the player's hands, but the wreck itself still rides the
+	# scrolling road - freezing it made the road slide past and read as rolling backwards.
+	position.z += 3.5*delta
 	flight += delta
 	var t := clampf(flight/FLIGHT_TIME,0.0,1.0)
 	var e := t*t*(3.0-2.0*t)

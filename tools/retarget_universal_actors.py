@@ -6,8 +6,8 @@ from pathlib import Path
 from mathutils import Vector, Quaternion, Matrix
 
 ROOT = Path(__file__).resolve().parents[1]
-LIBRARY = ROOT / 'assets' / 'animations' / 'universal' / 'Universal Animation Library[Standard]' / 'Unreal-Godot' / 'UAL1_Standard.glb'
-LIBRARY2 = ROOT / 'assets' / 'animations' / 'universal2' / 'Universal Animation Library 2[Standard]' / 'Unreal-Godot' / 'UAL2_Standard.glb'
+LIBRARY = ROOT / 'assets' / 'animation-library' / 'ual1' / 'UAL1_Standard.glb'
+LIBRARY2 = ROOT / 'assets' / 'animation-library' / 'ual2' / 'UAL2_Standard.glb'
 SOURCES = {
     'male': ('survivor_male_hd.glb', 'survivor_male_universal.glb', True, False),
     'female': ('survivor_female_hd.glb', 'survivor_female_universal.glb', True, True),

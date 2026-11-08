@@ -83,7 +83,11 @@ const VEHICLE_STATS := {
 	"CRUISER": {"speed": 3.6, "side": 1.7, "ram": 1.9},
 	"GOLD": {"speed": 3.4, "side": 1.72, "ram": 2.2},
 	"TANK": {"speed": 2.0, "side": 0.55, "ram": 3.0},
+	# The saloon drives at motorcycle pace but rams like the tank, and it never shoots.
+	"SEDAN": {"speed": 2.9, "side": 1.8, "ram": 3.0},
 }
+## How far ahead of the survivor's feet the saloon sits (metres, -Z is forward).
+const SEDAN_FORWARD:=-1.75
 ## One GLB per vehicle. All are authored at real-world scale, Y-up, facing -Z (the
 ## survivor's run direction), so they mount without any per-vehicle scaling hacks.
 const VEHICLE_MODELS := {
@@ -92,6 +96,7 @@ const VEHICLE_MODELS := {
 	"CRUISER": "res://assets/models/vehicles/bike_paid3.glb",
 	"GOLD": "res://assets/models/vehicles/bike_gold.glb",
 	"TANK": "res://assets/models/vehicles/tank_military.glb",
+	"SEDAN": "res://assets/models/vehicles/black_car.glb",
 }
 ## Seat fit per vehicle (lift_y, back_z), measured from each GLB:
 ## scrambler seat top ~0.83, sport ~0.90, cruiser ~0.73. Rider pelvis rest height is
@@ -102,6 +107,7 @@ const SEAT_FIT := {
 	"CRUISER": Vector2(0.04, 0.15),
 	"GOLD": Vector2(0.10, 0.14),
 	"TANK": Vector2(1.05, 0.30),
+	"SEDAN": Vector2(0.0, 0.0),          # the rider is hidden inside the cabin
 }
 
 func vehicle_speed() -> float:
@@ -252,6 +258,38 @@ func mount_vehicle(id: String) -> void:
 		vehicle_model.rotation.y=PI
 		# a crew sits INSIDE a tank: drop the survivor model and its attachments
 		if is_instance_valid(model): model.visible=false
+	if id=="SEDAN":
+		# The GLB comes out of the generator at about 1 m long with the nose on +Z:
+		# scale it to a real saloon and turn it to face -Z. Like the tank, the survivor
+		# is hidden rather than perched on the roof - a car has a cabin, not a saddle.
+		vehicle_model.scale=Vector3.ONE*4.1
+		vehicle_model.rotation.y=PI
+		# The GLB is modelled around its own centre, so mounting it at y=0 sank the wheels
+		# 0.69 m into the tarmac. Measure the lowest point and lift the car by exactly that.
+		var lowest:=INF
+		for mi in vehicle_model.find_children("*","MeshInstance3D",true,false):
+			var m:=mi as MeshInstance3D
+			if m==null or m.mesh==null: continue
+			var to_local: Transform3D=global_transform.affine_inverse()*m.global_transform
+			lowest=minf(lowest,(to_local*m.get_aabb()).position.y)
+		var lift:=0.0 if lowest==INF else -lowest
+		vehicle_model.position=Vector3(0,lift,SEDAN_FORWARD)
+		# The model is one Tripo mesh with one baked atlas, so the windows were just bright
+		# grey paint: flat, opaque, plastic. One shader reads the bright neutral patches as
+		# dark tinted glass and keeps the bodywork glossy, no extra materials needed.
+		var car_shader:=load("res://assets/shaders/car_paint.gdshader") as Shader
+		for mi in vehicle_model.find_children("*","MeshInstance3D",true,false):
+			var m3:=mi as MeshInstance3D
+			if m3==null or m3.mesh==null: continue
+			for s3 in range(m3.mesh.get_surface_count()):
+				var src:=m3.mesh.surface_get_material(s3) as BaseMaterial3D
+				if src==null or src.albedo_texture==null: continue
+				var sm:=ShaderMaterial.new()
+				sm.shader=car_shader
+				sm.set_shader_parameter("paint_tex",src.albedo_texture)
+				m3.set_surface_override_material(s3,sm)
+		hide_rider=true
+		if is_instance_valid(model): model.visible=false
 	# Seat the rider on THIS vehicle's seat (per-vehicle lift/back, see SEAT_FIT).
 	if is_instance_valid(model):
 		model.position.z=float(SEAT_FIT.get(id,Vector2.ZERO).y)
@@ -275,6 +313,12 @@ func _tick_vehicle_visual(delta: float) -> void:
 		var pivot:=vehicle_model.find_child(w,true,false) as Node3D
 		if pivot: pivot.rotation.x+=delta*10.0
 	# Lean into sideways moves like a real bike instead of pure translation.
+	if vehicle=="SEDAN":
+		# The saloon rides a little ahead of the survivor's feet: the chase camera then
+		# frames the whole car instead of the rear quarter only. No lean, no recoil.
+		vehicle_model.rotation.z=0.0
+		vehicle_model.position.z=SEDAN_FORWARD
+		return
 	if vehicle=="TANK":
 		# tracked hull: never lean, just kick back from the cannon and settle
 		vehicle_model.rotation.z=lerpf(vehicle_model.rotation.z,0.0,1.0-exp(-delta*9.0))
@@ -323,8 +367,12 @@ func _load_character() -> void:
 	skeleton=model.find_child("Skeleton3D",true,false) as Skeleton3D
 	right_hand=skeleton.find_bone("hand_r") if is_instance_valid(skeleton) else -1
 	grip=null
+	# Characters whose rig does not match the two-handed IK keep their own support-arm pose and
+	# only get the firing arm solved, which still puts the weapon in the visible palm.
+	const SINGLE_HAND_IK := [4]
 	if is_instance_valid(skeleton):
 		grip=GunGripIK.new()
+		grip.single_hand = character in SINGLE_HAND_IK
 		grip.character=character
 		# Yuhang's mesh has no vertex weighted >0.6 to the hand group, so mesh_offset() comes
 		# back empty and the IK would aim the wrist bone instead of the visible hand (hands
@@ -367,9 +415,155 @@ func _load_weapon_model() -> void:
 	weapon_model=load(path).instantiate() as Node3D
 	model.add_child(weapon_model)
 	weapon_model.rotation=Vector3.ZERO
-	weapon_model.scale=Vector3.ONE*float(WEAPON_SCALES.get(weapon,0.5))
+	weapon_model.scale=Vector3.ONE
+	normalise_weapon_model()
 	_load_muzzle_flash()
 	_update_weapon_transform()
+
+## Fit an arbitrary weapon GLB to the game's convention: barrel along -Z, grip at the origin,
+## and a real-world length. Weapon assets come in different units and orientations, so measure
+## instead of trusting the old per-weapon scale table.
+const WEAPON_LENGTHS := {"PISTOL": 0.26, "SMG": 0.58, "SHOTGUN": 0.95, "SNIPER": 1.15, "RIFLE": 0.86, "LAUNCHER": 0.85}
+func normalise_weapon_model() -> void:
+	if not is_instance_valid(weapon_model): return
+	var pts := weapon_points()
+	if pts.size() == 0: return
+	# Length: scale so the longest side matches a real weapon.
+	var b := _bounds(pts)
+	var longest: float = maxf(b.size.x, maxf(b.size.y, b.size.z))
+	var target := float(WEAPON_LENGTHS.get(weapon, 0.5))
+	if longest > 0.0001:
+		weapon_model.scale = Vector3.ONE * (target / longest)
+	# Orientation, solved instead of guessed: find which way the muzzle points in the model's
+	# OWN space (the thinner end of the long axis), then rotate that direction onto -Z.
+	var muzzle := _muzzle_local(pts, b)
+	var yaw := PI - atan2(muzzle.x, muzzle.z)
+	weapon_model.rotation.y = yaw
+	weapon_model.force_update_transform()
+	# Closed loop: measure where the muzzle actually ends up in the world and rotate by the
+	# remaining error onto the aim direction. Removes every convention guess.
+	var err := _muzzle_world_dir().signed_angle_to(_aim_dir(), Vector3.UP)
+	weapon_model.rotate_y(err)
+	# Every weapon came out facing the survivor's own chest: the auto-solve picks the wrong
+	# end of the model. One half turn fixes the whole set (user-reported).
+	weapon_model.rotate_y(PI)
+	weapon_model.force_update_transform()
+	print("WEAPON_ORIENT ", weapon, " yaw_deg=", snappedf(rad_to_deg(weapon_model.rotation.y), 0.1), " align_err=", snappedf(rad_to_deg(err), 0.1))
+	# Origin: the grip, so the hand holds the handle instead of the middle of the receiver.
+	pts = weapon_points()
+	var bb := _bounds(pts)
+	var low := bb.position.y + bb.size.y * 0.25
+	var gx := 0.0; var gz := 0.0; var n := 0
+	for q in pts:
+		if q.y <= low:
+			gx += q.x; gz += q.z; n += 1
+	if n > 0:
+		gx /= float(n); gz /= float(n)
+	weapon_model.position = Vector3(-gx, -bb.position.y, -gz)
+
+## True when the thinner end of the weapon (the muzzle) is on the -Z side.
+func _muzzle_points_forward(pts: Array, bb: AABB) -> bool:
+	var z0 := bb.position.z + bb.size.z * 0.30
+	var z1 := bb.position.z + bb.size.z * 0.70
+	var a_min := Vector3(1e9, 1e9, 1e9); var a_max := Vector3(-1e9, -1e9, -1e9)
+	var b_min := Vector3(1e9, 1e9, 1e9); var b_max := Vector3(-1e9, -1e9, -1e9)
+	var na := 0; var nb := 0
+	for q in pts:
+		if q.z <= z0:
+			a_min = Vector3(minf(a_min.x, q.x), minf(a_min.y, q.y), a_min.z)
+			a_max = Vector3(maxf(a_max.x, q.x), maxf(a_max.y, q.y), a_max.z)
+			na += 1
+		elif q.z >= z1:
+			b_min = Vector3(minf(b_min.x, q.x), minf(b_min.y, q.y), b_min.z)
+			b_max = Vector3(maxf(b_max.x, q.x), maxf(b_max.y, q.y), b_max.z)
+			nb += 1
+	if na == 0 or nb == 0: return true
+	var area_a: float = maxf(a_max.x - a_min.x, 0.0001) * maxf(a_max.y - a_min.y, 0.0001)
+	var area_b: float = maxf(b_max.x - b_min.x, 0.0001) * maxf(b_max.y - b_min.y, 0.0001)
+	return area_a <= area_b
+
+## Direction the muzzle points, in the model's own (unrotated) space.
+func _muzzle_local(pts: Array, bb: AABB) -> Vector3:
+	var long_x := bb.size.x >= bb.size.z
+	var lo := bb.position.x if long_x else bb.position.z
+	var hi := (bb.position.x + bb.size.x) if long_x else (bb.position.z + bb.size.z)
+	var mid := (lo + hi) * 0.5
+	var a_min := Vector3(1e9, 1e9, 1e9); var a_max := Vector3(-1e9, -1e9, -1e9)
+	var b_min := Vector3(1e9, 1e9, 1e9); var b_max := Vector3(-1e9, -1e9, -1e9)
+	for q in pts:
+		var axis_val: float = q.x if long_x else q.z
+		if axis_val <= mid:
+			a_min = Vector3(minf(a_min.x, q.x), minf(a_min.y, q.y), minf(a_min.z, q.z))
+			a_max = Vector3(maxf(a_max.x, q.x), maxf(a_max.y, q.y), maxf(a_max.z, q.z))
+		else:
+			b_min = Vector3(minf(b_min.x, q.x), minf(b_min.y, q.y), minf(b_min.z, q.z))
+			b_max = Vector3(maxf(b_max.x, q.x), maxf(b_max.y, q.y), maxf(b_max.z, q.z))
+	var area_a: float = maxf(a_max.x - a_min.x, 0.0001) * maxf(a_max.y - a_min.y, 0.0001)
+	var area_b: float = maxf(b_max.x - b_min.x, 0.0001) * maxf(b_max.y - b_min.y, 0.0001)
+	var sign_muzzle: float = -1.0 if area_a <= area_b else 1.0
+	return Vector3(sign_muzzle, 0, 0) if long_x else Vector3(0, 0, sign_muzzle)
+
+## The aim direction projected on the ground plane (the character's facing).
+func _aim_dir() -> Vector3:
+	var a := aim_direction
+	a.y = 0.0
+	if a.length() < 0.001: return Vector3(0, 0, -1)
+	return a.normalized()
+
+## World-space direction from the grip to the muzzle.
+func _muzzle_world_dir() -> Vector3:
+	var pts := weapon_points()
+	if pts.size() == 0: return Vector3(0, 0, -1)
+	var bb := _bounds(pts)
+	var muzzle := _muzzle_local(pts, bb)
+	var tip := Vector3(muzzle.x * (bb.size.x * 0.5 + bb.position.x), 0, muzzle.z * (bb.size.z * 0.5 + bb.position.z))
+	if muzzle.x == 0.0:
+		tip = Vector3(0, bb.position.y + bb.size.y * 0.5, muzzle.z * (bb.size.z * 0.5 + bb.position.z))
+	var origin := Vector3(0, bb.position.y + bb.size.y * 0.5, 0)
+	var g := weapon_model.global_transform
+	var d := (g * tip) - (g * origin)
+	d.y = 0.0
+	if d.length() < 0.0001: return _aim_dir()
+	return d.normalized()
+
+func _bounds(pts: Array) -> AABB:
+	if pts.size() == 0: return AABB()
+	var bb := AABB(pts[0], Vector3.ZERO)
+	for q in pts:
+		bb = bb.expand(q)
+	return bb
+
+## Where the muzzle points, in the weapon's own space: away from the grip cluster.
+func _barrel_direction() -> Vector3:
+	var pts := weapon_points()
+	if pts.size() == 0: return Vector3(0, 0, -1)
+	var bb := _bounds(pts)
+	var low := bb.position.y + bb.size.y * 0.25
+	var gx := 0.0; var gz := 0.0; var n := 0
+	for q in pts:
+		if q.y <= low:
+			gx += q.x; gz += q.z; n += 1
+	if n == 0: return Vector3(0, 0, -1)
+	gx /= float(n); gz /= float(n)
+	var c := bb.get_center()
+	var dir := Vector3(c.x - gx, 0.0, c.z - gz)
+	if dir.length() < 0.0001: return Vector3(0, 0, -1)
+	return dir.normalized()
+
+## Every vertex of the weapon model, expressed in the weapon's own space.
+func weapon_points() -> Array:
+	var out: Array = []
+	for m in weapon_model.find_children("*", "MeshInstance3D", true, false):
+		var mi := m as MeshInstance3D
+		if mi.mesh == null: continue
+		var rel: Transform3D = weapon_model.global_transform.affine_inverse() * mi.global_transform
+		for s in range(mi.mesh.get_surface_count()):
+			var arr := mi.mesh.surface_get_arrays(s)
+			if arr.size() <= Mesh.ARRAY_VERTEX: continue
+			var verts: PackedVector3Array = arr[Mesh.ARRAY_VERTEX]
+			for v in verts:
+				out.append(rel * v)
+	return out
 
 func _load_muzzle_flash() -> void:
 	if is_instance_valid(flash):
@@ -438,9 +632,20 @@ func set_helmet(equipped: bool) -> void:
 		helmet_attachment.bone_name = "Head"
 		skeleton.add_child(helmet_attachment)
 		helmet_model = load("res://assets/models/helmet.glb").instantiate() as Node3D
-		helmet_model.scale = Vector3.ONE * 1.12
-		helmet_model.position = Vector3(0,0.065,0.015)
 		helmet_attachment.add_child(helmet_model)
+		# Fit by measured size: the Tripo export is authored in its own units, so normalise the
+		# harness to a 0.30 m wide shell instead of trusting a fixed factor.
+		var box := AABB(); var first := true
+		for m in helmet_model.find_children("*", "MeshInstance3D", true, false):
+			var mi := m as MeshInstance3D
+			if mi.mesh == null: continue
+			var a: AABB = mi.transform * mi.get_aabb()
+			box = a if first else box.merge(a)
+			first = false
+		var widest: float = maxf(box.size.x, maxf(box.size.y, box.size.z))
+		if widest > 0.001:
+			helmet_model.scale = Vector3.ONE * (0.30 / widest)
+		helmet_model.position = Vector3(0, 0.055 - box.get_center().y * (0.30 / maxf(widest, 0.001)), 0.012)
 
 func apply_meta(upgrades: Dictionary) -> void:
 	max_health=100.0+int(upgrades.get("medical",0))*15.0
@@ -527,7 +732,20 @@ func _update_weapon_transform() -> void:
 	# lags one frame behind a sideways-moving player in the Compatibility renderer.
 	force_update_transform(); model.force_update_transform()
 	var hand_position:=Vector3(0,1.42,0.38)
-	if is_instance_valid(grip) and grip.grip_point!=Vector3.ZERO and grip.support_point!=Vector3.ZERO:
+	# Single-hand stances: the IK still reports the palm, but the weapon has to ride that palm
+	# directly -- the two-hand midpoint maths drifts it off to the side.
+	if is_instance_valid(grip) and grip.get("single_hand") and is_instance_valid(skeleton) and right_hand >= 0:
+		# The hand BONE sits at the wrist; the visible palm is a few cm further on. Add the
+		# measured palm offset so the grip lands in the hand instead of above it.
+		var palm := GunGripIK.mesh_offset(model, "hand_r")
+		# Jian's palm mesh sits ~17 cm below her hand bone (measured), so the weapon has to drop
+		# by that much to look held instead of floating. Moving the gun is safe; moving the mesh
+		# tore her arm, so this is the fix.
+		if character == 4:
+			palm += Vector3(0.0, -0.17, 0.02)
+		var hg := skeleton.to_global(skeleton.get_bone_global_pose(right_hand).origin + palm)
+		hand_position = model.global_transform.affine_inverse() * hg
+	elif is_instance_valid(grip) and grip.grip_point!=Vector3.ZERO and grip.support_point!=Vector3.ZERO:
 		# Both IK points refer to the visible palms, not the possibly misaligned hand bones.
 		# Center every survivor's weapon between those palms instead of hanging it off hand_r.
 		var between_hands: Vector3=(grip.grip_point+grip.support_point)*0.5
@@ -540,7 +758,7 @@ func _update_weapon_transform() -> void:
 		var hand_global:=skeleton.to_global(skeleton.get_bone_global_pose(right_hand).origin)
 		hand_position=model.global_transform.affine_inverse()*hand_global
 	var weapon_scale:=float(WEAPON_SCALES.get(weapon,0.5))
-	weapon_model.position=hand_position+GRIP_OFFSETS.get(weapon,GRIP_OFFSETS["PISTOL"])*weapon_scale
+	weapon_model.position=hand_position
 	weapon_model.force_update_transform()
 	var muzzle:=to_local(muzzle_position())
 	if is_instance_valid(light): light.position=muzzle

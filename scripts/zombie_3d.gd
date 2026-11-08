@@ -11,6 +11,8 @@ const BRUTE_SCALE:=1.42
 const BRUTE_ARM_BONES:=["clavicle_l","upperarm_l","lowerarm_l","hand_l","clavicle_r","upperarm_r","lowerarm_r","hand_r"]
 
 var kind := "walker"
+## Lobby-only: wanders around but never attacks (no damage, no lunge).
+var passive := false
 var health := 40.0
 var max_health := 40.0
 var speed := 3.7
@@ -29,7 +31,11 @@ var banshee_pulse_timer := 0.0
 var banshee_pulse_ready := false
 var banshee_time := 0.0
 var banshee_ground_speed := 2.0 # how fast she is walking backwards over the road (for the anim)
+## Spitter: seconds until the next venom glob, and a flag main consumes to fire it.
+var spit_timer := 2.4
+var spit_ready := false
 var dead := false
+var death_played := false
 var model: Node3D
 var animation_player: AnimationPlayer
 var meshes: Array[MeshInstance3D] = []
@@ -42,7 +48,7 @@ var embers: CPUParticles3D
 func configure(type: String, difficulty: float) -> void:
 	kind = type
 	match kind:
-		"runner": health=26*difficulty; speed=5.2+difficulty*0.15; damage=14; reward=2; radius=0.36
+		"runner","runner_b": health=26*difficulty; speed=5.2+difficulty*0.15; damage=14; reward=2; radius=0.36
 		"brute": health=150*difficulty; speed=5.6+difficulty*0.10; damage=32; reward=5; radius=0.80
 		# The bomber waddles in slow and fat; it never swings, it detonates.
 		# 80 HP (four pistol rounds) instead of 120: the bomber closes fast, so the
@@ -50,6 +56,8 @@ func configure(type: String, difficulty: float) -> void:
 		"bomber","bomber_female": health=80*difficulty; speed=4.4+difficulty*0.08; damage=30; reward=6; radius=0.66
 		"jockey": health=68*difficulty; speed=7.4+difficulty*0.16; damage=22; reward=3; radius=0.48
 		"banshee": health=210*difficulty; speed=1.65+difficulty*0.05; damage=28; reward=8; radius=0.46
+		# Keeps its distance and lobs venom: slower than a walker, but it never has to touch you.
+		"spitter": health=70*difficulty; speed=3.15+difficulty*0.08; damage=13; reward=3; radius=0.55
 		_: health=44*difficulty; speed=3.65+difficulty*0.1; damage=18; reward=1
 	max_health = health
 	age = randf()*4
@@ -61,7 +69,11 @@ func configure(type: String, difficulty: float) -> void:
 		"jockey": "zombie_jockey_universal.glb",
 		"banshee": "zombie_banshee_universal.glb",
 		"bomber": "zombie_bomber_universal.glb",
-		"bomber_female": "zombie_bomber_female_universal.glb"
+		"bomber_female": "zombie_bomber_female_universal.glb",
+		"spitter": "zombie_spitter.glb",
+		"walker_b": "zombie_walker_black_universal.glb",
+		"walker_c": "zombie_walker_asia_universal.glb",
+		"runner_b": "zombie_female_b_universal.glb"
 	}
 	var asset: String="res://assets/models/actors/"+assets.get(kind,"zombie_walker_universal.glb")
 	if not ResourceLoader.exists(asset): asset="res://assets/models/actors/zombie_walker_universal.glb" # bomber models land later
@@ -75,6 +87,17 @@ func configure(type: String, difficulty: float) -> void:
 	ModelFix.double_sided(model)
 	_collect(model)
 	animation_player=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
+	if kind=="spitter":
+		# Static Tripo mesh: fit it to the same 2 m the rigged walkers occupy and turn it so
+		# the head leads toward the survivor.
+		var lo:=1.0e9; var hi:=-1.0e9
+		for mi in model.find_children("*","MeshInstance3D",true,false):
+			var m2:=mi as MeshInstance3D
+			if m2==null or m2.mesh==null: continue
+			var b2: AABB=m2.transform*m2.get_aabb()
+			lo=minf(lo,b2.position.y); hi=maxf(hi,b2.end.y)
+		if hi>lo+0.01: model.scale*=1.95/(hi-lo)
+		model.rotation.y=PI
 	var clip_name := "Zombie_Walk_Fwd"
 	if kind=="brute" or kind.begins_with("bomber"):
 		# The juggernaut/bomber are hulking heavies: they borrow the upright UAL1 "Walk" instead
@@ -87,6 +110,11 @@ func configure(type: String, difficulty: float) -> void:
 		if borrowed!="": clip_name=borrowed
 	if kind=="jockey": clip_name="Jockey_Quad_Run"
 	elif kind=="banshee": clip_name="Banshee_Walk"
+	# Mixamo/UAL clips animate the pelvis through space (root motion). The game moves the
+	# zombie itself, so keeping that track made the body slide backwards - most visible on
+	# the death fall. Flatten the horizontal part of every pelvis/root position track and
+	# keep only the vertical bob.
+
 	if animation_player and animation_player.has_animation(clip_name):
 		var clip:=animation_player.get_animation(clip_name)
 		clip.loop_mode=Animation.LOOP_LINEAR
@@ -101,7 +129,7 @@ func configure(type: String, difficulty: float) -> void:
 		animation_player.speed_scale=rate
 		animation_player.play(clip_name)
 		animation_player.seek(randf()*clip.length,true)
-	else:
+	elif kind!="spitter":
 		push_error("Zombie animation missing: "+clip_name+" in "+asset)
 	if kind=="jockey":
 		var hip:=Vector3(0,0.53,0)
@@ -250,6 +278,18 @@ func tick(delta: float) -> void:
 		position.z += speed*move_scale*delta
 	hit_flash=maxf(0,hit_flash-delta)
 	for mesh in meshes: mesh.material_overlay=flash_material if hit_flash>0 else null
+	if kind=="spitter":
+		# No skeleton to animate: a hop and a forward lean stand in for a walk, and the body
+		# rears back right before it spits.
+		if is_instance_valid(model):
+			var hop: float=absf(sin(age*5.4))
+			var wind: float=1.0 if spit_timer<0.45 else 0.0
+			model.position.y=hop*0.13+wind*0.06
+			model.rotation.x=lerpf(model.rotation.x,-0.10-hop*0.09+wind*0.18,1.0-exp(-delta*9.0))
+		spit_timer-=delta
+		if spit_timer<=0.0:
+			spit_timer=randf_range(2.9,4.2)
+			spit_ready=true
 	if is_instance_valid(animation_player):
 		var base_rate:=speed/3.7
 		if kind=="jockey": base_rate=1.22
@@ -295,6 +335,24 @@ func consume_burn_damage_number() -> float:
 	burn_damage_accumulated=0.0
 	burn_number_timer=0.35
 	return amount
+
+## Play the model's own death clip. The caller keeps the node around for a moment so
+## the body is seen falling instead of vanishing in a puff.
+func die() -> void:
+	# take_hit() already sets `dead`, so gate on our own flag: the first call plays the fall.
+	if death_played: return
+	death_played = true
+	dead = true
+	if bar: bar.visible = false
+	if bar_fill: bar_fill.visible = false
+	if flames: flames.emitting = false
+	if embers: embers.emitting = false
+	if animation_player and animation_player.has_animation("Death01"):
+		var clip:=animation_player.get_animation("Death01")
+		clip.loop_mode=Animation.LOOP_NONE
+		animation_player.stop()
+		animation_player.speed_scale=1.0
+		animation_player.play("Death01",0.08)
 
 func take_hit(amount: float) -> bool:
 	if dead: return true

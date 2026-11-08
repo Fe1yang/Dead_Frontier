@@ -12,8 +12,8 @@ const CHARACTERS:=[
 	{"asset":"res://assets/models/actors/survivor_male_universal.glb","name":"MASON","lobby_clavicle":8.0,"lobby_out":0.18,"lobby_fwd":0.04,"lobby_palm_twist":-15.0,"lobby_bend":0.0},
 	{"asset":"res://assets/models/actors/survivor_riley_universal.glb","name":"RILEY","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.16,"lobby_fwd":0.04,"lobby_clavicle":8.0,"lobby_bend":6.0},
 	{"asset":"res://assets/models/actors/survivor_medic_universal.glb","name":"DARIUS","lobby_clavicle":6.0,"lobby_out":0.14,"lobby_fwd":0.08,"lobby_palm_twist":-10.0,"lobby_bend":8.0,"perk":"perk_darius"},
-	{"asset":"res://assets/models/actors/survivor_maya_universal.glb","name":"MAYA","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.06,"lobby_fwd":0.03,"lobby_clavicle":5.0,"lobby_bend":14.0,"perk":"perk_maya"},
-	{"asset":"res://assets/models/actors/survivor_jian_scout_universal.glb","name":"JIAN","lobby_clavicle":1.0,"lobby_out":0.45,"lobby_fwd":0.12,"lobby_palm_twist":-15.0,"lobby_bend":0.0,"perk":"perk_jian"}]
+	{"asset":"res://assets/models/actors/survivor_maya_universal.glb","name":"MAYA","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.06,"lobby_fwd":0.03,"lobby_clavicle":5.0,"lobby_bend":14.0,"perk":"perk_maya"}
+]
 const PETS:=[
 	{"asset":"res://assets/models/pets/doberman.glb","name":"杜宾犬","length":1.10},
 	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.16},
@@ -114,7 +114,7 @@ func _ready() -> void:
 	position=ORIGIN
 	_build_set()
 	# Vehicle display on the lobby stage: the same GLBs the game mounts.
-	set_vehicle_visual(0)
+	if not cabin_lobby: set_vehicle_visual(0)
 
 ## Framing: on the survivors tab the camera moves in so the survivor fills the shot (whole body,
 ## the dog still at their side); on the pets tab it eases back out to the wider two-shot.
@@ -123,6 +123,12 @@ const SOLO_TARGET:=Vector3(-0.08,0.50,0.0)
 var focus_pets:=false  # set by main_3d when the pets tab is open
 
 func camera_position() -> Vector3:
+	if USE_STREET_LOBBY:
+		# the same chase framing the run starts with
+		return Vector3(0.0,6.4,13.5)
+	if cabin_lobby:
+		# slight 3/4 view from outside the open front so the whole room reads
+		return ORIGIN+Vector3(1.7,2.05,-6.2)
 	if focus_vehicle:
 		if bike_index==4: return ORIGIN+Vector3(-0.08,1.45,6.6)
 		return ORIGIN+VEHICLE_CAM_POS
@@ -130,6 +136,10 @@ func camera_position() -> Vector3:
 	return ORIGIN+SOLO_POS+Vector3(sin(time*0.3)*0.04,sin(time*0.45)*0.02,0)
 
 func camera_target() -> Vector3:
+	if USE_STREET_LOBBY:
+		return Vector3(0.0,1.0,-8.0)
+	if cabin_lobby:
+		return ORIGIN+Vector3(-0.2,1.30,-0.2)
 	if focus_vehicle:
 		if bike_index==4: return ORIGIN+Vector3(-0.08,0.85,0.0)
 		return ORIGIN+VEHICLE_CAM_TARGET
@@ -137,6 +147,7 @@ func camera_target() -> Vector3:
 
 var actor_asset:=""
 func show_character(index: int, asset_override:="") -> void:
+	if cabin_lobby: return   # the cabin lobby shows no character on a stage
 	index=clampi(index,0,CHARACTERS.size()-1)
 	var asset_path: String=asset_override if asset_override!="" else String(CHARACTERS[index].get("asset",""))
 	if not ResourceLoader.exists(asset_path):
@@ -306,6 +317,13 @@ func _build_set() -> void:
 	_build_set_legacy()
 
 const SAFEHOUSE_ASSET:="res://assets/models/environment/safehouse_interior.glb"
+## Procedurally built survival cabin (tools/build_cabin.py): replaces the old safehouse.
+const CABIN_ASSET:="res://assets/models/environment/survival_cabin.glb"
+## Flip this to false to bring the original safehouse interior back instantly.
+const USE_CABIN_LOBBY:=false
+## No room at all: the lobby is the street itself (the run's road is the backdrop).
+const USE_STREET_LOBBY:=false
+var cabin_lobby:=false
 const STONE_WALL_TEX:="res://assets/models/environment/stone_wall_diff.jpg" # legacy, no longer used (bricks are procedural now)
 
 ## Procedural aged brick: runtime-generated so no external texture is needed.
@@ -361,6 +379,20 @@ func _brick_texture(transpose:=true) -> ImageTexture:
 
 func _stone_mat(transpose:=true) -> StandardMaterial3D:
 	var m:=StandardMaterial3D.new()
+	# Lime-plaster / bare concrete wall instead of brick.
+	var albedo_path:="res://assets/textures/concrete_wall.png"
+	var normal_path:="res://assets/textures/concrete_wall_nor.png"
+	if ResourceLoader.exists(albedo_path):
+		m.albedo_texture=load(albedo_path)
+		if ResourceLoader.exists(normal_path):
+			m.normal_enabled=true
+			m.normal_texture=load(normal_path)
+			m.normal_scale=0.45
+		m.albedo_color=Color(0.92,0.91,0.88)
+		m.roughness=0.93
+		m.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+		m.uv1_scale=Vector3(3.0,1.8,1.0) if not transpose else Vector3(3.0,1.6,1.0)
+		return m
 	m.albedo_texture=_brick_texture(transpose)
 	m.roughness=0.95
 	m.texture_filter=BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
@@ -376,6 +408,27 @@ func _stone_mat(transpose:=true) -> StandardMaterial3D:
 ## Brick only on the genuine Safe_brick patch (back wall). The GLB merges geometry by
 ## material, so Safe_concrete/Safe_white_paint also contain box/crate faces — bricking
 ## those nodes put wall brick texture on the crates (user reported). Keep them original.
+## The cabin is modelled in metres at the origin, so it only needs lights and a camera frame.
+func _build_cabin() -> bool:
+	var packed:=load(CABIN_ASSET) as PackedScene
+	if packed==null: return false
+	var room:=packed.instantiate() as Node3D
+	if room==null: return false
+	room.name="SurvivalCabin"
+	add_child(room)
+	cabin_lobby=true
+	var key:=OmniLight3D.new(); key.position=Vector3(0.3,2.35,0.4)
+	key.light_color=Color("ffd7a8"); key.light_energy=3.2; key.omni_range=10.0
+	add_child(key)
+	var fill:=OmniLight3D.new(); fill.position=Vector3(-2.2,2.0,-1.0)
+	fill.light_color=Color("b9d2ea"); fill.light_energy=1.4; fill.omni_range=9.0
+	add_child(fill)
+	var back:=OmniLight3D.new(); back.position=Vector3(2.4,1.5,1.8)
+	back.light_color=Color("ffbf80"); back.light_energy=1.1; back.omni_range=7.0
+	add_child(back)
+	print("CABIN_LOBBY built")
+	return true
+
 func _apply_stone_to_safehouse(safe: Node3D) -> void:
 	for name in ["Safe_brick"]:
 		var wall_node:=safe.find_child(name,true,false) as MeshInstance3D
@@ -387,8 +440,14 @@ func _apply_stone_to_safehouse(safe: Node3D) -> void:
 		var floor_node:=safe.find_child(name,true,false) as MeshInstance3D
 		if is_instance_valid(floor_node):
 			floor_node.material_override=_mat(Color("423f39"),0.92)
+	# The GLB ships the rug in a washed pink; repaint it as a proper red rug.
+	var rug_node:=safe.find_child("Safe_rug",true,false) as MeshInstance3D
+	if is_instance_valid(rug_node):
+		rug_node.material_override=_mat(Color("7d1616"),1.0)
 
 func _build_safehouse() -> bool:
+	if USE_STREET_LOBBY: return true   # nothing built: the street world shows through
+	if USE_CABIN_LOBBY and ResourceLoader.exists(CABIN_ASSET) and _build_cabin(): return true
 	if not ResourceLoader.exists(SAFEHOUSE_ASSET): return false
 	var packed:=load(SAFEHOUSE_ASSET) as PackedScene
 	if packed==null: return false
@@ -456,9 +515,17 @@ func _build_set_legacy() -> void:
 		var stain:=_box("Floor stain",Vector3(s[0],0.002,s[1]),Vector3(s[2],0.004,s[3]),Color("211f1b"),1.0)
 		stain.rotation.y=deg_to_rad(s[4])
 	# Tall warehouse shell: dark timber walls with an aged brick back wall (procedural).
-	var back_wall:=_box("Back wall",Vector3(0,2.75,-3.35),Vector3(9,5.5,.22),Color("382f27"),0.93)
+	# Back wall is built as four slabs so the two high windows are real openings: the sky and
+	# the rooftops outside are visible through them instead of a painted pane.
 	var legacy_stone:=_stone_mat(); legacy_stone.uv1_scale=Vector3(4.0,2.0,1.0)
-	back_wall.material_override=legacy_stone
+	for seg in [
+		[Vector3(0,1.45,-3.35), Vector3(9,2.9,.22)],      # below the windows
+		[Vector3(0,4.75,-3.35), Vector3(9,1.5,.22)],      # above them
+		[Vector3(-3.55,3.45,-3.35), Vector3(1.9,1.1,.22)],
+		[Vector3(0,3.45,-3.35), Vector3(3.2,1.1,.22)],
+		[Vector3(3.55,3.45,-3.35), Vector3(1.9,1.1,.22)]]:
+		var wall_seg:=_box("Back wall",seg[0],seg[1],Color("382f27"),0.93)
+		wall_seg.material_override=legacy_stone
 	_box("Left wall",Vector3(-4.4,2.75,0),Vector3(.20,5.5,7.4),Color("322b24"),0.93)
 	_box("Right wall",Vector3(4.4,2.75,0),Vector3(.20,5.5,7.4),Color("322b24"),0.93)
 	_box("Ceiling",Vector3(0,5.52,0),Vector3(9,.18,7.6),Color("241f1a"),0.95)
@@ -467,12 +534,15 @@ func _build_set_legacy() -> void:
 	for z in [-2.6,-0.6,1.4]: _box("Ceiling beam",Vector3(0,5.3,z),Vector3(8.8,.22,.18),Color("2e2620"),0.9)
 	_box("Baseboard",Vector3(0,0.07,-3.23),Vector3(8.8,.14,.05),Color("26221c"),0.95)
 	# High industrial windows leaking cold night — the only blue in a warm room.
+	# sky + rooftops seen through the openings
+	var sky:=_box("Night sky",Vector3(0,4.2,-7.4),Vector3(26,16,.1),Color("6d8bab"),1.0)
+	_glow(sky,Color("5b7896"),0.55)
+	for bx in [-6.0,-3.2,-0.6,2.0,5.4]:
+		_box("Roof block",Vector3(bx,2.4,-6.3),Vector3(1.7,4.8,.9),Color("22262e"),0.95)
 	for wx in [-2.1,2.1]:
-		_box("Window recess",Vector3(wx,3.45,-3.28),Vector3(1.0,1.1,.08),Color("16181a"),0.9)
-		var pane:=_box("Night pane",Vector3(wx,3.45,-3.26),Vector3(0.86,0.96,.02),Color("3d4f60"),0.4)
-		_glow(pane,Color("6b87a3"),1.1)
-		_box("Window mullion v",Vector3(wx,3.45,-3.24),Vector3(.04,0.96,.02),Color("16181a"),0.8)
-		_box("Window mullion h",Vector3(wx,3.45,-3.24),Vector3(.86,.04,.02),Color("16181a"),0.8)
+		_box("Window mullion v",Vector3(wx,3.45,-3.30),Vector3(.045,1.06,.05),Color("1b1a17"),0.8)
+		_box("Window mullion h",Vector3(wx,3.45,-3.30),Vector3(1.0,.045,.05),Color("1b1a17"),0.8)
+		_box("Window sill",Vector3(wx,2.88,-3.18),Vector3(1.12,.06,.16),Color("4a3b2a"),0.7)
 	var moon:=OmniLight3D.new(); moon.position=Vector3(-1.9,3.8,-2.5); moon.light_color=Color("7d9dbd")
 	moon.light_energy=1.0; moon.omni_range=5.0; add_child(moon)
 	# Mezzanine loft on the right with a plank railing — somebody sleeps up there.
@@ -532,12 +602,12 @@ func _build_set_legacy() -> void:
 	ember_light=OmniLight3D.new(); ember_light.position=Vector3(-0.32,0.85,-1.3); ember_light.light_color=Color("ff9e4e")
 	ember_light.light_energy=0.85; ember_light.omni_range=2.8; ember_base=0.85; add_child(ember_light)
 	# Big red rug underfoot — worn centre, dark border.
-	var rug:=_box("Old rug",Vector3(0.1,0.013,0.2),Vector3(2.7,.012,2.1),Color("5e2f26"),1.0); rug.rotation.y=deg_to_rad(2.0)
-	_box("Rug border",Vector3(0.1,0.004,0.2),Vector3(2.76,.006,2.16),Color("3f241d"),1.0).rotation.y=deg_to_rad(2.0)
-	_box("Rug inset",Vector3(0.1,0.021,0.2),Vector3(2.1,.003,1.55),Color("683730"),1.0).rotation.y=deg_to_rad(2.0)
-	_box("Rug medallion",Vector3(0.1,0.023,0.2),Vector3(.9,.002,.7),Color("57302a"),1.0).rotation.y=deg_to_rad(2.0)
+	var rug:=_box("Old rug",Vector3(0.1,0.013,0.2),Vector3(2.7,.012,2.1),Color("8e1b1b"),1.0); rug.rotation.y=deg_to_rad(2.0)
+	_box("Rug border",Vector3(0.1,0.004,0.2),Vector3(2.76,.006,2.16),Color("5c1010"),1.0).rotation.y=deg_to_rad(2.0)
+	_box("Rug inset",Vector3(0.1,0.021,0.2),Vector3(2.1,.003,1.55),Color("a02424"),1.0).rotation.y=deg_to_rad(2.0)
+	_box("Rug medallion",Vector3(0.1,0.023,0.2),Vector3(.9,.002,.7),Color("6d1414"),1.0).rotation.y=deg_to_rad(2.0)
 	for ws in [[-0.6,0.4],[0.65,-0.45],[0.25,0.65],[-0.3,-0.6]]:
-		_box("Rug wear",Vector3(0.1+ws[0],0.024,0.2+ws[1]),Vector3(.45,.002,.32),Color("4c2a22"),1.0).rotation.y=deg_to_rad(2.0+ws[0]*20.0)
+		_box("Rug wear",Vector3(0.1+ws[0],0.024,0.2+ws[1]),Vector3(.45,.002,.32),Color("7a1a1a"),1.0).rotation.y=deg_to_rad(2.0+ws[0]*20.0)
 	# Industrial lamp on a cord buzzing over the rug (bulb flicker channel).
 	_cyl("Lamp cord",Vector3(0.15,4.35,0.35),0.014,2.2,Color("17181a"),0.9)
 	var shade:=MeshInstance3D.new(); var smesh:=CylinderMesh.new(); smesh.top_radius=0.06; smesh.bottom_radius=0.24; smesh.height=0.2; smesh.radial_segments=24
@@ -595,7 +665,4 @@ func _build_set_legacy() -> void:
 	_cyl("Backpack roll",Vector3(-1.3,0.44,-2.5),0.07,0.24,Color("5c6148"),0.95).rotation.z=deg_to_rad(90)
 	# Cool rim light from the window side so the survivor reads against the gloom.
 	var rim:=OmniLight3D.new(); rim.position=Vector3(0.2,2.1,-2.4); rim.light_color=Color("5d7488")
-	rim.light_energy=0.4; rim.omni_range=3.5; add_child(rim)
-	# Gentle frontal fill so faces and hands stay readable in the gloom.
-	var fill:=OmniLight3D.new(); fill.position=Vector3(0,1.65,3.3); fill.light_color=Color("d9c9b8")
-	fill.light_energy=0.38; fill.omni_range=5.5; add_child(fill)
+	rim.light_energy=0.4; rim.omni_range=3.5; add_child(

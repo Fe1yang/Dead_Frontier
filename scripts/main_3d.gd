@@ -107,6 +107,19 @@ var sound: Node
 var hud: Control
 var revival_ads: Node
 var camera: Camera3D
+## Debug only: when true the run camera stops following so a probe can park it anywhere
+## (used to verify weapon/helmet placement at close range).
+var debug_camera_hold := false
+
+## Park the camera somewhere and keep it there. Debug helper for placement checks.
+func debug_camera_at(pos: Vector3, target: Vector3, fov := 40.0) -> void:
+	debug_camera_hold = true
+	camera.global_position = pos
+	camera.look_at(target, Vector3.UP)
+	camera.fov = fov
+
+func debug_camera_release() -> void:
+	debug_camera_hold = false
 var capture_close_cam:=false # freeze follow cam for close-up seat-fit screenshots
 var shop_truck: Node3D
 var lootbox_scene: Node3D
@@ -130,7 +143,9 @@ var owned_pets:={}            # pet index -> true
 ## Mason and Riley are free; Darius, Maya and the outfit skins are one-time store purchases.
 var owned_characters:={}      # char index -> true
 var owned_skins:={}           # lobby.SKINS index -> true
-var owned_vehicle:=""         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
+var owned_vehicle:=""
+## Lobby loadout switch. false = no vehicle and no pet in the run (testing).
+var loadout_on:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
 const VEHICLE_AUTO_RANGE:=1000.0 # bought bike auto-rides every run until this distance (or durability runs out)
 var vehicle_auto_active:=false
 var lobby_toast_key:="coming" # ShopText key the lobby toast shows
@@ -141,7 +156,7 @@ const PET_CRATE_CHANCE:=0.08
 const GEAR_CRATE_CHANCE:=0.22 # helmet / armour on a platform instead of a gun
 const BIKE_CRATE_CHANCE:=0.14  # a motorcycle: ride it, ram zombies, until it breaks apart
 ## Durability lost per zombie run down on the bike, by kind.
-const BIKE_RAM_COST:={"walker":8.0,"runner":6.0,"brute":22.0,"jockey":10.0,"banshee":18.0,"bomber_male":30.0,"bomber_female":30.0}
+const BIKE_RAM_COST:={"walker":8.0,"walker_b":8.0,"walker_c":8.0,"runner":6.0,"runner_b":6.0,"brute":22.0,"jockey":10.0,"banshee":18.0,"spitter":14.0,"bomber_male":30.0,"bomber_female":30.0}
 const BIKE_DECAY:=1.8           # durability per second — a careful ride lasts about a minute
 ## District 14's missile crater is a real hole in the road: it blocks the survivor and
 ## the horde instead of being a floor decal. Must match build_city_districts.py.
@@ -253,6 +268,12 @@ var lightning_timer:=6.0
 var lightning_t:=-1.0      # time since the current strike started (<0: none)
 var thunder_delay:=-1.0
 var weather_base:={}
+## Rain on the ground: a wet sheen plane over the road plus splash ripples.
+var wet_sheen: MeshInstance3D
+var wet_mat: StandardMaterial3D
+var wet_fade := 0.0
+var wet_target := 0.0
+var splash_accum := 0.0
 var force_sunset:=false # preview/testing only       # exposure / sun / ambient of the current weather, restored after a flash
 var shop_return_state:="cover"
 var shop_items: Array=[]
@@ -294,6 +315,14 @@ var kill_coins:={}       # kind -> coins earned from those kills
 var crate_timer:=3.0
 var roller_timer:=11.0   # rolling reward barrels: a new wave every few seconds
 var obstacles: Array=[]
+## Zombies playing their death fall: they still have to ride the scrolling road, or the
+## corpse looks like it slides backwards over the tarmac for a second.
+var dying_zombies: Array=[]
+## Venom globs in flight (spitter). Each one is a small mesh lobbed at where the survivor
+## stood when it was spat, so sidestepping dodges it.
+var venoms: Array=[]
+## Active vomit streams (spitter). Each one sprays for about a second and then splashes.
+var venom_streams: Array=[]
 var pickups: Array=[]
 var effects: Array=[]
 # Pooled effects (see _fx_spark_at etc.): a kill re-arms these instead of building
@@ -320,11 +349,6 @@ var phase_timer:=0.0        # calm countdown until the next wave
 var wave_quota:=0           # zombies still to spawn in this wave
 var wave_timeout:=0.0       # a stuck straggler can never hold the run hostage
 var wave_clear_banner:=0.0  # "WAVE CLEAR" banner timer
-## Screen-space confirmation for the buff taken at a gate: the gate itself is already
-## behind the camera at the instant it resolves, so its flare is invisible.
-var gate_toast:=0.0
-var gate_toast_text := ""
-var gate_toast_color := Color.WHITE
 var best_distance:=0
 ## The opening chase plays once; after that (saved locally) runs start straight away.
 var intro_seen:=false
@@ -717,6 +741,8 @@ func _process(delta: float) -> void:
 	if state in ["cover","loading","language","terms","controls"] or (state=="settings" and settings_return_state!="paused"):
 		camera.fov=52; _set_menu_scene(); return
 	if capture_close_cam: return
+	if debug_camera_hold:
+		return
 	camera.position.x=lerpf(camera.position.x,player.position.x*0.12,delta*3.0)
 	# While the beast is on the road the camera eases up and back so the pursuer rises
 	# into the lower frame as it closes in — and settles again once it loses the trail.
@@ -736,7 +762,6 @@ func _process(delta: float) -> void:
 	# Wave director: fight a wave, clear it, breathe, repeat. A wave ends when the road is
 	# clear rather than on a timer, so a clean sweep is rewarded with a longer breather.
 	wave_clear_banner=maxf(0.0,wave_clear_banner-delta)
-	gate_toast=maxf(0.0,gate_toast-delta)
 	if surge:
 		wave_timeout-=delta
 		if wave_quota<=0 and _living_zombies()==0: _end_wave(ramp)
@@ -811,7 +836,7 @@ func _process(delta: float) -> void:
 	for dog in companion_pets:
 		if is_instance_valid(dog): dog.tick(delta)
 	_scroll_extra(delta)
-	_tick_bullets(delta); _tick_ordnance(delta); _tick_barrels(delta); _tick_crates(delta); _tick_blood(delta); _tick_watchers(delta); _tick_zombies(delta); _resolve_barrel_collision(); _resolve_crater_collision(); _tick_obstacles(delta); _tick_gates(delta); _tick_pickups(delta); _tick_effects(delta); _tick_vehicle(delta)
+	_tick_bullets(delta); _tick_ordnance(delta); _tick_barrels(delta); _tick_crates(delta); _tick_dying_zombies(delta); _vehicle_smash(); _tick_venom(delta); _tick_blood(delta); _tick_rain(delta); _tick_watchers(delta); _tick_zombies(delta); _resolve_barrel_collision(); _resolve_crater_collision(); _tick_obstacles(delta); _tick_gates(delta); _tick_pickups(delta); _tick_effects(delta); _tick_vehicle(delta)
 	_tick_buffs(delta)
 	_tick_chase(delta)
 	if player.health<=0: _end_run()
@@ -948,7 +973,7 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 	player.reset(); player.apply_meta(meta_upgrades); player.set_aim(aim_direction)
 	# Bought motorcycle: every run starts already mounted for the first VEHICLE_AUTO_RANGE metres
 	# (it also breaks on durability as usual, whichever comes first).
-	vehicle_auto_active=owned_vehicle!=""
+	vehicle_auto_active=loadout_on and owned_vehicle!=""
 	if vehicle_auto_active:
 		player.mount_vehicle(owned_vehicle)
 	if automated:
@@ -960,7 +985,7 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 
 func _spawn_companion() -> void:
 	_cleanup_companions()
-	if not companion_pets.is_empty() or not pet_equipped or not pet_owned(pet_choice): return
+	if not companion_pets.is_empty() or not loadout_on or not pet_equipped or not pet_owned(pet_choice): return
 	_recruit_pet(pet_choice,player.position+(load("res://scripts/pet_companion_3d.gd") as GDScript).follow_offset(0))
 
 ## Drops freed dogs from the pack and keeps companion_pet pointing at the first dog.
@@ -1150,11 +1175,82 @@ func _roll_weather() -> String:
 	if roll<0.96: return "fog"     # 10%
 	return "storm"                 # 4%
 
+## Wet road for rain/storm: a dark, glossy sheet over the tarmac plus splash droplets.
+## True planar reflections are too expensive on phones, so the wet look comes from a very low
+## roughness sheet catching the sky and the street lights, which reads as a wet road.
+func _set_rain_surface(kind: String) -> void:
+	wet_target = 1.0 if kind in ["rain","storm"] else 0.0
+	if wet_sheen == null:
+		wet_sheen = MeshInstance3D.new()
+		var quad := PlaneMesh.new()
+		quad.size = Vector2(72.0, 120.0)
+		wet_sheen.mesh = quad
+		wet_mat = StandardMaterial3D.new()
+		wet_mat.albedo_color = Color(0.16, 0.19, 0.22, 0.0)
+		wet_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		wet_mat.roughness = 0.10
+		wet_mat.metallic = 0.45
+		wet_mat.metallic_specular = 0.9
+		wet_mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		wet_mat.depth_draw_mode = BaseMaterial3D.DEPTH_DRAW_DISABLED
+		wet_sheen.material_override = wet_mat
+		wet_sheen.position = Vector3(0, 0.035, -34.0)
+		add_child(wet_sheen)
+
+## One splash: a ring on the tarmac plus a few droplets.
+## Fade the wet sheet in/out and keep the tarmac speckled with splashes while it rains.
+func _tick_rain(delta: float) -> void:
+	if wet_sheen == null: return
+	wet_fade = move_toward(wet_fade, wet_target, delta * 1.2)
+	if wet_mat != null:
+		wet_mat.albedo_color.a = 0.34 * wet_fade
+		wet_mat.roughness = lerpf(0.85, 0.10, wet_fade)
+		wet_mat.metallic = lerpf(0.0, 0.45, wet_fade)
+	wet_sheen.visible = wet_fade > 0.02
+	if wet_fade > 0.35 and state == "playing":
+		splash_accum += delta
+		var step: float = 0.020 if weather == "storm" else 0.032
+		while splash_accum >= step:
+			splash_accum -= step
+			_spawn_rain_splash()
+
+func _spawn_rain_splash() -> void:
+	var x := rng.randf_range(-5.5, 5.5)
+	var z := rng.randf_range(-24.0, 3.0)
+	var p := Vector3(x, 0.04, z)
+	if rng.randf() < 0.55:
+		var ring := EffectScript.new()
+		ring.mode = "part"
+		ring.position = p
+		ring.velocity = Vector3.ZERO
+		ring.gravity = 0.0
+		ring.life = 0.32; ring.total_life = 0.32
+		ring.spin = Vector3.ZERO
+		var disc := MeshInstance3D.new()
+		var tm := TorusMesh.new()
+		tm.inner_radius = 0.07; tm.outer_radius = 0.115
+		disc.mesh = tm
+		var dm := StandardMaterial3D.new()
+		dm.albedo_color = Color(0.86, 0.92, 0.96, 0.72)
+		dm.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		dm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		disc.material_override = dm
+		disc.rotation.x = -PI * 0.5
+		ring.add_child(disc)
+		add_child(ring)
+		effects.append(ring)
+	for i in range(4):
+		_fx_spark_at(p + Vector3(rng.randf_range(-0.1,0.1), 0.0, rng.randf_range(-0.1,0.1)),
+			Color(0.82,0.88,0.92,0.7), 0.028,
+			Vector3(rng.randf_range(-0.6,0.6), rng.randf_range(1.0,1.8), rng.randf_range(-0.6,0.6)),
+			-9.0, rng.randf_range(0.28,0.42))
+
 func set_weather(kind: String) -> void:
 	weather=kind
 	if is_instance_valid(sound):
 		sound.storm=kind=="storm"
 		sound.set_rain(kind in ["rain","storm"])
+	_set_rain_surface(kind)
 	if world_env==null: return
 	# Neutral daytime key light; the distance cycle, not a random sunset, changes the hour.
 	var exposure:=0.82; var ambient:=Color("bdc7ca"); var ambient_energy:=0.46
@@ -2092,6 +2188,9 @@ const LOBBY_SLOTS:=8   # cards per tab; slots past the real survivors / dogs rea
 ## Start button: the gap above it (to the picker) equals the gap below it (to the screen edge).
 const LOBBY_START:=Rect2(66,860,408,76)
 const LOBBY_AD_RUN:=Rect2(482,860,48,76)
+## Loadout switch in the lobby: with every pack unlocked for testing, this is the only
+## way to start a vanilla run - no vehicle, no pet.
+const LOBBY_LOADOUT:=Rect2(12,860,48,76)
 const LOBBY_STRIP_Y:=732.0   # strip ends exactly where the start button begins (836)
 const LOBBY_STEP:=96.0
 const LOBBY_CARD:=Vector2(88,104)
@@ -2122,7 +2221,7 @@ func lobby_view_rect() -> Rect2:
 
 func lobby_item_count() -> int:
 	if lobby_tab==2: return maxi(LOBBY_SLOTS,lobby.SKINS.size())
-	if lobby_tab==3: return 5 # BIKE / SPORT / CRUISER / GOLD / TANK in the lobby vehicle tab
+	if lobby_tab==3: return 6 # BIKE / SPORT / CRUISER / GOLD / TANK / SEDAN in the lobby vehicle tab
 	return maxi(LOBBY_SLOTS,lobby.CHARACTERS.size()) if lobby_tab==0 else maxi(LOBBY_SLOTS,lobby.PETS.size())
 
 func lobby_max_scroll() -> float:
@@ -2132,6 +2231,7 @@ func lobby_card_rect(i: int) -> Rect2:
 	return Rect2(LOBBY_LEFT_X+i*LOBBY_STEP-lobby_scroll,LOBBY_STRIP_Y,LOBBY_CARD.x,LOBBY_CARD.y)
 
 func set_lobby_tab(t: int) -> void:
+	if t == 2: return   # the skins tab was removed
 	if t==lobby_tab: return
 	lobby_tab=t; lobby_scroll=0.0
 	lobby.focus_pets=t==1
@@ -2148,8 +2248,8 @@ func _lobby_release(pos: Vector2) -> void:
 				vehicle_choice=i; lobby.set_vehicle_visual(i)
 				# tapping an owned vehicle EQUIPS it: vehicle_choice is only the preview,
 				# so the run used to keep mounting whatever was stored before.
-				var vkey: String=String(["BIKE","SPORT","CRUISER","GOLD","TANK"][clampi(i,0,4)])
-				if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank"][clampi(i,0,4)])):
+				var vkey: String=String(["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN"][clampi(i,0,5)])
+				if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan"][clampi(i,0,5)])):
 					owned_vehicle=vkey; _save()
 			elif lobby_tab==2:
 				if i<lobby.SKINS.size(): select_skin(i)
@@ -2230,7 +2330,7 @@ func pet_owned(index: int) -> bool:
 ## Mason (0) and Riley (1) are free forever; everyone else is bought once in the store.
 func character_owned(index: int) -> bool:
 	if is_instance_valid(lobby) and (index<0 or index>=lobby.CHARACTERS.size()): return false
-	return index<=1 or owned_characters.has(index) or owned_characters.has(str(index))
+	return index<=0 or owned_characters.has(index) or owned_characters.has(str(index))
 
 ## A character's default look comes with the character; only the extra outfits cost money.
 func skin_owned(index: int) -> bool:
@@ -2249,7 +2349,7 @@ func vehicle_owned(id: String) -> bool:
 ## equipped name for saves written before store_owned existed.
 func vehicle_is_owned(id: String) -> bool:
 	if store_owned.has(id): return true
-	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER","vehicle_gold":"GOLD","vehicle_tank":"TANK"}
+	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER","vehicle_gold":"GOLD","vehicle_tank":"TANK","vehicle_sedan":"SEDAN"}
 	var vname: String=String(name_of.get(id,""))
 	return vname!="" and owned_vehicle==vname
 
@@ -2265,6 +2365,13 @@ func select_pet(index: int) -> void:
 	pet_choice=index; pet_equipped=true; lobby.show_pet(lobby.PETS[pet_choice].asset); _save()
 
 ## Every finished run lands back in the character lobby.
+## Lobby switch: take the whole loadout off, or put it back.
+func toggle_loadout() -> void:
+	loadout_on=not loadout_on
+	_save()
+	if is_instance_valid(lobby):
+		lobby.show_pet(lobby.PETS[pet_choice].asset if pet_equipped and loadout_on else "")
+
 func go_to_lobby() -> void:
 	_clear_world(); set_weather("clear"); player.visible=true
 	enter_lobby()
@@ -2324,6 +2431,11 @@ func buy_item(id: String) -> bool:
 	return false
 
 func _clear_world() -> void:
+	for body in dying_zombies:
+		if is_instance_valid(body): body.queue_free()
+	dying_zombies.clear()
+	venoms.clear()
+	venom_streams.clear()
 	if is_instance_valid(chaser): chaser.queue_free(); chaser=null
 	for dog in companion_pets:
 		if is_instance_valid(dog): dog.queue_free()
@@ -2432,6 +2544,23 @@ func _end_wave(ramp: float) -> void:
 	if is_instance_valid(player):
 		player.health=minf(player.max_health,player.health+player.max_health*lerpf(0.07,0.04,ramp))
 
+## Lobby zombies are off: the safehouse lobby shows no wanderers.
+var lobby_zombie_count := 0
+func _spawn_lobby_zombies() -> void:
+	# Clear whatever was left over first: a stray brute from a previous run would loom in
+	# the lobby and read as a "test" zombie.
+	for z in zombies.duplicate():
+		if is_instance_valid(z): z.queue_free()
+	zombies.clear()
+	for i in lobby_zombie_count:
+		_spawn_zombie(-11.0 - float(i) * 3.0, "walker")
+	var lane := 0
+	for z in zombies:
+		if is_instance_valid(z):
+			z.passive = true
+			z.position.x = clampf(-2.4 + float(lane), -2.4, 2.4)
+			lane += 1
+
 func _spawn_zombie(at_z:=-85.0,forced_kind:="") -> void:
 	# Health steps up per wave and stops at 2.1 (see _wave_difficulty): the late game gets
 	# harder through numbers and specials, not through bullet sponges.
@@ -2450,11 +2579,28 @@ func _spawn_zombie(at_z:=-85.0,forced_kind:="") -> void:
 			# bomber only after banshee tier, deep into the run (time-based, not unreachable distance)
 			if run_time>150.0 and roll>0.11 and roll<0.17 and _count_zombie_kind("bomber")+_count_zombie_kind("bomber_female")<2:
 				kind="bomber" if rng.randf()<0.5 else "bomber_female"
+			# Spitter: same late tier as the bomber, spits from a distance instead of closing in.
+			if run_time>95.0:
+				var spitter_p: float=clampf(0.05+(run_time-95.0)*0.0007,0.05,0.16)
+				if roll>0.52 and roll<0.52+spitter_p and _count_zombie_kind("spitter")<2: kind="spitter"
+			# Late game: plain walkers thin out, specials take over - but the walker never
+			# reaches zero, so the road still reads as a horde rather than a boss rush.
+			if run_time>150.0 and kind=="walker":
+				var special_bias: float=clampf((run_time-150.0)/240.0,0.0,0.45)
+				if rng.randf()<special_bias: kind="runner" if rng.randf()<0.55 else "jockey"
 			if jockey_introduced and run_time>50 and roll>0.36 and roll<0.43 and _count_zombie_kind("jockey")<2: kind="jockey"
 			# Banshee: rare at start, scales up with time. 1.5% at 110s -> up to ~8% late.
 			if run_time>110.0:
 				var banshee_p: float=clampf(0.015+(run_time-110.0)*0.00035,0.015,0.08)
 				if roll>1.0-banshee_p and _count_zombie_kind("banshee")<1: kind="banshee"
+	# Two male zombie bodies: roughly half of the plain walkers use the second model.
+	# Three male zombie bodies: plain, the second (black) and the third (Asian) model.
+	if kind=="walker":
+		var body_roll := rng.randf()
+		if body_roll < 0.30: kind="walker_b"
+		elif body_roll < 0.60: kind="walker_c"
+	# And two female runners, 40% of them use the second body.
+	if kind=="runner" and rng.randf()<0.40: kind="runner_b"
 	if kind=="jockey": jockey_introduced=true
 	elif kind=="banshee":
 		banshee_introduced=true
@@ -2499,7 +2645,7 @@ func _wants_to_fire() -> bool:
 	return true
 
 func _fire() -> bool:
-	if is_instance_valid(player) and player.vehicle=="TANK": return false  # cannon only
+	if is_instance_valid(player) and player.vehicle in ["TANK","SEDAN"]: return false  # cannon only / no guns in the car
 	if not player.can_fire(): return false
 	if player.weapon=="LAUNCHER": return _fire_launcher()
 	var sound_id: String=player.weapon.to_lower()
@@ -2676,9 +2822,62 @@ func _detonate_ordnance(projectile: Node3D) -> void:
 		for crate in crates:
 			if not crate.broken and _flat_distance(crate.position,center)<radius and crate.take_hit(99999): _break_crate(crate)
 
+## Spitter venom: a thick stream of vomit hosed at the survivor, not a single lobbed glob.
+## It keeps coming for ~1.2 s, so standing still in it hurts and stepping aside dodges it.
+func _start_venom_stream(z: Node3D) -> void:
+	venom_streams.append({"z":z, "t":0.0, "dur":1.25, "aim":player.position+Vector3(0,0.9,0), "tick":0.0, "shown":false})
+
+func _tick_venom(delta: float) -> void:
+	if venom_streams.is_empty(): return
+	for i in range(venom_streams.size()-1,-1,-1):
+		var s: Dictionary=venom_streams[i]
+		var z: Node3D=s["z"] as Node3D
+		s["t"]=float(s["t"])+delta
+		if not is_instance_valid(z) or float(s["t"])>float(s["dur"]):
+			# the last of it lands: acid splash where it was aimed
+			_venom_splash(s["aim"] as Vector3)
+			venom_streams.remove_at(i)
+			continue
+		var mouth: Vector3=z.position+Vector3(0,1.52,-0.22)
+		var aim: Vector3=s["aim"] as Vector3
+		var dir: Vector3=(aim-mouth).normalized()
+		# Thick, uneven, yellow-green: drops for the spray and small chunks for the body of it.
+		for k in range(6):
+			var wobble:=Vector3(randf_range(-0.5,0.5), randf_range(-0.25,0.55), randf_range(-0.2,0.2))
+			var vel: Vector3=dir*randf_range(8.5,13.5)+wobble
+			var hue: Color=Color("b9d94a").lerp(Color("6f9a1e"),randf())
+			_fx_drop_at(mouth+Vector3(randf_range(-0.14,0.14),randf_range(-0.06,0.06),0),hue,
+				randf_range(0.05,0.095),vel,-11.0,randf_range(0.32,0.52))
+			if k<2:
+				_fx_spark_at(mouth,hue.darkened(0.15),0.08,vel*0.85,-9.0,randf_range(0.3,0.45))
+		s["tick"]=float(s["tick"])+delta
+		if float(s["tick"])>=0.32:
+			s["tick"]=0.0
+			if _flat_distance(player.position,aim)<1.6 and revive_invulnerable<=0.0:
+				_hurt_player(4.0)
+				if not bool(s["shown"]):
+					s["shown"]=true
+					_popup(player.position+Vector3(0,2.3,0),RunText.text("venom"),Color("b9d94a"))
+
+## Acid hitting the tarmac: green spray, a heavy pool and a little damage if you stand in it.
+func _venom_splash(at: Vector3) -> void:
+	_burst(at+Vector3(0,0.15,0),Color("a8ea4a"),20)
+	_burst(at+Vector3(0,0.10,0),Color("4e8a1d"),14)
+	_burst(at+Vector3(0,0.05,0),Color("2f5c12"),8)
+	for k in range(10):
+		_fx_drop_at(at+Vector3(randf_range(-0.5,0.5),0.1,randf_range(-0.4,0.4)),
+			Color("8fbf35").lerp(Color("557c17"),randf()),randf_range(0.06,0.1),
+			Vector3(randf_range(-2.2,2.2),randf_range(1.6,3.4),randf_range(-1.2,1.2)),-10.0,randf_range(0.4,0.7))
+	shake=maxf(shake,0.18)
+	if _flat_distance(player.position,at)<1.15 and revive_invulnerable<=0.0:
+		_hurt_player(7.0)
+
 func _tick_zombies(delta: float) -> void:
 	for i in range(zombies.size()-1,-1,-1):
 		var z=zombies[i]; z.tick(delta)
+		if String(z.kind)=="spitter" and z.get("spit_ready")==true:
+			z.set("spit_ready",false)
+			if z.position.z<-2.0 and z.position.z>-34.0: _start_venom_stream(z as Node3D)
 		var burn_damage: float=z.consume_burn_damage_number()
 		if burn_damage>0.0: _damage_number(z,burn_damage,Color("ff8a4f"))
 		if z.dead:
@@ -2708,6 +2907,9 @@ func _tick_zombies(delta: float) -> void:
 				# Riding: the survivor runs the zombie down instead of getting bitten.
 				# _ram_zombie kills via _hit_zombie, which already erases and frees it.
 				_ram_zombie(z)
+			elif z.passive:
+				# lobby walker: it just shuffles past, no bite
+				continue
 			else:
 				_hurt_player(z.damage); _burst(z.position+Vector3(0,1,0),Color("91a85c"),8); zombies.remove_at(i); z.queue_free()
 		elif z.position.z>13: zombies.remove_at(i); z.queue_free()
@@ -2821,9 +3023,21 @@ func _hit_zombie(z: Node3D,amount: float,part:="torso",hit_position:=Vector3.ZER
 		if String(z.kind).begins_with("bomber"):
 			_bomber_blast(zp)
 		else:
-			_blood_spray(hit_position,28 if part=="head" else 20); _burst(hit_position,Color("78935c"),5); _dismember(z,part)
+			_blood_spray(hit_position,28 if part=="head" else 20); _burst(hit_position,Color("78935c"),5)
+			_dismember(z,part)
 			_blood_splatter(Vector3(zp.x,zp.y,zp.z),rng.randf_range(2.2,3.2)*(1.4 if z.kind=="brute" else 1.0),true)
-		zombies.erase(z); watchers.erase(z); z.queue_free()
+		var roadside: bool=watchers.has(z)
+		zombies.erase(z); watchers.erase(z)
+		if roadside:
+			# The watchers never move, so a fall reads perfectly and cannot slide.
+			z.die()
+			dying_zombies.append(z)
+			get_tree().create_timer(1.15).timeout.connect(func():
+				if is_instance_valid(z): z.queue_free())
+		else:
+			# Road zombies burst away: a body lying on the scrolling road either slides or
+			# sinks into the tarmac, and the user asked for the blast look instead.
+			z.queue_free()
 	else:
 		sound.play("hit"); _blood_spray(hit_position,7)
 		if rng.randf()<0.5: _blood_splatter(Vector3(z.global_position.x,0.0,z.global_position.z),rng.randf_range(0.7,1.2),false)
@@ -3240,8 +3454,8 @@ func _tick_gates(delta: float) -> void:
 				player.apply_upgrade(choice.id,float(choice.get("value",-1)))
 				sound.play("gate")
 				var taken: String=String(choice.label[1]) if choice.has("label") else String(choice.detail)
+				# One confirmation only: the floating line above the head, like a coin pickup.
 				_popup(player.position+Vector3(0,2.6,0),taken,g.chosen_color().lightened(0.3))
-				gate_toast_text=taken; gate_toast_color=g.chosen_color().lightened(0.45); gate_toast=2.2
 		if g.fade<=0 or g.position.z>14: gates.remove_at(i); g.queue_free()
 
 func _spawn_barrel() -> void:
@@ -3308,6 +3522,7 @@ func _spawn_crates() -> void:
 		elif player.vehicle=="" and rng.randf()<BIKE_CRATE_CHANCE: id="BIKE"
 		elif player.vehicle=="" and rng.randf()<0.06: id="SPORT"
 		elif player.vehicle=="" and rng.randf()<0.06: id="CRUISER"
+		elif player.vehicle=="" and rng.randf()<0.06: id="SEDAN"
 		crate.setup(id,_crate_hits(id)); crate.position=Vector3(x,0,z); add_child(crate); crates.append(crate)
 
 ## ---- Rolling reward barrels --------------------------------------------------------------
@@ -3350,8 +3565,8 @@ func _roller_id() -> String:
 	var roll:=rng.randf()
 	if roll<0.20:
 		return "PET_%d"%rng.randi_range(0,lobby.PETS.size()-1)
-	if roll<0.42 and player.vehicle=="":
-		var v: Array=["BIKE","SPORT","CRUISER"]
+	if roll<0.50 and player.vehicle=="":
+		var v: Array=["BIKE","SPORT","CRUISER","SEDAN"]
 		return String(v[rng.randi_range(0,v.size()-1)])
 	var choices: Array=CRATE_WEAPONS.duplicate(); choices.erase(player.weapon)
 	return String(choices[rng.randi_range(0,choices.size()-1)])
@@ -3387,9 +3602,23 @@ func _break_crate(crate: Node3D) -> void:
 	if crate.weapon_id=="CRUISER":
 		player.mount_vehicle("CRUISER"); sound.play("gate")
 		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
+	if crate.weapon_id=="SEDAN":
+		player.mount_vehicle("SEDAN"); sound.play("gate")
+		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
 	# Swap immediately on break; the flying gun is only the visual of it landing in your hands.
 	player.stowed={}; player.set_weapon(crate.weapon_id); sound.play("gate")
 	_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("7fd2ff"))
+
+## Fallen bodies ride the scrolling road exactly like obstacles do, otherwise the corpse
+## appears to skate backwards while the tarmac moves under it.
+func _tick_dying_zombies(delta: float) -> void:
+	if dying_zombies.is_empty(): return
+	var step: float=3.5*(player.effective_move_mult() if is_instance_valid(player) else 1.0)*delta
+	for i in range(dying_zombies.size()-1,-1,-1):
+		var body=dying_zombies[i]
+		if not is_instance_valid(body): dying_zombies.remove_at(i); continue
+		body.position.z+=step
+		if body.position.z>14.0: dying_zombies.remove_at(i); body.queue_free()
 
 func _tick_crates(delta: float) -> void:
 	var hand: Vector3=player.position+Vector3(0,1.25,0.1)
@@ -3408,6 +3637,68 @@ func _tick_crates(delta: float) -> void:
 		if c.arrived or (c.broken and c.flight>1.5):
 			crates.remove_at(i); c.queue_free(); continue
 		if not c.broken and c.position.z>13: crates.remove_at(i); c.queue_free()
+
+## Wood splinters, dust and a short camera kick when a vehicle ploughs a crate or a barrel.
+## Generic "it came apart": duplicate the prop's own body and throw it, so any model breaks
+## (the rolling barrel keeps its shell under "body"; its mesh names are generated garbage).
+func _fly_apart(target: Node3D) -> void:
+	var src: Node3D=target.get("body") as Node3D
+	if not is_instance_valid(src): src=target.get("model") as Node3D
+	if not is_instance_valid(src): src=target
+	var shell: Node3D=src.duplicate() as Node3D
+	if shell==null: return
+	shell.transform=Transform3D(Basis.IDENTITY, Vector3.ZERO)
+	var center: Vector3=target.global_position+Vector3(0,0.5,0)
+	var e:=EffectScript.new()
+	e.mode="part"
+	e.position=center
+	e.velocity=Vector3(rng.randf_range(-1.6,1.6), rng.randf_range(2.6,4.0), rng.randf_range(-0.8,1.4))
+	e.gravity=-9.0; e.life=1.2; e.total_life=1.2
+	e.spin=Vector3(rng.randf_range(-5,5), rng.randf_range(-4,4), rng.randf_range(-5,5))
+	e.add_child(shell)
+	add_child(e)
+	effects.append(e)
+
+func _smash_wood(at: Vector3) -> void:
+	var p: Vector3=at+Vector3(0,0.62,0)
+	_burst(p,Color("8a6a3f"),24)   # splintered planks
+	_burst(p,Color("d8b070"),12)   # pale inner wood
+	_burst(p,Color("2a2118"),8)    # dirt and shadow
+	shake=maxf(shake,0.34)
+	if is_instance_valid(sound): sound.play("pickup")
+
+## Whatever a vehicle drives through is harvested on contact: a platform hands over its
+## weapon / pet / vehicle and a barrel spills its item, both with the wood smash.
+func _vehicle_smash() -> void:
+	if not is_instance_valid(player) or player.vehicle=="": return
+	# Only what is actually under the body counts: the saloon is 4 m long, the tank ~2.4 m.
+	# The old box reached 1.3 m behind the player and two lanes wide, which hoovered items
+	# up before the car touched them.
+	var half_width: float=0.90 if player.vehicle=="SEDAN" else 0.62
+	var front: float=-3.72 if player.vehicle=="SEDAN" else -1.32
+	var rear: float=0.24
+	for c in crates.duplicate():
+		if not is_instance_valid(c) or c.broken: continue
+		# Real box overlap with the platform's own footprint, not a magic radius.
+		var cw: float=float(c.half_extents.x); var cd: float=float(c.half_extents.y)
+		if absf(c.position.x-player.position.x)>half_width+cw: continue
+		if c.position.z+cd<front or c.position.z-cd>rear: continue
+		if c.has_method("is_roller"):
+			# Rolling barrel: the shell is thrown apart and the item is collected at once,
+			# so nothing is left on the road to look like it rolls backwards.
+			_smash_wood(c.position); _fly_apart(c); _break_crate(c)
+		else:
+			_smash_wood(c.position)
+			if c.take_hit(99999): _break_crate(c)
+	for b in barrels.duplicate():
+		if not is_instance_valid(b) or b.dead: continue
+		if absf(b.position.x-player.position.x)>half_width+0.30: continue
+		if b.position.z+0.30<front or b.position.z-0.30>rear: continue
+		# An explosive barrel is explosive: ramming it sets it off for real. The blast hits
+		# the vehicle's durability first, so the car survives a hit the survivor would not.
+		barrels.erase(b)
+		_explode(b)
+		return
 
 func _tick_barrels(delta: float) -> void:
 	for i in range(barrels.size()-1,-1,-1):
@@ -3441,6 +3732,7 @@ func _crater_z() -> float:
 func _resolve_crater_collision() -> void:
 	var cz: float=_crater_z()
 	if cz==INF: return
+	if player.vehicle=="SEDAN": return   # drives over the crater lip
 	var dz: float=player.position.z-cz
 	var minimum: float=CRATER_RADIUS+0.32
 	if absf(dz)>=minimum or absf(player.position.x-CRATER_X)>=minimum: return
@@ -3562,7 +3854,7 @@ func _tick_obstacles(delta: float) -> void:
 	for i in range(obstacles.size()-1,-1,-1):
 		var obstacle=obstacles[i]
 		obstacle.tick(delta)
-		if obstacle.overlaps(player.position):
+		if obstacle.overlaps(player.position) and player.vehicle!="SEDAN":  # the car ploughs through wrecks
 			var clearance: float=obstacle.half_extents.x+0.43
 			var left: float=clampf(obstacle.position.x-clearance,-3.15,3.15)
 			var right: float=clampf(obstacle.position.x+clearance,-3.15,3.15)
@@ -3610,14 +3902,24 @@ func _obstacle_avoid_side(z: Node3D,obstacle: Node3D) -> float:
 		side=-1.0 if left_room>right_room else 1.0
 	return side
 
+## The barrel's own model thrown apart: cap, rings and staves. This is the "it just came
+## apart" look; the vehicle smash uses it too, minus the blast damage.
+func _barrel_debris(barrel: Node3D) -> void:
+	var center:=barrel.position+Vector3(0,0.55,0)
+	var model: Node3D=barrel.get("model") as Node3D
+	if is_instance_valid(model):
+		_spawn_part(model,["Cap"],center,Vector3(0.8,4.0,0.2))
+		_spawn_part(model,["Ring"],center,Vector3(-1.5,2.8,0.4))
+		_spawn_part(model,["Barrel"],center,Vector3(1.8,2.2,-0.3))
+	_burst(center,Color("8a6a3f"),22)
+	_burst(center,Color("c9a163"),12)
+	shake=maxf(shake,0.42)
+
 func _explode(barrel: Node3D) -> void:
 	barrel.dead=true; sound.play("explosion"); shake=1.0
 	if OS.get_name()=="iOS": Input.vibrate_handheld(200,0.85)
 	var center:=barrel.position+Vector3(0,0.55,0)
-	# Debris and the custom blast are spawned together, with no delayed stock VFX.
-	_spawn_part(barrel.model,["Cap"],center,Vector3(0.8,4.0,0.2))
-	_spawn_part(barrel.model,["Ring"],center,Vector3(-1.5,2.8,0.4))
-	_spawn_part(barrel.model,["Barrel"],center,Vector3(1.8,2.2,-0.3))
+	_barrel_debris(barrel)
 	_custom_explosion(center)
 	_burst(center,Color("ffd275"),18); _fire_spray(center)
 	if _flat_distance(player.position,barrel.position)<3.25:
@@ -4015,13 +4317,15 @@ func _pointer_down(pos: Vector2) -> bool:
 		if offer_active() and OFFER_BADGE.has_point(pos): open_offer(); return true
 		# Main screen (see hud._draw_character_select): one scrolling column on the left with
 		# 角色 / 宠物 tabs; the survivor and the pet stand together on the platform.
-		for t in range(4):
-			if lobby_tab_rect(t).has_point(pos): set_lobby_tab(t); return true
+		for tab_i in [0, 1, 3]:
+			if lobby_tab_rect(tab_i).has_point(pos): set_lobby_tab(tab_i); return true
 		for side in [-1,1]:
 			if lobby_page_visible(side) and lobby_page_rect(side).has_point(pos): lobby_page(side); return true
 		if lobby_view_rect().has_point(pos): lobby_press=pos; lobby_dragged=false; return true
 		if LOBBY_AD_RUN.grow(8).has_point(pos) and not ad_run_used and stamina.value<stamina.RUN_COST:
 			request_reward_ad("free_run"); return true
+		if LOBBY_LOADOUT.has_point(pos):
+			toggle_loadout(); return true
 		if LOBBY_START.has_point(pos):
 			if stamina.value>=stamina.RUN_COST: _begin_loading("run")
 			else: store_toast_text=StoreCatalog.text(language_code,"no_cans"); store_toast=2.4
@@ -4113,7 +4417,7 @@ func _load_save() -> void:
 	for f in ["--smoke-test","--soak-test","--lootbox-test","--stamina-test","--capture","--capture-medic","--capture-bike"]:
 		if f in OS.get_cmdline_user_args(): isolated=true; break
 	if not isolated and (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK):
-		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2); quality_high=bool(c.get_value("display","quality_high",true)); owned_vehicle=str(c.get_value("vehicles","owned",""))
+		best_distance=int(c.get_value("run","best",0)); character_choice=int(c.get_value("run","character",0)); skin_choice=c.get_value("run","skins",{}); pet_choice=clampi(int(c.get_value("run","pet",0)),0,3); pet_equipped=bool(c.get_value("run","pet_equipped",false)); owned_pets=c.get_value("pets","owned",{}) if int(c.get_value("pets","rules",0))>=2 else {}; mail_claimed=c.get_value("mail","claimed",{}); airdrop_day=str(c.get_value("airdrop","day","")); intro_seen=bool(c.get_value("run","intro_seen",false)) or best_distance>0; ad_run_used=bool(c.get_value("run","ad_run_used",false)); auto_reload=bool(c.get_value("gameplay","auto_reload_v3",true)); text_size=clampi(int(c.get_value("display","text_size",1)),0,2); quality_high=bool(c.get_value("display","quality_high",true)); owned_vehicle=str(c.get_value("vehicles","owned","")); loadout_on=bool(c.get_value("run","loadout_on",true))
 		if owned_vehicle=="CAR": owned_vehicle="CRUISER" # old save name for the third bike
 		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
 		terms_accepted=bool(c.get_value("legal","terms_v1",false))
@@ -4159,7 +4463,7 @@ func _read_muted() -> bool:
 	return bool(c.get_value("audio","muted",false)) if (c.load(SAVE_PATH)==OK or c.load(SAVE_PATH_LEGACY)==OK) else false
 func _save() -> void:
 	if "--smoke-test" in OS.get_cmdline_user_args() or "--soak-test" in OS.get_cmdline_user_args() or "--lootbox-test" in OS.get_cmdline_user_args() or "--stamina-test" in OS.get_cmdline_user_args() or "--capture" in OS.get_cmdline_user_args() or "--capture-medic" in OS.get_cmdline_user_args() or "--capture-bike" in OS.get_cmdline_user_args(): return # test and capture runs must never touch the player's real save
-	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("display","quality_high",quality_high); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
+	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("run","loadout_on",loadout_on); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("display","quality_high",quality_high); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
 	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","silver",bank_silver); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","ads_offer_shows",ads_offer_shows); c.set_value("store","iap_ledger",iap_ledger.keys()); c.set_value("legal","terms_v1",terms_accepted)
 	c.set_value("can_ads","day",can_ad_day); c.set_value("can_ads","count",can_ad_count)
 	c.set_value("offer","id",offer_id); c.set_value("offer","expires",offer_expires); c.set_value("offer","next",next_offer_at); c.set_value("offer","play_day",play_day); c.set_value("offer","play_seconds",play_seconds_today)
@@ -5002,7 +5306,7 @@ const DEV_UNLOCK_ALL:=true
 func _dev_unlock_all() -> void:
 	# Also requires the dev_unlock custom feature in export_presets.cfg, so a
 	# normal build never grants the paid content.
-	if not DEV_UNLOCK_ALL or not OS.has_feature("dev_unlock"): return
+	if not DEV_UNLOCK_ALL or not (OS.has_feature("dev_unlock") or OS.has_feature("editor")): return
 	for p in StoreCatalog.PACKS:
 		if bool(p.get("once",false)): store_owned[String(p.id)]=true
 		if p.has("char"): owned_characters[int(p.char)]=true

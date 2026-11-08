@@ -108,7 +108,7 @@ func _ready() -> void:
 	clean=Control.new(); clean.mouse_filter=Control.MOUSE_FILTER_IGNORE
 	clean.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(clean); clean.draw.connect(_draw_clean)
-	portraits=[load("res://assets/ui/male_hd_portrait.png"),load("res://assets/ui/riley_hd_portrait.png"),load("res://assets/ui/medic_hd_portrait.png"),load("res://assets/ui/maya_hd_portrait.png"),load("res://assets/ui/jian_hd_portrait.png")]
+	portraits=[load("res://assets/ui/male_hd_portrait.png"),load("res://assets/ui/riley_hd_portrait.png"),load("res://assets/ui/medic_hd_portrait.png"),load("res://assets/ui/maya_hd_portrait.png")]
 	pet_portraits=[load("res://assets/ui/pets/doberman.png"),load("res://assets/ui/pets/german_shepherd.png"),load("res://assets/ui/pets/czech_wolfdog.png"),load("res://assets/ui/pets/tibetan_mastiff.png")]
 	airdrop_tex=load("res://assets/ui/airdrop.png") if ResourceLoader.exists("res://assets/ui/airdrop.png") else null
 	can_tex=load("res://assets/ui/currency/can.png")
@@ -306,13 +306,6 @@ func _draw_hud() -> void:
 		var c: float=minf(1,game.wave_clear_banner)
 		draw_rect(Rect2(214,214,112,3),Color(0.38,0.62,0.24,c))
 		_text_center(game.localize("wave_cleared"),Vector2(270,256),26,Color(WHITE.r,WHITE.g,WHITE.b,c))
-	if game.gate_toast>0.0:
-		# What the gate actually gave you, in plain text, for two seconds.
-		var t: float=clampf(game.gate_toast,0.0,1.0)
-		var gcol: Color=game.gate_toast_color
-		draw_rect(Rect2(120,288,300,32),Color(0.02,0.03,0.03,0.6*t))
-		draw_rect(Rect2(120,288,300,32),Color(gcol.r,gcol.g,gcol.b,0.55*t),false,1.0)
-		_text_center(game.gate_toast_text,Vector2(270,304),17,Color(gcol.r,gcol.g,gcol.b,t))
 	if game.chase_active:
 		# Chase segment: flashing red banner and a proximity bar that drains as the beast closes in.
 		var pulse: float=0.70+0.30*sin(Time.get_ticks_msec()/90.0)
@@ -646,6 +639,17 @@ func _volume_slider(track: Rect2,label: String,value: float) -> void:
 	draw_circle(knob,14,WHITE); draw_circle(knob,8,slider_red)
 	clean_ops.append(["text",bold,Vector2(track.end.x+12,track.get_center().y+7),"%d%%"%roundi(value*100.0),_scaled(17),WHITE])
 
+## Small switch left of START: ON = the chosen vehicle is taken into the run, OFF = a vanilla
+## run with no vehicle at all (the point of a fully unlocked test build).
+func _loadout_toggle(r: Rect2) -> void:
+	var on: bool=game.loadout_on
+	_box(r,Color(0.05,0.058,0.062,0.94))
+	_frame(r,Color(1.0,0.82,0.45,0.85) if on else Color(1,1,1,0.16),1.0)
+	_clean_center(bold,Vector2(r.get_center().x,r.position.y+26),"GEAR",9,WHITE if on else Color(1,1,1,0.40),false)
+	_clean_center(bold,Vector2(r.get_center().x,r.end.y-15),"ON" if on else "OFF",17,Color("ffd27a") if on else Color(1,1,1,0.45),false)
+	if not on:
+		clean_ops.append(["line",PackedVector2Array([r.position+Vector2(11,15),r.end-Vector2(11,15)]),Color("e0453d"),2.5])
+
 func _draw_character_select() -> void:
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the
 	# frame: one column on the left with 角色 / 宠物 tabs over a vertically scrolling list.
@@ -669,9 +673,9 @@ func _draw_character_select() -> void:
 		_side_button(game.SIDE_MAP,"map",ExtraText.text(lang,"map"),false)
 		_airdrop_button(lang)
 	_gear_icon(game.LOBBY_GEAR.get_center(),0.72)
-	for t in range(4):
+	for t in [0, 1, 3]:
 		var tab: Rect2=game.lobby_tab_rect(t); var tab_on: bool=game.lobby_tab==t
-		_text_center("载具" if t==3 else (ExtraText.text(lang,"skins") if t==2 else ShopText.text(lang,"chars" if t==0 else "pets")),Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
+		_text_center("载具" if t==3 else ShopText.text(lang,"chars" if t==0 else "pets"),Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
 	# Perk tag for the selected survivor, right of the tabs (only Darius has one for now).
 	if game.lobby_tab==0 and game.character_choice<game.lobby.CHARACTERS.size():
 		var perk_key: String=String(game.lobby.CHARACTERS[game.character_choice].get("perk",""))
@@ -695,7 +699,7 @@ func _draw_character_select() -> void:
 			for ci in range(game.lobby_item_count()):
 				if not (game.lobby_card_rect(ci) as Rect2).has_point(mpl): continue
 				if game.lobby_tab==3:
-					var vp: Dictionary=game.pack_by_id(["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank"][clampi(ci,0,3)])
+					var vp: Dictionary=game.pack_by_id(["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank","vehicle_sedan"][clampi(ci,0,5)])
 					if not vp.is_empty():
 						var vk2: String=String(vp.get("name","bike"))
 						_info_tip(mpl,StoreCatalog.text(lang,vk2),StoreCatalog.text(lang,"vehicles"),StoreCatalog.text(lang,vk2+"_desc"))
@@ -727,6 +731,7 @@ func _draw_character_select() -> void:
 		if tk in ["pet_locked","char_locked","skin_locked","stay_tuned","airdrop_tomorrow"]: _panel(Rect2(270-tw*0.5,600,tw,46),Color(0.02,0.025,0.026,0.92*a),Color(RED,a),0)
 		_text_center(tt,Vector2(270,630),16,Color(1,1,1,a))
 	var can_start: bool=game.stamina.value>=game.stamina.RUN_COST
+	_loadout_toggle(game.LOBBY_LOADOUT)
 	_button(game.LOBBY_START,game.localize("start")+"   ›",can_start)
 	# Cost ON the red START button (right side, same size as wallet can above): can-icon + "-10".
 	var cost_txt: String="-%d"%game.stamina.RUN_COST
@@ -753,9 +758,9 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
 	if game.lobby_tab==3:
 		# Vehicle card: same anatomy as the pet/skin cards - art, lock overlay, name.
-		var vi: int=clampi(i,0,4)
-		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank"]
-		var vnames: Array=["BIKE","SPORT","CRUISER","GOLD","TANK"]
+		var vi: int=clampi(i,0,5)
+		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank","vehicle_sedan"]
+		var vnames: Array=["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN"]
 		var vid: String=String(vids[vi])
 		var von: bool=game.vehicle_owned(String(vnames[vi]))
 		var vsel: bool=von or game.vehicle_choice==vi
@@ -776,7 +781,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 				clean_ops.append(["line",varc,Color(1,1,1,0.9),3.0])
 				_box(Rect2(vlc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
 		if whole:
-			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold","tank"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if von else MUTED)
+			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold","tank","sedan"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if von else MUTED)
 			if von: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 		return
 	var pets: bool=game.lobby_tab==1

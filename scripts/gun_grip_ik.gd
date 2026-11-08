@@ -16,6 +16,8 @@ extends SkeletonModifier3D
 ## Character-specific posture trim: Mason, Riley, Darius, Maya. The shared run clip
 ## pushes the chest and clavicles too far forward; correct it before solving the arms.
 @export var character:=0
+## One-handed stance: only the firing arm is solved, the support arm keeps its clip pose.
+@export var single_hand:=false
 
 var b:={}
 var lengths:={}
@@ -136,6 +138,11 @@ func _process_modification() -> void:
 	var want_r:=chest+fwd*(depth+forward_push)+down*grip_drop-side_axis*firing_side
 	var want_l:=want_r+fwd*support_reach+down*support_level+side_axis*hand_gap
 	grip_point=_reach(sk,"r",want_r,-side_axis*0.8+down*0.6,palm_roll_r,fwd)
+	if single_hand:
+		# the support hand keeps whatever the animation is doing, and the weapon only rides the
+		# firing hand, so the gun ends up exactly in the visible palm
+		support_point=grip_point
+		return
 	support_point=_reach(sk,"l",want_l,side_axis*0.8+down*0.6,palm_roll_l,fwd)
 
 ## Solves so the visible hand (bone + mesh offset) lands on `want`; returns where it landed.
