@@ -2667,7 +2667,6 @@ func _vehicle_breakdown() -> void:
 ## Wear and the warning smoke. Under 30 durability the engine coughs gray puffs and sparks.
 var vehicle_smoke:=0.0
 var cannon_cd:=0.0
-var gold_spark:=0.0
 var vehicle_dust:=0.0
 func _tick_vehicle(delta: float) -> void:
 	if player.vehicle=="": return
@@ -2681,16 +2680,6 @@ func _tick_vehicle(delta: float) -> void:
 		if cannon_cd<=0.0:
 			cannon_cd=CANNON_PERIOD
 			_fire_cannon()
-	# GOLD: the paint throws off little gold glints while it rides.
-	if player.vehicle=="GOLD":
-		gold_spark-=delta
-		if gold_spark<=0.0:
-			gold_spark=0.05
-			var gs:=EffectScript.new()
-			gs.position=player.position+Vector3(rng.randf_range(-0.42,0.42),rng.randf_range(0.35,1.05),rng.randf_range(-0.75,0.75))
-			gs.velocity=Vector3(rng.randf_range(-0.25,0.25),rng.randf_range(0.25,0.9),rng.randf_range(-0.2,0.2))
-			gs.gravity=-0.15; gs.life=0.5; gs.total_life=0.5
-			add_child(gs); gs.make_spark(Color(1.0,0.86,0.42),rng.randf_range(0.03,0.08)); effects.append(gs)
 	player.vehicle_durability-=BIKE_DECAY*delta
 	vehicle_dust-=delta
 	if vehicle_dust<=0.0:

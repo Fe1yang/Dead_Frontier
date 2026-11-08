@@ -232,6 +232,16 @@ func mount_vehicle(id: String) -> void:
 	add_child(vehicle_model); ModelFix.double_sided(vehicle_model)
 	# the tank GLB faces +Z; the survivor runs -Z, so turn the hull around
 	hide_rider=(id=="TANK")
+	# GOLD: reflective paint - high metallic + low roughness lets the sky light
+	# run along the bodywork instead of faking it with particles.
+	if id=="GOLD":
+		for mi in vehicle_model.find_children("*","MeshInstance3D",true,false):
+			var m2:=mi as MeshInstance3D
+			if m2==null or m2.mesh==null: continue
+			for s2 in range(m2.mesh.get_surface_count()):
+				var bm:=m2.mesh.surface_get_material(s2) as BaseMaterial3D
+				if bm!=null:
+					bm.metallic=0.95; bm.roughness=0.18; bm.metallic_specular=0.9
 	if id=="TANK":
 		vehicle_model.rotation.y=PI
 		# a crew sits INSIDE a tank: drop the survivor model and its attachments
