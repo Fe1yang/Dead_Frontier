@@ -222,9 +222,10 @@ var wallet_text_w:=Vector4(72,92,92,64)
 ## Limited-time offer (限时礼包). Shown at most every 2-3 days, and not to someone who has
 ## already played a long time today. While one is running it also sits in the lobby and the
 ## store with its countdown.
-const OFFER_GAP_HOURS:=Vector2(48,72)
-const OFFER_SKIP_AFTER_MINUTES:=40.0
+const OFFER_GAP_HOURS:=Vector2(20,26)
+const OFFER_SKIP_AFTER_MINUTES:=180.0
 var offer_id:=""
+var last_offer_id:=""  # so two days never show the same bundle
 var offer_expires:=0
 var next_offer_at:=0
 var play_day:=""
@@ -1732,7 +1733,13 @@ func maybe_show_offer(force:=false) -> bool:
 		if now<next_offer_at: return false
 		var today:=Time.get_date_string_from_system()
 		if today==play_day and play_seconds_today>OFFER_SKIP_AFTER_MINUTES*60.0: return false
-	var o: Dictionary=StoreCatalog.OFFERS[rng.randi()%StoreCatalog.OFFERS.size()]
+	# one different bundle a day: never pick the one shown last time
+	var pool: Array=[]
+	for it in StoreCatalog.OFFERS:
+		if String(it.id)!=last_offer_id: pool.append(it)
+	if pool.is_empty(): pool=StoreCatalog.OFFERS
+	var o: Dictionary=pool[rng.randi()%pool.size()]
+	last_offer_id=String(o.id)
 	offer_id=o.id; offer_expires=now+StoreCatalog.OFFER_HOURS*3600
 	next_offer_at=now+int(rng.randf_range(OFFER_GAP_HOURS.x,OFFER_GAP_HOURS.y)*3600.0)
 	_save(); open_offer(); return true

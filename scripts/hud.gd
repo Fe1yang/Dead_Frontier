@@ -1661,7 +1661,8 @@ func _draw_offer_popup() -> void:
 	_pack_visual(art_r,o)
 	_frame(art_r,Color(1,1,1,0.18),1.0)
 	_discount_flag(Vector2(art_r.end.x-70,art_r.position.y-12),StoreCatalog.discount(o))
-	_clean_center(bold,Vector2(p.get_center().x,art_r.end.y+36),StoreCatalog.text(lang,"limited").to_upper(),32,WHITE)
+	var title_key: String=String(o.get("name","limited"))
+	_clean_center(bold,Vector2(p.get_center().x,art_r.end.y+36),StoreCatalog.text(lang,title_key),26,WHITE)
 	var y: float=art_r.end.y+76
 	if int(o.get("cans",0))>0:
 		clean_ops.append(["texture",can_tex,Rect2(p.get_center().x-82,y-30,40,40)])

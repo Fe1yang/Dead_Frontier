@@ -459,6 +459,22 @@ func _build_safehouse() -> bool:
 	if safe==null: return false
 	safe.name="SafehouseInterior"; add_child(safe)
 	_apply_stone_to_safehouse(safe)
+	# Open the window: drop the glass pane and repaint the night card behind it as daylight sky,
+	# with a few rooftop silhouettes so the opening reads as "outside" instead of a black slot.
+	var glass := safe.find_child("Safe_glass", true, false) as MeshInstance3D
+	if is_instance_valid(glass):
+		glass.visible = false
+	var night := safe.find_child("Safe_night", true, false) as MeshInstance3D
+	if is_instance_valid(night):
+		night.material_override = _mat(Color("8fb2d6"), 1.0)
+		_glow(night, Color("6d90b4"), 0.9)
+		var wp := night.global_transform.origin
+		var spans := [-1.15, 0.05, 1.25]
+		for i in range(spans.size()):
+			var h := 0.9 + float(i % 2) * 0.5
+			var roof := _box("Rooftop", to_local(wp + Vector3(spans[i], -0.45, 0.30)),
+				Vector3(0.9, h, 0.35), Color("1b2028"), 0.95)
+			roof.material_override = _mat(Color("1b2028"), 0.95)
 	# Back brick wall as a separate thin panel (GLB wall meshes are merged with crate
 	# faces, so bricking them bricks the crates too — panel keeps crates original).
 	var back_wall:=_box("Brick back wall",Vector3(0,1.56,-3.28),Vector3(5.6,3.12,0.06),Color("382f27"),0.95)
