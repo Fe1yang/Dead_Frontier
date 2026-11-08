@@ -70,6 +70,7 @@ const PRODUCTS:={
 }
 ## Non-Consumable ids: restore re-applies these from Transaction.currentEntitlements;
 ## consumables must NOT be listed here (re-granting them on restore would duplicate rewards).
+const NON_CONSUMABLE:=["removeads","char_darius","char_maya","skin_maya_tactical",
 	"pet_0","pet_1","pet_2","pet_3"]
 
 var mode:="none"            # "storekit", "sim" (editor / debug only) or "none"
