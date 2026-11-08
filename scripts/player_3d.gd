@@ -246,8 +246,8 @@ func mount_vehicle(id: String) -> void:
 					bm.metallic=0.0; bm.roughness=0.18; bm.metallic_specular=1.0
 					bm.rim_enabled=true; bm.rim=0.55; bm.rim_tint=1.0
 					bm.emission_enabled=true
-					bm.emission=Color(1.0,0.72,0.22)
-					bm.emission_energy_multiplier=1.15
+					bm.emission=Color(0.42,0.30,0.10)
+					bm.emission_energy_multiplier=0.35
 	if id=="TANK":
 		vehicle_model.rotation.y=PI
 		# a crew sits INSIDE a tank: drop the survivor model and its attachments
