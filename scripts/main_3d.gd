@@ -4566,7 +4566,9 @@ func _fire_cannon() -> void:
 ## tested without going through the store / ad flow. Flip to false before shipping.
 const DEV_UNLOCK_ALL:=true
 func _dev_unlock_all() -> void:
-	if not DEV_UNLOCK_ALL: return
+	# Also requires the dev_unlock custom feature in export_presets.cfg, so a
+	# normal build never grants the paid content.
+	if not DEV_UNLOCK_ALL or not OS.has_feature("dev_unlock"): return
 	for p in StoreCatalog.PACKS:
 		if bool(p.get("once",false)): store_owned[String(p.id)]=true
 		if p.has("char"): owned_characters[int(p.char)]=true
