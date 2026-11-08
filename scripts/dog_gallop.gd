@@ -39,6 +39,8 @@ var ids:={}
 var rest_rot:={}
 var body_rest:=Vector3.ZERO
 var phase:=0.0
+const BITE_TIME:=0.45
+var bite_t:=0.0
 
 func _init(skeleton: Skeleton3D) -> void:
 	sk=skeleton
@@ -79,6 +81,10 @@ static func _catmull(p0: float,p1: float,p2: float,p3: float,u: float) -> float:
 	return 0.5*((2.0*p1)+(-p0+p2)*u+(2.0*p0-5.0*p1+4.0*p2-p3)*u2+(-p0+3.0*p1-3.0*p2+p3)*u2*u)
 
 ## Advance the stride and pose the skeleton. rate scales the stride speed.
+## Snap the head down and back: a bite with no baked clip.
+func bite() -> void:
+	bite_t=BITE_TIME
+
 func step(delta: float,rate:=1.0) -> void:
 	phase=fmod(phase+delta*rate/STRIDE,1.0)
 	for leg in LEGS:
@@ -93,6 +99,11 @@ func step(delta: float,rate:=1.0) -> void:
 	_rot("chest",-9.0*flex)
 	_rot("neck",7.0*flex)
 	_rot("head",-5.0*flex)
+	if bite_t>0.0:
+		bite_t=maxf(0.0,bite_t-delta)
+		var swing:=sin((1.0-bite_t/BITE_TIME)*PI)
+		_rot("neck",26.0*swing)
+		_rot("head",20.0*swing)
 	_rot("tail_1",12.0*sin(TAU*phase))
 	_rot("tail_2",10.0*sin(TAU*phase-1.2))
 	if ids.has("body"):

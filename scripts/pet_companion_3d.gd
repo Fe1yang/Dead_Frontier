@@ -28,7 +28,12 @@ const GALLOP_RATE:=1.25  # stride speed matched to how fast the street scrolls p
 const BARK_NEAR_PATH:="res://assets/audio/dog_bark.mp3"
 const BARK_FAR_PATH:="res://assets/audio/dog_bark_distant.mp3"
 const BARK_SEGMENTS:=[[0.0,0.78],[0.0,1.36],[2.19,2.95],[3.36,3.92],[4.38,4.98]]  # seconds in BARK_NEAR
-const BARK_GAP:=Vector2(10.0,18.0)  # random wait between barks
+const BARK_GAP:=Vector2(10.0,18.0)
+## The lion is a pet too, but it growls on its own slow clock.
+const LION_BREED:=5
+const LION_ROAR_PATH:="res://assets/audio/lion_roar.mp3"
+const LION_GROWL_PATH:="res://assets/audio/lion_growl.mp3"
+const LION_GAP:=Vector2(22.0,40.0)  # random wait between barks
 const FAR_DISTANCE:=3.2  # further than this from the survivor counts as "far away"
 ## Formation slots around the survivor (the road runs -Z, so -Z is ahead): the two front
 ## slots first, then the two flanks. slot 0 = front-left, 1 = front-right, 2 = left side,
@@ -77,7 +82,7 @@ func setup(index: int, slot:=0) -> void:
 			break
 	if skeleton: gallop=DogGallop.new(skeleton)
 	bark_player=AudioStreamPlayer.new(); add_child(bark_player)
-	bark_wait=randf_range(4.0,8.0)  # first bark a few seconds into the run
+	bark_wait=randf_range(LION_GAP.x,LION_GAP.y) if breed==LION_BREED else randf_range(4.0,8.0)  # first bark a few seconds into the run
 
 ## Count down to the next bark and pick near/far by how far the dog is from the survivor.
 func _tick_bark(delta: float) -> void:
@@ -86,19 +91,21 @@ func _tick_bark(delta: float) -> void:
 		if bark_stop<=0.0: bark_player.stop()
 	bark_wait-=delta
 	if bark_wait>0.0 or bark_player.playing: return
-	bark_wait=randf_range(BARK_GAP.x,BARK_GAP.y)
+	var is_lion:=breed==LION_BREED
+	var gap:=LION_GAP if is_lion else BARK_GAP
+	bark_wait=randf_range(gap.x,gap.y)
 	if game==null or (game.get("sound")!=null and game.sound.muted): return
 	var away:=Vector2(position.x-game.player.position.x,position.z-game.player.position.z).length()
 	if away>FAR_DISTANCE:
-		var far:=load(BARK_FAR_PATH) as AudioStream
+		var far:=load(LION_GROWL_PATH if is_lion else BARK_FAR_PATH) as AudioStream
 		if far==null: return
 		bark_player.stream=far; bark_player.volume_db=-9.0; bark_player.pitch_scale=randf_range(0.95,1.05)
 		bark_player.play(); bark_stop=0.0
 	else:
 		var seg: Array=BARK_SEGMENTS[randi()%BARK_SEGMENTS.size()]
-		var near:=load(BARK_NEAR_PATH) as AudioStream
+		var near:=load(LION_ROAR_PATH if is_lion else BARK_NEAR_PATH) as AudioStream
 		if near==null: return
-		bark_player.stream=near; bark_player.volume_db=-7.0; bark_player.pitch_scale=randf_range(0.94,1.06)
+		bark_player.stream=near; bark_player.volume_db=-9.0 if is_lion else -7.0; bark_player.pitch_scale=randf_range(0.94,1.06)
 		bark_player.play(float(seg[0])); bark_stop=(float(seg[1])-float(seg[0]))/bark_player.pitch_scale
 
 ## Gallop (or finish a bite) without any chasing logic; used while the opening intro plays.
@@ -110,6 +117,7 @@ func run_beside(target_position: Vector3,delta: float) -> void:
 func _animate(delta: float) -> void:
 	if bite_time>0.0:
 		ModelFix.play_animation(model,"Dog_Bite",false)
+	if gallop!=null and gallop.has_method("bite"): gallop.bite()
 		return
 	if anim and anim.is_playing():
 		anim.stop(); (gallop.sk as Skeleton3D).reset_bone_poses()

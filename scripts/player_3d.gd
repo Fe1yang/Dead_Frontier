@@ -147,6 +147,7 @@ const MUZZLE_POINTS := {
 	"LAUNCHER": Vector3(0.0,0.115,0.48),
 }
 const WEAPON_SCALES := {
+	"FLAME": 1.0,
 	"PISTOL": 0.45,
 	"SMG": 0.50,
 	"SHOTGUN": 0.52,
@@ -423,7 +424,7 @@ func _load_weapon_model() -> void:
 ## Fit an arbitrary weapon GLB to the game's convention: barrel along -Z, grip at the origin,
 ## and a real-world length. Weapon assets come in different units and orientations, so measure
 ## instead of trusting the old per-weapon scale table.
-const WEAPON_LENGTHS := {"PISTOL": 0.26, "SMG": 0.58, "SHOTGUN": 0.95, "SNIPER": 1.15, "RIFLE": 0.86, "LAUNCHER": 0.85}
+const WEAPON_LENGTHS := {"FLAME": 0.78, "PISTOL": 0.26, "SMG": 0.58, "SHOTGUN": 0.95, "SNIPER": 1.15, "RIFLE": 0.86, "LAUNCHER": 0.85}
 func normalise_weapon_model() -> void:
 	if not is_instance_valid(weapon_model): return
 	var pts := weapon_points()
@@ -670,6 +671,7 @@ func weapon_bonus(id: String) -> float:
 ## set_weapon and apply_meta so a bought level always lands exactly once.
 func base_damage(id: String) -> float:
 	match id:
+		"FLAME": return 6.0*damage_scale
 		"SMG": return 12.0*damage_scale
 		"SNIPER": return 95.0*damage_scale
 		"SHOTGUN": return 30.0*damage_scale
@@ -684,6 +686,9 @@ func set_weapon(id: String) -> void:
 	projectile_count = 1
 	fire_mode = false
 	match weapon:
+		"FLAME":
+			magazine_size = 100; damage = 6.0*damage_scale; fire_interval = 0.12*rate_scale
+			bullet_speed = 20.0; pierce = 0; reload_duration = 1.4; reserve_ammo = 200
 		"SMG":
 			magazine_size = 36; damage = 12.0*damage_scale; fire_interval = 0.095*rate_scale
 			bullet_speed = 31.0; pierce = 0; reload_duration = 1.35; reserve_ammo = 108
