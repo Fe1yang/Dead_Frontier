@@ -79,7 +79,7 @@ func _ready() -> void:
 	body.add_child(counter)
 	# Weapon on display above the crate, lit blue like a loot drop.
 	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85,0); add_child(weapon_pivot)
-	weapon_pivot.rotation.y = PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0
+	if weapon_pivot: weapon_pivot.rotation.y = PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0
 	var path := "res://assets/models/rifle.glb" if weapon_id=="RIFLE" else "res://assets/models/weapons/"+weapon_id.to_lower()+".glb"
 	if weapon_id in ["ARMOR","HELMET"]: path = "res://assets/models/"+weapon_id.to_lower()+".glb"
 	if weapon_id=="BIKE": path = "res://assets/models/vehicles/bike_scrambler.glb"
@@ -94,7 +94,11 @@ func _ready() -> void:
 		ModelFix.play_animation(weapon_model,"Dog_Idle")
 		path = ""
 	if path!="" and ResourceLoader.exists(path):
-		weapon_model = (load(path) as PackedScene).instantiate() as Node3D
+		var packed_model:=load(path) as PackedScene
+		if packed_model==null:
+			push_error("crate: missing model for "+String(weapon_id)+" -> "+path)
+			return
+		weapon_model = packed_model.instantiate() as Node3D
 		weapon_model.scale = Vector3.ONE*float(WEAPON_SCALES.get(weapon_id,0.6))
 		# Bike/Car models are already upright; no X tilt (that laid them on their side).
 		weapon_pivot.add_child(weapon_model)
@@ -158,7 +162,7 @@ func tick(delta: float,player_target: Vector3) -> void:
 		body.scale = Vector3.ONE*(1.0+0.08*punch)
 		counter.modulate = Color("fbfbf6").lerp(Color("ff4a3a"),punch)
 		weapon_pivot.position.y = 1.85+sin(spin*2.6)*0.07
-		weapon_pivot.rotation.y = spin*1.9+(PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0) if not is_pet() else spin*0.6
+		if weapon_pivot: weapon_pivot.rotation.y = spin*1.9+(PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0) if not is_pet() else spin*0.6
 		if glow_ring: glow_ring.rotation.x = 0.0
 		if light: light.light_energy = 1.4+0.4*sin(spin*5.0)
 		return
@@ -169,7 +173,7 @@ func tick(delta: float,player_target: Vector3) -> void:
 	var peak := flight_start.lerp(player_target,0.5)+Vector3(0,1.6,0)
 	var a := flight_start.lerp(peak,e); var b := peak.lerp(player_target,e)
 	weapon_pivot.global_position = a.lerp(b,e)
-	weapon_pivot.rotation.y = spin*9.0
+	if weapon_pivot: weapon_pivot.rotation.y = spin*9.0
 	weapon_pivot.scale = Vector3.ONE*lerpf(1.0,0.55,e)
 	if light: light.light_energy = 2.4*(1.0-e)+0.4
 	if t>=1.0: arrived = true
