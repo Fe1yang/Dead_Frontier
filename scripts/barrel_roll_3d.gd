@@ -14,7 +14,10 @@ extends "res://scripts/weapon_crate_3d.gd"
 
 const MODEL_PATH := "res://assets/models/props/barrel_roll.glb"
 const TARGET_DIAMETER := 0.96     # metres: a 200 litre drum, big enough to read at speed
-const EXTRA_SPEED := 1.35         # m/s on top of the 3.5 m/s the road already moves
+const EXTRA_SPEED := 1.0          # m/s on top of the 3.5 m/s the road already moves
+## The barrel used to turn once per 0.7 s, which strobes on a phone. Travel speed
+## is unchanged; the visible roll is slowed so the wood grain stays readable.
+const ROLL_SPIN_SCALE := 0.4
 const ITEM_HEIGHT := 1.42
 const CONTACT_DAMAGE := 20.0
 const CONTACT_COOLDOWN := 1.2
@@ -118,7 +121,7 @@ func _drawn_diameter() -> float:
 func _roll(distance: float) -> void:
 	if barrel_spin == null:
 		return
-	barrel_spin.rotation.y += distance / maxf(0.05, roll_radius)
+	barrel_spin.rotation.y += distance * ROLL_SPIN_SCALE / maxf(0.05, roll_radius)
 
 func tick(delta: float, player_target: Vector3) -> void:
 	if broken:

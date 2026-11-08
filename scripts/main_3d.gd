@@ -352,9 +352,19 @@ const BTN_FIRE_MODE:=Vector2(420,596)
 const BTN_SWAP:=Vector2(492,516)
 const BTN_RADIUS:=36.0
 const PAUSE_BUTTON:=Rect2(476,8,58,58)
+## Settings -> Control layout. The two rows sit above the play field, away from
+## every control the player is dragging underneath.
+const CTRL_RESET:=Rect2(66,152,196,58)
+const CTRL_SAVE:=Rect2(278,152,196,58)
+const CTRL_KEYS:=["stick_left","stick_right","btn_reload","btn_swap","btn_frag","btn_flash","btn_fire","pause"]
+## Saved position of every movable control, in real viewport coordinates.
+var touch_layout:={}
+## Key of the control under the finger in the layout editor ("" = not dragging).
+var ctrl_drag:=""
 ## The classic start screen (state "cover"): the title poster greets every launch, and any
 ## tap starts the run right away. Characters, shop and the rest live in the lobby side bar.
 var ui_h:=960.0
+var ui_w:=540.0
 var left_origin:=STICK_LEFT
 var right_origin:=STICK_RIGHT
 var left_knob:=Vector2(92,820)
@@ -368,10 +378,13 @@ func _ready() -> void:
 	rng.randomize()
 	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
 	_setup_world(); _build_road()
-	var win:=DisplayServer.window_get_size()
-	var screen_ratio:=float(win.y)/float(maxi(1,win.x))  # height/width: portrait is > 1
-	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_EXPAND if screen_ratio>1.72 else Window.CONTENT_SCALE_ASPECT_KEEP
+	# Every screen is drawn for a 9:16 portrait rectangle. A tall phone (the iPhone 15
+	# Plus is 19.5:9) used to EXPAND the canvas, so the lobby grew a dead black band
+	# under it and the camera staged a frame the design never had. Keep the original
+	# rectangle and letterbox it on every device instead.
+	get_tree().root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	ui_h=get_viewport().get_visible_rect().size.y
+	ui_w=get_viewport().get_visible_rect().size.x
 	_pin_sticks()
 	touch_controls=OS.has_feature("mobile")
 	sound=SoundScript.new(); sound.muted=_read_muted(); _read_volumes(); add_child(sound)
@@ -412,9 +425,59 @@ func _ready() -> void:
 	elif "--smoke-test" in OS.get_cmdline_user_args(): call_deferred("_smoke_test")
 	elif "--soak-test" in OS.get_cmdline_user_args(): call_deferred("_soak_test")
 
+## Default position of every movable control, in real viewport coordinates. The action
+## buttons used to be shifted by hud._btn() for a taller phone; the layout stores the
+## final point instead, so the HUD, the hit tests and the grab test share one value.
+## Sticks sit a little higher than they used to: the old corners were a stretch.
+func default_touch_layout() -> Dictionary:
+	var dy:=ui_h-960.0
+	return {
+		"stick_left": Vector2(110,ui_h-146),
+		"stick_right": Vector2(430,ui_h-146),
+		"btn_reload": BTN_RELOAD+Vector2(0,dy),
+		"btn_swap": BTN_SWAP+Vector2(0,dy),
+		"btn_frag": BTN_FRAG+Vector2(0,dy),
+		"btn_flash": BTN_FLASH+Vector2(0,dy),
+		"btn_fire": BTN_FIRE_MODE+Vector2(0,dy),
+		"pause": PAUSE_BUTTON.get_center(),
+	}
+
+## Merge the saved layout with the defaults for this screen, keeping every control
+## reachable. Sticks are pinned to their stored place instead of a hardcoded corner.
 func _pin_sticks() -> void:
-	left_origin=Vector2(110,ui_h-118); right_origin=Vector2(430,ui_h-118)
+	var defaults:=default_touch_layout()
+	for key in defaults.keys():
+		var p: Vector2=defaults[key]
+		var saved: Variant=touch_layout.get(key)
+		if saved is Vector2: p=saved
+		touch_layout[key]=_clamped_control(key,p)
+	left_origin=touch_layout["stick_left"]; right_origin=touch_layout["stick_right"]
 	left_knob=left_origin; right_knob=right_origin
+
+## Keep a control fully on screen: a stick carries a 46 px knob swing, a button a 34 px
+## face, so clamping at the edge would cut the control in half.
+func _clamped_control(key: String,p: Vector2) -> Vector2:
+	var half:=50.0 if key.begins_with("stick_") else (30.0 if key=="pause" else 38.0)
+	return Vector2(clampf(p.x,half,ui_w-half),clampf(p.y,half,ui_h-half))
+
+func control_pos(key: String) -> Vector2:
+	if touch_layout.has(key): return touch_layout[key]
+	return default_touch_layout().get(key,Vector2(ui_w*0.5,ui_h*0.5))
+
+## Nearest control whose grab area contains the finger ("" when none does).
+func control_at(pos: Vector2) -> String:
+	var best:=""; var best_d:=1e9
+	for key in CTRL_KEYS:
+		var d:=pos.distance_to(control_pos(key))
+		var grab:=74.0 if key.begins_with("stick_") else 46.0
+		if d<=grab and d<best_d: best=key; best_d=d
+	return best
+
+func move_control(key: String,pos: Vector2) -> void:
+	if key=="": return
+	touch_layout[key]=_clamped_control(key,pos)
+	if key=="stick_left": left_origin=touch_layout[key]; left_knob=left_origin
+	elif key=="stick_right": right_origin=touch_layout[key]; right_knob=right_origin
 
 func localize(key: String) -> String:
 	return Localization.text(language_code,key)
@@ -555,7 +618,7 @@ func _process(delta: float) -> void:
 	# Before the run starts, compile one of everything in the hidden warm-up viewport:
 	# a menu stutter costs nothing, the same compile mid-run costs the player a freeze.
 	if state!="playing": _warm_up_tick()
-	var from_pause: bool=state=="settings" and settings_return_state=="paused"
+	var from_pause: bool=(state=="settings" or state=="controls") and settings_return_state=="paused"
 	if (state=="paused" or from_pause)!=_visuals_frozen: _freeze_visuals(state=="paused" or from_pause)
 	if state=="gameover": gameover_time+=delta
 	sound.music_state(payfail_return_state if state=="payfail" else (map_return_state if state=="map" else state))  # popups keep the music underneath
@@ -603,7 +666,7 @@ func _process(delta: float) -> void:
 			lobby.show_character(character_choice,character_asset(character_choice))
 		camera.fov=lobby.CAMERA_FOV; camera.h_offset=0; camera.v_offset=0
 		camera.position=lobby.camera_position(); camera.look_at(lobby.camera_target()); return
-	if state in ["cover","loading","language","terms"] or (state=="settings" and settings_return_state!="paused"):
+	if state in ["cover","loading","language","terms","controls"] or (state=="settings" and settings_return_state!="paused"):
 		camera.fov=52; _set_menu_scene(); return
 	if capture_close_cam: return
 	camera.position.x=lerpf(camera.position.x,player.position.x*0.12,delta*3.0)
@@ -2282,7 +2345,11 @@ func _count_zombie_kind(type: String) -> int:
 	return count
 
 func _spawn_zombie(at_z:=-85.0,forced_kind:="") -> void:
-	var z:=ZombieScript.new(); var difficulty:=1.0+pow(run_time/55.0,1.15)*0.65; var roll:=rng.randf(); var kind:=forced_kind
+	# Health used to scale without a ceiling: by ten minutes a walker carried ~500 HP
+	# and even the sniper looked like it did nothing. Cap the multiplier and let the
+	# late game get harder through numbers and specials instead of bullet sponges.
+	var difficulty:=minf(1.0+pow(run_time/55.0,1.15)*0.65,2.1)
+	var z:=ZombieScript.new(); var roll:=rng.randf(); var kind:=forced_kind
 	if kind.is_empty():
 		# Unlock order: walker -> runner(female) -> jockey -> brute(juggernaut) -> banshee -> bomber.
 		# Each tier only appears after the previous one has been introduced.
@@ -2418,14 +2485,14 @@ func request_reload() -> bool:
 
 func _tick_bullets(delta: float) -> void:
 	for i in range(bullets.size()-1,-1,-1):
-		var b=bullets[i]; b.tick(delta); var consumed:=false
+		var b=bullets[i]; var prev: Vector3=b.position; b.tick(delta); var consumed:=false
 		for z in zombies+watchers:
 			if not is_instance_valid(z): continue
 			var zp: Vector3=z.global_position
 			# Hitscan on the aim line: once the bullet's flat (X-Z) distance is inside the
 			# target, it hits — same rule as barrels (y<2.4). The old height check let
 			# low targets (jockey, 1.05m) be shot over because the muzzle flies at ~1.35m.
-			if not z.dead and not b.hit_targets.has(z) and b.position.y<2.30 and _flat_distance(b.position,zp)<z.radius+0.24:
+			if not z.dead and not b.hit_targets.has(z) and b.position.y<2.30 and _swept_2d(prev,b.position,zp,z.radius+0.24):
 				b.hit_targets.append(z); var hit_at: Vector3=b.position
 				if b.has_meta("crit"): _popup(hit_at+Vector3(0,0.9,0),RunText.text("crit"),Color("ffd84a"))
 				_hit_zombie(z,b.damage,_body_part(z,b.position),b.position)
@@ -2435,13 +2502,13 @@ func _tick_bullets(delta: float) -> void:
 				break
 		if not consumed:
 			for crate in crates:
-				if crate.bullet_hits(b.position):
+				if _swept_crate_hit(crate,prev,b.position):
 					consumed=true
 					if crate.take_hit(maxi(1,roundi(b.damage))): _break_crate(crate)
 					break
 		if not consumed:
 			for barrel in barrels:
-				if not barrel.dead and not b.hit_targets.has(barrel) and b.position.y<2.4 and _flat_distance(b.position,barrel.position)<barrel.radius+0.24:
+				if not barrel.dead and not b.hit_targets.has(barrel) and b.position.y<2.4 and _swept_2d(prev,b.position,barrel.position,barrel.radius+0.34):
 					b.hit_targets.append(barrel)
 					if barrel.take_hit(b.damage): _explode(barrel)
 					consumed=true; break
@@ -2450,6 +2517,24 @@ func _tick_bullets(delta: float) -> void:
 
 func _flat_distance(a: Vector3,b: Vector3) -> float:
 	return Vector2(a.x-b.x,a.z-b.z).length()
+
+## A bullet covers up to a metre in one frame on a phone, so testing only the point it
+## landed on could skip a barrel entirely between two frames - which read as "I aimed
+## right at it and nothing happened". Test the whole step against the target circle.
+func _swept_2d(from: Vector3,to: Vector3,center: Vector3,radius: float) -> bool:
+	var ax:=from.x-center.x; var az:=from.z-center.z
+	var dx:=to.x-from.x; var dz:=to.z-from.z
+	var len2:=dx*dx+dz*dz
+	var t:=0.0 if len2<0.000001 else clampf(-(ax*dx+az*dz)/len2,0.0,1.0)
+	var cx:=ax+dx*t; var cz:=az+dz*t
+	return cx*cx+cz*cz<=radius*radius
+
+## The same sweep for the box-shaped platforms (weapon crates and rolling barrels).
+func _swept_crate_hit(crate: Node3D,from: Vector3,to: Vector3) -> bool:
+	if crate.bullet_hits(from): return true
+	for i in range(1,7):
+		if crate.bullet_hits(from.lerp(to,i/6.0)): return true
+	return false
 
 func _tick_ordnance(delta: float) -> void:
 	for i in range(ordnance.size()-1,-1,-1):
@@ -2525,8 +2610,10 @@ func _tick_zombies(delta: float) -> void:
 		_avoid_barrels(z,delta)
 		_avoid_obstacles(z,delta)
 		_avoid_crater(z,delta)
-		if String(z.kind).begins_with("bomber") and _flat_distance(z.position,player.position)<2.4:
-			# The bomber never melee-swings: close to the survivor it simply bursts.
+		if String(z.kind).begins_with("bomber") and _flat_distance(z.position,player.position)<1.7:
+			# The bomber never melee-swings: close to the survivor it simply bursts. It used
+			# to burst at 2.4 m, which is further than a pistol can drop it in the time it
+			# needs to close, so it felt unkillable; 1.7 m gives the player the last shot.
 			_hit_zombie(z,1e9,"torso",z.position+Vector3(0,1.0,0))
 			continue
 		if z.position.z>player.position.z-0.6 and z.position.z<player.position.z+0.8 and absf(z.position.x-player.position.x)<z.radius+0.38:
@@ -2667,7 +2754,10 @@ func _bomber_blast(zp: Vector3) -> void:
 	_blood_splatter(Vector3(zp.x,0.0,zp.z),rng.randf_range(3.6,4.6),true)
 	_blood_splatter(Vector3(zp.x,0.0,zp.z),rng.randf_range(2.2,3.2),true)
 	if _flat_distance(player.position,zp)<2.9:
-		_hurt_player(30.0)
+		# 50-70 damage: a hard hit that still leaves a full-health survivor standing.
+		# The last point is always kept, so one bomber can never execute the player.
+		var blast:=minf(rng.randf_range(50.0,70.0),maxf(0.0,player.health-1.0))
+		if blast>=1.0: _hurt_player(blast)
 	for z in zombies.duplicate():
 		if is_instance_valid(z) and not z.dead and _flat_distance(z.position,zp)<3.2:
 			_hit_zombie(z,120.0,"torso",z.position+Vector3(0,1.1,0),Color("ff8a5c"))
@@ -3685,6 +3775,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			if not map_dragged and event.position.distance_to(map_press)>10.0: map_dragged=true
 			if map_dragged: map_scene.pan(event.relative.x)
 		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed): _map_release(event.position)
+	if state=="controls":
+		if ctrl_drag!="" and (event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT))):
+			move_control(ctrl_drag,event.position)
+		elif ctrl_drag!="" and ((event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed)):
+			ctrl_drag=""; sound.play("hit"); _save()
 	if state=="settings" and volume_drag!="":
 		if event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT)): _set_volume_from(event.position.x)
 		elif (event is InputEventMouseButton and event.button_index==MOUSE_BUTTON_LEFT and not event.pressed) or (event is InputEventScreenTouch and not event.pressed):
@@ -3712,9 +3807,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		if event.pressed:
 			if _pointer_down(event.position): return
 			if state=="playing":
-				if event.position.x<270 and left_touch_id==-1:
+				# Grab whichever stick the finger is closer to. With a movable layout the old
+				# left-half / right-half split left a stick placed on the wrong side unusable.
+				var dl: float=event.position.distance_to(left_origin)
+				var dr: float=event.position.distance_to(right_origin)
+				if left_touch_id==-1 and (right_touch_id!=-1 or dl<=dr):
 					left_touch_id=event.index; left_knob=left_origin; left_stick=Vector2.ZERO
-				elif event.position.x>=270 and right_touch_id==-1:
+				elif right_touch_id==-1:
 					right_touch_id=event.index; right_knob=right_origin; right_stick=Vector2.ZERO
 		else:
 			if event.index==left_touch_id: left_touch_id=-1; left_stick=Vector2.ZERO; left_knob=left_origin
@@ -3728,7 +3827,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _release_touches() -> void:
 	left_touch_id=-1; right_touch_id=-1; left_stick=Vector2.ZERO; right_stick=Vector2.ZERO
-	left_origin=Vector2(110,ui_h-118); right_origin=Vector2(430,ui_h-118); left_knob=left_origin; right_knob=right_origin
+	left_origin=control_pos("stick_left"); right_origin=control_pos("stick_right"); left_knob=left_origin; right_knob=right_origin
 
 func _pointer_down(pos: Vector2) -> bool:
 	if ads_offer_open:
@@ -3835,7 +3934,15 @@ func _pointer_down(pos: Vector2) -> bool:
 		if Rect2(66,348,408,70).has_point(pos): auto_reload=not auto_reload; _save(); return true
 		if Rect2(66,436,408,70).has_point(pos): open_language(); return true
 		if Rect2(66,524,408,70).has_point(pos): text_size=(text_size+1)%3; _save(); return true
+		if Rect2(66,612,408,70).has_point(pos): ctrl_drag=""; state="controls"; return true
 		if Rect2(66,810,408,64).has_point(pos): state=settings_return_state; return true
+	elif state=="controls":
+		if CTRL_RESET.has_point(pos):
+			touch_layout={}; _pin_sticks(); _save(); return true
+		if CTRL_SAVE.has_point(pos):
+			ctrl_drag=""; _save(); state="settings"; return true
+		ctrl_drag=control_at(pos)
+		return true
 	if state=="gameover" and gameover_double_rect().has_point(pos): request_reward_ad("run_double"); return true
 	if state=="gameover" and Rect2(66,586,408,70).has_point(pos) and not revive_used: request_revival(); return true
 	if state=="gameover" and Rect2(66,672,408,66).has_point(pos): go_to_lobby(); return true
@@ -3872,11 +3979,11 @@ func _pointer_down(pos: Vector2) -> bool:
 	elif state=="playing":
 		if PAUSE_BUTTON.has_point(pos): state="paused"; _release_touches(); return true
 		if health_plus_rect.grow(8).has_point(pos): _tap_health_plus(); return true
-		if touch_controls and pos.distance_to(BTN_SWAP)<BTN_RADIUS+4: swap_weapon(); return true
-		if touch_controls and pos.distance_to(BTN_RELOAD)<BTN_RADIUS+6: request_reload(); return true
-		if touch_controls and pos.distance_to(BTN_FRAG)<BTN_RADIUS: _throw_ordnance("frag"); return true
-		if touch_controls and pos.distance_to(BTN_FLASH)<BTN_RADIUS: _throw_ordnance("flash"); return true
-		if touch_controls and player.weapon=="LAUNCHER" and pos.distance_to(BTN_FIRE_MODE)<BTN_RADIUS: toggle_fire_mode(); return true
+		if touch_controls and pos.distance_to(control_pos("btn_swap"))<BTN_RADIUS+4: swap_weapon(); return true
+		if touch_controls and pos.distance_to(control_pos("btn_reload"))<BTN_RADIUS+6: request_reload(); return true
+		if touch_controls and pos.distance_to(control_pos("btn_frag"))<BTN_RADIUS: _throw_ordnance("frag"); return true
+		if touch_controls and pos.distance_to(control_pos("btn_flash"))<BTN_RADIUS: _throw_ordnance("flash"); return true
+		if touch_controls and player.weapon=="LAUNCHER" and pos.distance_to(control_pos("btn_fire"))<BTN_RADIUS: toggle_fire_mode(); return true
 	elif state=="health_ad":
 		if HEALTH_AD_CANCEL.has_point(pos): state="playing"; return true
 		if HEALTH_AD_WATCH.has_point(pos): request_reward_ad("health_refill"); return true
@@ -3924,6 +4031,8 @@ func _load_save() -> void:
 		daily_day=str(c.get_value("missions","day","")); daily_stats=c.get_value("missions","stats",{}); daily_claimed=c.get_value("missions","claimed",{}); daily_swaps=c.get_value("missions","swaps",{})
 		event_window=int(c.get_value("event","window",-1)); event_stats=c.get_value("event","stats",{}); event_claimed=c.get_value("event","claimed",{}); event_swaps=c.get_value("event","swaps",{})
 		for id in meta_upgrades.keys(): meta_upgrades[id]=int(c.get_value("upgrades",id,0))
+	var saved_layout: Variant=c.get_value("controls","layout",{})
+	touch_layout=saved_layout if saved_layout is Dictionary else {}
 	stamina.load_config(c)
 ## Settings volume sliders: track rects (also used by hud.gd to draw them).
 const SLIDER_MUSIC:=Rect2(200,214,214,36)
@@ -3957,6 +4066,7 @@ func _save() -> void:
 	c.set_value("missions","day",daily_day); c.set_value("missions","stats",daily_stats); c.set_value("missions","claimed",daily_claimed); c.set_value("missions","swaps",daily_swaps)
 	c.set_value("event","window",event_window); c.set_value("event","stats",event_stats); c.set_value("event","claimed",event_claimed); c.set_value("event","swaps",event_swaps)
 	for id in meta_upgrades.keys(): c.set_value("upgrades",id,meta_upgrades[id])
+	c.set_value("controls","layout",touch_layout)
 	stamina.save_config(c)
 	c.set_value("audio","muted",sound.muted if is_instance_valid(sound) else false); c.save(SAVE_PATH)
 

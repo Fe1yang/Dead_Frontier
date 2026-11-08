@@ -45,7 +45,9 @@ func configure(type: String, difficulty: float) -> void:
 		"runner": health=26*difficulty; speed=5.2+difficulty*0.15; damage=14; reward=2; radius=0.36
 		"brute": health=150*difficulty; speed=5.6+difficulty*0.10; damage=32; reward=5; radius=0.80
 		# The bomber waddles in slow and fat; it never swings, it detonates.
-		"bomber","bomber_female": health=120*difficulty; speed=4.4+difficulty*0.08; damage=30; reward=6; radius=0.66
+		# 80 HP (four pistol rounds) instead of 120: the bomber closes fast, so the
+		# old health made it reach the survivor before anyone could drop it.
+		"bomber","bomber_female": health=80*difficulty; speed=4.4+difficulty*0.08; damage=30; reward=6; radius=0.66
 		"jockey": health=68*difficulty; speed=7.4+difficulty*0.16; damage=22; reward=3; radius=0.48
 		"banshee": health=210*difficulty; speed=1.65+difficulty*0.05; damage=28; reward=8; radius=0.46
 		_: health=44*difficulty; speed=3.65+difficulty*0.1; damage=18; reward=1

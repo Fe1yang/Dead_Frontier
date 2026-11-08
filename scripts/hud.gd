@@ -162,6 +162,7 @@ func _draw() -> void:
 	elif game.state=="map": _draw_map()
 	elif game.state=="language": _draw_languages()
 	elif game.state=="settings": _draw_settings()
+	elif game.state=="controls": _draw_controls()
 	elif game.state=="store": _draw_store()
 	elif game.state=="offer":
 		match game.offer_return_state:
@@ -277,22 +278,23 @@ func _draw_hud() -> void:
 	var cx: float=rx+24.0+kw+28.0
 	_draw_coin_stack(Vector2(cx+14,118),13)
 	draw_string(bold,Vector2(cx+34,133),coin_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,36,WHITE)
-	_draw_pause_button(PAUSE_RECT)
+	var pause_pos: Vector2=game.control_pos("pause")
+	_draw_pause_button(Rect2(pause_pos-Vector2(23,23),Vector2(46,46)))
 	if game.record_banner>0.0: _draw_record_banner()
 	_draw_ammo(Vector2(470,52))
 	if game.touch_controls and game.state=="playing":
 		_draw_joystick(game.left_origin,game.left_knob,false)
 		_draw_joystick(game.right_origin,game.right_knob,true)
-		_round_button(_btn(game.BTN_RELOAD),"reload",-1,WHITE)
+		_round_button(game.control_pos("btn_reload"),"reload",-1,WHITE)
 		var swap_to: String=game.player.swap_target()
-		_round_button(_btn(game.BTN_SWAP),"swap",-1,WHITE if swap_to!="" else Color(1,1,1,0.35))
+		_round_button(game.control_pos("btn_swap"),"swap",-1,WHITE if swap_to!="" else Color(1,1,1,0.35))
 		if swap_to!="":
 			var short:={"PISTOL":"PST","SMG":"SMG","SHOTGUN":"SG","SNIPER":"SNP","RIFLE":"AR","LAUNCHER":"GL"}
-			_text_center(short.get(swap_to,swap_to),game.BTN_SWAP+Vector2(0,52),13,WHITE)
-		_round_button(_btn(game.BTN_FRAG),"frag",game.player.grenade_count,WHITE)
-		_round_button(_btn(game.BTN_FLASH),"flash",game.player.flashbang_count,Color("cfefff"))
+			_text_center(short.get(swap_to,swap_to),game.control_pos("btn_swap")+Vector2(0,52),13,WHITE)
+		_round_button(game.control_pos("btn_frag"),"frag",game.player.grenade_count,WHITE)
+		_round_button(game.control_pos("btn_flash"),"flash",game.player.flashbang_count,Color("cfefff"))
 		if game.player.weapon=="LAUNCHER":
-			_round_button(_btn(game.BTN_FIRE_MODE),"fire",game.player.fire_ammo,Color("ff8a5c"))
+			_round_button(game.control_pos("btn_fire"),"fire",game.player.fire_ammo,Color("ff8a5c"))
 	if game.hint_time>0:
 		var hint: String=game.localize("aim_stick") if game.touch_controls else GameText.text(game.language_code,"auto_hint")
 		_text_center(hint,Vector2(270,186),15,Color(WHITE.r,WHITE.g,WHITE.b,clampf(game.hint_time,0,1)*0.9))
@@ -589,7 +591,35 @@ func _draw_settings() -> void:
 	_button(Rect2(66,436,408,70),"文   "+game.localize("language"),false)
 	var sep: String="：" if lang in ["zh_CN","zh_TW","ja"] else ": "
 	_button(Rect2(66,524,408,70),"Aa   %s%s%s"%[ShopText.text(lang,"text_size"),sep,ShopText.text(lang,"ts_%d"%game.text_size)],false)
+	_button(Rect2(66,612,408,70),Localization.text(lang,"control_layout"),false)
 	_button(Rect2(66,810,408,64),game.localize("back"),true)
+
+## Settings -> Control layout. Draws the same sticks and buttons the run uses, at their
+## saved points, so what the player drags here is exactly what they get in a run.
+func _draw_controls() -> void:
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(0.018,0.022,0.023,0.93))
+	draw_rect(Rect2(0,0,540,game.ui_h),Color(1,1,1,0.10),false,1.0)
+	var lang: String=game.language_code
+	_bold_text(Localization.text(lang,"control_layout"),Vector2(42,84),30,WHITE)
+	_text(Localization.text(lang,"control_layout_hint"),Vector2(44,114),14,MUTED)
+	_button(game.CTRL_RESET,Localization.text(lang,"reset"),false)
+	_button(game.CTRL_SAVE,Localization.text(lang,"save"),true)
+	var lp: Vector2=game.control_pos("stick_left")
+	var rp: Vector2=game.control_pos("stick_right")
+	_draw_joystick(lp,lp,false)
+	_draw_joystick(rp,rp,true)
+	for pair in [[lp,"move_stick"],[rp,"aim_stick"]]:
+		var at: Vector2=pair[0]+Vector2(0,86)
+		if at.y<game.ui_h-12.0: _text_center(game.localize(str(pair[1])),at,13,Color(1,1,1,0.75))
+	_round_button(game.control_pos("btn_reload"),"reload",-1,WHITE)
+	_round_button(game.control_pos("btn_swap"),"swap",-1,WHITE)
+	_round_button(game.control_pos("btn_frag"),"frag",-1,WHITE)
+	_round_button(game.control_pos("btn_flash"),"flash",-1,WHITE)
+	_round_button(game.control_pos("btn_fire"),"fire",-1,Color("ff8a5c"))
+	var pp: Vector2=game.control_pos("pause")
+	_draw_pause_button(Rect2(pp-Vector2(23,23),Vector2(46,46)))
+	if game.ctrl_drag!="":
+		draw_circle(game.control_pos(game.ctrl_drag),74.0 if game.ctrl_drag.begins_with("stick_") else 46.0,Color(0.86,0.24,0.19,0.20))
 
 ## A painted volume bar: name on the left, track with a red fill and a round knob, percent.
 func _volume_slider(track: Rect2,label: String,value: float) -> void:

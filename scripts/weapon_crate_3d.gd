@@ -137,7 +137,7 @@ func overlaps(point: Vector3) -> bool:
 	return not broken and absf(point.x-position.x)<half_extents.x+0.40 and absf(point.z-position.z)<half_extents.y+0.25
 
 func bullet_hits(point: Vector3) -> bool:
-	return not broken and point.y<2.4 and absf(point.x-position.x)<half_extents.x+0.12 and absf(point.z-position.z)<half_extents.y+0.12
+	return not broken and point.y<2.4 and absf(point.x-position.x)<half_extents.x+0.22 and absf(point.z-position.z)<half_extents.y+0.22
 
 ## Returns true on the hit that breaks the crate.
 func take_hit(amount: int=1) -> bool:
