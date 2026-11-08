@@ -330,7 +330,7 @@ func _tick_vehicle_visual(delta: float) -> void:
 		lateral=clampf((position.x-target_x)*1.4,-1.0,1.0)
 	vehicle_model.rotation.z=lerpf(vehicle_model.rotation.z,-lateral*0.42,1.0-exp(-delta*9.0))
 
-const CHARACTER_ASSETS := ["survivor_male_universal","survivor_riley_universal","survivor_medic_universal","survivor_maya_universal","survivor_jian_scout_universal"]
+const CHARACTER_ASSETS := ["survivor_male_universal","survivor_riley_universal","survivor_medic_universal","survivor_maya_universal"]
 ## Female characters run on the female-captured clips (narrower stance, no male hip sway).
 const FEMALE_CHARACTERS := [1, 3]  # riley, maya
 

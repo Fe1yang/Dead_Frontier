@@ -2214,7 +2214,9 @@ func lobby_page(side: int) -> void:
 	lobby_scroll=clampf(lobby_scroll+side*LOBBY_STEP*4.0,0.0,lobby_max_scroll())
 
 func lobby_tab_rect(t: int) -> Rect2:
-	return Rect2(LOBBY_LEFT_X+t*72.0,LOBBY_BAND_TOP+4,68,40)
+	# tab 2 (skins) is gone, so the vehicle tab takes the third slot instead of leaving a gap
+	var slot := 2 if t == 3 else t
+	return Rect2(LOBBY_LEFT_X+slot*72.0,LOBBY_BAND_TOP+4,68,40)
 
 func lobby_view_rect() -> Rect2:
 	return Rect2(LOBBY_LEFT_X-6,LOBBY_STRIP_Y,540-2*(LOBBY_LEFT_X-6),LOBBY_CARD.y)
@@ -4776,7 +4778,7 @@ func _smoke_test() -> void:
 	assert(player.heal_scale()==2.0) # Darius the paramedic: every healing effect is doubled
 	# Jian is the newest paid survivor: locked until purchased, then his scavenger perks apply
 	assert(not character_owned(4))
-	assert(_iap_grant("char_jian","smoke") and character_owned(4))
+	assert(_iap_grant("char_maya","smoke") and character_owned(3))
 	assert(player.scavenger_ammo_scale()==1.0) # perks key off the PLAYED character, not ownership
 	_lobby_tap(lobby_card_rect(4).get_center()); assert(character_choice==4 and player.character==4)
 	assert(player.scavenger_ammo_scale()==1.5 and player.scavenger_coin_scale()==1.25)

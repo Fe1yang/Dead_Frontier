@@ -58,7 +58,6 @@ const PROFILES:=[
 	{"name":"RILEY","breath_amp":0.9,"breath_period":3.8,"sway_amp":0.9,"sway_period":8.5,"base_lean":0.8,"base_turn":0.0,"head_yaw":12.0,"head_pitch":6.0,"head_top":2.0,"head_rate":1.2,"rest_min":3.0,"rest_max":6.0,"pool":["neck","down","belt","shoulder"]},
 	{"name":"DARIUS","breath_amp":1.4,"breath_period":5.2,"sway_amp":0.5,"sway_period":11.0,"base_lean":1.5,"base_turn":0.0,"head_yaw":8.0,"head_pitch":4.0,"head_top":1.0,"head_rate":0.5,"rest_min":4.5,"rest_max":8.0,"pool":["nod","down","shoulder","neck"]},
 	{"name":"MAYA","breath_amp":0.9,"breath_period":4.0,"sway_amp":0.9,"sway_period":8.0,"base_lean":0.8,"base_turn":0.0,"head_yaw":16.0,"head_pitch":5.0,"head_top":2.0,"head_rate":1.3,"rest_min":2.8,"rest_max":5.5,"pool":["look_back","neck","shoulder","scan"]},
-	{"name":"JIAN","breath_amp":0.8,"breath_period":4.2,"sway_amp":0.7,"sway_period":8.5,"base_lean":1.0,"base_turn":0.0,"head_yaw":12.0,"head_pitch":4.0,"head_top":2.0,"head_rate":0.9,"rest_min":3.5,"rest_max":6.5,"pool":["neck","nod","shoulder"]},
 ]
 
 func setup(sk: Skeleton3D, profile_index:int = 0) -> void:

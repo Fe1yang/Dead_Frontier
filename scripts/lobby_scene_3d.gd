@@ -17,7 +17,7 @@ const CHARACTERS:=[
 const PETS:=[
 	{"asset":"res://assets/models/pets/doberman.glb","name":"杜宾犬","length":1.10},
 	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.16},
-	{"asset":"res://assets/models/pets/czech_wolfdog.glb","name":"捷克狼犬","length":1.22},
+	{"asset":"res://assets/models/pets/czech_wolfdog.glb","name":"捷克狼犬","length":0.98,"yaw":1.5708},
 	{"asset":"res://assets/models/pets/tibetan_mastiff.glb","name":"藏獒","length":1.10}]
 ## Outfit skins: same survivor, different body. `char` indexes CHARACTERS; the first entry
 ## per character is the default look. Skins never change stats — Maya keeps her perk either way.
@@ -236,6 +236,10 @@ func show_pet(path: String) -> void:
 		if p.asset==path: length=float(p.get("length",1.1))
 	add_child(pet); ModelFix.double_sided(pet)
 	# dog stands where the survivor stands (STAND), same framing, so the camera never hops
+	var yaw:=0.0
+	for p in PETS:
+		if p.asset==path: yaw=float(p.get("yaw",0.0))
+	pet.rotation.y=yaw
 	pet.position=STAND+Vector3(0,ModelFix.fit_pet(pet,length*ACTOR_SCALE),0)
 	ModelFix.play_animation(pet,"Dog_Idle")
 
@@ -665,4 +669,7 @@ func _build_set_legacy() -> void:
 	_cyl("Backpack roll",Vector3(-1.3,0.44,-2.5),0.07,0.24,Color("5c6148"),0.95).rotation.z=deg_to_rad(90)
 	# Cool rim light from the window side so the survivor reads against the gloom.
 	var rim:=OmniLight3D.new(); rim.position=Vector3(0.2,2.1,-2.4); rim.light_color=Color("5d7488")
-	rim.light_energy=0.4; rim.omni_range=3.5; add_child(
+	rim.light_energy=0.4; rim.omni_range=3.5; add_child(rim)
+	# Gentle frontal fill so faces and hands stay readable in the gloom.
+	var fill:=OmniLight3D.new(); fill.position=Vector3(0,1.65,3.3); fill.light_color=Color("d9c9b8")
+	fill.light_energy=0.38; fill.omni_range=5.5; add_child(fill)

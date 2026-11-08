@@ -51,7 +51,6 @@ const PACKS:=[
 	{"id":"char_darius","kind":"character","name":"char_darius","char":2,"perk":"perk_darius","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"gold","rays":8},
 	{"id":"char_maya","kind":"character","name":"char_maya","char":3,"perk":"perk_maya","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"violet","rays":10},
 	{"id":"char_riley","kind":"character","name":"char_riley","char":1,"coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"teal","rays":8},
-	{"id":"char_jian","kind":"character","name":"char_jian","char":4,"perk":"perk_jian","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"amber","rays":8},
 	{"id":"pet_0","kind":"pet","name":"pets","pet":0,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"gold","rays":8},
 	{"id":"pet_1","kind":"pet","name":"pets","pet":1,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"amber","rays":8},
 	{"id":"pet_2","kind":"pet","name":"pets","pet":2,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"violet","rays":10},
