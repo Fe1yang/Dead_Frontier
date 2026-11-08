@@ -153,6 +153,19 @@ jobs:
         ctex = [n for n, s in ents if n.endswith(".ctex") and s > 0]
         payload = sum(s for _, s in ents)
         print(f"pck={p} entries={cnt} payload={payload/1e6:.1f} MB .scn>0={len(scn)} .ctex>0={len(ctex)}")
+        # The export packs every imported resource, so this report is the honest answer to
+        # "why is the build this big" (builds 10-16 all sat around 1.75 GB of payload).
+        by_ext = {}
+        for n, s in ents:
+            tail = n.rsplit("/", 1)[-1]
+            ext = tail.rsplit(".", 1)[-1].lower() if "." in tail else "(none)"
+            by_ext[ext] = by_ext.get(ext, 0) + s
+        print("payload by type (MB):")
+        for ext, s in sorted(by_ext.items(), key=lambda kv: -kv[1])[:10]:
+            print(f"  {ext:<10} {s/1e6:9.1f}  {100.0*s/payload:5.1f}%")
+        print("largest 25 entries:")
+        for n, s in sorted(ents, key=lambda kv: -kv[1])[:25]:
+            print(f"  {s/1e6:8.1f} MB  {n}")
         if len(scn) < 20 or len(ctex) < 20:
             sys.exit("PCK has no model/texture payload -- refusing to upload")
         PY
