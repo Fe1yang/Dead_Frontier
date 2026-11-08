@@ -14,8 +14,8 @@ func _run() -> void:
 	main.set("loadout_on", false); main.set("owned_vehicle", "")
 	main.call("start_run", true, true)
 	await create_timer(2.2).timeout
-	var boss = main.get("boss")
-	print("boss=", boss != null)
+	var boss = main.get("chaser")
+	print("chaser=", boss != null)
 	if boss != null:
 		print("boss pos=", boss.position, " visible=", boss.visible)
 		var ap: AnimationPlayer = boss.find_child("AnimationPlayer", true, false)
