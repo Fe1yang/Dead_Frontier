@@ -249,7 +249,7 @@ func dismount_vehicle() -> void:
 	if is_instance_valid(model):
 		model.position=Vector3.ZERO
 		model.visible=true
-	 hide_rider=false
+	hide_rider=false
 	if is_instance_valid(vehicle_model): vehicle_model.queue_free(); vehicle_model=null
 	if is_instance_valid(rider): rider.queue_free(); rider=null
 
