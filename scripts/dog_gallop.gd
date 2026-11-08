@@ -38,7 +38,6 @@ var sk: Skeleton3D
 var ids:={}
 var rest_rot:={}
 var body_rest:=Vector3.ZERO
-var head_corr:=Quaternion.IDENTITY  # cancels a rolled head rest pose
 var phase:=0.0
 
 func _init(skeleton: Skeleton3D) -> void:
@@ -50,21 +49,11 @@ func _init(skeleton: Skeleton3D) -> void:
 		if i<0: continue
 		ids[bone_name]=i; rest_rot[bone_name]=sk.get_bone_rest(i).basis.get_rotation_quaternion()
 	if ids.has("body"): body_rest=sk.get_bone_rest(ids["body"]).origin
-	# If the head bone rests rolled away from the body's up axis, cancel that roll
-	# once. Straight rigs (mastiff, shepherd) produce a near-identity correction.
-	if ids.has("head") and ids.has("chest"):
-		var gh:=sk.get_bone_global_rest(ids["head"]).basis
-		var gc:=sk.get_bone_global_rest(ids["chest"]).basis
-		var up_h:=gh.y.normalized(); var up_c:=gc.y.normalized()
-		if up_h.dot(up_c)<0.999:
-			var world:=Quaternion(up_h,up_c)
-			head_corr=(gh.inverse()*world*gh).get_rotation_quaternion()
+
 
 func _rot(bone_name: String,angle_deg: float) -> void:
 	if not ids.has(bone_name): return
-	var q:=Quaternion(Vector3.RIGHT,deg_to_rad(angle_deg))
-	if bone_name=="head": q=head_corr*q
-	sk.set_bone_pose_rotation(ids[bone_name],rest_rot[bone_name]*q)
+	sk.set_bone_pose_rotation(ids[bone_name],rest_rot[bone_name]*Quaternion(Vector3.RIGHT,deg_to_rad(angle_deg)))
 
 ## Smooth cyclic interpolation (Catmull-Rom) of the key poses at stride fraction t.
 static func _sample(keys: Array,t: float) -> Array:
