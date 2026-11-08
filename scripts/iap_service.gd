@@ -75,11 +75,12 @@ const PRODUCTS:={
 	"pet_1":"com.deadfrontier.pet.1",
 	"pet_2":"com.deadfrontier.pet.2",
 	"pet_3":"com.deadfrontier.pet.3",
+	"pet_4":"com.deadfrontier.pet.4",
 }
 ## Non-Consumable ids: restore re-applies these from Transaction.currentEntitlements;
 ## consumables must NOT be listed here (re-granting them on restore would duplicate rewards).
 const NON_CONSUMABLE:=["removeads","unlock_all","offer_unlock_all","pass_weekly","pass_monthly","char_darius","char_maya","skin_maya_tactical",
-	"pet_0","pet_1","pet_2","pet_3"]
+	"pet_0","pet_1","pet_2","pet_3","pet_4"]
 
 var mode:="none"            # "storekit", "sim" (editor / debug only) or "none"
 var plugin: Object

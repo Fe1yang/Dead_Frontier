@@ -678,7 +678,9 @@ func _draw_character_select() -> void:
 		_side_button(game.SIDE_BAG,"bag",ExtraText.text(lang,"bag"),false)
 		_side_button(game.SIDE_MAP,"map",ExtraText.text(lang,"map"),false)
 		_airdrop_button(lang)
-	_gear_icon(game.LOBBY_GEAR.get_center(),0.72)
+	_gear_button(game.LOBBY_GEAR,game.loadout_on)
+	_gear_button(game.LOBBY_GEAR_PET,game.pet_equipped)
+	_gear_button(game.LOBBY_GEAR_VEHICLE,game.vehicle_equipped)
 	for t in [0, 1, 3]:
 		var tab: Rect2=game.lobby_tab_rect(t); var tab_on: bool=game.lobby_tab==t
 		_text_center("载具" if t==3 else ShopText.text(lang,"chars" if t==0 else "pets"),Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
@@ -867,12 +869,20 @@ func _locked_slot(rect: Rect2,pet:=false,skin:=false) -> void:
 		draw_arc(c+Vector2(0,-2),8,PI,TAU,16,Color(1,1,1,0.22),3.0)
 	_text_center(ShopText.text(game.language_code,"coming"),Vector2(c.x,rect.end.y-10),10,Color(MUTED,0.8))
 
-func _gear_icon(c: Vector2,k:=1.0) -> void:
-	draw_arc(c,13*k,0,TAU,24,WHITE,3.0*k)
+## Gear toggle with a visible state: bright ring + "ON" when equipped, dim + "OFF" when not.
+func _gear_button(r: Rect2,on: bool) -> void:
+	var tint: Color = Color(1.0,0.86,0.4) if on else Color(0.45,0.46,0.47)
+	_panel(r,Color(0.06,0.065,0.07,0.9) if on else Color(0.03,0.032,0.035,0.75),tint,1)
+	_gear_icon(r.get_center()+Vector2(0,-5),0.55,tint)
+	var label: String = "ON" if on else "OFF"
+	_text_center(label,Vector2(r.get_center().x,r.end.y-8),11,tint)
+
+func _gear_icon(c: Vector2,k:=1.0,tint: Color=WHITE) -> void:
+	draw_arc(c,13*k,0,TAU,24,tint,3.0*k)
 	for i in range(8):
 		var a:=i*TAU/8.0
-		draw_line(c+Vector2(cos(a),sin(a))*13*k,c+Vector2(cos(a),sin(a))*19*k,WHITE,5.0*k)
-	draw_circle(c,5*k,WHITE)
+		draw_line(c+Vector2(cos(a),sin(a))*13*k,c+Vector2(cos(a),sin(a))*19*k,tint,5.0*k)
+	draw_circle(c,5*k,tint)
 
 func _character_card(rect: Rect2,index: int) -> void:
 	_panel(rect,Color("181b1c"),WHITE if game.character_choice==index else LINE,0)

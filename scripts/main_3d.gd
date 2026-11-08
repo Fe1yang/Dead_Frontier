@@ -147,7 +147,8 @@ var owned_skins:={}           # lobby.SKINS index -> true
 var owned_vehicle:=""
 ## Lobby loadout switch. false = no vehicle and no pet in the run (testing).
 var equip_menu_index:=-1  # survivor card whose EQUIP dropdown is open
-var loadout_on:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
+var loadout_on:=true
+var vehicle_equipped:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
 const VEHICLE_AUTO_RANGE:=1000.0 # bought bike auto-rides every run until this distance (or durability runs out)
 var vehicle_auto_active:=false
 var lobby_toast_key:="coming" # ShopText key the lobby toast shows
@@ -981,7 +982,7 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 	player.reset(); player.apply_meta(meta_upgrades); player.set_aim(aim_direction)
 	# Bought motorcycle: every run starts already mounted for the first VEHICLE_AUTO_RANGE metres
 	# (it also breaks on durability as usual, whichever comes first).
-	vehicle_auto_active=loadout_on and owned_vehicle!=""
+	vehicle_auto_active=loadout_on and vehicle_equipped and owned_vehicle!=""
 	if vehicle_auto_active:
 		player.mount_vehicle(owned_vehicle)
 	if automated:
@@ -1495,6 +1496,8 @@ func close_lootbox() -> void:
 const WALLET_LOBBY:=Vector2(12,16)
 const LOBBY_WALLET_SCALE:=0.78  # the lobby's balances are drawn smaller than in the shop / store
 const LOBBY_GEAR:=Rect2(488,8,46,46)
+const LOBBY_GEAR_PET:=Rect2(430,8,46,46)
+const LOBBY_GEAR_VEHICLE:=Rect2(430,62,46,46)
 ## First-launch gate: the Terms of Use & Disclaimer must be accepted before the game unlocks.
 ## Small window on the login page (cover): a solid black card floats over the poster,
 ## the poster stays visible around it. Music stays on the login track.
@@ -2418,6 +2421,18 @@ func select_pet(index: int) -> void:
 
 ## Every finished run lands back in the character lobby.
 ## Lobby switch: take the whole loadout off, or put it back.
+func toggle_pet_equip() -> void:
+	if not pet_owned(pet_choice): return
+	pet_equipped=not pet_equipped
+	if is_instance_valid(lobby):
+		lobby.show_pet(lobby.PETS[pet_choice].asset if pet_equipped and loadout_on else "")
+	_save()
+
+func toggle_vehicle_equip() -> void:
+	vehicle_equipped=not vehicle_equipped
+	vehicle_auto_active=loadout_on and vehicle_equipped and owned_vehicle!=""
+	_save()
+
 func toggle_loadout() -> void:
 	loadout_on=not loadout_on
 	_save()
@@ -4405,7 +4420,9 @@ func _pointer_down(pos: Vector2) -> bool:
 			if stamina.value>=stamina.RUN_COST: _begin_loading("run")
 			else: store_toast_text=StoreCatalog.text(language_code,"no_cans"); store_toast=2.4
 			return true
-		if LOBBY_GEAR.grow(8).has_point(pos): settings_return_state="character_select"; state="settings"; return true
+		if LOBBY_GEAR.grow(8).has_point(pos): toggle_loadout(); return true
+		if LOBBY_GEAR_PET.grow(8).has_point(pos): toggle_pet_equip(); return true
+		if LOBBY_GEAR_VEHICLE.grow(8).has_point(pos): toggle_vehicle_equip(); return true
 		return true
 	elif state=="settings":
 		if SLIDER_MUSIC.grow(8).has_point(pos): volume_drag="music"; _set_volume_from(pos.x); return true

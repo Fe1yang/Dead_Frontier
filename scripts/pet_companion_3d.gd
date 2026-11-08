@@ -10,7 +10,7 @@ const DogGallop=preload("res://scripts/dog_gallop.gd")
 ## Bite damage climbs with the breed (doberman, shepherd, wolfdog, mastiff). Only the mastiff
 ## takes a fresh walker down in one bite, and no bite ever finishes a Juggernaut ("brute"):
 ## the dog wears it down and the survivor has to shoot it dead.
-const BITE_DAMAGE_BY_BREED:=[16.0,26.0,40.0,72.0]
+const BITE_DAMAGE_BY_BREED:=[16.0,26.0,40.0,72.0,1000000.0]  # 4 = white tiger: one bite kills
 static func bite_damage(breed_index: int) -> float:
 	return BITE_DAMAGE_BY_BREED[clampi(breed_index,0,BITE_DAMAGE_BY_BREED.size()-1)]
 const BITE_INTERVAL:=1.35

@@ -58,6 +58,7 @@ const PACKS:=[
 	{"id":"pet_1","kind":"pet","name":"pets","pet":1,"coins":0,"vouchers":0,"tier":2,"usd":5.99,"bonus":0,"once":true,"glow":"amber","rays":8},
 	{"id":"pet_2","kind":"pet","name":"pets","pet":2,"coins":0,"vouchers":0,"tier":2,"usd":6.99,"bonus":0,"once":true,"glow":"violet","rays":10},
 	{"id":"pet_3","kind":"pet","name":"pets","pet":3,"coins":0,"vouchers":0,"tier":2,"usd":7.99,"bonus":0,"once":true,"glow":"red","rays":10},
+	{"id":"pet_4","kind":"pet","name":"pets","pet":4,"coins":0,"vouchers":0,"tier":5,"usd":24.99,"bonus":0,"once":true,"glow":"gold","rays":20},
 	{"id":"vehicle_bike","kind":"vehicle","vehicle":"BIKE","name":"bike","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"teal","rays":12,"art":"vehicle_bike"},
 	{"id":"vehicle_sport","kind":"vehicle","vehicle":"SPORT","name":"sport","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"amber","rays":12,"art":"vehicle_sport"},
 	{"id":"vehicle_car","kind":"vehicle","vehicle":"CRUISER","name":"cruiser","coins":0,"vouchers":0,"tier":4,"bonus":0,"once":true,"glow":"red","rays":16,"art":"vehicle_cruiser"},
