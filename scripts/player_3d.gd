@@ -70,7 +70,8 @@ var character := 0
 var vehicle := ""
 var vehicle_durability := 0.0
 var vehicle_model: Node3D
-var cannon_kick:=0.0  # tank hull recoil, 1.0 right after a shot
+var cannon_kick:=0.0
+var hide_rider:=false  # tank hull recoil, 1.0 right after a shot
 var rider: SkeletonModifier3D
 const BIKE_DURABILITY := 100.0
 ## Per-vehicle feel: forward speed, side-step pace, and ram power (how hard it plows through
@@ -230,7 +231,11 @@ func mount_vehicle(id: String) -> void:
 	vehicle_model.position=Vector3(0,0,0.05)
 	add_child(vehicle_model); ModelFix.double_sided(vehicle_model)
 	# the tank GLB faces +Z; the survivor runs -Z, so turn the hull around
-	if id=="TANK": vehicle_model.rotation.y=PI
+	hide_rider=(id=="TANK")
+	if id=="TANK":
+		vehicle_model.rotation.y=PI
+		# a crew sits INSIDE a tank: drop the survivor model and its attachments
+		if is_instance_valid(model): model.visible=false
 	# Seat the rider on THIS vehicle's seat (per-vehicle lift/back, see SEAT_FIT).
 	if is_instance_valid(model):
 		model.position.z=float(SEAT_FIT.get(id,Vector2.ZERO).y)
@@ -241,7 +246,10 @@ func mount_vehicle(id: String) -> void:
 ## Back on foot (bike broken or the run reset): drop the pose; the run cycle never stopped.
 func dismount_vehicle() -> void:
 	vehicle=""
-	if is_instance_valid(model): model.position=Vector3.ZERO
+	if is_instance_valid(model):
+		model.position=Vector3.ZERO
+		model.visible=true
+	 hide_rider=false
 	if is_instance_valid(vehicle_model): vehicle_model.queue_free(); vehicle_model=null
 	if is_instance_valid(rider): rider.queue_free(); rider=null
 
