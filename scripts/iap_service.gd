@@ -67,6 +67,7 @@ const PRODUCTS:={
 	"offer_tank":"com.deadfrontier.offer.tank",
 	"offer_sport_bike":"com.deadfrontier.offer.sport.bike",
 	"offer_darius_bundle":"com.deadfrontier.offer.darius.bundle",
+	"pass_weekly":"com.deadfrontier.pass.weekly",
 	"pet_0":"com.deadfrontier.pet.0",
 	"pet_1":"com.deadfrontier.pet.1",
 	"pet_2":"com.deadfrontier.pet.2",
@@ -74,7 +75,7 @@ const PRODUCTS:={
 }
 ## Non-Consumable ids: restore re-applies these from Transaction.currentEntitlements;
 ## consumables must NOT be listed here (re-granting them on restore would duplicate rewards).
-const NON_CONSUMABLE:=["removeads","char_darius","char_maya","skin_maya_tactical",
+const NON_CONSUMABLE:=["removeads","pass_weekly","char_darius","char_maya","skin_maya_tactical",
 	"pet_0","pet_1","pet_2","pet_3"]
 
 var mode:="none"            # "storekit", "sim" (editor / debug only) or "none"
