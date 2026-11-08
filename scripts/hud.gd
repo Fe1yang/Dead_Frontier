@@ -1578,7 +1578,7 @@ func _store_row(r: Rect2,p: Dictionary,cur: String,lang: String) -> void:
 		_clean_text(bold,Vector2(x,y+30),RunText.text(String(sk2.get("name","")),lang),30,WHITE,false)
 		_clean_text(font,Vector2(x,y+58),game.character_name(int(sk2.get("char",-1))),14,MUTED,false)
 		_clean_text(font,Vector2(x,y+78),StoreCatalog.text(lang,"once").to_upper(),13,Color("e0453d"),false)
-	elif kind=="pass":
+	elif kind=="pass" or kind=="unlock":
 		var pkey: String=String(p.get("name","pass_weekly"))
 		_clean_text(bold,Vector2(x,y+30),StoreCatalog.text(lang,pkey),26,WHITE,false)
 		var pw: Rect2=game.store_price_rect(r,false)
