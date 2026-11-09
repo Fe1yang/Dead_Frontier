@@ -4412,6 +4412,15 @@ func _route_remains_open(kind: String,lane_x: float,at_z: float,crosswise: bool=
 
 ## A pothole marked by three cones in a tight triangle. Only ever spawned when the road has no
 ## cones on it at all, so a run can never accumulate more than three.
+## How many cone obstacles are on the road right now.
+func _cone_obstacle_count() -> int:
+	var n := 0
+	for o in obstacles:
+		if is_instance_valid(o) and String(o.kind) == "cone":
+			n += 1
+	return n
+
+
 func _spawn_cone_triangle() -> void:
 	var lane_x: float = [-2.0, 0.0, 2.0][rng.randi_range(0, 2)]
 	var z := -46.0

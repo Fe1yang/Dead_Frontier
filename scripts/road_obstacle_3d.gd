@@ -38,6 +38,11 @@ func _ready() -> void:
 			var cone:=cone_packed.instantiate() as Node3D
 			if cone!=null:
 				cone.position=Vector3(0,0,0)
+				# the generated cone GLB arrives with shadow casting off
+				for mi in cone.find_children("*", "MeshInstance3D", true, false):
+					var cm := mi as MeshInstance3D
+					if cm != null:
+						cm.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 				model.add_child(cone)
 		# the hole itself: a dark disc so the cones read as a warning, not random clutter
 		var disc:=MeshInstance3D.new()
