@@ -845,10 +845,13 @@ func _place_street_props(road: Node3D, index: int) -> void:
 		# 10.9 .. 11.3 on whichever pavement this block uses
 		var mx: float = x + side * rng_d.randf_range(-0.1, 0.3)
 		# ring the crater mouth instead of dropping covers on the tarmac
-		for k in range(1):
-			var ang := rng_d.randf_range(0.0, TAU)
-			_traffic_cone(road, Vector3(CRATER_X + cos(ang) * (CRATER_RADIUS + 0.55), PAVEMENT_Y,
-				base_z + sin(ang) * (CRATER_RADIUS + 0.55)))
+		# ring of 3..6 cones around the crater mouth, evenly spaced with a little jitter
+		var cone_count := rng_d.randi_range(3, 6)
+		var ring_r := CRATER_RADIUS + 0.55
+		for k in range(cone_count):
+			var ang := TAU * float(k) / float(cone_count) + rng_d.randf_range(-0.18, 0.18)
+			_traffic_cone(road, Vector3(CRATER_X + cos(ang) * ring_r, PAVEMENT_Y,
+				base_z + sin(ang) * ring_r))
 	if rng_d.randf() < 0.14:
 		_prop_node("hydrant", road, Vector3(x, PAVEMENT_Y, base_z + rng_d.randf_range(-6.5, 6.5)), 0.0)
 
