@@ -4374,11 +4374,11 @@ func _refuel() -> void:
 	if player.vehicle != "":
 		player.vehicle_durability = 100.0
 		vehicle_range_end = distance + VEHICLE_AUTO_RANGE
-		_popup(player.position+Vector3(0,2.5,0),"FUEL: FULL",Color("ffb14d"))
+		_popup(player.position+Vector3(0,2.5,0),"油箱加满" if String(language_code).begins_with("zh") else "FUEL: FULL",Color("ffb14d"))
 	elif player.weapon == "FLAME":
 		player.ammo = player.magazine_size
 		player.reserve_ammo = mini(player.reserve_ammo + 100, player.magazine_size * 3)
-		_popup(player.position+Vector3(0,2.5,0),"FLAME FUEL +100",Color("ff9b35"))
+		_popup(player.position+Vector3(0,2.5,0),"燃料 +100" if String(language_code).begins_with("zh") else "FLAME FUEL +100",Color("ff9b35"))
 	else:
 		run_coins += 15
 		_popup(player.position+Vector3(0,2.5,0),"+15",Color("ffd27a"))
@@ -4666,11 +4666,25 @@ func _tick_obstacles(delta: float) -> void:
 				if player.vehicle!="": player.vehicle_durability-=maxf(6.0,obstacle.damage*0.6)
 				shake=maxf(shake,0.55)
 				_burst(player.position+Vector3(0,0.55,0),Color("f2a04d"),8)
-				var label: String="POLICE" if obstacle.kind=="police" else ("WRECK" if obstacle.kind=="car" else ("CORPSES" if obstacle.kind=="corpse_pile" else "BARRIER"))
+				var label: String=_obstacle_label(String(obstacle.kind))
 				_popup(player.position+Vector3(0,2.45,0),"%s -%d"%[label,int(obstacle.damage)],Color("ffad72"))
 		if obstacle.position.z>13.0:
 			obstacles.remove_at(i)
 			obstacle.queue_free()
+
+## Localised label for the obstacle hit pop-up ("CORPSES" used to leak into Chinese runs).
+func _obstacle_label(kind: String) -> String:
+	var zh := String(language_code).begins_with("zh")
+	match kind:
+		"police":
+			return "警车" if zh else "POLICE"
+		"car":
+			return "废车" if zh else "WRECK"
+		"corpse_pile":
+			return "尸堆" if zh else "CORPSES"
+		_:
+			return "路障" if zh else "BARRIER"
+
 
 func _avoid_obstacles(z: Node3D,delta: float) -> void:
 	for obstacle in obstacles:
