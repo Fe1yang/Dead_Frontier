@@ -741,7 +741,7 @@ func _hide_road_lamps(road: Node3D) -> void:
 
 ## One phone booth per block, standing beside the block's own street shelter and aligned with it.
 ## If a district has no shelter there is no booth: nothing is dropped at random.
-const SHELTER_HINTS := ["shelter", "busstop", "bus_stop", "bus", "kiosk"]
+const SHELTER_HINTS := ["station", "shelter", "busstop", "bus_stop", "kiosk"]
 
 
 func _shelter_of(road: Node3D) -> AABB:
@@ -779,9 +779,9 @@ func _place_phone_booth(road: Node3D) -> void:
 		# every other block gets one. One per 16 m block can never overlap the next.
 		return
 	var side := -1.0 if shel.get_center().x < 0.0 else 1.0
-	# same x line as the shelter, 2.6 m along the street, so neither can overlap the other
-	var z := shel.get_center().z + 2.6 * (-1.0 if side < 0.0 else 1.0)
-	var x := shel.get_center().x
+	# clear of the station along the street, on the same pavement line
+	var z: float = shel.end.z + 1.4 if side < 0.0 else shel.position.z - 1.4
+	var x: float = shel.get_center().x
 	_prop_node("phone_booth", road, Vector3(x, PAVEMENT_Y, z), side * PI * 0.5)
 
 
