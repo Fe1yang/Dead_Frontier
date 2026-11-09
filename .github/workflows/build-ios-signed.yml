@@ -12,8 +12,11 @@ on:
         description: 'Comma-separated crash image offsets to symbolicate (hex, e.g. 0x1516128,0x152edc0). Empty = the bundled default set.'
         required: false
         default: ''
-  # push:
-  #   branches: [main]   # deliberately off: builds are dispatched manually
+  # Branch pushes stay off (builds would fire on every commit), but a build tag is a deliberate
+  # one-line trigger:  git tag build-18 && git push origin build-18
+  push:
+    tags:
+      - "build-*"
 
 env:
   GODOT_VERSION: 4.7.2-stable
