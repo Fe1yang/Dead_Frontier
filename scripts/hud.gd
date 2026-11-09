@@ -120,7 +120,7 @@ func _ready() -> void:
 	var grad:=Gradient.new(); grad.set_color(0,Color(1,1,1,1)); grad.set_color(1,Color(1,1,1,0)); grad.add_point(0.45,Color(1,1,1,0.45))
 	glow_tex=GradientTexture2D.new(); glow_tex.gradient=grad; glow_tex.fill=GradientTexture2D.FILL_RADIAL; glow_tex.fill_from=Vector2(0.5,0.5); glow_tex.fill_to=Vector2(1.0,0.5); glow_tex.width=128; glow_tex.height=128
 	hud_portraits=[load("res://assets/ui/male_hud_gray.png"),load("res://assets/ui/riley_hud_gray.png"),load("res://assets/ui/medic_hud_gray.png"),load("res://assets/ui/maya_hud_gray.png")]
-	menu_art=load("res://assets/ui/launch_cover.png")
+	menu_art=load("res://assets/ui/cover.png")
 	loading_art=[load("res://assets/ui/loading/loading_1_corn.png"),load("res://assets/ui/loading/loading_2_snowroad.png"),load("res://assets/ui/loading/loading_3_graveyard.png"),load("res://assets/ui/loading/loading_4_city.png")]
 	for i in range(3):
 		brush_button.append(load("res://assets/ui/brush_button_%d.png"%i))
@@ -660,8 +660,7 @@ func _draw_character_select() -> void:
 		# Grey while the menu is open; the red edge belongs to the equipped card only.
 		var equipped_now: bool = int(game.equip_menu_index) == game.character_choice
 		_panel(er, Color(0.03,0.034,0.038,1.0), RED if equipped_now else Color(0.72,0.74,0.75,1.0), 2)
-		var zh: bool=String(game.language_code).begins_with("zh")
-		var etxt: String=("已装备" if zh else "EQUIPPED") if equipped_now else ("装备" if zh else "EQUIP")
+		var etxt: String = ShopText.text(game.language_code, "char_equipped" if equipped_now else "btn_equip")
 		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the
 	# frame: one column on the left with 角色 / 宠物 tabs over a vertically scrolling list.
