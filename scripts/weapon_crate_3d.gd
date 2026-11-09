@@ -8,8 +8,8 @@ const TRUCK_PATH := "res://assets/models/supply_truck.glb"
 const AMMO_CAN_PATH := "res://assets/models/ammo_pickup.glb"
 const CRATE_SCALE := 2.9
 const FLIGHT_TIME := 0.55
-const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.62,"CRUISER":0.62}
-const WEAPON_NAMES := {"ARMOR":"ARMOR: SHIELD +50","HELMET":"HELMET: +20% PROTECTION","PISTOL":"PISTOL","SMG":"SMG","SHOTGUN":"SHOTGUN","SNIPER":"SNIPER","LAUNCHER":"GRENADE LAUNCHER","RIFLE":"RIFLE"}
+const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.62,"CRUISER":0.62,"FUEL":1.15}
+const WEAPON_NAMES := {"ARMOR":"ARMOR: SHIELD +50","HELMET":"HELMET: +20% PROTECTION","PISTOL":"PISTOL","SMG":"SMG","SHOTGUN":"SHOTGUN","SNIPER":"SNIPER","LAUNCHER":"GRENADE LAUNCHER","RIFLE":"RIFLE","FUEL":"FUEL: REFILL"}
 const GLOW := Color("49b8ff")
 const PET_GLOW := Color("ffbf4a")
 # Dogs can stand on a platform too ("PET_<index>"); English names for the pop-up.

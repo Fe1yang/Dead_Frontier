@@ -1,4 +1,4 @@
-extends Node
+﻿extends Node
 
 var streams: Dictionary = {}
 var voices: Array[AudioStreamPlayer] = []
@@ -17,16 +17,16 @@ var chase: AudioStreamPlayer
 ## Start screen ("tap anywhere to start") has its own looping track.
 var title_music: AudioStreamPlayer
 ## Main screen (character and pet picking) rotates randomly through these, like the chase tracks.
-const LOBBY_TRACKS := ["res://assets/audio/lobby_music.ogg","res://assets/audio/lobby_serenade.mp3"]
+const LOBBY_TRACKS := ["res://assets/audio/lobby_music.ogg","res://assets/audio/lobby_serenade.mp3","res://assets/audio/lobby_beyond_routine.mp3","res://assets/audio/lobby_smooth_podcast.mp3"]
 var lobby_music: AudioStreamPlayer
 var lobby_streams: Array = []
-## Supply shop (补给商店) rotates randomly through these too; the theme copy is duplicated so
+## Supply shop (è¡¥ç»™å•†åº—) rotates randomly through these too; the theme copy is duplicated so
 ## its loop can stay off here while the shared `music` player keeps looping it elsewhere.
 const SHOP_TRACKS := ["res://assets/audio/dead_run_theme.wav","res://assets/audio/shop_disco.mp3"]
 var shop_music: AudioStreamPlayer
 var shop_streams: Array = []
 ## States that are the main screen, including the popups shown over it.
-## Note: "terms" is NOT here — it sits over the cover (login page), so it keeps the
+## Note: "terms" is NOT here â€” it sits over the cover (login page), so it keeps the
 ## login/title music, not the lobby music.
 const LOBBY_STATES:=["character_select","signin","offer"]
 var chase_streams: Array = []
@@ -36,7 +36,12 @@ const STORM_TRACK := "res://assets/audio/chase_storm.mp3"
 var storm_stream: AudioStream
 var storm := false
 ## Rain ambience: looped along with the chase music whenever the weather is rain/storm.
-const RAIN_TRACK := "res://assets/audio/rain_thunder.mp3"
+## Storm/rain ambience: two supplied beds, chosen at random per weather change and played as
+## a layer UNDER the music (own player, Music bus). `RAIN_GAIN` evens them out by ear.
+const RAIN_TRACKS := ["res://assets/audio/storm_rain.mp3", "res://assets/audio/storm_rain_2.mp3"]
+const RAIN_GAIN := [-10.0, -10.0]     # per-track dB, tweak if one bed is louder
+const RAIN_TRACK := "res://assets/audio/storm_rain.mp3"
+const RAIN_TRACK_OLD := "res://assets/audio/rain_thunder.mp3"
 var rain_stream: AudioStream
 var rain: AudioStreamPlayer
 var raining := false
@@ -52,6 +57,7 @@ func _ready() -> void:
 	streams["smg"] = load("res://assets/audio/smg.mp3")
 	streams["sniper"] = load("res://assets/audio/sniper.mp3")
 	streams["shotgun"] = load("res://assets/audio/shotgun.mp3")
+	streams["flame"] = load("res://assets/audio/flame.mp3")
 	streams["pistol_near"] = load("res://assets/audio/pistol_near.mp3")
 	streams["pistol_far"] = load("res://assets/audio/pistol_far.mp3")
 	streams["reload"] = load("res://assets/audio/reload.mp3")
@@ -116,10 +122,16 @@ func _ready() -> void:
 	shop_music.finished.connect(_next_shop_track)
 	chase=AudioStreamPlayer.new(); chase.volume_db=-12.0; add_child(chase)
 	chase.finished.connect(_next_chase_track)
-	if ResourceLoader.exists(RAIN_TRACK):
-		rain_stream=load(RAIN_TRACK)
+	var rain_path:=RAIN_TRACK
+	if RAIN_TRACKS.size() > 0:
+		rain_path=String(RAIN_TRACKS[randi() % RAIN_TRACKS.size()])
+	if ResourceLoader.exists(rain_path):
+		rain_stream=load(rain_path)
 		if rain_stream is AudioStreamMP3: (rain_stream as AudioStreamMP3).loop=true
-		rain=AudioStreamPlayer.new(); rain.stream=rain_stream; rain.volume_db=-10.0; rain.bus="Music"; add_child(rain)
+		var idx:=RAIN_TRACKS.find(rain_path)
+		rain=AudioStreamPlayer.new(); rain.stream=rain_stream
+		rain.volume_db=float(RAIN_GAIN[idx]) if idx>=0 and idx<RAIN_GAIN.size() else -10.0
+		rain.bus="Music"; add_child(rain)
 	var fanfare_stream=load(RECORD_FANFARE)
 	if fanfare_stream:
 		fanfare=AudioStreamPlayer.new(); fanfare.stream=fanfare_stream; fanfare.volume_db=-2.0
@@ -243,6 +255,7 @@ func play(id: String) -> void:
 	elif id=="pistol_near": voice.volume_db=-16.0
 	elif id=="pistol_far": voice.volume_db=-12.0
 	elif id=="shotgun": voice.volume_db=-15.0
+	elif id=="flame": voice.volume_db=-13.0
 	elif id=="sniper": voice.volume_db=-4.0
 	elif id=="zombie": voice.volume_db=-6.0
 	elif id in ["coin_get","tada","level_up"]: voice.volume_db=-14.0 # claim/jingle quieter

@@ -58,6 +58,9 @@ func _ready() -> void:
 		clip.loop_mode=Animation.LOOP_LINEAR
 		anim.speed_scale=0.90 # slowed for the opening: heavy stride, no ice-skate slide
 		anim.play(clip_name)
+		# The clip's first frames have the arms up (looks like it surrenders); start mid-stride
+		# instead so the beast charges with its arms down.
+		anim.seek(0.62, true)
 	else:
 		push_error("Pursuer custom run animation is missing")
 	for m in model.find_children("*","MeshInstance3D",true,false):

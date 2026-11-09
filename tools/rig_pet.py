@@ -70,18 +70,29 @@ print("SCALED length", LENGTH, "height", round(hi.z - lo.z, 2))
 segs = [(b.name, b.head_local.copy(), b.tail_local.copy()) for b in arm.data.bones]
 groups = {n: body.vertex_groups.new(name=n) for n, _, _ in segs}
 inv = arm.matrix_world.inverted()
+# Two nearest bones, inverse-square blend. A single rigid bone shears long fingers and
+# forearms when the joint bends (the "hands stretched by something" look).
 for v in body.data.vertices:
     p = inv @ (body.matrix_world @ v.co)
-    best_name = segs[0][0]
-    best_d = 1e9
+    best = []
     for n, a, b in segs:
         ab = b - a
         t = max(0.0, min(1.0, (p - a).dot(ab) / max(ab.length_squared, 1e-9)))
         d = (p - (a + ab * t)).length
-        if d < best_d:
-            best_d = d
-            best_name = n
-    groups[best_name].add([v.index], 1.0, "REPLACE")
+        best.append((d, n))
+    best.sort()
+    near = best[:2]
+    d0 = max(near[0][0], 1e-4)
+    d1 = max(near[1][0], 1e-4) if len(near) > 1 else d0 * 4.0
+    w0 = 1.0 / (d0 * d0)
+    w1 = 1.0 / (d1 * d1)
+    # only blend when the second bone is genuinely close, otherwise stay rigid
+    if d1 > d0 * 2.2:
+        w1 = 0.0
+    total = max(w0 + w1, 1e-6)
+    groups[near[0][1]].add([v.index], w0 / total, "REPLACE")
+    if w1 > 0.0:
+        groups[near[1][1]].add([v.index], w1 / total, "REPLACE")
 print("WEIGHTED", len(body.data.vertices), "bones used", len(segs))
 
 mod = body.modifiers.new("Armature", "ARMATURE")

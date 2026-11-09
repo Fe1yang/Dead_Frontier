@@ -267,17 +267,21 @@ func _draw_hud() -> void:
 	var lang_r: String=game.language_code
 	if not game.new_record and game.run_start_best>0 and game.record_metres_left()<=game.RECORD_HINT_METRES:
 		_clean_center(bold,Vector2(270,156),ProgressCatalog.text(lang_r,"rec_left").replace("%d",str(game.record_metres_left())),16,Color("ffd36b"))
-	# kills and coins picked up this run, side by side under the distance
-	var kill_txt:="x %d"%game.kills; var coin_txt:=_group_thousands(game.run_coins)
+	# Kills only, centred under the distance. The coins moved to the top-right column so the
+	# middle of the screen stays clean: gold and silver as coloured text, no extra icons.
+	var kill_txt:="x %d"%game.kills
 	var kw: float=bold.get_string_size(kill_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,36).x
-	var cw: float=bold.get_string_size(coin_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,36).x
-	var row_w: float=24.0+kw+28.0+34.0+cw
-	var rx: float=270.0-row_w*0.5
-	_draw_skull(Vector2(rx+12,118),17)
-	draw_string(bold,Vector2(rx+24,133),kill_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,36,WHITE)
-	var cx: float=rx+24.0+kw+28.0
-	_draw_coin_stack(Vector2(cx+14,118),13)
-	draw_string(bold,Vector2(cx+34,133),coin_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,36,WHITE)
+	var rx: float=270.0-(38.0+kw)*0.5
+	_draw_skull(Vector2(rx+14,118),16)
+	draw_string(bold,Vector2(rx+38,133),kill_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,34,WHITE)
+	var gold_txt:="金币 x %d" % game.run_coins if String(game.language_code).begins_with("zh") else "GOLD x %d" % game.run_coins
+	var silver_txt:="银币 x %d" % game.run_silver if String(game.language_code).begins_with("zh") else "SILVER x %d" % game.run_silver
+	# right aligned, small, both currencies always visible so the player can read the stock
+	var gold_w: float=bold.get_string_size(gold_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15).x
+	var silver_w: float=bold.get_string_size(silver_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15).x
+	var coin_total: float=gold_w+14.0+silver_w
+	draw_string(bold,Vector2(534.000000-coin_total,150.0),gold_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color("f2c14e"))
+	draw_string(bold,Vector2(534.000000-silver_w,150.0),silver_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color("cfd6dd"))
 	var pause_pos: Vector2=game.control_pos("pause")
 	_draw_pause_button(Rect2(pause_pos-Vector2(23,23),Vector2(46,46)))
 	if game.record_banner>0.0: _draw_record_banner()
@@ -434,9 +438,9 @@ func _draw_ammo(right_top: Vector2) -> void:
 	draw_rect(Rect2(bullet_x-5,right_top.y-4,11,4),WHITE)
 	var weapon_label: String=ShopText.text(game.language_code,"n_"+String(game.player.weapon).to_lower())
 	if game.player.weapon=="LAUNCHER": weapon_label+="  ·  "+(RunText.text("incendiary")+" ×%d"%game.player.fire_ammo if game.player.fire_mode else RunText.text("l_grenade"))
-	_text_right(weapon_label,Vector2(right_top.x+6,right_top.y+26),16,MUTED)
+	_text_right(weapon_label,Vector2(534.000000,right_top.y+26),16,MUTED)
 	if not game.touch_controls:
-		_text_right("%s ×%d   %s ×%d"%[RunText.text("l_grenade"),game.player.grenade_count,RunText.text("l_flashbang"),game.player.flashbang_count],Vector2(right_top.x+6,right_top.y+48),15,MUTED)
+		_text_right("%s ×%d   %s ×%d"%[RunText.text("l_grenade"),game.player.grenade_count,RunText.text("l_flashbang"),game.player.flashbang_count],Vector2(534.000000,right_top.y+48),15,MUTED)
 	if game.player.reloading:
 		var progress: float=1.0-game.player.reload_timer/game.player.reload_duration
 		draw_rect(Rect2(Vector2(right_top.x-110,right_top.y+60),Vector2(116,3)),Color(1,1,1,0.18))
@@ -654,7 +658,9 @@ func _draw_character_select() -> void:
 	# dropdown over a survivor card: tap it to wear them
 	if game.lobby_tab==0 and int(game.equip_menu_index)>=0:
 		var er: Rect2=game.equip_menu_rect()
-		_panel(er,Color(0.03,0.034,0.038,0.97),Color(1.0,0.82,0.45,0.9),1)
+		# Grey while the menu is open; the red edge belongs to the equipped card only.
+		var equipped_now: bool = int(game.equip_menu_index) == game.character_choice
+		_panel(er, Color(0.03,0.034,0.038,0.97), RED if equipped_now else Color(0.55,0.57,0.58,0.9), 1)
 		var etxt: String="装备" if String(game.language_code).begins_with("zh") else "EQUIP"
 		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the
@@ -678,9 +684,10 @@ func _draw_character_select() -> void:
 		_side_button(game.SIDE_BAG,"bag",ExtraText.text(lang,"bag"),false)
 		_side_button(game.SIDE_MAP,"map",ExtraText.text(lang,"map"),false)
 		_airdrop_button(lang)
-	for t in [0, 1, 3]:
+	for t in [0, 1, 3, 4]:
 		var tab: Rect2=game.lobby_tab_rect(t); var tab_on: bool=game.lobby_tab==t
-		_text_center("载具" if t==3 else ShopText.text(lang,"chars" if t==0 else "pets"),Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
+		var tlabel: String = "载具" if t==3 else ("武器" if t==4 else ShopText.text(lang,"chars" if t==0 else "pets"))
+		_text_center(tlabel,Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
 	# Perk tag for the selected survivor, right of the tabs (only Darius has one for now).
 	if game.lobby_tab==0 and game.character_choice<game.lobby.CHARACTERS.size():
 		var perk_key: String=String(game.lobby.CHARACTERS[game.character_choice].get("perk",""))
@@ -704,7 +711,7 @@ func _draw_character_select() -> void:
 			for ci in range(game.lobby_item_count()):
 				if not (game.lobby_card_rect(ci) as Rect2).has_point(mpl): continue
 				if game.lobby_tab==3:
-					var vp: Dictionary=game.pack_by_id(["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold"][clampi(ci,0,3)])
+					var vp: Dictionary=game.pack_by_id(["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(ci,0,6)])
 					if not vp.is_empty():
 						var vk2: String=String(vp.get("name","bike"))
 						_info_tip(mpl,StoreCatalog.text(lang,vk2),StoreCatalog.text(lang,"vehicles"),StoreCatalog.text(lang,vk2+"_desc"))
@@ -760,11 +767,30 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	var vis:=card.intersection(view)
 	if vis.size.y<4.0 or vis.size.x<4.0: return
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
+	if game.lobby_tab==4:
+		# Flamethrower: a gold-framed card, because it is the one high-value weapon in the game.
+		var owned: bool=game.flame_owned()
+		var gold:=Color("e8b84b")
+		_panel(vis,Color(0.16,0.12,0.05,0.95) if owned else Color(0.10,0.08,0.03,0.85),gold if whole else Color(gold,0.55),2)
+		var wtex: Texture2D=_store_art("weapon_flame")
+		var wr2:=Rect2(card.position+Vector2(5,5),card.size-Vector2(10,30))
+		var wvis:=wr2.intersection(view)
+		if wtex and wvis.size.y>1.0:
+			var wts:=wtex.get_size()
+			clean_ops.append(["region",wtex,wvis,Rect2((wvis.position-wr2.position)/wr2.size*wts,wvis.size/wr2.size*wts)])
+		if not owned and wvis.size.y>1.0:
+			_box(wvis,Color(0,0,0,0.55))
+		if whole:
+			_text_center("火焰喷射器" if String(lang).begins_with("zh") else "FLAMETHROWER",Vector2(card.get_center().x,card.end.y-9),13,gold)
+			if owned:
+				draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),gold)
+		return
+
 	if game.lobby_tab==3:
 		# Vehicle card: same anatomy as the pet/skin cards - art, lock overlay, name.
-		var vi: int=clampi(i,0,3)
-		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold"]
-		var vnames: Array=["BIKE","SPORT","CRUISER","GOLD"]
+		var vi: int=clampi(i,0,6)
+		var vids: Array=["vehicle_bike","vehicle_sport","vehicle_cruiser","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"]
+		var vnames: Array=["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN","GOLD_CAR"]
 		var vid: String=String(vids[vi])
 		var von: bool=game.vehicle_owned(String(vnames[vi]))
 		var vsel: bool=von or game.vehicle_choice==vi
@@ -785,7 +811,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 				clean_ops.append(["line",varc,Color(1,1,1,0.9),3.0])
 				_box(Rect2(vlc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
 		if whole:
-			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if von else MUTED)
+			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold","tank","sedan","gold_car"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if von else MUTED)
 			if von: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 		return
 	var pets: bool=game.lobby_tab==1

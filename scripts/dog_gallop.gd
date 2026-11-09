@@ -64,6 +64,36 @@ func _init(skeleton: Skeleton3D,opts:={}) -> void:
 	if ids.has("body"): body_rest=sk.get_bone_rest(ids["body"]).origin
 
 
+## Mean hip/shoulder-to-paw distance of the four legs, in metres. The stride length a leg can
+## cover is this times the stance swing (38 deg for the hind keys, 46 for the front).
+func leg_length() -> float:
+	var total:=0.0
+	var count:=0
+	for leg in LEGS:
+		var up:="%s_upper" % leg
+		var paw:="%s_paw" % leg
+		if not ids.has(up) or not ids.has(paw): continue
+		# world space: the pet models are authored in centimetres and scaled by fit_pet, so a
+		# skeleton-local measurement is ~2x too large and the cadence comes out far too slow
+		var a:=sk.global_transform * sk.get_bone_global_rest(ids[up]).origin
+		var b:=sk.global_transform * sk.get_bone_global_rest(ids[paw]).origin
+		total+=(b-a).length()
+		count+=1
+	# The pet GLBs are authored in model units (~10x metres) and their scale lives on an
+	# ancestor node, so the raw number is not metres. Clamp to a plausible pet leg instead of
+	# letting the cadence collapse to the slowest allowed stride.
+	return clampf(total/float(maxi(count,1)),0.25,1.05)
+
+## Stride length in metres for the current amp (how far the paw travels backwards in stance).
+func stride_length() -> float:
+	return leg_length()*deg_to_rad(38.0)*amp
+
+## Seconds per stride that keeps the planted paw still while the road moves at `speed`.
+const STANCE_FRACTION:=0.41
+func stride_for_speed(speed: float) -> float:
+	var reach:=maxf(stride_length(),0.02)
+	return clampf(reach/(STANCE_FRACTION*maxf(speed,0.1)),0.12,0.9)
+
 func _rot(bone_name: String,angle_deg: float) -> void:
 	if not ids.has(bone_name): return
 	sk.set_bone_pose_rotation(ids[bone_name],rest_rot[bone_name]*Quaternion(Vector3.RIGHT,deg_to_rad(angle_deg)))

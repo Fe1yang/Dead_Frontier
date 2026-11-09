@@ -39,8 +39,8 @@ const MAX_BLOOD_POOLS:=60
 const MAX_ALIVE_ZOMBIES:=14
 ## The city loop is 384 m and the run looks straight down it, so the whole loop used to be
 ## submitted every frame. Blocks fade out at the preset distance instead.
-const VIEW_CULL_END_HIGH:=250.0
-const VIEW_CULL_END_FAST:=190.0
+const VIEW_CULL_END_HIGH:=150.0
+const VIEW_CULL_END_FAST:=135.0
 const VIEW_CULL_FADE:=26.0
 var view_cull_end:=VIEW_CULL_END_HIGH
 const BossChaserScript=preload("res://scripts/boss_chaser_3d.gd")
@@ -151,12 +151,15 @@ var loadout_on:=true
 var vehicle_equipped:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
 const VEHICLE_AUTO_RANGE:=1000.0 # bought bike auto-rides every run until this distance (or durability runs out)
 var vehicle_auto_active:=false
+## Distance at which the bought bike gives out; a fuel can pushes it out again.
+var vehicle_range_end:=VEHICLE_AUTO_RANGE
 var lobby_toast_key:="coming" # ShopText key the lobby toast shows
 var lobby_preview_character:=-1      # locked survivor/skin being previewed on the platform
 var lobby_preview_asset:=""          # skin asset for the preview ("" = default body)
 const MAX_COMPANION_PETS:=4  # most dogs that can follow and bite in one run
 const PET_CRATE_CHANCE:=0.08
-const GEAR_CRATE_CHANCE:=0.22 # helmet / armour on a platform instead of a gun
+const GEAR_CRATE_CHANCE:=0.22
+const FUEL_CRATE_CHANCE:=0.30   # only while riding or holding the flamethrower # helmet / armour on a platform instead of a gun
 const BIKE_CRATE_CHANCE:=0.14  # a motorcycle: ride it, ram zombies, until it breaks apart
 ## Durability lost per zombie run down on the bike, by kind.
 const BIKE_RAM_COST:={"walker":8.0,"walker_b":8.0,"walker_c":8.0,"runner":6.0,"runner_b":6.0,"brute":22.0,"jockey":10.0,"banshee":18.0,"spitter":14.0,"bomber_male":30.0,"bomber_female":30.0}
@@ -420,6 +423,7 @@ var left_knob:=Vector2(92,820)
 var right_knob:=Vector2(448,820)
 
 func _ready() -> void:
+	_prewarm_districts()
 	BootTrace.mark("main: _ready start")
 	# 60 fps is what the game is drawn for; uncapped, a 120 Hz phone renders twice
 	# the frames for the same picture, which is pure heat and battery.
@@ -626,13 +630,55 @@ func _apply_cull_range(root: Node) -> void:
 		mi.visibility_range_end_margin=VIEW_CULL_FADE
 		mi.visibility_range_fade_mode=GeometryInstance3D.VISIBILITY_RANGE_FADE_SELF
 
+## District scenes are loaded once at startup: loading them inside _build_road was the single
+## biggest frame spike of a run (24 models, about 4 MB each, decoded on the first frame).
+var district_cache := {}
+
+
+func _prewarm_districts() -> void:
+	for i in range(24):
+		var path: String = "res://assets/models/environment/atlas/city_hd_%02d.glb" % i
+		if not ResourceLoader.exists(path): path = "res://assets/models/environment/city_hd_%02d.glb" % i
+		if not ResourceLoader.exists(path):
+			continue
+		if district_cache.has(path):
+			continue
+		district_cache[path] = load(path)
+	print("DISTRICTS_PREWARMED ", district_cache.size())
+
+
+func _district_scene(path: String) -> Resource:
+	if district_cache.has(path):
+		return district_cache[path]
+	var packed: Resource = load(path) if ResourceLoader.exists(path) else null
+	if packed != null:
+		district_cache[path] = packed
+	return packed
+
+
+## Whole-district culling. Per-mesh visibility ranges only save the renderer work; switching a
+## district node off skips its ~45 meshes outright.
+const DISTRICT_CULL := 152.0  # just past the fog cutoff so no gap appears
+
+
+func _cull_districts() -> void:
+	for r in roads:
+		if not is_instance_valid(r):
+			continue
+		r.visible = absf(r.position.z) < DISTRICT_CULL
+
+
 func _build_road() -> void:
 	# A 384 m city loop using all 24 authored districts; palette and architecture both vary.
 	for i in range(ROAD_COUNT):
 		var asset: String="city_hd_%02d"%(i%24)
+		# Original authored districts: the atlas build flattened the road into a grey slab,
+		# and the ground is the surface the player stares at for the whole run.
+		# Authored districts. Every atlas build flattened the road into a grey slab, and the
+		# ground is what the player looks at for the whole run, so the speed is not worth it.
 		var path: String="res://assets/models/environment/"+asset+".glb"
 		if not ResourceLoader.exists(path): path="res://assets/models/environment/city_hd_00.glb"
-		var packed: Resource=load(path)
+		var packed: Resource=_district_scene(path)
 		if packed==null:
 			push_warning("district failed to load: "+path+" -- falling back to city_hd_00")
 			packed=load("res://assets/models/environment/city_hd_00.glb")
@@ -787,6 +833,7 @@ func _process(delta: float) -> void:
 	elif not touch_controls:
 		_update_mouse_aim()
 	if touch_controls: _update_touch_aim()
+	_cull_districts()
 	player.set_aim(aim_direction); player.tick(delta); shot_timer-=delta
 	# Firing is automatic on every platform; aiming and reloading remain player choices.
 	# Out of ammo for the current gun: fall back to the pistol, which never runs dry.
@@ -978,10 +1025,23 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 	aim_direction=Vector3.FORWARD; aim_target=null; left_stick=Vector2.ZERO; right_stick=Vector2.ZERO; _release_touches()
 	shop_truck.visible=false; player.visible=true; camera.fov=52; camera.position=Vector3(0,6.4,13.5)
 	runs_this_launch+=1; run_start_best=best_distance; new_record=false; record_banner=0.0
-	set_weather("clear" if runs_this_launch==1 else _roll_weather())
+	# Opening hour: daytime almost always, dusk or dawn only now and then.
+	#   85% day · 10% dusk · 5% dawn (first run of a session is always day)
+	var opening:="clear"
+	if runs_this_launch>1:
+		var hour_roll:=rng.randf()
+		if hour_roll<0.10: opening="dusk"
+		elif hour_roll<0.15: opening="dawn"
+	if opening=="clear":
+		set_weather("clear" if runs_this_launch==1 else _roll_weather())
+	else:
+		set_weather(opening)
 	player.reset(); player.apply_meta(meta_upgrades); player.set_aim(aim_direction)
+	if flame_owned():
+		player.set_weapon("FLAME")
 	# Bought motorcycle: every run starts already mounted for the first VEHICLE_AUTO_RANGE metres
 	# (it also breaks on durability as usual, whichever comes first).
+	vehicle_range_end=VEHICLE_AUTO_RANGE
 	vehicle_auto_active=loadout_on and vehicle_equipped and owned_vehicle!=""
 	if vehicle_auto_active:
 		player.mount_vehicle(owned_vehicle)
@@ -1028,7 +1088,7 @@ func _begin_intro() -> void:
 	if ResourceLoader.exists(BossChaserScript.MODEL_PATH):
 		chaser=BossChaserScript.new(); add_child(chaser); chaser.position=player.position+CHASER_OFFSET
 	var horde:= [
-		["brute",Vector3(1.3,0,5.0)],
+		["walker",Vector3(1.6,0,6.4)],
 		["runner",Vector3(-2.2,0,5.6)],
 		["runner",Vector3(2.4,0,6.3)],
 		["walker",Vector3(-2.7,0,8.4)],
@@ -1095,6 +1155,10 @@ func _finish_intro() -> void:
 	for i in range(mini(companion_pets.size(),pet_positions.size())):
 		if is_instance_valid(companion_pets[i]) and pet_positions[i]!=Vector3.INF:
 			companion_pets[i].position=pet_positions[i]
+	# In a car or a tank the animals ride along out of sight (they are "in" the vehicle).
+	var inside: bool=is_instance_valid(player) and player.vehicle in ["SEDAN","TANK","GOLD_CAR"]
+	for pet in companion_pets:
+		if is_instance_valid(pet): pet.visible = not inside
 	_spawn_zombie(-18); _spawn_zombie(-32)
 
 ## ---- Mid-run chase segments ---------------------------------------------------------------
@@ -1281,7 +1345,13 @@ func set_weather(kind: String) -> void:
 			sun_energy=0.30; sky_energy=0.70; sun_color=Color("e6ebee")
 			depth_fog=true; fog_begin=12.5; fog_end=46.0
 	var preset_name: String=kind
+	if kind=="dusk" or kind=="dawn": preset_name="sunset"   # both use the golden-hour sky
 	if kind=="clear" and force_sunset: preset_name="sunset" # explicit preview only
+	if kind=="dawn":
+		# cooler, paler sunrise instead of the warm sunset
+		sun_color=Color("ffd6b0"); sun_energy=0.62
+		ambient=Color("c8cfd8"); ambient_energy=0.52
+		fog_color=Color("cfd3d8"); exposure=0.86
 	var preset: Dictionary=SKY_PRESETS.get(preset_name,SKY_PRESETS["clear"])
 	sky_energy=float(preset.energy)
 	if preset_name=="sunset":
@@ -2287,7 +2357,8 @@ var lobby_tab:=0          # 0 = survivors, 1 = pets, 2 = skins, 3 = vehicle
 var vehicle_choice:=0 # which vehicle card is shown in the lobby stage (0 scrambler, 1 sport, 2 cruiser)
 ## The lobby only showcases the four bikes; the tank and the black saloon are played but never
 ## displayed here (user's call).
-const LOBBY_VEHICLE_CARDS:=3   # bikes only: the tank and the saloon are never shown
+## All six keep a card in the lobby; the tank and the saloon just never stand on the rug.
+const LOBBY_VEHICLE_CARDS:=7
 var lobby_scroll:=0.0
 var lobby_press:=Vector2(-1,-1)
 var lobby_dragged:=false
@@ -2304,7 +2375,7 @@ func lobby_page(side: int) -> void:
 
 func lobby_tab_rect(t: int) -> Rect2:
 	# tab 2 (skins) is gone, so the vehicle tab takes the third slot instead of leaving a gap
-	var slot := 2 if t == 3 else t
+	var slot := 3 if t == 4 else (2 if t == 3 else t)
 	return Rect2(LOBBY_LEFT_X+slot*72.0,LOBBY_BAND_TOP+4,68,40)
 
 func lobby_view_rect() -> Rect2:
@@ -2312,7 +2383,8 @@ func lobby_view_rect() -> Rect2:
 
 func lobby_item_count() -> int:
 	if lobby_tab==2: return maxi(LOBBY_SLOTS,lobby.SKINS.size())
-	if lobby_tab==3: return LOBBY_VEHICLE_CARDS # bikes only: the tank and the saloon are not shown in the lobby
+	if lobby_tab==3: return LOBBY_VEHICLE_CARDS # BIKE / SPORT / CRUISER / GOLD / TANK / SEDAN
+	if lobby_tab==4: return 1  # the flamethrower
 	return maxi(LOBBY_SLOTS,lobby.CHARACTERS.size()) if lobby_tab==0 else maxi(LOBBY_SLOTS,lobby.PETS.size())
 
 func lobby_max_scroll() -> float:
@@ -2321,7 +2393,9 @@ func lobby_max_scroll() -> float:
 ## The EQUIP dropdown sits just above the survivor card it belongs to.
 func equip_menu_rect() -> Rect2:
 	var c:=lobby_card_rect(clampi(equip_menu_index,0,maxi(0,lobby_item_count()-1)))
-	return Rect2(c.position.x-6.0,c.position.y-62.0,c.size.x+12.0,54.0)
+	# Below the card, never above it: above the card sits the tab row, and the popup used to
+	# cover the tab labels.
+	return Rect2(c.position.x-6.0,c.position.y+c.size.y+8.0,c.size.x+12.0,54.0)
 
 func lobby_card_rect(i: int) -> Rect2:
 	return Rect2(LOBBY_LEFT_X+i*LOBBY_STEP-lobby_scroll,LOBBY_STRIP_Y,LOBBY_CARD.x,LOBBY_CARD.y)
@@ -2344,12 +2418,25 @@ func _lobby_release(pos: Vector2) -> void:
 		equip_menu_index=-1  # tapping elsewhere closes the dropdown
 	for i in range(lobby_item_count()):
 		if lobby_card_rect(i).has_point(pos):
+			if lobby_tab==4:
+				open_store()
+				return
 			if lobby_tab==3:
-				vehicle_choice=i; lobby.set_vehicle_visual(i)
+				vehicle_choice=i
+				# The tank (3) and the saloon (4) keep their card, art and name, but are never
+				# mounted on the 3D stage: mounting those two huge models here stalls the lobby.
+				if i <= 3:
+					lobby.set_vehicle_visual(i)
+				else:
+					lobby.set_vehicle_visual(vehicle_choice if vehicle_choice <= 3 else 0)
+					lobby.focus_vehicle = false
+					# the big vehicles are never staged in the lobby: say where to see them
+					store_toast_text=ExtraText.text(language_code,"view_in_match")
+					store_toast=2.0
 				# tapping an owned vehicle EQUIPS it: vehicle_choice is only the preview,
 				# so the run used to keep mounting whatever was stored before.
-				var vkey: String=String(["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN"][clampi(i,0,5)])
-				if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan"][clampi(i,0,5)])):
+				var vkey: String=String(["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN","GOLD_CAR"][clampi(i,0,6)])
+				if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(i,0,6)])):
 					owned_vehicle=vkey; _save()
 			elif lobby_tab==2:
 				if i<lobby.SKINS.size(): select_skin(i)
@@ -2452,6 +2539,10 @@ func vehicle_owned(id: String) -> bool:
 ## against the vehicle names BIKE/SPORT/CRUISER - never the store id. A one-off vehicle
 ## purchase records itself in store_owned, so check that first, then fall back to the
 ## equipped name for saves written before store_owned existed.
+## The flamethrower is a one-off store purchase; the purchase record is the ownership flag.
+func flame_owned() -> bool:
+	return bool(store_owned.get("weapon_flame", false))
+
 func vehicle_is_owned(id: String) -> bool:
 	if store_owned.has(id): return true
 	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER","vehicle_gold":"GOLD","vehicle_tank":"TANK","vehicle_sedan":"SEDAN"}
@@ -2806,7 +2897,8 @@ func _fire_flame() -> bool:
 		z.ignite(FLAME_BURN_SECONDS, z.max_health * FLAME_BURN_FRACTION)
 		hit += 1
 	player.fire()
-	sound.play("shotgun")
+	player.pulse_flame()
+	sound.play("flame")
 	if hit > 0:
 		_burst(origin + flat_fwd_of(fwd) * 1.2, Color("ff9b35"), 3)
 	return true
@@ -2815,7 +2907,7 @@ func flat_fwd_of(v: Vector3) -> Vector3:
 	return Vector3(v.x, 0.0, v.z).normalized()
 
 func _fire() -> bool:
-	if is_instance_valid(player) and player.vehicle in ["TANK","SEDAN"]: return false  # cannon only / no guns in the car
+	if is_instance_valid(player) and player.vehicle in ["TANK","SEDAN","GOLD_CAR"]: return false  # cannon only / no guns in the car
 	if not player.can_fire(): return false
 	if player.weapon=="LAUNCHER": return _fire_launcher()
 	if player.weapon=="FLAME": return _fire_flame()
@@ -3330,6 +3422,9 @@ func _ram_zombie(z: Node3D) -> void:
 	# on top of the kill reward, so ramming always pays.
 	if player.vehicle=="GOLD":
 		_drop_coins(zp+Vector3(0,0,0.35),maxi(2,int(round(float(z.get("reward"))))),"brute")
+	if player.vehicle=="GOLD_CAR":
+		# gold sports car: everything it runs down pays five times
+		_drop_coins(zp+Vector3(0,0,0.35),maxi(2,int(round(float(z.get("reward"))*5.0))),"brute")
 	shake=maxf(shake,0.45 if player.vehicle in ["CRUISER","GOLD"] else 0.3)
 	player.vehicle_durability-=cost
 	if player.vehicle_durability<=0.0: _vehicle_breakdown()
@@ -3350,7 +3445,7 @@ var vehicle_dust:=0.0
 func _tick_vehicle(delta: float) -> void:
 	if player.vehicle=="": return
 	# Bought bike: auto-ride only covers the opening stretch; step off at VEHICLE_AUTO_RANGE.
-	if vehicle_auto_active and distance>=VEHICLE_AUTO_RANGE:
+	if vehicle_auto_active and distance>=vehicle_range_end:
 		vehicle_auto_active=false; player.dismount_vehicle(); sound.play("gate"); _popup(player.position+Vector3(0,2.5,0),RunText.text("bike_down"),Color("ffad72")); return
 	# TANK: the cannon fires itself; each shell clears the lane ahead and
 	# costs a chunk of durability, so roughly 6-8 shots wreck it.
@@ -3685,6 +3780,8 @@ func _spawn_crates() -> void:
 		if not _crate_spot_clear(x,z): continue
 		var crate:=WeaponCrateScript.new(); var id: String=choices[used%choices.size()]; used+=1
 		if si==dog_spot: id="PET_%d"%rng.randi_range(0,lobby.PETS.size()-1)
+		elif (player.vehicle!="" or player.weapon=="FLAME") and rng.randf()<FUEL_CRATE_CHANCE:
+			id="FUEL"
 		elif rng.randf()<GEAR_CRATE_CHANCE:
 			var gear:=[]
 			if not player.has_helmet: gear.append("HELMET")
@@ -3773,12 +3870,31 @@ func _break_crate(crate: Node3D) -> void:
 	if crate.weapon_id=="CRUISER":
 		player.mount_vehicle("CRUISER"); sound.play("gate")
 		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
+	if crate.weapon_id=="FUEL":
+		_refuel(); sound.play("gate")
+		return
 	if crate.weapon_id=="SEDAN":
 		player.mount_vehicle("SEDAN"); sound.play("gate")
 		_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("ffd27a")); return
 	# Swap immediately on break; the flying gun is only the visual of it landing in your hands.
 	player.stowed={}; player.set_weapon(crate.weapon_id); sound.play("gate")
 	_popup(player.position+Vector3(0,2.5,0),crate.display_name(),Color("7fd2ff"))
+
+## Fuel can: refills whatever is carrying the player. On a vehicle it resets the tank (so the
+## remaining range becomes a full VEHICLE_AUTO_RANGE again, never stacked on top of it); on foot
+## with the flamethrower it refills the fuel instead.
+func _refuel() -> void:
+	if player.vehicle != "":
+		player.vehicle_durability = 100.0
+		vehicle_range_end = distance + VEHICLE_AUTO_RANGE
+		_popup(player.position+Vector3(0,2.5,0),"FUEL: FULL",Color("ffb14d"))
+	elif player.weapon == "FLAME":
+		player.ammo = player.magazine_size
+		player.reserve_ammo = mini(player.reserve_ammo + 100, player.magazine_size * 3)
+		_popup(player.position+Vector3(0,2.5,0),"FLAME FUEL +100",Color("ff9b35"))
+	else:
+		run_coins += 15
+		_popup(player.position+Vector3(0,2.5,0),"+15",Color("ffd27a"))
 
 ## Fallen bodies ride the scrolling road exactly like obstacles do, otherwise the corpse
 ## appears to skate backwards while the tarmac moves under it.

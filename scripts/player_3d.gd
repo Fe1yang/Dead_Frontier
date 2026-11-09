@@ -55,6 +55,16 @@ var weapon_levels: Dictionary = {} # shop upgrade level per weapon id
 var meta_reserve_bonus := 0     # permanent ammo-case reserve, re-applied on every gun change
 var model: Node3D
 var weapon_model: Node3D
+## Forward flame jet for the flamethrower (only built when that weapon is equipped).
+var flame_jet: CPUParticles3D
+var flame_glow: OmniLight3D
+var flame_jet_timer := 0.0
+## Fake planar reflection: a mirrored, darkened copy of the vehicle under the tarmac. Shown
+## only when the road is wet (rain/storm), it is what makes the car/bike read as reflected.
+var vehicle_mirror: Node3D
+## True once the weapon model has been turned around: MUZZLE_POINTS live in the un-flipped
+## model space, so the point has to be flipped with it or bullets leave from the stock.
+var weapon_flipped := false
 var armor_model: Node3D
 var helmet_model: Node3D
 var helmet_attachment: BoneAttachment3D
@@ -85,6 +95,8 @@ const VEHICLE_STATS := {
 	"TANK": {"speed": 2.0, "side": 0.55, "ram": 3.0},
 	# The saloon drives at motorcycle pace but rams like the tank, and it never shoots.
 	"SEDAN": {"speed": 2.9, "side": 1.8, "ram": 3.0},
+	# Gold sports car: quicker than the saloon and pays 5x on every zombie it runs down.
+	"GOLD_CAR": {"speed": 4.3, "side": 1.62, "ram": 3.4},
 }
 ## How far ahead of the survivor's feet the saloon sits (metres, -Z is forward).
 const SEDAN_FORWARD:=-1.75
@@ -97,6 +109,7 @@ const VEHICLE_MODELS := {
 	"GOLD": "res://assets/models/vehicles/bike_gold.glb",
 	"TANK": "res://assets/models/vehicles/tank_military.glb",
 	"SEDAN": "res://assets/models/vehicles/black_car.glb",
+	"GOLD_CAR": "res://assets/models/vehicles/gold_car.glb",
 }
 ## Seat fit per vehicle (lift_y, back_z), measured from each GLB:
 ## scrambler seat top ~0.83, sport ~0.90, cruiser ~0.73. Rider pelvis rest height is
@@ -108,6 +121,7 @@ const SEAT_FIT := {
 	"GOLD": Vector2(0.10, 0.14),
 	"TANK": Vector2(1.05, 0.30),
 	"SEDAN": Vector2(0.0, 0.0),          # the rider is hidden inside the cabin
+	"GOLD_CAR": Vector2(0.0, 0.0),
 }
 
 func vehicle_speed() -> float:
@@ -239,6 +253,8 @@ func mount_vehicle(id: String) -> void:
 	add_child(vehicle_model); ModelFix.double_sided(vehicle_model)
 	# the tank GLB faces +Z; the survivor runs -Z, so turn the hull around
 	hide_rider=(id=="TANK")
+	# every vehicle gets lamps; the mirrored copy is off while the light rig is being sorted
+	_add_car_lamps()
 	# GOLD: reflective paint - high metallic + low roughness lets the sky light
 	# run along the bodywork instead of faking it with particles.
 	if id=="GOLD":
@@ -259,12 +275,44 @@ func mount_vehicle(id: String) -> void:
 		vehicle_model.rotation.y=PI
 		# a crew sits INSIDE a tank: drop the survivor model and its attachments
 		if is_instance_valid(model): model.visible=false
+	if id=="GOLD_CAR":
+		# The GLB is authored Z-up (its length runs along Y), so it also has to be stood up.
+		# authored at ~98 units long (centimetres), so it needs 1/24 of the saloon's factor
+		vehicle_model.scale=Vector3.ONE*0.042
+		# exported Y-up already (length on Z, height on Y): no rotation needed at all
+		vehicle_model.rotation=Vector3.ZERO   # GLB normalised: nose already on -Z
+		# same as the saloon: it is modelled around its centre, so mount at y=0 and then lift
+		# it by its own lowest point or the wheels sink into the tarmac.
+		vehicle_model.position=Vector3(0,0,SEDAN_FORWARD)
+		vehicle_model.force_update_transform()
+		var lowest:=INF
+		for mi in vehicle_model.find_children("*","MeshInstance3D",true,false):
+			var m:=mi as MeshInstance3D
+			if m==null or m.mesh==null: continue
+			var to_local: Transform3D=global_transform.affine_inverse()*m.global_transform
+			lowest=minf(lowest,(to_local*m.get_aabb()).position.y)
+		vehicle_model.position.y=0.0 if lowest==INF else -lowest
+		# same treatments as the gold bike: glossy dielectric paint + warm rim so the sun
+		# slides over the bodywork (no reflection probe in the scene, so metal renders black)
+		for mi in vehicle_model.find_children("*","MeshInstance3D",true,false):
+			var m2:=mi as MeshInstance3D
+			if m2==null or m2.mesh==null: continue
+			for s2 in range(m2.mesh.get_surface_count()):
+				var bm:=m2.mesh.surface_get_material(s2) as BaseMaterial3D
+				if bm!=null:
+					# A gentle satin finish: the earlier 0.16 roughness + full specular + strong rim
+					# read as wet grease in the rain, so keep it close to the painted look.
+					bm.metallic=0.0; bm.roughness=0.38; bm.metallic_specular=0.65
+					bm.rim_enabled=true; bm.rim=0.22; bm.rim_tint=1.0
+		hide_rider=true
+		if is_instance_valid(model): model.visible=false
+		_add_car_lamps()
+		_build_vehicle_mirror()
 	if id=="SEDAN":
 		# The GLB comes out of the generator at about 1 m long with the nose on +Z:
 		# scale it to a real saloon and turn it to face -Z. Like the tank, the survivor
 		# is hidden rather than perched on the roof - a car has a cabin, not a saddle.
-		vehicle_model.scale=Vector3.ONE*4.1
-		vehicle_model.rotation.y=PI
+		vehicle_model.scale=Vector3.ONE*4.1   # GLB normalised: nose already on -Z
 		# The GLB is modelled around its own centre, so mounting it at y=0 sank the wheels
 		# 0.69 m into the tarmac. Measure the lowest point and lift the car by exactly that.
 		var lowest:=INF
@@ -308,12 +356,88 @@ func dismount_vehicle() -> void:
 	if is_instance_valid(vehicle_model): vehicle_model.queue_free(); vehicle_model=null
 	if is_instance_valid(rider): rider.queue_free(); rider=null
 
+## Lamps for any ridden vehicle (cars, bikes, tank): red tail lights, a pair of forward
+## headlight cones and a soft flashlight pool on the wet road. The GLBs are single baked
+## meshes with no lamp materials, so everything is placed from the vehicle's bounding box.
+func _add_car_lamps() -> void:
+	if not is_instance_valid(vehicle_model): return
+	var box:=AABB(); var first:=true
+	for mi in vehicle_model.find_children("*","MeshInstance3D",true,false):
+		var m:=mi as MeshInstance3D
+		if m==null or m.mesh==null: continue
+		var b:AABB=(global_transform.affine_inverse()*m.global_transform)*m.get_aabb()
+		box=b if first else box.merge(b)
+		first=false
+	if first: return
+	var half_w:=box.size.x*0.5
+	# The model's nose is at the FAR end (-Z, away from the chase camera) and the boot at the
+	# near end: heads go far, tails near. (This was inverted, which put the beams on the boot.)
+	var front_z:=box.position.z+0.06
+	var rear_z:=box.end.z-0.06
+	var y:=box.position.y+box.size.y*0.55
+	for side in [-1.0,1.0]:
+		var tail:=OmniLight3D.new()
+		tail.light_color=Color("a50f06"); tail.light_energy=0.28; tail.omni_range=1.6
+		tail.position=Vector3(side*half_w*0.62,y,rear_z)
+		vehicle_model.add_child(tail)
+		# no lamp lens mesh: an unshaded box at the back read as a white light
+		# no omni headlight: an omni light spilled a bright pool all around the car, which
+		# the user does not want — only the forward cone below is kept.
+		# forward beam: a real cone that paints the road ahead like a flashlight
+		var beam:=SpotLight3D.new()
+		beam.light_color=Color("fff4dd"); beam.light_energy=4.2
+		beam.spot_range=26.0; beam.spot_angle=34.0; beam.spot_attenuation=0.9
+		beam.position=Vector3(side*half_w*0.62,y,front_z-0.12)
+		# The lamp is a child of the model, so it inherits the model's yaw: cars mounted with a
+		# PI turn need the same half turn or the beam fires backwards out of the boot.
+		beam.rotation_degrees=Vector3(-8.0,0.0,0.0)   # every vehicle GLB now has its nose on -Z
+		beam.shadow_enabled=false
+		# disabled until the beam direction is measured from the mesh instead of guessed:
+		# firing it from the boot looked worse than having no beam at all
+		beam.visible=true
+		vehicle_model.add_child(beam)
+
+## Build a mirrored copy of the mounted vehicle (only the meshes, one dark translucent
+## material) and keep it under the road when it is raining.
+func _build_vehicle_mirror() -> void:
+	if is_instance_valid(vehicle_mirror): vehicle_mirror.queue_free(); vehicle_mirror=null
+	if not is_instance_valid(vehicle_model): return
+	vehicle_mirror=Node3D.new(); vehicle_mirror.name="VehicleMirror"
+	add_child(vehicle_mirror)
+	var mat:=StandardMaterial3D.new()
+	mat.albedo_color=Color(0.55,0.58,0.62,0.28)
+	mat.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.cull_mode=BaseMaterial3D.CULL_DISABLED
+	for mi in vehicle_model.find_children("*","MeshInstance3D",true,false):
+		var src:=mi as MeshInstance3D
+		if src==null or src.mesh==null: continue
+		var dup:=MeshInstance3D.new()
+		dup.mesh=src.mesh; dup.material_override=mat
+		dup.transform=vehicle_model.transform.affine_inverse()*src.global_transform
+		vehicle_mirror.add_child(dup)
+	vehicle_mirror.transform=Transform3D(vehicle_model.transform.basis*Basis.from_scale(Vector3(1,-1,1)),vehicle_model.transform.origin)
+	vehicle_mirror.visible=false
+
 func _tick_vehicle_visual(delta: float) -> void:
 	if not is_instance_valid(vehicle_model): return
+	if is_instance_valid(vehicle_mirror):
+		# follow the car and only show it on a wet road
+		var wet:=0.0
+		var g:=get_parent()
+		if g!=null and g.get("wet_fade")!=null: wet=float(g.get("wet_fade"))
+		vehicle_mirror.visible=wet>0.05
+		if is_instance_valid(vehicle_model):
+			var b:=vehicle_model.transform
+			vehicle_mirror.transform=Transform3D(b.basis*Basis.from_scale(Vector3(1,-1,1)),b.origin*Vector3(1,-1,1))
 	for w in ["WheelFrontPivot","WheelRearPivot"]:
 		var pivot:=vehicle_model.find_child(w,true,false) as Node3D
 		if pivot: pivot.rotation.x+=delta*10.0
 	# Lean into sideways moves like a real bike instead of pure translation.
+	if vehicle=="GOLD_CAR":
+		vehicle_model.rotation.z=0.0
+		vehicle_model.position.z=SEDAN_FORWARD
+		return
 	if vehicle=="SEDAN":
 		# The saloon rides a little ahead of the survivor's feet: the chase camera then
 		# frames the whole car instead of the rear quarter only. No lean, no recoil.
@@ -406,6 +530,79 @@ func _play_run() -> void:
 		animation_player.speed_scale = RUN_ANIM_SPEED*move_mult
 		animation_player.play(run_clip)
 
+## A real forward jet: a cone of flame particles that leaves the nozzle in the aim direction.
+func _build_flame_jet() -> void:
+	if is_instance_valid(flame_jet):
+		return
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1.0, 0.95, 0.80, 0.0))
+	ramp.add_point(0.06, Color(1.0, 0.90, 0.60, 0.85))
+	ramp.add_point(0.22, Color(1.0, 0.72, 0.22, 0.80))
+	ramp.add_point(0.45, Color(0.95, 0.42, 0.08, 0.65))
+	ramp.add_point(0.72, Color(0.78, 0.18, 0.04, 0.45))
+	ramp.set_color(3, Color(0.12, 0.09, 0.08, 0.0))
+	var jet := CPUParticles3D.new()
+	jet.amount = 320
+	jet.lifetime = 0.34
+	jet.preprocess = 0.12
+	jet.local_coords = false
+	jet.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	jet.emission_sphere_radius = 0.07
+	jet.direction = Vector3(0, 0, -1)
+	jet.spread = 5.0
+	jet.gravity = Vector3(0, 1.0, 0)
+	jet.initial_velocity_min = 7.0
+	jet.initial_velocity_max = 10.5
+	jet.angular_velocity_min = -60.0
+	jet.angular_velocity_max = 60.0
+	jet.scale_amount_min = 0.55
+	jet.scale_amount_max = 1.25
+	# flame grows as it leaves the nozzle, then thins out while it cools
+	var grow := Curve.new()
+	grow.add_point(Vector2(0.0, 0.55))
+	grow.add_point(Vector2(0.35, 1.0))
+	grow.add_point(Vector2(1.0, 0.85))
+	jet.scale_amount_curve = grow
+	jet.color_ramp = ramp
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.26, 0.26)
+	var mat := StandardMaterial3D.new()
+	mat.albedo_texture = load("res://assets/vfx/flame_particle.png")
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+	mat.vertex_color_use_as_albedo = true
+	mat.no_depth_test = false
+	quad.material = mat
+	jet.mesh = quad
+	jet.emitting = false
+	add_child(jet)
+	flame_jet = jet
+	# the jet lights the street in front of the survivor
+	var glow := OmniLight3D.new()
+	glow.light_color = Color("ff8a3c")
+	glow.omni_range = 3.2
+	glow.light_energy = 0.0
+	glow.shadow_enabled = false
+	jet.add_child(glow)
+	flame_glow = glow
+
+
+func pulse_flame() -> void:
+	_build_flame_jet()
+	if not is_instance_valid(flame_jet):
+		return
+	flame_jet_timer = 0.20
+	flame_jet.emitting = true
+	if is_instance_valid(flame_glow):
+		flame_glow.light_energy = 0.35
+	var from := muzzle_position()
+	var dir := aim_direction if aim_direction.length() > 0.01 else Vector3.FORWARD
+	flame_jet.global_position = from
+	flame_jet.look_at(from + dir * 6.0, Vector3.UP)
+
+
 func _load_weapon_model() -> void:
 	if is_instance_valid(weapon_model):
 		weapon_model.get_parent().remove_child(weapon_model)
@@ -448,6 +645,7 @@ func normalise_weapon_model() -> void:
 	# Every weapon came out facing the survivor's own chest: the auto-solve picks the wrong
 	# end of the model. One half turn fixes the whole set (user-reported).
 	weapon_model.rotate_y(PI)
+	weapon_flipped = true
 	weapon_model.force_update_transform()
 	print("WEAPON_ORIENT ", weapon, " yaw_deg=", snappedf(rad_to_deg(weapon_model.rotation.y), 0.1), " align_err=", snappedf(rad_to_deg(err), 0.1))
 	# Origin: the grip, so the hand holds the handle instead of the middle of the receiver.
@@ -768,14 +966,26 @@ func _update_weapon_transform() -> void:
 	var muzzle:=to_local(muzzle_position())
 	if is_instance_valid(light): light.position=muzzle
 	if is_instance_valid(torch):
-		torch.position=muzzle+aim_direction*0.08+Vector3(0,-0.04,0)
+		# In a vehicle the lamp belongs at the front bumper, not at the rider's hand: the beam
+		# used to start from the middle of the car and looked wrong.
+		if vehicle != "":
+			torch.position = Vector3(0.0, 0.78, -1.75)
+		else:
+			torch.position=muzzle+aim_direction*0.08+Vector3(0,-0.04,0)
 		torch.look_at(to_global(torch.position+aim_direction*8.0+Vector3(0,-0.85,0)),Vector3.UP)
-	if is_instance_valid(torch_spill): torch_spill.position=muzzle-aim_direction*0.30
+	if is_instance_valid(torch_spill):
+		torch_spill.position = Vector3(0.0, 0.62, -1.55) if vehicle != "" else muzzle-aim_direction*0.30
 	if is_instance_valid(flash):
 		flash.position=muzzle
 		flash.quaternion=Quaternion(Vector3.LEFT,aim_direction)
 
 func tick(delta: float) -> void:
+	if is_instance_valid(flame_jet) and flame_jet.emitting:
+		flame_jet_timer = maxf(0.0, flame_jet_timer - delta)
+		if flame_jet_timer <= 0.0:
+			flame_jet.emitting = false
+			if is_instance_valid(flame_glow):
+				flame_glow.light_energy = 0.0
 	_tick_vehicle_visual(delta)
 	instinct_boost=maxf(0.0,instinct_boost-delta)
 	position.x = move_toward(position.x,target_x,delta*6.8*effective_move_mult()*vehicle_side())
@@ -923,7 +1133,9 @@ func can_use_reserve() -> bool:
 
 func muzzle_position() -> Vector3:
 	if is_instance_valid(weapon_model):
-		return weapon_model.to_global(MUZZLE_POINTS.get(weapon,MUZZLE_POINTS["PISTOL"]))
+		var pt: Vector3=MUZZLE_POINTS.get(weapon,MUZZLE_POINTS["PISTOL"])
+		if weapon_flipped: pt=Vector3(-pt.x,pt.y,-pt.z)
+		return weapon_model.to_global(pt)
 	return global_position+Vector3(aim_direction.x*1.05,1.35,aim_direction.z*1.05)
 
 func _emissive(color: Color) -> StandardMaterial3D:

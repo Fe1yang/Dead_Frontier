@@ -24,8 +24,8 @@ const GIVE_UP_BEHIND:=0.6  # drop a target once it falls this far behind him
 const GALLOP_RATE:=1.25
 ## Per-breed gait overrides; breeds not listed use the dog tuning.
 const GAIT_OVERRIDES:={
-	4: {"stride":0.40, "amp":0.92, "spine":1.10},   # white tiger
-	5: {"stride":0.37, "amp":0.88, "spine":1.18},   # lion: quicker, springier, shorter reach
+	4: {"amp":0.92, "spine":1.10},   # white tiger: slightly gentler swing, springier spine
+	5: {"amp":0.88, "spine":1.18},   # lion: same, a touch more spring (stride is speed-derived)
 }  # stride speed matched to how fast the street scrolls past (Kimi's tuning)
 ## Barking: only now and then, so it never nags. Near the survivor the close bark plays (one or
 ## two barks cut from the clip); once the dog has run off after a zombie, the distant one.
@@ -146,7 +146,15 @@ func _animate(delta: float) -> void:
 		return
 	if anim and anim.is_playing():
 		anim.stop(); (gallop.sk as Skeleton3D).reset_bone_poses()
-	if gallop: gallop.step(delta,GALLOP_RATE)
+	if gallop:
+		# Cadence follows the road: the planted paw must travel backwards exactly as fast as
+		# the ground moves under the animal, so the rate is speed-driven instead of a constant.
+		var spd:=3.5
+		if game!=null and is_instance_valid(game.get("player")):
+			spd=3.5*float(game.player.effective_move_mult())
+		var want:float=gallop.stride_for_speed(spd)
+		gallop.stride=want
+		gallop.step(delta,1.0)
 
 func _valid_target() -> bool:
 	return is_instance_valid(target) and not target.dead and game.zombies.has(target) \

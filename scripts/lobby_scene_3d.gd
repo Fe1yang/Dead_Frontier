@@ -19,8 +19,8 @@ const PETS:=[
 	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.16},
 	{"asset":"res://assets/models/pets/czech_wolfdog.glb","name":"捷克狼犬","length":0.98,"yaw":1.5708},
 	{"asset":"res://assets/models/pets/tibetan_mastiff.glb","name":"藏獒","length":1.10},
-	{"asset":"res://assets/models/pets/white_tiger.glb","name":"白虎","length":1.70},
-	{"asset":"res://assets/models/pets/lion.glb","name":"狮子","length":1.55}]
+	{"asset":"res://assets/models/pets/white_tiger.glb","name":"白虎","length":1.70,"yaw":-1.5708},
+	{"asset":"res://assets/models/pets/lion.glb","name":"狮子","length":1.55,"yaw":-1.5708}]
 ## Outfit skins: same survivor, different body. `char` indexes CHARACTERS; the first entry
 ## per character is the default look. Skins never change stats — Maya keeps her perk either way.
 const SKINS:=[
@@ -59,12 +59,13 @@ const VEHICLE_MODELS:=[
 	"res://assets/models/vehicles/bike_paid2.glb",
 	"res://assets/models/vehicles/bike_paid3.glb",
 	"res://assets/models/vehicles/bike_gold.glb",
-	"res://assets/models/vehicles/tank_military.glb"]
+	"res://assets/models/vehicles/tank_military.glb",
+	"res://assets/models/vehicles/gold_car.glb"]
 ## One preview scale for all three: they are real-size models, so the cruiser stays
 ## longer/taller than the scrambler instead of being faked with different scales.
 const VEHICLE_STAGE_SCALE:=0.75
 ## The tank is 3.4 m long, so it gets its own preview scale and camera pull-back.
-const VEHICLE_SCALE_BY_MODEL:=[0.75,0.75,0.75,0.75,0.60]
+const VEHICLE_SCALE_BY_MODEL:=[0.75,0.75,0.75,0.75,0.60,0.75,0.75]
 ## Where the turntable rests: a 3/4 angle reads better than dead-on.
 const VEHICLE_YAW:=PI+0.55
 const VEHICLE_CAM_POS:=Vector3(-0.08,1.02,4.35)
@@ -81,9 +82,13 @@ func set_vehicle_visual(i: int) -> void:
 	bike.position=STAND+Vector3(0,0.0,-0.35) # models already rest on y=0
 	bike.rotation.y=VEHICLE_YAW # 3/4 view: head-on hid the whole silhouette
 	bike.scale=Vector3.ONE*float(VEHICLE_SCALE_BY_MODEL[clampi(i,0,VEHICLE_SCALE_BY_MODEL.size()-1)])
-	bike.visible=focus_vehicle
+	# The tank and the black saloon keep their lobby card but never stand on the rug.
+	bike.visible=focus_vehicle and i<4
 	add_child(bike); ModelFix.double_sided(bike)
 	_fit_vehicle()
+	if is_instance_valid(bike_shadow):
+		bike_shadow.queue_free()
+	bike_shadow = _blob_shadow(Vector2(2.5, 1.15), STAND + Vector3(0, 0.021, -0.30))
 ## Rest the model on the stage and, if the GLB came in Z-up (standing on its nose), tip it
 ## upright. The models are not authored to a common convention, so measure instead of trusting.
 ## AABB in THIS node's space. Measuring in global space and then adding the offset to a
@@ -224,12 +229,20 @@ func _blob_shadow(size: Vector2,pos: Vector3) -> MeshInstance3D:
 	shadow.position=pos; add_child(shadow); return shadow
 
 var pet_path:=""
+## Resting facing of the current pet model: some assets are authored side-on.
+var pet_base_yaw:=0.0
 var pet_shadow: MeshInstance3D
+var bike_shadow: MeshInstance3D
 
 func show_pet(path: String) -> void:
 	if path==pet_path and is_instance_valid(pet): return
 	pet_path=path
-	if is_instance_valid(pet): pet.queue_free(); pet=null
+	if is_instance_valid(pet):
+		# hide + detach before freeing: queue_free is deferred, so switching pets left the old
+		# animal standing under the new one for a frame (lion + tiger overlapping).
+		pet.visible=false
+		if pet.get_parent()!=null: pet.get_parent().remove_child(pet)
+		pet.queue_free(); pet=null
 	if is_instance_valid(pet_shadow): pet_shadow.queue_free(); pet_shadow=null
 	if path=="" or not ResourceLoader.exists(path): return
 	pet=(load(path) as PackedScene).instantiate() as Node3D
@@ -246,8 +259,11 @@ func show_pet(path: String) -> void:
 	var yaw:=0.0
 	for p in PETS:
 		if p.asset==path: yaw=float(p.get("yaw",0.0))
+	pet_base_yaw=yaw
 	pet.rotation.y=yaw
 	pet.position=STAND+Vector3(0,ModelFix.fit_pet(pet,length*ACTOR_SCALE),0)
+	var pet_span := length * ACTOR_SCALE
+	pet_shadow = _blob_shadow(Vector2(pet_span * 0.92, pet_span * 0.62), STAND + Vector3(0, 0.021, 0.02))
 	ModelFix.play_animation(pet,"Dog_Idle")
 
 func drag(dx: float) -> void:
@@ -283,8 +299,8 @@ func _process(delta: float) -> void:
 		actor.rotation.y=(0.0 if spin_pet or spin_vehicle else spin)+t*1.1
 		actor.position.y=STAND.y+t*0.06 # settles down onto the rug as the turn finishes
 	if is_instance_valid(pet):
-		if spin_pet: pet.rotation.y=spin
-		else: pet.rotation.y=lerp_angle(pet.rotation.y,0.0,1.0-exp(-delta*1.2))
+		if spin_pet: pet.rotation.y=pet_base_yaw+spin
+		else: pet.rotation.y=lerp_angle(pet.rotation.y,pet_base_yaw,1.0-exp(-delta*1.2))
 	if is_instance_valid(bike):
 		# head-on front view sits at PI; dragging adds around that
 		if spin_vehicle: bike.rotation.y=VEHICLE_YAW+spin

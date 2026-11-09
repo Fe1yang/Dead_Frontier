@@ -67,6 +67,7 @@ const PACKS:=[
 	{"id":"vehicle_tank","kind":"vehicle","vehicle":"TANK","name":"tank","coins":0,"vouchers":0,"tier":6,"bonus":0,"once":true,"glow":"silver","rays":24,"art":"vehicle_tank"},
 {"id":"weapon_flame","kind":"special","weapon":"FLAME","name":"flame","coins":0,"vouchers":0,"tier":5,"usd":4.99,"bonus":0,"once":true,"glow":"gold","rays":14},
 	{"id":"vehicle_sedan","kind":"vehicle","vehicle":"SEDAN","name":"sedan","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"silver","rays":18,"art":"vehicle_sedan"},
+{"id":"vehicle_gold_car","kind":"vehicle","vehicle":"GOLD_CAR","name":"gold_car","coins":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":22,"art":"vehicle_gold_car"},
 ]
 
 ## Limited-time offers: one pops up every two to three days (see main_3d.maybe_show_offer) and

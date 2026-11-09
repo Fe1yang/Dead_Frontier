@@ -38,6 +38,12 @@ var dead := false
 var death_played := false
 var model: Node3D
 var animation_player: AnimationPlayer
+## Quadruped jockey: it is bound to the four-legged dog skeleton, so its legs are posed by the
+## same procedural gallop the pets use (the humanoid Jockey_Quad_Run clip cannot drive that rig).
+const DogGallop=preload("res://scripts/dog_gallop.gd")
+var gait: RefCounted
+## Set when no walk clip could be found: tick() poses a simple waddle so the body is not static.
+var needs_waddle:=false
 var meshes: Array[MeshInstance3D] = []
 var bar: MeshInstance3D
 var bar_fill: MeshInstance3D
@@ -79,14 +85,17 @@ func configure(type: String, difficulty: float) -> void:
 	if not ResourceLoader.exists(asset): asset="res://assets/models/actors/zombie_walker_universal.glb" # bomber models land later
 	model = ModelFix.spawn(asset)
 	if model == null: return
-	# The jockey rig is authored facing -Z; turn it so its head leads toward the player.
-	# Bomber is already authored facing +Z (toward the player): no rotation.
-	if kind=="jockey": model.rotation.y=PI
+	# The rebuilt jockey mesh faces +Z (toward the player) already, so no half turn: the old
+	# PI rotation made it gallop backwards.
+	if kind=="jockey": model.rotation.y=0.0
 	if kind=="brute": model.scale*=BRUTE_SCALE
 	add_child(model)
 	ModelFix.double_sided(model)
 	_collect(model)
 	animation_player=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
+	if kind=="jockey":
+		var sk:=model.find_child("Skeleton3D",true,false) as Skeleton3D
+		if sk!=null: gait=DogGallop.new(sk,{"amp":0.95,"spine":1.05})
 	if kind=="spitter":
 		# Static Tripo mesh: fit it to the same 2 m the rigged walkers occupy and turn it so
 		# the head leads toward the survivor.
@@ -115,6 +124,10 @@ func configure(type: String, difficulty: float) -> void:
 	# the death fall. Flatten the horizontal part of every pelvis/root position track and
 	# keep only the vertical bob.
 
+	# If neither the model nor the library gave us a clip, keep a note: tick() then drives a
+	# procedural waddle instead of letting a frozen body slide down the road.
+	if animation_player==null or not animation_player.has_animation(clip_name):
+		needs_waddle=true
 	if animation_player and animation_player.has_animation(clip_name):
 		var clip:=animation_player.get_animation(clip_name)
 		clip.loop_mode=Animation.LOOP_LINEAR
@@ -290,6 +303,17 @@ func tick(delta: float) -> void:
 		if spit_timer<=0.0:
 			spit_timer=randf_range(2.9,4.2)
 			spit_ready=true
+	if gait!=null:
+		# speed-matched stride so the paws stay planted on the scrolling road
+		var want:float=gait.stride_for_speed(3.5+speed*move_scale)
+		gait.stride=want
+		gait.step(delta,1.0)
+	if needs_waddle and is_instance_valid(model):
+		# fat zombie shuffle: rock the body and bob with each step
+		var w:=sin(age*6.2)
+		model.rotation.x=lerpf(model.rotation.x,-0.06+w*0.05,1.0-exp(-delta*8.0))
+		model.rotation.z=lerpf(model.rotation.z,w*0.10,1.0-exp(-delta*8.0))
+		model.position.y=absf(w)*0.055
 	if is_instance_valid(animation_player):
 		var base_rate:=speed/3.7
 		if kind=="jockey": base_rate=1.22
