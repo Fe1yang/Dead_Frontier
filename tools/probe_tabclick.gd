@@ -12,9 +12,8 @@ func _run() -> void:
 	main.call("enter_lobby")
 	await create_timer(0.6).timeout
 	var r: Rect2 = main.call("lobby_tab_rect", 4)
-	var c: Vector2 = r.get_center()
-	main.call("_pointer_down", c)
-	main.call("_pointer_up", c)
+	print("tab4 rect=", r)
+	main.call("_lobby_tap", r.get_center())
 	await create_timer(0.6).timeout
 	print("tab after click=", main.get("lobby_tab"), " count=", main.call("lobby_item_count"))
 	await RenderingServer.frame_post_draw

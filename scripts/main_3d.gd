@@ -1066,12 +1066,18 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 		player.set_weapon("FLAME")
 	# Bought motorcycle: every run starts already mounted for the first VEHICLE_AUTO_RANGE metres
 	# (it also breaks on durability as usual, whichever comes first).
-	vehicle_range_end=VEHICLE_AUTO_RANGE
+	# The gold sports car opens with a 2000 m dash; every other vehicle keeps 1000 m.
+	vehicle_range_end=2000.0 if owned_vehicle=="GOLD_CAR" else VEHICLE_AUTO_RANGE
 	vehicle_auto_active=loadout_on and vehicle_equipped and owned_vehicle!=""
 	if vehicle_auto_active:
 		player.mount_vehicle(owned_vehicle)
 	if automated:
 		_spawn_zombie(-18); _spawn_zombie(-32); _spawn_companion()
+		# These two open the run, and a walker's own speed is roughly the road speed, so it used to
+		# hover in place instead of closing in. Give the opening pair a real approach speed.
+		for opening_z in zombies:
+			if is_instance_valid(opening_z) and opening_z.kind != "banshee":
+				opening_z.speed = 3.5 + 2.2
 	else:
 		# Every run opens with the chase shot (the horde and the hunter behind the survivor),
 		# like Temple Run; it has a dog only if the player has equipped one (pet tab).
@@ -3724,7 +3730,7 @@ const GOLD_COIN_KINDS:=["brute","banshee","bomber","bomber_female"]
 func _drop_coins(at: Vector3,amount: int,zombie_kind: String) -> void:
 	var pickup:=PickupScript.new()
 	# riding the golden bike converts every drop to gold - never silver, never both
-	var as_gold: bool=(zombie_kind in GOLD_COIN_KINDS) or (is_instance_valid(player) and player.vehicle=="GOLD")
+	var as_gold: bool=(zombie_kind in GOLD_COIN_KINDS) or (is_instance_valid(player) and player.vehicle in ["GOLD","GOLD_CAR"])
 	pickup.kind="coin" if as_gold else "silver_coin"
 	pickup.value=maxi(1,amount); pickup.source_kind=zombie_kind
 	pickup.position=Vector3(clampf(at.x,-2.75,2.75),0,at.z); add_child(pickup); pickups.append(pickup)

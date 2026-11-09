@@ -96,7 +96,7 @@ const VEHICLE_STATS := {
 	# The saloon drives at motorcycle pace but rams like the tank, and it never shoots.
 	"SEDAN": {"speed": 2.9, "side": 1.8, "ram": 3.0},
 	# Gold sports car: quicker than the saloon and pays 5x on every zombie it runs down.
-	"GOLD_CAR": {"speed": 4.3, "side": 1.62, "ram": 3.4},
+	"GOLD_CAR": {"speed": 10.75, "side": 1.62, "ram": 3.4},   # +150% over the old 4.3
 }
 ## How far ahead of the survivor's feet the saloon sits (metres, -Z is forward).
 const SEDAN_FORWARD:=-1.75

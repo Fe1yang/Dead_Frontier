@@ -249,14 +249,21 @@ func show_pet(path: String) -> void:
 	var length:=1.1
 	for p in PETS:
 		if p.asset==path: length=float(p.get("length",1.1))
-	# queue_free is deferred, so a fast switch could leave the previous animal on stage and
-	# the tiger and lion ended up standing inside each other. Sweep every tagged pet first.
+	# queue_free is deferred, so a fast switch left the previous animal standing inside the new
+	# one. Drop EVERY earlier animal reference (meta, name prefix or a pet asset path) before the
+	# new one is added, whatever code path created it.
 	for child in get_children():
-		if child.has_meta("lobby_pet"):
-			child.visible = false
-			if child.get_parent() != null:
-				child.get_parent().remove_child(child)
-			child.queue_free()
+		var is_pet: bool = child.has_meta("lobby_pet") or String(child.name).begins_with("LobbyPet") \
+			or String(child.name).contains("wolfdog") or String(child.name).contains("tiger") \
+			or String(child.name).contains("lion") or String(child.name).contains("mastiff") \
+			or String(child.name).contains("doberman") or String(child.name).contains("shepherd")
+		if not is_pet:
+			continue
+		child.visible = false
+		if child.get_parent() != null:
+			child.get_parent().remove_child(child)
+		child.queue_free()
+	pet.name = "LobbyPet"
 	add_child(pet); pet.set_meta("lobby_pet", true); ModelFix.double_sided(pet)
 	# same as in the run: the generated pet GLBs arrive with shadow casting off
 	for mi in pet.find_children("*", "MeshInstance3D", true, false):
