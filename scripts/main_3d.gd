@@ -2471,8 +2471,12 @@ func _lobby_release(pos: Vector2) -> void:
 			elif i<lobby.CHARACTERS.size():
 				# preview the survivor and offer the dropdown; wearing them is a second tap
 				if character_owned(i):
-					equip_menu_index=i
 					lobby.show_character(i,character_asset(i))
+					if i==character_choice:
+						# already worn: no dropdown, just say so
+						lobby_toast=1.6; lobby_toast_key="char_equipped"
+					else:
+						equip_menu_index=i
 				else: select_character(i)
 			else: lobby_toast=1.6; lobby_toast_key="coming"
 			return

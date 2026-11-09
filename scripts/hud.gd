@@ -660,7 +660,8 @@ func _draw_character_select() -> void:
 		# Grey while the menu is open; the red edge belongs to the equipped card only.
 		var equipped_now: bool = int(game.equip_menu_index) == game.character_choice
 		_panel(er, Color(0.03,0.034,0.038,1.0), RED if equipped_now else Color(0.72,0.74,0.75,1.0), 2)
-		var etxt: String="装备" if String(game.language_code).begins_with("zh") else "EQUIP"
+		var zh: bool=String(game.language_code).begins_with("zh")
+		var etxt: String=("已装备" if zh else "EQUIPPED") if equipped_now else ("装备" if zh else "EQUIP")
 		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the
 	# frame: one column on the left with 角色 / 宠物 tabs over a vertically scrolling list.
