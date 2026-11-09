@@ -4457,13 +4457,13 @@ func _route_remains_open(kind: String,lane_x: float,at_z: float,crosswise: bool=
 func _spawn_pothole() -> void:
 	var lane_x: float = [-2.0, 0.0, 2.0][rng.randi_range(0, 2)]
 	var z := -48.0
-	var offsets := [Vector3(-0.75, 0, 0.55), Vector3(0.75, 0, 0.55), Vector3(0, 0, -0.75)]
+	var offsets := [Vector3(-0.75, 0, 0.55), Vector3(0.75, 0, 0.55)]
 	for off in offsets:
 		_spawn_obstacle("cone", lane_x + off.x, z + off.z)
 
 
 func _spawn_obstacle_pattern() -> void:
-	if rng.randf()<0.28:
+	if rng.randf()<0.04:
 		_spawn_pothole()
 		return
 	# A crosswise police car is accepted only when its wide side really remains passable.
