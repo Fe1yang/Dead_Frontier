@@ -1704,6 +1704,7 @@ func _freeze_world(on: bool) -> void:
 ## Armory: a browsable 3D catalogue of every weapon, opened from the supply truck.
 const ARMORY_BTN := Rect2(404, 80, 112, 40)
 const ARMORY_WEAPONS := ["PISTOL", "MAKAROV", "SUOMI", "SMG", "SHOTGUN", "SNIPER", "LAUNCHER", "FLAME"]
+const ARMORY_VIEW := Rect2(40, 158, 460, 380)   # the 3D weapon; drag it to spin
 var armory_index := 0
 var armory_return := "shop"
 var armory_viewport: SubViewport
@@ -4866,6 +4867,12 @@ func _update_touch_aim() -> void:
 			best_score=score; aim_target=crate; aim_point=crate.global_position+Vector3(0,0.45,0)
 
 func _unhandled_input(event: InputEvent) -> void:
+	if armory_drag and is_instance_valid(armory_model):
+		if event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT)):
+			armory_model.rotation.y -= event.relative.x * 0.012
+			return
+		if (event is InputEventScreenTouch and not event.pressed) or (event is InputEventMouseButton and not event.pressed):
+			armory_drag = false
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode in [KEY_ENTER,KEY_SPACE,KEY_ESCAPE] and state=="intro":
 			_finish_intro()
@@ -4974,7 +4981,20 @@ func _release_touches() -> void:
 	left_touch_id=-1; right_touch_id=-1; left_stick=Vector2.ZERO; right_stick=Vector2.ZERO
 	left_origin=control_pos("stick_left"); right_origin=control_pos("stick_right"); left_knob=left_origin; right_knob=right_origin
 
+## Armory taps are handled here and nowhere else: the shop/pause branches below share one
+## long if-chain, and editing it has broken the build twice.
+func _armory_pointer(pos: Vector2) -> bool:
+	if state != "armory":
+		return false
+	if ARMORY_VIEW.has_point(pos):
+		armory_drag = true
+		return true
+	return false
+
+
+
 func _pointer_down(pos: Vector2) -> bool:
+	if _armory_pointer(pos): return true
 	if ads_offer_open:
 		ads_offer_tap(pos); return true
 	if state=="terms":
