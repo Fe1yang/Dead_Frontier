@@ -513,6 +513,13 @@ func _draw_cover() -> void:
 	# top-right corner opens settings; any other tap continues to the main menu.
 	if menu_art: draw_texture_rect(menu_art,Rect2(0,0,540,game.ui_h),false)
 	else: draw_rect(Rect2(0,0,540,game.ui_h),INK)
+	# The poster art carries no prompt, so the cover draws its own: pulsing, bottom centre.
+	var pulse: float=0.55+0.45*sin(float(Time.get_ticks_msec())*0.0032)
+	var hint: String="点击任意处开始" if String(game.language_code).begins_with("zh") else "TOUCH ANYWHERE TO START"
+	var hy: float=game.ui_h-64.0
+	var hw: float=bold.get_string_size(hint,HORIZONTAL_ALIGNMENT_LEFT,-1,19).x
+	draw_rect(Rect2(270.0-hw*0.5-16.0,hy-24.0,hw+32.0,38.0),Color(0,0,0,0.45))
+	draw_string(bold,Vector2(270.0-hw*0.5,hy),hint,HORIZONTAL_ALIGNMENT_LEFT,-1,19,Color(1.0,0.94,0.72,pulse))
 
 func _draw_loading() -> void:
 	# ONE loading art per run, full-screen, randomly picked at _begin_loading and kept

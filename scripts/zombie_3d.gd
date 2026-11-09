@@ -5,7 +5,7 @@ const AnimLibrary=preload("res://scripts/anim_library.gd")
 ## Jockey runs on all fours: its gallop clip is tipped forward about the hips and lowered so
 ## hands and feet strike the ground like an animal (the raw clip hovers in a crouch).
 const JOCKEY_LEAN_DEG:=42.0   # pitching the body forward turns the sprint into a crawl
-const JOCKEY_DROP:=0.02
+const JOCKEY_DROP:=0.10
 const JOCKEY_SCALE:=0.62   # it came in twice the bulk of the walkers
 ## The juggernaut is a hulking brute: scaled up and walking upright instead of the zombie shamble.
 const BRUTE_SCALE:=1.42
@@ -120,7 +120,7 @@ func configure(type: String, difficulty: float) -> void:
 		var borrowed:=AnimLibrary.borrow(animation_player,"Walk","ual1",{},BRUTE_ARM_BONES)
 		AnimLibrary.pin_to_bind_pose(model,BRUTE_ARM_BONES)
 		if borrowed!="": clip_name=borrowed
-	if kind=="jockey": clip_name="Zombie_Walk_Fwd"  # dog clips deform the human rig
+	if kind=="jockey": clip_name="Dog_Run"  # the only locomotion clip the asset ships
 	elif kind=="banshee": clip_name="Banshee_Walk"
 	# Mixamo/UAL clips animate the pelvis through space (root motion). The game moves the
 	# zombie itself, so keeping that track made the body slide backwards - most visible on
@@ -148,9 +148,8 @@ func configure(type: String, difficulty: float) -> void:
 	elif kind!="spitter":
 		push_error("Zombie animation missing: "+clip_name+" in "+asset)
 	if kind=="jockey":
-		var hip:=Vector3(0,0.53,0)
-		var lean:=Basis(Vector3.RIGHT,deg_to_rad(JOCKEY_LEAN_DEG))
-		model.transform=Transform3D(lean*model.basis,hip-lean*hip+Vector3(0,JOCKEY_DROP,0))
+		# No hand-authored lean: the quadruped clip is the crawl. Only lift it clear of the road.
+		model.transform=Transform3D(model.basis,Vector3(0,JOCKEY_DROP,0))
 	flash_material = StandardMaterial3D.new()
 	flash_material.albedo_color = Color(1,0.95,0.75,0.7)
 	flash_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
