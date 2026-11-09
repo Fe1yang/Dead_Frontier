@@ -12,7 +12,7 @@ const IapScript=preload("res://scripts/iap_service.gd")
 const BarrelScript=preload("res://scripts/barrel_3d.gd")
 const WeaponCrateScript=preload("res://scripts/weapon_crate_3d.gd")
 const BarrelRollScript=preload("res://scripts/barrel_roll_3d.gd")
-const CRATE_WEAPONS:=["SMG","SHOTGUN","SNIPER","PISTOL","LAUNCHER","RIFLE"]
+const CRATE_WEAPONS:=["SMG","SHOTGUN","SNIPER","PISTOL","LAUNCHER","RIFLE","MAKAROV","SUOMI"]
 const CRATE_TIER:={"HELMET":0.9,"ARMOR":1.0,"PISTOL":0.7,"RIFLE":0.9,"SMG":1.0,"SHOTGUN":1.1,"SNIPER":1.25,"LAUNCHER":1.5,"BIKE":1.2}
 const RoadObstacleScript=preload("res://scripts/road_obstacle_3d.gd")
 const PickupScript=preload("res://scripts/pickup_3d.gd")
@@ -3039,6 +3039,9 @@ func _throw_ordnance(kind: String) -> bool:
 	elif kind=="flash":
 		if player.flashbang_count<=0: return false
 		player.flashbang_count-=1
+	elif kind=="molotov":
+		if player.molotov_count<=0: return false
+		player.molotov_count-=1
 	else: return false
 	var origin: Vector3=player.position+Vector3(0,1.35,0)+aim_direction*0.65
 	_spawn_ordnance(kind,origin,aim_direction*9.0+Vector3(0,4.2,0))
@@ -3125,9 +3128,26 @@ func _tick_ordnance(delta: float) -> void:
 		elif projectile.position.z< -70 or projectile.position.z>16 or absf(projectile.position.x)>10:
 			ordnance.remove_at(i); projectile.queue_free()
 
+## Molotov burn: identical numbers to the flamethrower so the two feel like one weapon family.
+func _z_ignite_molotov(z: Node3D) -> void:
+	_hit_zombie(z, FLAME_TICK_DAMAGE, "torso", z.position + Vector3(0, 1.0, 0), Color("ffb14d"))
+	z.ignite(FLAME_BURN_SECONDS, z.max_health * FLAME_BURN_FRACTION)
+
+
 func _detonate_ordnance(projectile: Node3D) -> void:
 	var center: Vector3=projectile.position
 	var kind: String=projectile.kind
+	if kind=="molotov":
+		# a burning pool: everything inside catches fire exactly like a flamethrower hit
+		sound.play("explosion"); shake=maxf(shake,0.35)
+		_burst(center,Color("ff9b35"),30); _fire_spray(center)
+		var pool:=EffectScript.new(); pool.position=Vector3(center.x,0.06,center.z)
+		pool.life=3.0; pool.total_life=3.0
+		add_child(pool); pool.make_shockwave(Color(1.0,0.55,0.15,0.85),4.0); effects.append(pool)
+		for z in zombies:
+			if is_instance_valid(z) and not z.dead and _flat_distance(z.position,center)<4.5:
+				_z_ignite_molotov(z)
+		return
 	if kind=="flash":
 		sound.play("explosion"); shake=maxf(shake,0.5)
 		_burst(center,Color("ffffff"),50); _blast_sphere(center,Color(0.85,0.96,1.0,0.95),2.2,false)
@@ -4512,7 +4532,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode==KEY_R and state=="playing": request_reload()
 		elif event.keycode==KEY_O and state=="character_select" and OS.has_feature("editor"): maybe_show_offer(true)  # test the offer popup from the editor
 		elif event.keycode in [KEY_E,KEY_TAB] and state=="playing": swap_weapon()
-		elif event.keycode==KEY_G and state=="playing": _throw_ordnance("frag")
+		elif event.keycode==KEY_G and state=="playing": _throw_ordnance("molotov" if player.molotov_count>0 else "frag")
 		elif event.keycode==KEY_F and state=="playing": _throw_ordnance("flash")
 		elif event.keycode==KEY_Q and state=="playing": toggle_fire_mode()
 	if state=="character_select":
@@ -4756,7 +4776,7 @@ func _pointer_down(pos: Vector2) -> bool:
 		if health_plus_rect.grow(8).has_point(pos): _tap_health_plus(); return true
 		if touch_controls and pos.distance_to(control_pos("btn_swap"))<BTN_RADIUS+4: swap_weapon(); return true
 		if touch_controls and pos.distance_to(control_pos("btn_reload"))<BTN_RADIUS+6: request_reload(); return true
-		if touch_controls and pos.distance_to(control_pos("btn_frag"))<BTN_RADIUS: _throw_ordnance("frag"); return true
+		if touch_controls and pos.distance_to(control_pos("btn_frag"))<BTN_RADIUS: _throw_ordnance("molotov" if player.molotov_count>0 else "frag"); return true
 		if touch_controls and pos.distance_to(control_pos("btn_flash"))<BTN_RADIUS: _throw_ordnance("flash"); return true
 		if touch_controls and player.weapon=="LAUNCHER" and pos.distance_to(control_pos("btn_fire"))<BTN_RADIUS: toggle_fire_mode(); return true
 	elif state=="health_ad":

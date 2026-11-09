@@ -359,6 +359,66 @@ func _build_set() -> void:
 	if _build_safehouse(): return
 	_build_set_legacy()
 
+## The lobby is a PSX modular living room built from the Wallcoeur PSX house pack.
+## Every tile is 4 m, so the room is laid on that grid: 8 m wide, 12 m deep, 4 m tall.
+const PSX_DIR := "res://assets/models/lobby_psx/"
+
+
+## `tint` multiplies the tile's own material colour; the floor uses it to go dark.
+func _psx(path: String, pos: Vector3, yaw: float = 0.0, tint: Color = Color.WHITE) -> Node3D:
+	var full := PSX_DIR + path + ".glb"
+	if not ResourceLoader.exists(full):
+		return null
+	var node := (load(full) as PackedScene).instantiate() as Node3D
+	node.position = pos
+	node.rotation.y = yaw
+	add_child(node)
+	if tint != Color.WHITE:
+		for mi in node.find_children("*", "MeshInstance3D", true, false):
+			var m := mi as MeshInstance3D
+			if m.mesh == null or m.mesh.get_surface_count() == 0:
+				continue
+			var src := m.mesh.surface_get_material(0)
+			if src is StandardMaterial3D:
+				var copy := (src as StandardMaterial3D).duplicate() as StandardMaterial3D
+				copy.albedo_color = tint
+				m.material_override = copy
+	return node
+
+
+func _build_psx_room() -> bool:
+	if not ResourceLoader.exists(PSX_DIR + "floorWood.glb"):
+		return false
+	# --- shell -----------------------------------------------------------------
+	# floor: 2 x 3 tiles of 4 m, sunk so the surface sits at y = 0
+	for gx in range(-1, 1):
+		for gz in range(-1, 2):
+			_psx("floorWood", Vector3(gx * 4.0 + 2.0, -0.05, gz * 4.0 + 2.0), 0.0, Color(0.34, 0.30, 0.27))
+	# ceiling
+	for gx in range(-1, 1):
+		for gz in range(-1, 2):
+			_psx("ceilingPlaster", Vector3(gx * 4.0 + 2.0, 0.0, gz * 4.0 + 2.0))
+	# back wall (behind the survivor) and the two side walls
+	_psx("wallPlaster", Vector3(0.0, 0.0, -5.95))
+	_psx("wallPlaster", Vector3(-6.0, 0.0, 0.0), PI * 0.5)
+	_psx("wallPlaster", Vector3(6.0, 0.0, 0.0), -PI * 0.5)
+	# --- furniture -------------------------------------------------------------
+	_psx("carpet2", Vector3(0.0, 0.0, -0.4))
+	_psx("couchBig", Vector3(0.0, 0.0, -3.05))
+	_psx("tableSmall", Vector3(0.0, 0.0, -1.15))
+	_psx("tv", Vector3(-4.2, 1.05, -2.6), PI * 0.5)
+	_psx("sideboard", Vector3(-4.9, 0.0, -2.6), PI * 0.5)
+	_psx("shelves", Vector3(5.0, 0.0, -2.2), -PI * 0.5)
+	_psx("plant", Vector3(4.4, 0.0, 2.6))
+	_psx("plant", Vector3(-4.6, 0.0, 3.4))
+	_psx("chair", Vector3(2.4, 0.0, -1.4), -PI * 0.4)
+	_psx("painting", Vector3(0.0, 1.75, -5.86))
+	_psx("bookStack", Vector3(-0.55, 0.72, -1.2))
+	_psx("tableLamp", Vector3(0.55, 0.72, -1.25))
+	_psx("windowCurtains", Vector3(3.2, 0.0, -5.9))
+	return true
+
+
 const SAFEHOUSE_ASSET:="res://assets/models/environment/safehouse_interior.glb"
 ## Procedurally built survival cabin (tools/build_cabin.py): replaces the old safehouse.
 const CABIN_ASSET:="res://assets/models/environment/survival_cabin.glb"

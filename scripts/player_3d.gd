@@ -22,6 +22,7 @@ var bullet_speed := 30.0
 var pierce := 0
 var grenade_count := 2
 var flashbang_count := 1
+var molotov_count := 2
 var fire_ammo := 0
 var fire_mode := false
 var damage_scale := 1.0
@@ -153,8 +154,8 @@ const GRIP_OFFSETS := {
 	"RIFLE": Vector3(0.0,0.20,0.15),
 	"LAUNCHER": Vector3(0.0,0.16,0.16),
 }
-const HOLD_DROP := {"PISTOL":0.10,"SMG":0.10,"SHOTGUN":0.10,"SNIPER":0.10,"RIFLE":0.10,"LAUNCHER":0.10}
-const SUPPORT_REACH := {"PISTOL":0.03,"SMG":0.16,"SHOTGUN":0.22,"SNIPER":0.24,"RIFLE":0.20,"LAUNCHER":0.14}
+const HOLD_DROP := {"MAKAROV":0.10,"SUOMI":0.10,"PISTOL":0.10,"SMG":0.10,"SHOTGUN":0.10,"SNIPER":0.10,"RIFLE":0.10,"LAUNCHER":0.10}
+const SUPPORT_REACH := {"MAKAROV":0.05,"SUOMI":0.16,"PISTOL":0.03,"SMG":0.16,"SHOTGUN":0.22,"SNIPER":0.24,"RIFLE":0.20,"LAUNCHER":0.14}
 const MUZZLE_POINTS := {
 	"PISTOL": Vector3(0.0,0.137,0.40),
 	"SMG": Vector3(0.0,0.085,0.90),
@@ -671,7 +672,7 @@ func _load_weapon_model() -> void:
 ## Fit an arbitrary weapon GLB to the game's convention: barrel along -Z, grip at the origin,
 ## and a real-world length. Weapon assets come in different units and orientations, so measure
 ## instead of trusting the old per-weapon scale table.
-const WEAPON_LENGTHS := {"FLAME": 0.78, "PISTOL": 0.26, "SMG": 0.58, "SHOTGUN": 0.95, "SNIPER": 1.15, "RIFLE": 0.86, "LAUNCHER": 0.85}
+const WEAPON_LENGTHS := {"MAKAROV": 0.26, "SUOMI": 0.72, "FLAME": 0.78, "PISTOL": 0.26, "SMG": 0.58, "SHOTGUN": 0.95, "SNIPER": 1.15, "RIFLE": 0.86, "LAUNCHER": 0.85}
 func normalise_weapon_model() -> void:
 	if not is_instance_valid(weapon_model): return
 	var pts := weapon_points()
@@ -844,6 +845,7 @@ func reset() -> void:
 	hurt_flash = 0.0
 	reloading = false
 	grenade_count = 2
+	molotov_count = 2
 	flashbang_count = 1
 	fire_ammo = 0
 	fire_mode = false
@@ -919,6 +921,8 @@ func weapon_bonus(id: String) -> float:
 ## set_weapon and apply_meta so a bought level always lands exactly once.
 func base_damage(id: String) -> float:
 	match id:
+		"MAKAROV": return 85.0*damage_scale
+		"SUOMI": return 16.0*damage_scale
 		"FLAME": return 6.0*damage_scale
 		"SMG": return 12.0*damage_scale
 		"SNIPER": return 95.0*damage_scale
@@ -934,6 +938,12 @@ func set_weapon(id: String) -> void:
 	projectile_count = 1
 	fire_mode = false
 	match weapon:
+		"MAKAROV":
+			magazine_size = 8; damage = 85.0*damage_scale; fire_interval = 0.55*rate_scale
+			bullet_speed = 44.0; pierce = 1; reload_duration = 1.45; reserve_ammo = 40
+		"SUOMI":
+			magazine_size = 50; damage = 16.0*damage_scale; fire_interval = 0.10*rate_scale
+			bullet_speed = 30.0; pierce = 0; reload_duration = 1.55; reserve_ammo = 150
 		"FLAME":
 			magazine_size = 100; damage = 6.0*damage_scale; fire_interval = 0.12*rate_scale
 			bullet_speed = 20.0; pierce = 0; reload_duration = 1.4; reserve_ammo = 200

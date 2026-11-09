@@ -14,7 +14,8 @@ const MODEL_PATHS := {
 	"frag": "res://assets/models/frag_grenade.glb",
 	"flash": "res://assets/models/flashbang.glb",
 	"launcher": "res://assets/models/frag_grenade.glb",
-	"fire": "res://assets/models/fire_round.glb"
+	"fire": "res://assets/models/fire_round.glb",
+	"molotov": "res://assets/models/weapons/molotov.glb"
 }
 const SCALES := {"frag": 1.8, "flash": 1.8, "launcher": 1.35, "fire": 2.0}
 
@@ -29,6 +30,7 @@ func _ready() -> void:
 	add_child(visual)
 	if kind == "flash": fuse = 0.9
 	elif kind in ["launcher", "fire"]: fuse = 2.4
+	elif kind == "molotov": fuse = 1.7
 	var light := OmniLight3D.new()
 	light.position.y = 0.08
 	light.omni_range = 0.85
