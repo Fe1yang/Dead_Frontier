@@ -939,7 +939,7 @@ func _process(delta: float) -> void:
 	var from_pause: bool=(state=="settings" or state=="controls") and settings_return_state=="paused"
 	if (state=="paused" or from_pause)!=_visuals_frozen: _freeze_visuals(state=="paused" or from_pause)
 	if state=="gameover": gameover_time+=delta
-	sound.music_state(payfail_return_state if state=="payfail" else (map_return_state if state=="map" else state))  # popups keep the music underneath
+	sound.music_state(payfail_return_state if state=="payfail" else (map_return_state if state=="map" else ("shop" if state=="armory" else state)))  # popups keep the music underneath
 	damage_flash=maxf(0,damage_flash-delta); shake=maxf(0,shake-delta*3.0)
 	banshee_warning=maxf(0,banshee_warning-delta)
 	world_speed=(3.5*(player.effective_move_mult() if state=="playing" else 1.0)) if state in ["playing","intro"] else (0.25 if state=="cover" else 0.0)
@@ -1866,10 +1866,13 @@ func open_armory() -> void:
 	armory_return = state
 	armory_index = 0
 	state = "armory"
+	shop_truck.visible = true
+	player.visible = false
 	_armory_show_weapon()
 
 func close_armory() -> void:
 	state = armory_return if armory_return != "" else "shop"
+	shop_truck.visible = state in ["shop", "armory"]
 
 func close_shop() -> void:
 	shop_truck.visible=false; player.visible=true; camera.fov=52
@@ -1910,7 +1913,7 @@ func open_map() -> void:
 func close_map() -> void:
 	map_scene.visible=false; state=map_return_state
 	map_press=Vector2(-1,-1); map_dragged=false
-	shop_truck.visible=state=="shop"; player.visible=state in ["playing","paused","gameover","intro","cover","health_ad"]
+	shop_truck.visible=state in ["shop", "armory"]; player.visible=state in ["playing","paused","gameover","intro","cover","health_ad"]
 
 ## A tap on the map table (press and release without a drag) either leaves, starts a run at
 ## the city photo, or answers "coming soon" for the locked districts.
@@ -2031,7 +2034,7 @@ func buy_lootbox(use_voucher:=false) -> bool:
 
 func close_lootbox() -> void:
 	lootbox_scene.visible=false; state=lootbox_return_state
-	shop_truck.visible=state=="shop"; player.visible=state in ["playing","paused","gameover","intro","cover","health_ad"]
+	shop_truck.visible=state in ["shop", "armory"]; player.visible=state in ["playing","paused","gameover","intro","cover","health_ad"]
 
 ## ---- Wallet row and the real-money store -------------------------------------------------
 ## Full wallet (lobby/store): can energy, silver, gold and voucher, each with a + (opens the store).
