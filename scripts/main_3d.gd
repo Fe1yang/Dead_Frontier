@@ -727,31 +727,52 @@ func _prop_node(name: String, parent: Node3D, world_pos: Vector3, yaw: float = 0
 	return node
 
 
+## Some districts ship their own lamp post standing in the roadway (x around -1.4). Hide those.
+func _hide_road_lamps(road: Node3D) -> void:
+	for m in road.find_children("*", "MeshInstance3D", true, false):
+		var mi := m as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		if String(mi.name).to_lower().find("lamp") == -1:
+			continue
+		if absf(mi.global_position.x) < 4.6:
+			mi.visible = false
+
+
 func _decorate_district(road: Node3D, index: int) -> void:
 	var decor_rng := RandomNumberGenerator.new()
 	decor_rng.seed = 0x5EED + index * 977
 	var base_z: float = road.global_position.z
+	_hide_road_lamps(road)
+	# --- lamps: three block styles, so the lighting differs from street to street -------------
+	# Placed near the kerb, in world space, on the pavement (kerb 4.36, buildings ~7.8).
+	var lamp_style: int = index % 3
+	if lamp_style != 2:
+		var lamp_name: String = "lamp_modern" if lamp_style == 0 else "lamp_round"
+		for side in [-1.0, 1.0]:
+			_prop_node(lamp_name, road, Vector3(side * 8.80, PAVEMENT_Y, base_z + 2.4), 0.0)
+			_prop_node(lamp_name, road, Vector3(side * 8.80, PAVEMENT_Y, base_z - 5.4), 0.0)
 	# --- things that stand against the buildings --------------------------------------------
 	for side in [-1.0, 1.0]:
-		var x_wall: float = side * 7.10
+		var x_wall: float = side * 9.40
 		if decor_rng.randf() < 0.34:
 			_prop_node("trash_bin", road, Vector3(x_wall, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)), side * PI * 0.5)
 		if decor_rng.randf() < 0.26:
-			_prop_node("trash_can", road, Vector3(side * 6.60, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)), side * PI * 0.5)
+			_prop_node("trash_can", road, Vector3(side * 9.15, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)), side * PI * 0.5)
 		if decor_rng.randf() < 0.18:
 			_prop_node("phone_booth", road, Vector3(x_wall, PAVEMENT_Y, base_z + decor_rng.randf_range(-5.0, 5.0)), side * PI * 0.5)
 		if decor_rng.randf() < 0.30:
-			_prop_node("bench", road, Vector3(side * 6.35, PAVEMENT_Y, base_z + decor_rng.randf_range(-5.5, 5.5)), side * PI * 0.5)
+			_prop_node("bench", road, Vector3(side * 8.80, PAVEMENT_Y, base_z + decor_rng.randf_range(-5.5, 5.5)), side * PI * 0.5)
 		if decor_rng.randf() < 0.22:
-			_prop_node("hydrant", road, Vector3(side * 6.15, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
+			_prop_node("hydrant", road, Vector3(side * 8.70, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
 		# manholes sit along the pavement line, roughly aligned with the street
 		if decor_rng.randf() < 0.30:
-			_prop_node("manhole", road, Vector3(side * 6.20 + decor_rng.randf_range(-0.15, 0.15), PAVEMENT_Y + 0.01, base_z + decor_rng.randf_range(-6.0, 6.0)), 0.0)
+			_prop_node("manhole", road, Vector3(side * 8.85 + decor_rng.randf_range(-0.15, 0.15), PAVEMENT_Y + 0.01, base_z + decor_rng.randf_range(-6.0, 6.0)), 0.0)
 	# --- litter: a couple of cans, not a carpet ---------------------------------------------
 	var cans := decor_rng.randi_range(0, 3)
 	for i in range(cans):
 		var can_name: String = ["can_a", "can_b", "can_c", "can_d"][decor_rng.randi_range(0, 3)]
-		var cx: float = decor_rng.randf_range(6.0, 7.4) * (1.0 if decor_rng.randf() < 0.5 else -1.0)
+		var cx: float = decor_rng.randf_range(8.6, 9.7) * (1.0 if decor_rng.randf() < 0.5 else -1.0)
 		_prop_node(can_name, road, Vector3(cx, PAVEMENT_Y, base_z + decor_rng.randf_range(-7.0, 7.0)), decor_rng.randf_range(0.0, TAU))
 
 
