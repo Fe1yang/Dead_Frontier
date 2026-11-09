@@ -587,12 +587,12 @@ func _build_flame_jet() -> void:
 	if is_instance_valid(flame_jet):
 		return
 	var ramp := Gradient.new()
-	ramp.set_color(0, Color(1.0, 0.86, 0.45, 0.0))
-	ramp.add_point(0.06, Color(1.0, 0.82, 0.38, 0.85))
-	ramp.add_point(0.22, Color(1.0, 0.70, 0.20, 0.82))
-	ramp.add_point(0.45, Color(1.0, 0.62, 0.16, 0.70))
-	ramp.add_point(0.72, Color(1.0, 0.46, 0.12, 0.40))
-	ramp.set_color(3, Color(0.55, 0.24, 0.06, 0.0))
+	ramp.set_color(0, Color(1.0, 0.60, 0.16, 0.0))
+	ramp.add_point(0.06, Color(1.0, 0.62, 0.16, 0.85))
+	ramp.add_point(0.22, Color(1.0, 0.55, 0.12, 0.82))
+	ramp.add_point(0.45, Color(0.90, 0.40, 0.08, 0.66))
+	ramp.add_point(0.72, Color(0.72, 0.26, 0.05, 0.34))
+	ramp.set_color(3, Color(0.45, 0.18, 0.05, 0.0))
 	var jet := CPUParticles3D.new()
 	jet.amount = 260
 	jet.lifetime = 0.62
@@ -620,6 +620,8 @@ func _build_flame_jet() -> void:
 	quad.size = Vector2(0.26, 0.26)
 	var mat := StandardMaterial3D.new()
 	mat.albedo_texture = load("res://assets/vfx/flame_particle.png")
+	# the particle texture has a white core; tint it so the tips stay orange
+	mat.albedo_color = Color(1.0, 0.55, 0.15, 1.0)
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED

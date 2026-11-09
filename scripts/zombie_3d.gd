@@ -110,6 +110,9 @@ func configure(type: String, difficulty: float) -> void:
 		model.rotation.y=PI
 	if kind=="jockey":
 		model.scale *= JOCKEY_SCALE
+		var sk: Skeleton3D = model.find_child("Skeleton3D", true, false) as Skeleton3D
+		if sk != null:
+			jockey_gallop = DogGallop.new(sk, {})
 	var clip_name := "Zombie_Walk_Fwd"
 	if kind=="brute" or kind.begins_with("bomber"):
 		# The juggernaut/bomber are hulking heavies: they borrow the upright UAL1 "Walk" instead
@@ -291,6 +294,8 @@ func tick(delta: float) -> void:
 		_banshee_move(delta,move_scale)
 	else:
 		position.z += speed*move_scale*delta
+	if kind=="jockey" and jockey_gallop != null:
+		jockey_gallop.step(delta, 1.25)
 	hit_flash=maxf(0,hit_flash-delta)
 	for mesh in meshes: mesh.material_overlay=flash_material if hit_flash>0 else null
 	if kind=="spitter":
