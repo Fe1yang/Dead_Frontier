@@ -259,10 +259,10 @@ func _build_back_wall() -> void:
 func _build_shelves() -> void:
 	# Upper shelf (top surface y≈2.10): medical, helmets, grenades.
 	var top:=2.10
-	_prop("res://assets/models/medkit.glb",0.30,Vector3(-0.35,top,-0.70),0.15)
-	_prop("res://assets/models/medkit.glb",0.30,Vector3(0.00,top,-0.72),-0.1)
-	_prop("res://assets/models/helmet.glb",0.30,Vector3(0.45,top,-0.70),0.6)
-	_prop("res://assets/models/helmet.glb",0.30,Vector3(0.82,top,-0.72),-0.4)
+	_prop("res://assets/models/medkit.glb",0.30,Vector3(-0.35,top+0.07,-0.55),0.15)
+	_prop("res://assets/models/medkit.glb",0.30,Vector3(0.00,top+0.07,-0.57),-0.1)
+	_prop("res://assets/models/helmet.glb",0.30,Vector3(0.45,top+0.07,-0.55),0.6)
+	_prop("res://assets/models/helmet.glb",0.30,Vector3(0.82,top+0.07,-0.57),-0.4)
 	_box(Vector3(0.46,0.06,0.22),Vector3(1.32,top+0.03,-0.70),Color("3d4a33"),0.9)
 	for i in range(4):
 		_prop("res://assets/models/frag_grenade.glb",0.10,Vector3(1.15+i*0.11,top+0.06,-0.70),i*0.7)
@@ -270,7 +270,7 @@ func _build_shelves() -> void:
 		_prop("res://assets/models/flashbang.glb",0.13,Vector3(1.72+i*0.12,top,-0.70),i*0.4)
 	_prop("res://assets/models/fire_round.glb",0.16,Vector3(2.18,top,-0.70),0.3)
 	# Lower shelf already carries the truck's ammo boxes; add loose ammo cans at the ends.
-	_prop("res://assets/models/ammo_pickup.glb",0.28,Vector3(2.32,1.57,-0.66),0.2)
+	_prop("res://assets/models/ammo_pickup.glb",0.28,Vector3(2.32,1.64,-0.52),0.2)
 
 func _build_side_walls() -> void:
 	# Left wall (behind the cab): armour vest on a hook, a city map and a hand-written price list.

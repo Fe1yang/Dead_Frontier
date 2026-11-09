@@ -617,7 +617,7 @@ func _build_flame_jet() -> void:
 	var quad := QuadMesh.new()
 	quad.size = Vector2(0.26, 0.26)
 	var mat := StandardMaterial3D.new()
-	mat.albedo_texture = load("res://assets/vfx/flame_soft.png")
+	mat.albedo_texture = load("res://assets/vfx/flame_particle.png")
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -629,40 +629,6 @@ func _build_flame_jet() -> void:
 	jet.emitting = false
 	add_child(jet)
 	flame_jet = jet
-	# a slower smoke layer over the fire reads as a real plume
-	var smoke := CPUParticles3D.new()
-	smoke.amount = 70
-	smoke.lifetime = 1.05
-	smoke.preprocess = 0.1
-	smoke.local_coords = false
-	smoke.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
-	smoke.emission_sphere_radius = 0.09
-	smoke.direction = Vector3(0, 0, -1)
-	smoke.spread = 12.0
-	smoke.gravity = Vector3(0, 1.9, 0)
-	smoke.initial_velocity_min = 4.0
-	smoke.initial_velocity_max = 7.0
-	smoke.scale_amount_min = 0.7
-	smoke.scale_amount_max = 1.9
-	var smoke_ramp := Gradient.new()
-	smoke_ramp.set_color(0, Color(0.35, 0.32, 0.30, 0.0))
-	smoke_ramp.add_point(0.15, Color(0.42, 0.38, 0.35, 0.5))
-	smoke_ramp.add_point(0.6, Color(0.25, 0.23, 0.22, 0.28))
-	smoke_ramp.set_color(3, Color(0.15, 0.14, 0.14, 0.0))
-	smoke.color_ramp = smoke_ramp
-	var squad := QuadMesh.new()
-	squad.size = Vector2(0.75, 0.75)
-	var smat := StandardMaterial3D.new()
-	smat.albedo_texture = load("res://assets/vfx/smoke_soft.png")
-	smat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	smat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	smat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	smat.vertex_color_use_as_albedo = true
-	squad.material = smat
-	smoke.mesh = squad
-	smoke.emitting = false
-	add_child(smoke)
-	flame_smoke = smoke
 	# the jet lights the street in front of the survivor
 	var glow := OmniLight3D.new()
 	glow.light_color = Color("ff8a3c")
