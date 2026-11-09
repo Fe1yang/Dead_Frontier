@@ -956,7 +956,9 @@ func _draw_shop() -> void:
 		# layer) because the card background is a clean op too: an immediate draw_rect would
 		# sit BEHIND it and come out washed out.
 		_box(pip,Color("ffd75e") if filled else Color("f4f6f5"),Color("0b0e0e"),2.0)
-	_text("LV %d / %d"%[level,item.max_level],Vector2(232,747),13,GOLD)
+	# level text sits just past the last pip and matches the pip height
+	var lv_x: float=53.0+float(item.max_level)*40.0+14.0
+	_text("LV %d / %d"%[level,item.max_level],Vector2(lv_x,747),16,GOLD)
 	_text("%d / %d"%[game.shop_index+1,game.shop_items.size()],Vector2(452,684),13,MUTED)
 	# Prev / upgrade / next.
 	_button(Rect2(30,786,80,60),"‹",false)
