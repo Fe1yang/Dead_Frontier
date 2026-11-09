@@ -779,9 +779,8 @@ func _place_phone_booth(road: Node3D) -> void:
 		# every other block gets one. One per 16 m block can never overlap the next.
 		return
 	var side := -1.0 if shel.get_center().x < 0.0 else 1.0
-	# On the station's own pavement line (x 5.1..6.9), not near the kerb. Pulling it to 4.29 put
-	# it on the asphalt edge, which is what read as "in the middle of the road".
-	var x: float = shel.get_center().x
+	# Fixed outer line requested by the user: 10 m from the centre line, well past the kerb.
+	var x: float = side * 10.0
 	var z: float = shel.end.z + 1.5 if side < 0.0 else shel.position.z - 1.5
 	_prop_node("phone_booth", road, Vector3(x, PAVEMENT_Y, z), side * PI * 0.5)
 
