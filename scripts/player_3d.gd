@@ -886,10 +886,20 @@ func set_armor(equipped: bool) -> void:
 		if not afirst:
 			var widest: float = maxf(abox.size.x, maxf(abox.size.y, abox.size.z))
 			if widest > 0.01:
-				armor_model.scale = Vector3.ONE * (0.62 / widest)
-		# sit the shell over the chest: half its height up from the feet
-		armor_model.position.y = 1.05
-		model.add_child(armor_model)
+				armor_model.scale = Vector3.ONE * (0.56 / widest)
+		# hang it off the chest bone when the rig has one, so it leans with the torso
+		var spine_idx: int = skeleton.find_bone("spine_02") if is_instance_valid(skeleton) else -1
+		if spine_idx < 0 and is_instance_valid(skeleton):
+			spine_idx = skeleton.find_bone("spine_01")
+		if spine_idx >= 0:
+			var anchor := BoneAttachment3D.new()
+			anchor.bone_name = skeleton.get_bone_name(spine_idx)
+			skeleton.add_child(anchor)
+			anchor.add_child(armor_model)
+			armor_model.position = Vector3(0.0, 0.02, 0.0)
+		else:
+			armor_model.position.y = 1.20
+			model.add_child(armor_model)
 
 func set_helmet(equipped: bool) -> void:
 	has_helmet = equipped
@@ -915,8 +925,8 @@ func set_helmet(equipped: bool) -> void:
 			first = false
 		var widest: float = maxf(box.size.x, maxf(box.size.y, box.size.z))
 		if widest > 0.001:
-			helmet_model.scale = Vector3.ONE * (0.30 / widest)
-		helmet_model.position = Vector3(0, 0.055 - box.get_center().y * (0.30 / maxf(widest, 0.001)), 0.012)
+			helmet_model.scale = Vector3.ONE * (0.34 / widest)
+		helmet_model.position = Vector3(0, 0.030 - box.get_center().y * (0.34 / maxf(widest, 0.001)), 0.010)
 
 func apply_meta(upgrades: Dictionary) -> void:
 	max_health=100.0+int(upgrades.get("medical",0))*15.0

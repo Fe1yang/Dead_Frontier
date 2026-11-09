@@ -64,6 +64,7 @@ var breed:=0
 var slot_index:=0
 var base_y:=0.0
 var gallop: RefCounted
+var yaw_offset := 0.0   # the model's own forward axis, per breed
 var anim: AnimationPlayer
 var bark_player: AudioStreamPlayer
 var bark_wait:=0.0
@@ -81,6 +82,7 @@ func setup(index: int, slot:=0) -> void:
 		var m := mi as MeshInstance3D
 		if m != null:
 			m.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
+	yaw_offset=float(LobbyScene.PETS[breed].get("yaw",0.0))
 	base_y=ModelFix.fit_pet(model,float(LobbyScene.PETS[breed].get("length",1.1)))
 	model.position.y=base_y
 	anim=model.find_child("AnimationPlayer",true,false) as AnimationPlayer
@@ -143,6 +145,13 @@ func _animate(delta: float) -> void:
 				bark_player.volume_db=-8.0
 				bark_player.pitch_scale=randf_range(0.96,1.06)
 				bark_player.play()
+		return
+	# Every four legged pet runs on the rig's own run cycle: the baked clip reads as a real
+	# gallop, the procedural version only wiggled the legs in place.
+	if anim and anim.has_animation("Dog_Run"):
+		if anim.current_animation != "Dog_Run" or not anim.is_playing():
+			anim.play("Dog_Run", 0.15)
+		anim.speed_scale = 1.0
 		return
 	if anim and anim.is_playing():
 		anim.stop(); (gallop.sk as Skeleton3D).reset_bone_poses()
