@@ -21,6 +21,8 @@ run/main_scene="res://scenes/main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 boot_splash/bg_color=Color(0.023529412, 0.047058824, 0.043137256, 1)
 boot_splash/image="res://assets/ui/cover.png"
+boot_splash/fullsize=true
+boot_splash/use_filter=true
 config/icon="res://assets/icons/icon-1024.png"
 
 [audio]
@@ -38,7 +40,7 @@ window/size/viewport_height=960
 window/size/window_width_override=540
 window/size/window_height_override=960
 window/stretch/mode="canvas_items"
-window/stretch/aspect="expand"
+window/stretch/aspect="keep_height"
 window/handheld/orientation=1
 window/size/min_width=360
 window/size/min_height=640
