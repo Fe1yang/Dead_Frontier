@@ -23,21 +23,28 @@ func _run() -> void:
 	if hud != null:
 		hud.visible = false
 
-	# show the survivor directly, locked or not, and stop the turntable spin
 	lobby.call("show_character", idx, asset)
-	lobby.set("lobby_spin", 0.0)
-	await create_timer(0.8).timeout
-	var actor = lobby.get("actor")
-	print("ACTOR ", is_instance_valid(actor))
-	if is_instance_valid(actor):
-		actor.rotation.y = 0.0
+	await create_timer(1.0).timeout
 
-	var stand: Vector3 = lobby.get("STAND")
-	var cam := Vector3(stand.x, 1.52, stand.z + 3.0)
-	main.call("debug_camera_at", cam, Vector3(stand.x, 1.40, stand.z), 24.0)
-	await process_frame
-	await process_frame
-	await RenderingServer.frame_post_draw
+	var actor = lobby.get("actor")
+	var origin: Vector3 = lobby.ORIGIN
+	var stand_local: Vector3 = lobby.get("STAND")
+	var spot := origin + Vector3(stand_local.x, 0.0, stand_local.z)
+	if is_instance_valid(actor):
+		actor.global_position = spot
+		actor.rotation.y = 0.0
+		actor.visible = true
+
+	# whatever camera the lobby is actually rendering with
+	var cam3d := root.get_viewport().get_camera_3d()
+	print("ACTIVE CAM ", cam3d.name if cam3d != null else "none")
+	if cam3d != null:
+		var cam_pos := Vector3(spot.x, spot.y + 1.55, spot.z + 1.0)
+		cam3d.global_position = cam_pos
+		cam3d.look_at(Vector3(spot.x, spot.y + 1.44, spot.z), Vector3.UP)
+		cam3d.fov = 30.0
+		print("CAM moved to ", cam3d.global_position)
+	RenderingServer.force_draw(false)
 	root.get_viewport().get_texture().get_image().save_png(out_path)
 	print("SHOT ", out_path)
 	print("PORTRAIT_DONE")
