@@ -780,7 +780,7 @@ func _place_phone_booth(road: Node3D) -> void:
 		return
 	var side := -1.0 if shel.get_center().x < 0.0 else 1.0
 	# Fixed outer line requested by the user: 10 m from the centre line, well past the kerb.
-	var x: float = side * 10.0
+	var x: float = side * 8.0
 	var z: float = shel.end.z + 1.5 if side < 0.0 else shel.position.z - 1.5
 	_prop_node("phone_booth", road, Vector3(x, PAVEMENT_Y, z), side * PI * 0.5)
 
