@@ -2419,7 +2419,7 @@ func lobby_max_scroll() -> float:
 func equip_menu_rect() -> Rect2:
 	var c:=lobby_card_rect(clampi(equip_menu_index,0,maxi(0,lobby_item_count()-1)))
 	# Above the card. Below it the popup landed on the start button and was unclickable.
-	return Rect2(c.position.x-6.0,c.position.y-58.0,c.size.x+12.0,50.0)
+	return Rect2(c.position.x-6.0,c.position.y-96.0,c.size.x+12.0,50.0)
 
 func lobby_card_rect(i: int) -> Rect2:
 	return Rect2(LOBBY_LEFT_X+i*LOBBY_STEP-lobby_scroll,LOBBY_STRIP_Y,LOBBY_CARD.x,LOBBY_CARD.y)
