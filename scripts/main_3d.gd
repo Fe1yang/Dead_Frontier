@@ -811,9 +811,10 @@ func _place_street_props(road: Node3D, index: int) -> void:
 
 	# litter: 1-4 cans in one spot, preferably where the block already has ground junk
 	if rng_d.randf() < 0.45:
+		# only the z comes from the junk pile: the cans themselves must stay on 9..12
 		var near := _junk_spot(road, side)
 		var lz: float = near.z if near != Vector3.ZERO else base_z + rng_d.randf_range(-7.0, 7.0)
-		var lx: float = near.x if near != Vector3.ZERO else x
+		var lx: float = side * rng_d.randf_range(9.0, 12.0)
 		var count: int = rng_d.randi_range(1, 4)
 		for i in range(count):
 			var can_name: String = ["can_a", "can_b", "can_c", "can_d"][rng_d.randi_range(0, 3)]
