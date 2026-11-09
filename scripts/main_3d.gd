@@ -724,8 +724,13 @@ func _prop_node(name: String, parent: Node3D, world_pos: Vector3, yaw: float = 0
 		return null
 	var node := (load(path) as PackedScene).instantiate() as Node3D
 	parent.add_child(node)
-	# world coordinates, because the district node carries a scale and props must not inherit it
-	node.global_position = world_pos
+	# world coordinates, because the district node carries a scale and props must not inherit it.
+	# Anything standing on the roadway sits on the asphalt (y=0), not on the 0.14 m pavement, or it
+	# hovers and its shadow lands a step away from it.
+	var pos := world_pos
+	if absf(pos.x) < 4.45:
+		pos.y = 0.01
+	node.global_position = pos
 	node.global_rotation = Vector3(0.0, yaw, 0.0)
 	return node
 
