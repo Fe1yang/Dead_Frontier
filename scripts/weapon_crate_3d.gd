@@ -87,8 +87,17 @@ func _ready() -> void:
 	if can_used:
 		pass
 	elif crate_mesh:
-		var c := MeshInstance3D.new(); c.mesh = crate_mesh; c.scale = Vector3.ONE*s
-		c.position = Vector3(0,0.15*s,0); body.add_child(c)
+		# Size the case from its own bounds: the old fixed 2.9 multiplier only looked right
+		# while the ammo can was the body. The truck is authored much larger, so at 2.9 it
+		# turned into a wall of green across the road.
+		var c := MeshInstance3D.new()
+		c.mesh = crate_mesh
+		var span := c.get_aabb()
+		var longest: float = maxf(span.size.x, maxf(span.size.y, span.size.z))
+		var k: float = 1.70 / maxf(longest, 0.01)
+		c.scale = Vector3.ONE * k
+		c.position = Vector3(-span.get_center().x * k, -span.position.y * k, -span.get_center().z * k)
+		body.add_child(c)
 		if latch_mesh:
 			var l := MeshInstance3D.new(); l.mesh = latch_mesh; l.scale = Vector3.ONE*s
 			l.position = Vector3(0,0.15*s,0.22*s); body.add_child(l)
