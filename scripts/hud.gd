@@ -698,8 +698,6 @@ func _draw_character_select() -> void:
 		_gear_button(game.LOBBY_GEAR_PET, game.pet_equipped)
 	elif game.lobby_tab==3:
 		_gear_button(game.LOBBY_GEAR_VEHICLE, game.vehicle_equipped)
-	elif game.lobby_tab==4:
-	
 	# Perk tag for the selected survivor, right of the tabs (only Darius has one for now).
 	if game.lobby_tab==0 and game.character_choice<game.lobby.CHARACTERS.size():
 		var perk_key: String=String(game.lobby.CHARACTERS[game.character_choice].get("perk",""))
@@ -912,7 +910,7 @@ func _locked_slot(rect: Rect2,pet:=false,skin:=false) -> void:
 ## Settings gear in the lobby's top-right corner: same place and look as the in-run pause area.
 func _lobby_settings_gear(r: Rect2) -> void:
 	_panel(r, Color(0.06,0.07,0.075,0.92), Color(0.55,0.57,0.58,0.9), 1)
-	_gear_icon(r.get_center(), r.size.y * 0.26, Color(0.86,0.87,0.88))
+	_gear_icon(r.get_center(), 0.62, Color(0.86,0.87,0.88))
 
 
 func _gear_button(r: Rect2,on: bool) -> void:
@@ -1893,7 +1891,7 @@ func _pack_visual(r: Rect2,p: Dictionary,own_bg:=true) -> void:
 	clean_ops.append(["tinted",glow_tex,Rect2(c-Vector2(g,g)*0.5,Vector2(g,g)),Color(col.r,col.g,col.b,0.85*pulse+0.4*flash)])
 	var art: Texture2D=_store_art(String(p.get("art",p.id)))
 	if art:
-		var available:=r.grow(-r.size.x*0.07)
+		var available:=r.grow(-r.size.x*0.015)
 		var art_size: Vector2=art.get_size()
 		var fit: float=minf(available.size.x/art_size.x,available.size.y/art_size.y)
 		var draw_size: Vector2=art_size*fit

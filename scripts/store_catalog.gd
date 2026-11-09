@@ -14,8 +14,8 @@ const TIERS:=[0.99,1.99,4.99,9.99,19.99,49.99,99.99,10.0]
 ## coins, vouchers, price tier index, bonus %, kind, glow colour and number of light rays.
 ## One voucher opens one supply case, so vouchers are kept scarce.
 const PACKS:=[
-	{"id":"pass_weekly","kind":"pass","name":"pass_weekly","coins":200,"cans":30,"vouchers":0,"tier":2,"usd":3.99,"bonus":0,"glow":"gold","rays":12},
-	{"id":"pass_monthly","kind":"pass","name":"pass_monthly","coins":500,"cans":100,"vouchers":0,"tier":3,"bonus":0,"glow":"violet","rays":16},
+	{"id":"pass_weekly","kind":"pass","name":"pass_weekly","coins":200,"cans":30,"vouchers":0,"tier":2,"usd":3.99,"bonus":0,"glow":"violet","rays":12},
+	{"id":"pass_monthly","kind":"pass","name":"pass_monthly","coins":500,"cans":100,"vouchers":0,"tier":3,"bonus":0,"glow":"gold","rays":16},
 	{"id":"unlock_all","kind":"unlock","name":"unlock_all","coins":0,"vouchers":0,"silver":0,"cans":0,"tier":7,"usd":299.99,"once":true,"glow":"gold","rays":24},
 	{"id":"bundle_starter","kind":"bundle","name":"starter","coins":1000,"vouchers":1,"tier":1,"bonus":0,"once":true,"glow":"gold","rays":8},
 	{"id":"bundle_supply","kind":"bundle","name":"supply","coins":4000,"vouchers":3,"tier":3,"bonus":0,"once":false,"glow":"amber","rays":12},
