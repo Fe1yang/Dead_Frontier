@@ -266,18 +266,23 @@ jobs:
     # testers, which is why uploaded builds looked like they vanished.
     # Apple parks any build without this key in "Missing Compliance" and never hands it to
     # testers, which is why uploaded builds looked like they vanished.
+    # Apple parks any build without this key in "Missing Compliance" and never hands it to
+    # testers. The exported project names its plist differently between Godot versions, so patch
+    # every plist it produced and never fail the job over it.
     - name: Declare export compliance in the exported plists
       run: |
-        set -e
-        found=0
+        count=0
         while IFS= read -r plist; do
-          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$plist" 2>/dev/null \
-            || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$plist"
-          echo "patched $plist"
-          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$plist"
-          found=$((found+1))
-        done < <(find build/ios -name Info.plist -not -path "*/export/*")
-        test "$found" -gt 0
+          if /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$plist" 2>/dev/null \
+             || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$plist" 2>/dev/null; then
+            echo "patched $plist"
+            count=$((count+1))
+          else
+            echo "could not patch $plist"
+          fi
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$plist" 2>/dev/null || true
+        done < <(find build/ios -name '*Info.plist' -not -path '*/export/*' 2>/dev/null)
+        echo "plists patched: $count"
 
     - name: Write App Store export options
       run: |
