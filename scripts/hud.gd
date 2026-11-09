@@ -1300,12 +1300,12 @@ func _plus_button(rect: Rect2) -> void:
 func _wallet_plate(origin: Vector2,k:=1.0) -> void:
 	var ts:=int(round(24*k))
 	var inf: bool=game.infinite_resources()
-	var cans: String="∞" if inf else "%d/%d"%[game.stamina.value,game.stamina.CAP]
+	var cans: String="∞/∞" if inf else "%d/%d"%[game.stamina.value,game.stamina.CAP]
 	game.wallet_text_w=Vector4(
 		bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,
 		bold.get_string_size("∞" if inf else _compact(game.bank_coins),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,
 		bold.get_string_size("∞" if inf else _compact(game.bank_silver),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,
-		bold.get_string_size(_compact(game.bank_vouchers),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x)
+		bold.get_string_size("∞" if game.infinite_resources() else _compact(game.bank_vouchers),HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x)
 	var w: Dictionary=game.wallet_layout(origin,k)
 	var right: float=(w.v_plus as Rect2).end.x+12.0*k
 	var left: float=origin.x-12.0*k
@@ -1314,9 +1314,9 @@ func _wallet_plate(origin: Vector2,k:=1.0) -> void:
 	_frame(plate,Color(1,1,1,0.10),1.0)
 
 func _wallet(origin: Vector2,plus:=true,k:=1.0) -> void:
-	var cans: String="∞" if game.infinite_resources() else "%d/%d"%[game.stamina.value,game.stamina.CAP]
+	var cans: String="∞/∞" if game.infinite_resources() else "%d/%d"%[game.stamina.value,game.stamina.CAP]
 	var infw: bool = game.infinite_resources()
-	var coins:=("∞" if infw else _compact(game.bank_coins)); var silver:=("∞" if infw else _compact(game.bank_silver)); var vouchers:=_compact(game.bank_vouchers)
+	var coins:=("∞" if infw else _compact(game.bank_coins)); var silver:=("∞" if infw else _compact(game.bank_silver)); var vouchers:=("∞" if infw else _compact(game.bank_vouchers))
 	var ts:=int(round(24*k))
 	game.wallet_text_w=Vector4(bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(coins,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(silver,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(vouchers,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x)
 	var w: Dictionary=game.wallet_layout(origin,k)
@@ -1351,7 +1351,7 @@ func _energy_refill_timer(origin: Vector2,k:=1.0) -> void:
 	if secs<=0: return
 	# Same string and size as _wallet() so the countdown is centred on the digits above it.
 	var ts: int=roundi(24*k)
-	var cans: String="∞" if game.infinite_resources() else "%d/%d"%[game.stamina.value,game.stamina.CAP]
+	var cans: String="∞/∞" if game.infinite_resources() else "%d/%d"%[game.stamina.value,game.stamina.CAP]
 	var cx: float=origin.x+42*k+bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x*0.5
 	var txt: String=_clock_refill(secs)
 	# Cap the size: at the "large" text setting the top bar has no room for a second full-size line.

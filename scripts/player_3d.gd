@@ -587,15 +587,15 @@ func _build_flame_jet() -> void:
 	if is_instance_valid(flame_jet):
 		return
 	var ramp := Gradient.new()
-	ramp.set_color(0, Color(1.0, 0.95, 0.80, 0.0))
-	ramp.add_point(0.06, Color(1.0, 0.90, 0.60, 0.85))
-	ramp.add_point(0.22, Color(1.0, 0.72, 0.22, 0.80))
-	ramp.add_point(0.45, Color(0.95, 0.42, 0.08, 0.65))
-	ramp.add_point(0.72, Color(0.78, 0.18, 0.04, 0.45))
-	ramp.set_color(3, Color(0.12, 0.09, 0.08, 0.0))
+	ramp.set_color(0, Color(1.0, 0.86, 0.45, 0.0))
+	ramp.add_point(0.06, Color(1.0, 0.82, 0.38, 0.85))
+	ramp.add_point(0.22, Color(1.0, 0.70, 0.20, 0.82))
+	ramp.add_point(0.45, Color(1.0, 0.62, 0.16, 0.70))
+	ramp.add_point(0.72, Color(1.0, 0.46, 0.12, 0.40))
+	ramp.set_color(3, Color(0.55, 0.24, 0.06, 0.0))
 	var jet := CPUParticles3D.new()
-	jet.amount = 320
-	jet.lifetime = 0.34
+	jet.amount = 260
+	jet.lifetime = 0.62
 	jet.preprocess = 0.12
 	jet.local_coords = false
 	jet.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
@@ -603,8 +603,8 @@ func _build_flame_jet() -> void:
 	jet.direction = Vector3(0, 0, -1)
 	jet.spread = 5.0
 	jet.gravity = Vector3(0, 1.0, 0)
-	jet.initial_velocity_min = 7.0
-	jet.initial_velocity_max = 10.5
+	jet.initial_velocity_min = 11.0
+	jet.initial_velocity_max = 17.0
 	jet.angular_velocity_min = -60.0
 	jet.angular_velocity_max = 60.0
 	jet.scale_amount_min = 0.55

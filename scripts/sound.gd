@@ -256,7 +256,7 @@ func play(id: String) -> void:
 	elif id=="pistol_near": voice.volume_db=-16.0
 	elif id=="pistol_far": voice.volume_db=-12.0
 	elif id=="shotgun": voice.volume_db=-15.0
-	elif id=="flame": voice.volume_db=-13.0
+	elif id=="flame": voice.volume_db=-19.0
 	elif id=="equip": voice.volume_db=-8.0
 	elif id=="sniper": voice.volume_db=-4.0
 	elif id=="zombie": voice.volume_db=-6.0
