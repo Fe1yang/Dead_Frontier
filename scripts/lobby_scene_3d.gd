@@ -274,6 +274,9 @@ func _process(delta: float) -> void:
 	time+=delta
 	if is_instance_valid(bike): bike.visible=focus_vehicle
 	if is_instance_valid(pet): pet.visible=focus_pets
+	# shadows follow their owner: a lone blob under an empty rug looks like a bug
+	if is_instance_valid(bike_shadow): bike_shadow.visible=focus_vehicle
+	if is_instance_valid(pet_shadow): pet_shadow.visible=focus_pets
 	# (No pet_zoom easing: camera stays fixed so switching pets->characters does not scale.)
 	# The hanging lamp buzzes and the table lantern breathes — the den runs on a generator.
 	if bulb_light:

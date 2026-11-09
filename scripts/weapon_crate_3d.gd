@@ -6,6 +6,9 @@ const TRUCK_PATH := "res://assets/models/supply_truck.glb"
 ## When the truck crate mesh cannot be found, the case is an ammo can (the model the game
 ## already ships) instead of a plain green block.
 const AMMO_CAN_PATH := "res://assets/models/ammo_pickup.glb"
+## false = the crate sits on the green supply-truck pedestal again; the ammo can used to
+## replace that pedestal and the user wants the green base back.
+const USE_AMMO_CAN := false
 const CRATE_SCALE := 2.9
 const FLIGHT_TIME := 0.55
 const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.62,"CRUISER":0.62,"FUEL":1.15}
@@ -71,7 +74,7 @@ func _ready() -> void:
 	var s := CRATE_SCALE # all three bikes are full-size drops in the same crate
 	# The case is the game's own ammo can, not the green truck crate (user's call).
 	var can_used := false
-	if ResourceLoader.exists(AMMO_CAN_PATH):
+	if USE_AMMO_CAN and ResourceLoader.exists(AMMO_CAN_PATH):
 		var can := (load(AMMO_CAN_PATH) as PackedScene).instantiate() as Node3D
 		if can != null:
 			body.add_child(can)

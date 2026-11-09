@@ -7,27 +7,22 @@ func _run() -> void:
 	for i in range(10):
 		await process_frame
 	main = current_scene
-	await create_timer(0.9).timeout
+	await create_timer(1.0).timeout
 	paused = false
 	main.call("enter_lobby")
-	await create_timer(0.2).timeout
+	await create_timer(0.5).timeout
 	main.set("loadout_on", false); main.set("owned_vehicle", "")
 	main.call("start_run", true, true)
-	await create_timer(0.5).timeout
+	await create_timer(1.0).timeout
 	if String(main.get("state")) == "intro":
 		main.call("_finish_intro")
-	await create_timer(0.3).timeout
-	main.set("spawn_timer", 1.0e9); main.set("crate_timer", 1.0e9)
-	var fn := ""
-	for m in main.get_method_list():
-		if String(m["name"]).contains("spawn_crate"): fn = String(m["name"]); break
-	print("crate spawner=", fn)
-	if fn != "":
-		main.call(fn)
-	await create_timer(1.0).timeout
-	var crates = main.get("crates")
-	print("crates=", crates.size() if crates != null else "null")
+	main.call("set_weather", "clear")
+	await create_timer(0.5).timeout
+	main.call("_spawn_crates")
+	await create_timer(1.4).timeout
+	main.call("debug_camera_at", Vector3(0.0, 2.4, 5.5), Vector3(0.0, 0.7, -8.0), 62.0)
+	await create_timer(0.5).timeout
 	await RenderingServer.frame_post_draw
-	root.get_viewport().get_texture().get_image().save_png("res://tools/crate_check.png")
+	root.get_viewport().get_texture().get_image().save_png("res://tools/crate_run.png")
 	print("CRATE_DONE")
 	quit()
