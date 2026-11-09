@@ -10,23 +10,17 @@ func _run() -> void:
 	await create_timer(1.0).timeout
 	paused = false
 	main.call("enter_lobby")
-	await create_timer(0.4).timeout
+	await create_timer(0.5).timeout
 	main.set("loadout_on", false); main.set("owned_vehicle", "")
 	main.call("start_run", true, true)
-	await create_timer(0.8).timeout
+	await create_timer(1.0).timeout
 	if String(main.get("state")) == "intro":
 		main.call("_finish_intro")
 	main.set("spawn_timer", 1.0e9)
-	main.call("_spawn_zombie", -7.0, "jockey")
-	await create_timer(0.6).timeout
-	var zs = main.get("zombies") as Array
-	var j = null
-	for z in zs:
-		if is_instance_valid(z) and z.kind == "jockey": j = z
-	if j == null:
-		print("no jockey")
-	else:
-		var ap = j.find_child("AnimationPlayer", true, false)
-		print("jockey clip=", ap.current_animation if ap else "none", " playing=", ap.is_playing() if ap else false)
+	main.call("_spawn_zombie", -6.0, "jockey")
+	await create_timer(1.2).timeout
+	var z = (main.get("zombies") as Array).back()
+	var ap = z.find_child("AnimationPlayer", true, false)
+	print("JOCKEY_CLIP ", ap.current_animation if ap else "none", " playing=", ap.is_playing() if ap else false)
 	print("JOCKEY_DONE")
 	quit()

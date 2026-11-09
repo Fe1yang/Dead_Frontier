@@ -140,7 +140,9 @@ func configure(type: String, difficulty: float) -> void:
 			"brute": rate=_brute_stride_rate()
 			"bomber": rate=_brute_stride_rate()
 			"bomber_female": rate=_brute_stride_rate()
-			"jockey": rate=randf_range(1.18,1.30)
+				"jockey":
+				# the jockey sprints at 7.4 m/s on a dog run cycle; at ~1.2x it skated along the road
+				rate = clampf(1.35 + (speed - 3.5) * 0.22, 1.35, 2.6)
 			"banshee": rate=0.72
 		animation_player.speed_scale=rate
 		animation_player.play(clip_name)

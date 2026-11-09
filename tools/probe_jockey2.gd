@@ -7,32 +7,21 @@ func _run() -> void:
 	for i in range(10):
 		await process_frame
 	main = current_scene
-	await create_timer(0.9).timeout
+	await create_timer(1.0).timeout
 	paused = false
 	main.call("enter_lobby")
-	await create_timer(0.2).timeout
+	await create_timer(0.5).timeout
 	main.set("loadout_on", false); main.set("owned_vehicle", "")
 	main.call("start_run", true, true)
-	await create_timer(0.4).timeout
+	await create_timer(1.0).timeout
 	if String(main.get("state")) == "intro":
 		main.call("_finish_intro")
 	main.set("spawn_timer", 1.0e9)
-	main.call("_spawn_zombie", -7.0, "jockey")
-	await create_timer(1.2).timeout
-	for z in (main.get("zombies") as Array):
-		if is_instance_valid(z) and String(z.get("kind")) == "jockey":
-			var ap: AnimationPlayer = z.get("animation_player")
-			print("JOCKEY clip=", ap.current_animation if ap else "none",
-				" rot=", snappedf(z.model.rotation.x,0.01), " y=", snappedf(z.position.y,0.02))
-			var box := AABB(); var first := true
-			for mi in z.find_children("*","MeshInstance3D",true,false):
-				var m: MeshInstance3D = mi
-				if m.mesh == null: continue
-				var b: AABB = m.global_transform * m.get_aabb()
-				box = b if first else box.merge(b)
-				first = false
-			print("JOCKEY size=", box.size)
-	await RenderingServer.frame_post_draw
-	root.get_viewport().get_texture().get_image().save_png("res://tools/jockey_pose.png")
+	main.call("_spawn_zombie", -6.0, "jockey")
+	await create_timer(1.0).timeout
+	var z = (main.get("zombies") as Array).back()
+	for ap in z.find_children("*", "AnimationPlayer", true, false):
+		var clips := (ap as AnimationPlayer).get_animation_list()
+		print("PLAYER ", ap.name, " current=", (ap as AnimationPlayer).current_animation, " clips=", clips)
 	print("JOCKEY2_DONE")
 	quit()
