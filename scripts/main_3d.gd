@@ -4332,7 +4332,11 @@ func _popup(pos: Vector3,text: String,color: Color) -> void:
 
 func _tick_effects(delta: float) -> void:
 	for i in range(effects.size()-1,-1,-1):
-		var e=effects[i]; e.tick(delta)
+		var e=effects[i]
+		# Effects belong to the world, so they ride the scrolling road like bullets and crates.
+		# Without this, a barrel explosion stayed at a fixed z and travelled with the player.
+		e.position.z += 3.5 * delta
+		e.tick(delta)
 		if e.life<=0:
 			effects.remove_at(i)
 			if e.has_meta("fx_kind"): _fx_release(e)
