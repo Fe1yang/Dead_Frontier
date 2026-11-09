@@ -44,6 +44,22 @@ var scatter_elapsed := 0.0
 var coin_pieces: Array[Dictionary]=[]
 var coin_light: OmniLight3D
 
+## Largest axis of the instantiated model, in its own space.
+func _model_span(node: Node3D) -> float:
+	var box := AABB()
+	var first := true
+	for m in node.find_children("*", "MeshInstance3D", true, false):
+		var mi := m as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		var a: AABB = mi.get_aabb()
+		box = a if first else box.merge(a)
+		first = false
+	if first:
+		return 0.0
+	return maxf(box.size.x, maxf(box.size.y, box.size.z))
+
+
 func _ready() -> void:
 	visual = Node3D.new()
 	add_child(visual)
@@ -53,6 +69,11 @@ func _ready() -> void:
 		push_error("pickup model missing or broken: " + str(MODEL_PATHS.get(kind, "?")))
 		model_instance = Node3D.new() # invisible placeholder: the run continues
 	model_instance.scale = Vector3.ONE * float(DISPLAY_SCALES[kind])
+	# The armour GLB is authored at ~120 m, so a fixed display scale made a 60 m vest spin over the
+	# road. Normalise every pickup to its own footprint instead: at most half a metre across.
+	var span := _model_span(model_instance)
+	if span > 1.0:
+		model_instance.scale *= 0.55 / span
 	model_instance.position.y = float(GROUND_OFFSETS[kind])
 	visual.add_child(model_instance)
 	base_yaw = -0.35 if kind=="armor" else 0.12

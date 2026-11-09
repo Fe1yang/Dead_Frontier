@@ -25,7 +25,7 @@ func _run() -> void:
 	for road in (main.get("roads") as Array):
 		props += road.find_children("*", "MeshInstance3D", true, false).size()
 	print("road meshes now=", props)
-	main.call("debug_camera_at", Vector3(3.0, 2.0, 6.0), Vector3(-1.0, 0.6, -10.0), 55.0)
+	main.call("debug_camera_at", Vector3(0.0, 2.4, 7.0), Vector3(0.0, 0.4, -18.0), 62.0)
 	await create_timer(0.5).timeout
 	await RenderingServer.frame_post_draw
 	root.get_viewport().get_texture().get_image().save_png("res://tools/street.png")
