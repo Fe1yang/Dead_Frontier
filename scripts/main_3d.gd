@@ -781,7 +781,9 @@ func _place_phone_booth(road: Node3D) -> void:
 		return
 	var side := -1.0 if shel.get_center().x < 0.0 else 1.0
 	# Fixed outer line requested by the user: 10 m from the centre line, well past the kerb.
-	var x: float = side * 11.0
+	# 8.85 m is the pavement line; 11 m sits inside the building shell, so props placed there
+	# were invisible.
+	var x: float = side * 8.85
 	var z: float = shel.end.z + 1.5 if side < 0.0 else shel.position.z - 1.5
 	# side-on, glass towards the road
 	_prop_node("phone_booth", road, Vector3(x, PAVEMENT_Y, z), -side * PI * 0.5)
@@ -794,7 +796,9 @@ func _place_street_props(road: Node3D, index: int) -> void:
 	rng_d.seed = 0xC0FFEE + index * 733
 	var side: float = -1.0 if rng_d.randf() < 0.5 else 1.0
 	var base_z: float = road.global_position.z
-	var x: float = side * 11.0
+	# 8.85 m is the pavement line; 11 m sits inside the building shell, so props placed there
+	# were invisible.
+	var x: float = side * 8.85
 
 	if rng_d.randf() < 0.20:
 		_prop_node("bench", road, Vector3(x, PAVEMENT_Y, base_z + rng_d.randf_range(-6.0, 6.0)), -side * PI * 0.5)
