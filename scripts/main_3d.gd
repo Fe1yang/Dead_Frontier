@@ -711,51 +711,48 @@ func _build_district(i: int) -> void:
 ## at the curb line, the rest is scattered sparsely. Each district gets its own mix so the blocks
 ## do not look identical, and the lamp style varies block by block.
 const PROP_DIR := "res://assets/models/props/"
+## Kerb height: the pavement surface above the asphalt.
+const PAVEMENT_Y := 0.14
 
 
-func _prop_node(name: String, parent: Node3D, pos: Vector3, yaw: float = 0.0) -> Node3D:
+func _prop_node(name: String, parent: Node3D, world_pos: Vector3, yaw: float = 0.0) -> Node3D:
 	var path := PROP_DIR + name + ".glb"
 	if not ResourceLoader.exists(path):
 		return null
 	var node := (load(path) as PackedScene).instantiate() as Node3D
-	node.position = pos
-	node.rotation.y = yaw
 	parent.add_child(node)
+	# world coordinates, because the district node carries a scale and props must not inherit it
+	node.global_position = world_pos
+	node.global_rotation = Vector3(0.0, yaw, 0.0)
 	return node
 
 
 func _decorate_district(road: Node3D, index: int) -> void:
 	var decor_rng := RandomNumberGenerator.new()
 	decor_rng.seed = 0x5EED + index * 977
-	# --- lamps: three block types, so lighting differs from street to street -----------------
-	var lamp_style := index % 3
-	if lamp_style != 2:
-		var lamp_name := "lamp_modern" if lamp_style == 0 else "lamp_round"
-		for side in [-1.0, 1.0]:
-			_prop_node(lamp_name, road, Vector3(side * 5.15, 0.0, 2.4), 0.0)
-			_prop_node(lamp_name, road, Vector3(side * 5.15, 0.0, -5.4), 0.0)
+	var base_z: float = road.global_position.z
 	# --- things that stand against the buildings --------------------------------------------
 	for side in [-1.0, 1.0]:
-		var x_wall: float = side * 6.95
+		var x_wall: float = side * 7.10
 		if decor_rng.randf() < 0.34:
-			_prop_node("trash_bin", road, Vector3(x_wall, 0.0, decor_rng.randf_range(-6.0, 6.0)), side * PI * 0.5)
+			_prop_node("trash_bin", road, Vector3(x_wall, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)), side * PI * 0.5)
 		if decor_rng.randf() < 0.26:
-			_prop_node("trash_can", road, Vector3(side * 6.05, 0.0, decor_rng.randf_range(-6.0, 6.0)), side * PI * 0.5)
+			_prop_node("trash_can", road, Vector3(side * 6.60, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)), side * PI * 0.5)
 		if decor_rng.randf() < 0.18:
-			_prop_node("phone_booth", road, Vector3(x_wall, 0.0, decor_rng.randf_range(-5.0, 5.0)), side * PI * 0.5)
+			_prop_node("phone_booth", road, Vector3(x_wall, PAVEMENT_Y, base_z + decor_rng.randf_range(-5.0, 5.0)), side * PI * 0.5)
 		if decor_rng.randf() < 0.30:
-			_prop_node("bench", road, Vector3(side * 5.90, 0.0, decor_rng.randf_range(-5.5, 5.5)), side * PI * 0.5)
+			_prop_node("bench", road, Vector3(side * 6.35, PAVEMENT_Y, base_z + decor_rng.randf_range(-5.5, 5.5)), side * PI * 0.5)
 		if decor_rng.randf() < 0.22:
-			_prop_node("hydrant", road, Vector3(side * 5.45, 0.0, decor_rng.randf_range(-6.5, 6.5)), 0.0)
+			_prop_node("hydrant", road, Vector3(side * 6.15, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
 		# manholes sit along the pavement line, roughly aligned with the street
 		if decor_rng.randf() < 0.30:
-			_prop_node("manhole", road, Vector3(side * 5.75 + decor_rng.randf_range(-0.15, 0.15), 0.012, decor_rng.randf_range(-6.0, 6.0)), 0.0)
+			_prop_node("manhole", road, Vector3(side * 6.20 + decor_rng.randf_range(-0.15, 0.15), PAVEMENT_Y + 0.01, base_z + decor_rng.randf_range(-6.0, 6.0)), 0.0)
 	# --- litter: a couple of cans, not a carpet ---------------------------------------------
 	var cans := decor_rng.randi_range(0, 3)
 	for i in range(cans):
 		var can_name: String = ["can_a", "can_b", "can_c", "can_d"][decor_rng.randi_range(0, 3)]
-		var cx: float = decor_rng.randf_range(5.1, 7.2) * (1.0 if decor_rng.randf() < 0.5 else -1.0)
-		_prop_node(can_name, road, Vector3(cx, 0.0, decor_rng.randf_range(-7.0, 7.0)), decor_rng.randf_range(0.0, TAU))
+		var cx: float = decor_rng.randf_range(6.0, 7.4) * (1.0 if decor_rng.randf() < 0.5 else -1.0)
+		_prop_node(can_name, road, Vector3(cx, PAVEMENT_Y, base_z + decor_rng.randf_range(-7.0, 7.0)), decor_rng.randf_range(0.0, TAU))
 
 
 func _build_road() -> void:
