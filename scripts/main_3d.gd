@@ -2952,10 +2952,11 @@ func _wants_to_fire() -> bool:
 
 ## Flamethrower: instead of bullets, everything inside a forward cone catches fire. Zombies
 ## burn for their own duration and take damage over time (see ZombieScript.ignite).
-const FLAME_RANGE := 9.0
-const FLAME_HALF_ANGLE := 8.0
-const FLAME_BURN_SECONDS := 2.5
-const FLAME_BURN_FRACTION := 0.06
+const FLAME_RANGE := 10.5
+const FLAME_HALF_ANGLE := 11.0
+const FLAME_BURN_SECONDS := 3.0
+const FLAME_BURN_FRACTION := 0.09
+const FLAME_TICK_DAMAGE := 22.0   # per 0.12 s tick: it is a paid gold weapon
 func _fire_flame() -> bool:
 	var fwd: Vector3 = aim_direction.normalized()
 	var origin: Vector3 = player.muzzle_position()
@@ -2968,6 +2969,7 @@ func _fire_flame() -> bool:
 		if dist > FLAME_RANGE: continue
 		var flat_fwd: Vector3 = Vector3(fwd.x, 0.0, fwd.z).normalized()
 		if dist > 0.4 and flat_fwd.dot(d.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)): continue
+		_hit_zombie(z, FLAME_TICK_DAMAGE, "torso", z.position + Vector3(0, 1.0, 0), Color("ffb14d"))
 		z.ignite(FLAME_BURN_SECONDS, z.max_health * FLAME_BURN_FRACTION)
 		hit += 1
 	player.fire()
