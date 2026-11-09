@@ -4713,7 +4713,11 @@ func _barrel_debris(barrel: Node3D) -> void:
 	shake=maxf(shake,0.42)
 
 func _explode(barrel: Node3D) -> void:
-	barrel.dead=true; sound.play("explosion"); shake=1.0
+	barrel.dead=true
+	# hide the body at once: the node is only freed on the next barrel tick, and its charred shell
+	# was left standing on the road for that frame (and longer if the tick missed it)
+	barrel.visible = false
+	sound.play("explosion"); shake=1.0
 	if OS.get_name()=="iOS": Input.vibrate_handheld(200,0.85)
 	var center:=barrel.position+Vector3(0,0.55,0)
 	_barrel_debris(barrel)
