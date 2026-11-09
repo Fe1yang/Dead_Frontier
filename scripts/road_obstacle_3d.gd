@@ -29,6 +29,22 @@ func _ready() -> void:
 		half_extents=Vector2(1.15,0.34)
 		damage=12.0
 		_make_fence()
+	elif kind=="cone":
+		# a pothole marker: small, so it never blocks a lane on its own
+		half_extents=Vector2(0.22,0.22)
+		damage=8.0
+		var cone_packed: Resource=load("res://assets/models/props/traffic_cone.glb")
+		if cone_packed!=null:
+			var cone:=cone_packed.instantiate() as Node3D
+			if cone!=null:
+				cone.position=Vector3(0,0,0)
+				model.add_child(cone)
+		# the hole itself: a dark disc so the cones read as a warning, not random clutter
+		var disc:=MeshInstance3D.new()
+		var cyl:=CylinderMesh.new(); cyl.top_radius=0.55; cyl.bottom_radius=0.55; cyl.height=0.02
+		var dm:=StandardMaterial3D.new(); dm.albedo_color=Color(0.05,0.05,0.055); dm.roughness=0.95
+		cyl.material=dm; disc.mesh=cyl; disc.position=Vector3(0,0.012,0)
+		model.add_child(disc)
 	elif kind=="police":
 		half_extents=Vector2(2.42,1.08) if police_crosswise else Vector2(1.08,2.42)
 		damage=24.0

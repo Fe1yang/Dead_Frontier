@@ -4194,7 +4194,20 @@ func _route_remains_open(kind: String,lane_x: float,at_z: float,crosswise: bool=
 		cursor=maxf(cursor,float(interval[1]))
 	return 3.05-cursor>=REQUIRED_GAP
 
+## A pothole marked by three cones. It always leaves the other lanes open: the cluster is
+## 3.4 m wide at most, and the road is 7.2 m.
+func _spawn_pothole() -> void:
+	var lane_x: float = [-2.0, 0.0, 2.0][rng.randi_range(0, 2)]
+	var z := -48.0
+	var offsets := [Vector3(-0.75, 0, 0.55), Vector3(0.75, 0, 0.55), Vector3(0, 0, -0.75)]
+	for off in offsets:
+		_spawn_obstacle("cone", lane_x + off.x, z + off.z)
+
+
 func _spawn_obstacle_pattern() -> void:
+	if rng.randf()<0.28:
+		_spawn_pothole()
+		return
 	# A crosswise police car is accepted only when its wide side really remains passable.
 	if rng.randf()<0.09 and not _x_blocked_by_banshee(0.0,2.6):
 		var open_side: float=-1.0 if rng.randf()<0.5 else 1.0
