@@ -802,8 +802,10 @@ func _place_street_props(road: Node3D, index: int) -> void:
 		_prop_node("trash_bin", road, Vector3(x, PAVEMENT_Y, base_z + rng_d.randf_range(-6.0, 6.0)), -side * PI * 0.5)
 	if rng_d.randf() < 0.16:
 		_prop_node("trash_can", road, Vector3(x, PAVEMENT_Y, base_z + rng_d.randf_range(-6.0, 6.0)), 0.0)
-	if rng_d.randf() < 0.22:
-		_prop_node("manhole", road, Vector3(x + rng_d.randf_range(-0.12, 0.12), PAVEMENT_Y + 0.01, base_z + rng_d.randf_range(-6.5, 6.5)), 0.0)
+	if rng_d.randf() < 0.40:
+		# 10.9 .. 11.3 on whichever pavement this block uses
+		var mx: float = x + side * rng_d.randf_range(-0.1, 0.3)
+		_prop_node("manhole", road, Vector3(mx, PAVEMENT_Y + 0.01, base_z + rng_d.randf_range(-6.5, 6.5)), 0.0)
 	if rng_d.randf() < 0.14:
 		_prop_node("hydrant", road, Vector3(x, PAVEMENT_Y, base_z + rng_d.randf_range(-6.5, 6.5)), 0.0)
 
