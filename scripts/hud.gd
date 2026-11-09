@@ -934,11 +934,17 @@ func _gear_button(r: Rect2,on: bool) -> void:
 	_text_center(label,Vector2(r.get_center().x,r.end.y-8),11,Color(1.0,0.86,0.4) if on else Color(0.62,0.63,0.64))
 
 func _gear_icon(c: Vector2,k:=1.0,tint: Color=WHITE) -> void:
-	draw_arc(c,13*k,0,TAU,24,tint,3.0*k)
+	# drawn through the clean layer: an immediate draw_arc sits BEHIND the panel fill and the
+	# white gear comes out grey
+	var ring := PackedVector2Array()
+	for i in range(25):
+		var a := TAU * float(i) / 24.0
+		ring.append(c + Vector2(cos(a), sin(a)) * 13.0 * k)
+	clean_ops.append(["line", ring, tint, 3.0 * k])
 	for i in range(8):
 		var a:=i*TAU/8.0
-		draw_line(c+Vector2(cos(a),sin(a))*13*k,c+Vector2(cos(a),sin(a))*19*k,tint,5.0*k)
-	draw_circle(c,5*k,tint)
+		clean_ops.append(["line", PackedVector2Array([c+Vector2(cos(a),sin(a))*13*k,c+Vector2(cos(a),sin(a))*19*k]), tint, 5.0*k])
+	clean_ops.append(["circle", c, 5.0 * k, tint])
 
 func _character_card(rect: Rect2,index: int) -> void:
 	_panel(rect,Color("181b1c"),WHITE if game.character_choice==index else LINE,0)

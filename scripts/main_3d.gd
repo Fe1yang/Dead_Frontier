@@ -2360,7 +2360,7 @@ const OFFER_BADGE:=Rect2(2,246,92,104)    # left column, under the airdrop
 
 ## ---- Check-in and missions ----------------------------------------------------------------
 ## Lobby side buttons.
-const SIDE_MAP:=Rect2(464,118,70,76)    # map select (more maps coming) — right-hand column
+const SIDE_MAP:=Rect2(470,118,70,76)    # map select (more maps coming) — right-hand column
 
 ## ---- Daily airdrop -------------------------------------------------------------------------
 ## Once a day the lobby's airdrop can be opened for free by watching one rewarded ad.
@@ -2417,12 +2417,12 @@ func share_result() -> String:
 			if sh.has_method("shareText"): sh.shareText("Dead Frontier","Dead Frontier",text); return "native"
 	DisplayServer.clipboard_set(text); share_toast=2.2
 	return "clipboard"
-const SIDE_BAG:=Rect2(464,198,70,76)    # backpack
+const SIDE_BAG:=Rect2(470,198,70,76)    # backpack
 const SIDE_SIGNIN:=Rect2(462,278,70,76)
-const SIDE_TASKS:=Rect2(464,358,70,76)
-const SIDE_SHOP:=Rect2(464,438,70,76)   # supply truck (upgrades)
-const SIDE_STORE:=Rect2(464,518,70,76)  # real-money store
-const SIDE_MAIL:=Rect2(464,598,70,76)   # mailbox
+const SIDE_TASKS:=Rect2(470,358,70,76)
+const SIDE_SHOP:=Rect2(470,438,70,76)   # supply truck (upgrades)
+const SIDE_STORE:=Rect2(470,518,70,76)  # real-money store
+const SIDE_MAIL:=Rect2(470,598,70,76)   # mailbox
 
 ## ---- Backpack --------------------------------------------------------------------------------
 ## Everything the player holds. For now coins and vouchers (vouchers only when there are any);
