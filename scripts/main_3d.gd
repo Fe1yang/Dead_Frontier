@@ -718,39 +718,6 @@ const PROP_DIR := "res://assets/models/props/"
 const PAVEMENT_Y := 0.14
 
 
-## Orange traffic cone: replaces the manhole covers, which were spawning three deep on the
-## tarmac. Cones ring the missile crater instead of trying to fence it perfectly.
-func _traffic_cone(parent: Node3D, world_pos: Vector3) -> Node3D:
-	var root := Node3D.new()
-	parent.add_child(root)
-	root.global_position = Vector3(world_pos.x, PAVEMENT_Y, world_pos.z)
-	var cone := MeshInstance3D.new()
-	var mesh := CylinderMesh.new()
-	mesh.top_radius = 0.02
-	mesh.bottom_radius = 0.20
-	mesh.height = 0.62
-	mesh.radial_segments = 10
-	mesh.rings = 0
-	cone.mesh = mesh
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = Color("e8631b")
-	mat.roughness = 0.75
-	cone.material_override = mat
-	cone.position.y = 0.31
-	root.add_child(cone)
-	var base := MeshInstance3D.new()
-	var base_mesh := BoxMesh.new()
-	base_mesh.size = Vector3(0.46, 0.06, 0.46)
-	base.mesh = base_mesh
-	var base_mat := StandardMaterial3D.new()
-	base_mat.albedo_color = Color("d2551a")
-	base_mat.roughness = 0.8
-	base.material_override = base_mat
-	base.position.y = 0.03
-	root.add_child(base)
-	return root
-
-
 func _prop_node(name: String, parent: Node3D, world_pos: Vector3, yaw: float = 0.0) -> Node3D:
 	var path := PROP_DIR + name + ".glb"
 	if not ResourceLoader.exists(path):
@@ -845,13 +812,6 @@ func _place_street_props(road: Node3D, index: int) -> void:
 		# 10.9 .. 11.3 on whichever pavement this block uses
 		var mx: float = x + side * rng_d.randf_range(-0.1, 0.3)
 		# ring the crater mouth instead of dropping covers on the tarmac
-		# ring of 3..6 cones around the crater mouth, evenly spaced with a little jitter
-		var cone_count := rng_d.randi_range(3, 6)
-		var ring_r := CRATER_RADIUS + 0.55
-		for k in range(cone_count):
-			var ang := TAU * float(k) / float(cone_count) + rng_d.randf_range(-0.18, 0.18)
-			_traffic_cone(road, Vector3(CRATER_X + cos(ang) * ring_r, PAVEMENT_Y,
-				base_z + sin(ang) * ring_r))
 	if rng_d.randf() < 0.14:
 		_prop_node("hydrant", road, Vector3(x, PAVEMENT_Y, base_z + rng_d.randf_range(-6.5, 6.5)), 0.0)
 
@@ -912,9 +872,7 @@ func _decorate_district(road: Node3D, index: int) -> void:
 		if decor_rng.randf() < 0.22:
 			_prop_node("hydrant", road, Vector3(side * 8.70, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
 		# manholes sit along the pavement line, roughly aligned with the street
-		if decor_rng.randf() < 0.015:
-			_traffic_cone(road, Vector3(side * decor_rng.randf_range(8.45, 12.0), PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)))
-	# --- litter: a couple of cans, not a carpet ---------------------------------------------
+		# --- litter: a couple of cans, not a carpet ---------------------------------------------
 	var cans := decor_rng.randi_range(0, 3)
 	for i in range(cans):
 		var can_name: String = ["can_a", "can_b", "can_c", "can_d"][decor_rng.randi_range(0, 3)]
@@ -4452,28 +4410,18 @@ func _route_remains_open(kind: String,lane_x: float,at_z: float,crosswise: bool=
 		cursor=maxf(cursor,float(interval[1]))
 	return 3.05-cursor>=REQUIRED_GAP
 
-## A pothole marked by three cones. It always leaves the other lanes open: the cluster is
-## 3.4 m wide at most, and the road is 7.2 m.
-## How many cone obstacles are on the road right now (used to cap them).
-func _cone_obstacle_count() -> int:
-	var n := 0
-	for o in obstacles:
-		if is_instance_valid(o) and String(o.kind) == "cone":
-			n += 1
-	return n
-
-
-func _spawn_pothole() -> void:
+## A pothole marked by three cones in a tight triangle. Only ever spawned when the road has no
+## cones on it at all, so a run can never accumulate more than three.
+func _spawn_cone_triangle() -> void:
 	var lane_x: float = [-2.0, 0.0, 2.0][rng.randi_range(0, 2)]
-	var z := -48.0
-	var offsets := [Vector3(-0.75, 0, 0.55), Vector3(0.75, 0, 0.55)]
-	for off in offsets:
+	var z := -46.0
+	for off in [Vector3(-0.7, 0, 0.5), Vector3(0.7, 0, 0.5), Vector3(0, 0, -0.6)]:
 		_spawn_obstacle("cone", lane_x + off.x, z + off.z)
 
 
 func _spawn_obstacle_pattern() -> void:
-	if rng.randf()<0.10 and _cone_obstacle_count() < 3:
-		_spawn_pothole()
+	if rng.randf()<0.12 and _cone_obstacle_count() == 0:
+		_spawn_cone_triangle()
 		return
 	# A crosswise police car is accepted only when its wide side really remains passable.
 	if rng.randf()<0.09 and not _x_blocked_by_banshee(0.0,2.6):
