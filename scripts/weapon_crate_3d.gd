@@ -14,7 +14,8 @@ const USE_AMMO_CAN := false
 const USE_FULL_TRUCK := false
 const CRATE_SCALE := 2.9
 ## The item floating over a crate/barrel reads too small on a phone: scale it up.
-const ITEM_BOOST := 1.15
+const ITEM_BOOST := 1.75
+const CRATE_ITEM_SCALE := 1.5   # helmets keep their size
 ## Height of the concrete platform the drop stands on (the two platforms the crates
 ## have always been placed on, left and right of the lane).
 const PLATFORM_H := 0.42
@@ -148,7 +149,14 @@ func _ready() -> void:
 		if raw_span > 2.0:
 			# authored in centimetres or metres: bring it to ~1 m before the table scale
 			weapon_model.scale = Vector3.ONE * (1.0 / raw_span)
-		weapon_model.scale *= Vector3.ONE*(float(WEAPON_SCALES.get(weapon_id,0.6))*ITEM_BOOST)
+		# every drop is half again bigger than before, except the helmet which already reads well
+		var boost: float = 1.0 if weapon_id=="HELMET" else CRATE_ITEM_SCALE
+		weapon_model.scale *= Vector3.ONE*(float(WEAPON_SCALES.get(weapon_id,0.6))*boost)
+		if weapon_id!="HELMET":
+			# a small prop (a vest, a can) otherwise reads as an empty barrel from a few metres away
+			var shown := _model_span(weapon_model) * weapon_model.scale.x
+			if shown > 0.01 and shown < 0.85:
+				weapon_model.scale *= 0.85 / shown
 		# Bike/Car models are already upright; no X tilt (that laid them on their side).
 		weapon_pivot.add_child(weapon_model)
 		_center_model(weapon_model)
