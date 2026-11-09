@@ -698,6 +698,7 @@ func _build_district(i: int) -> void:
 		return
 	road.position=Vector3(0,0,ROAD_BEHIND-i*ROAD_SEGMENT); add_child(road)
 	EnvironmentMaterials.apply(road,i); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
+	_place_phone_booth(road)
 	_apply_cull_range(road)
 	_randomize_zebra(road)
 	_setup_streetlamp(road,i)
@@ -736,6 +737,45 @@ func _hide_road_lamps(road: Node3D) -> void:
 			continue
 		if absf(mi.global_position.x) < 4.6:
 			mi.visible = false
+
+
+## One phone booth per block, standing beside the block's own street shelter and aligned with it.
+## If a district has no shelter there is no booth: nothing is dropped at random.
+const SHELTER_HINTS := ["shelter", "bus", "awning", "kiosk", "stand", "canopy"]
+
+
+func _shelter_of(road: Node3D) -> AABB:
+	var found := AABB()
+	var has := false
+	for m in road.find_children("*", "MeshInstance3D", true, false):
+		var mi := m as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		var nm := String(mi.name).to_lower()
+		var hit := false
+		for hint in SHELTER_HINTS:
+			if nm.find(hint) != -1:
+				hit = true
+				break
+		if not hit:
+			continue
+		var a: AABB = mi.global_transform * mi.get_aabb()
+		if absf(a.position.x) < 4.6:
+			continue
+		found = a if not has else found.merge(a)
+		has = true
+	return found
+
+
+func _place_phone_booth(road: Node3D) -> void:
+	var shel := _shelter_of(road)
+	if shel.size == Vector3.ZERO:
+		return
+	var side := -1.0 if shel.get_center().x < 0.0 else 1.0
+	# same x line as the shelter, 2.6 m along the street, so neither can overlap the other
+	var z := shel.get_center().z + 2.6 * (-1.0 if side < 0.0 else 1.0)
+	var x := shel.get_center().x
+	_prop_node("phone_booth", road, Vector3(x, PAVEMENT_Y, z), side * PI * 0.5)
 
 
 func _decorate_district(road: Node3D, index: int) -> void:
