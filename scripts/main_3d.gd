@@ -3134,7 +3134,7 @@ const FLAME_BURN_SECONDS := 3.0
 const FLAME_BURN_FRACTION := 0.09
 const FLAME_TICK_DAMAGE := 22.0   # per 0.12 s tick: it is a paid gold weapon
 ## Crates and barrels count hits, not health; the flame takes several per tick.
-const FLAME_STRUCTURE_HITS := 3
+const FLAME_STRUCTURE_HITS := 60   # flame melts a case: one burst is enough
 func _fire_flame() -> bool:
 	var fwd: Vector3 = aim_direction.normalized()
 	var origin: Vector3 = player.muzzle_position()
@@ -3173,7 +3173,7 @@ func _fire_flame() -> bool:
 			continue
 		if bd.length() > 0.4 and flat_fwd.dot(bd.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)):
 			continue
-		barrel.take_hit(FLAME_STRUCTURE_HITS * 8.0)
+		barrel.take_hit(400.0)
 		hit += 1
 	sound.play("flame")
 	if hit > 0:

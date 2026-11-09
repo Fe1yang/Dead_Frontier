@@ -623,8 +623,10 @@ func _build_flame_jet() -> void:
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_MIX
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	mat.vertex_color_use_as_albedo = true
+	# additive at a third brightness: bright enough to read as fire, not a white sheet
+	mat.albedo_color = Color(1.0, 1.0, 1.0, 0.35)
 	mat.no_depth_test = false
 	quad.material = mat
 	jet.mesh = quad
