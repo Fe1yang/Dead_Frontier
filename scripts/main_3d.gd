@@ -5080,6 +5080,20 @@ func _release_touches() -> void:
 
 ## Armory taps are handled here and nowhere else: the shop/pause branches below share one
 ## long if-chain, and editing it has broken the build twice.
+## Equip switches in the lobby: one per tab, routed through a small standalone handler so the
+## long pointer chain below stays untouched.
+func _lobby_gear_pointer(pos: Vector2) -> bool:
+	if state != "lobby":
+		return false
+	if lobby_tab == 0 and LOBBY_GEAR.has_point(pos):
+		toggle_loadout(); return true
+	if lobby_tab == 1 and LOBBY_GEAR_PET.has_point(pos):
+		toggle_pet_equip(); return true
+	if lobby_tab == 3 and LOBBY_GEAR_VEHICLE.has_point(pos):
+		toggle_vehicle_equip(); return true
+	return false
+
+
 func _armory_pointer(pos: Vector2) -> bool:
 	if state == "shop" and ARMORY_BTN.has_point(pos):
 		open_armory()
@@ -5106,6 +5120,7 @@ func _armory_pointer(pos: Vector2) -> bool:
 
 
 func _pointer_down(pos: Vector2) -> bool:
+	if _lobby_gear_pointer(pos): return true
 	if _armory_pointer(pos): return true
 	if ads_offer_open:
 		ads_offer_tap(pos); return true
