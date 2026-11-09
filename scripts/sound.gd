@@ -58,6 +58,7 @@ func _ready() -> void:
 	streams["sniper"] = load("res://assets/audio/sniper.mp3")
 	streams["shotgun"] = load("res://assets/audio/shotgun.mp3")
 	streams["flame"] = load("res://assets/audio/flame.mp3")
+	streams["equip"] = load("res://assets/audio/equip_lobby.mp3")
 	streams["pistol_near"] = load("res://assets/audio/pistol_near.mp3")
 	streams["pistol_far"] = load("res://assets/audio/pistol_far.mp3")
 	streams["reload"] = load("res://assets/audio/reload.mp3")
@@ -256,6 +257,7 @@ func play(id: String) -> void:
 	elif id=="pistol_far": voice.volume_db=-12.0
 	elif id=="shotgun": voice.volume_db=-15.0
 	elif id=="flame": voice.volume_db=-13.0
+	elif id=="equip": voice.volume_db=-8.0
 	elif id=="sniper": voice.volume_db=-4.0
 	elif id=="zombie": voice.volume_db=-6.0
 	elif id in ["coin_get","tada","level_up"]: voice.volume_db=-14.0 # claim/jingle quieter

@@ -2574,7 +2574,7 @@ func lobby_max_scroll() -> float:
 func equip_menu_rect() -> Rect2:
 	var c:=lobby_card_rect(clampi(equip_menu_index,0,maxi(0,lobby_item_count()-1)))
 	# Above the card. Below it the popup landed on the start button and was unclickable.
-	return Rect2(c.position.x-6.0,c.position.y-96.0,c.size.x+12.0,50.0)
+	return Rect2(c.position.x-6.0,c.position.y-52.0,c.size.x+12.0,46.0)
 
 func lobby_card_rect(i: int) -> Rect2:
 	return Rect2(LOBBY_LEFT_X+i*LOBBY_STEP-lobby_scroll,LOBBY_STRIP_Y,LOBBY_CARD.x,LOBBY_CARD.y)
@@ -2595,7 +2595,7 @@ func _lobby_release(pos: Vector2) -> void:
 	# by the guard below and every tap fell through to the card underneath.
 	if equip_menu_index>=0:
 		if equip_menu_rect().has_point(pos):
-			select_character(equip_menu_index); equip_menu_index=-1; return
+			select_character(equip_menu_index); equip_menu_index=-1; sound.play("equip"); return
 		equip_menu_index=-1  # tapping elsewhere closes the dropdown
 	if not lobby_view_rect().has_point(pos): return
 	for i in range(lobby_item_count()):
@@ -2619,7 +2619,7 @@ func _lobby_release(pos: Vector2) -> void:
 				# so the run used to keep mounting whatever was stored before.
 				var vkey: String=String(["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN","GOLD_CAR"][clampi(i,0,6)])
 				if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(i,0,6)])):
-					owned_vehicle=vkey; _save()
+					owned_vehicle=vkey; _save(); sound.play("equip")
 			elif lobby_tab==2:
 				if i<lobby.SKINS.size(): select_skin(i)
 				else: lobby_toast=1.6; lobby_toast_key="coming"
@@ -2748,7 +2748,7 @@ func select_pet(index: int) -> void:
 		return
 	if pet_equipped and index==pet_choice:
 		pet_equipped=false; lobby.show_pet(""); _save(); return
-	pet_choice=index; pet_equipped=true; lobby.show_pet(lobby.PETS[pet_choice].asset); _save()
+	pet_choice=index; sound.play("equip"); pet_equipped=true; lobby.show_pet(lobby.PETS[pet_choice].asset); _save()
 
 ## Every finished run lands back in the character lobby.
 ## Lobby switch: take the whole loadout off, or put it back.

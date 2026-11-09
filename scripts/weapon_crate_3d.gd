@@ -13,6 +13,8 @@ const USE_AMMO_CAN := false
 ## sits on it, which is how the green boxes used to arrive.
 const USE_FULL_TRUCK := false
 const CRATE_SCALE := 2.9
+## The item floating over a crate/barrel reads too small on a phone: scale it up.
+const ITEM_BOOST := 2.4
 ## Height of the concrete platform the drop stands on (the two platforms the crates
 ## have always been placed on, left and right of the lane).
 const PLATFORM_H := 0.42
@@ -126,7 +128,7 @@ func _ready() -> void:
 		var pi := pet_index()
 		weapon_model = (load(LobbyScene.PETS[pi].asset) as PackedScene).instantiate() as Node3D
 		weapon_pivot.add_child(weapon_model)
-		var lift := ModelFix.fit_pet(weapon_model,float(LobbyScene.PETS[pi].get("length",1.1))*1.3)
+		var lift := ModelFix.fit_pet(weapon_model,float(LobbyScene.PETS[pi].get("length",1.1))*1.3*ITEM_BOOST)
 		weapon_model.position.y = lift-0.75
 		ModelFix.play_animation(weapon_model,"Dog_Idle")
 		path = ""
@@ -146,7 +148,7 @@ func _ready() -> void:
 		if raw_span > 2.0:
 			# authored in centimetres or metres: bring it to ~1 m before the table scale
 			weapon_model.scale = Vector3.ONE * (1.0 / raw_span)
-		weapon_model.scale *= Vector3.ONE*float(WEAPON_SCALES.get(weapon_id,0.6))
+		weapon_model.scale *= Vector3.ONE*(float(WEAPON_SCALES.get(weapon_id,0.6))*ITEM_BOOST)
 		# Bike/Car models are already upright; no X tilt (that laid them on their side).
 		weapon_pivot.add_child(weapon_model)
 		_center_model(weapon_model)
