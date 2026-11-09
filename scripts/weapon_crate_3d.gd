@@ -130,10 +130,16 @@ func _ready() -> void:
 		weapon_model.position.y = lift-0.75
 		ModelFix.play_animation(weapon_model,"Dog_Idle")
 		path = ""
+	if path!="" and not ResourceLoader.exists(path):
+		weapon_model = _fallback_marker()
+		weapon_pivot.add_child(weapon_model)
+		path = ""
 	if path!="" and ResourceLoader.exists(path):
 		var packed_model:=load(path) as PackedScene
 		if packed_model==null:
 			push_error("crate: missing model for "+String(weapon_id)+" -> "+path)
+			weapon_model = _fallback_marker()
+			weapon_pivot.add_child(weapon_model)
 			return
 		weapon_model = packed_model.instantiate() as Node3D
 		var raw_span := _model_span(weapon_model)
@@ -156,6 +162,23 @@ func _ready() -> void:
 	_refresh_counter()
 
 ## Largest axis of a freshly instantiated model, before any scaling.
+## Something visible for a drop whose model is missing: a small glowing diamond.
+func _fallback_marker() -> Node3D:
+	var mi := MeshInstance3D.new()
+	var mesh := SphereMesh.new()
+	mesh.radius = 0.18
+	mesh.height = 0.36
+	mesh.radial_segments = 8
+	mesh.rings = 4
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = Color(0.45, 0.85, 1.0, 0.9)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh.material = mat
+	mi.mesh = mesh
+	return mi
+
+
 func _model_span(node: Node3D) -> float:
 	var box := AABB()
 	var first := true
