@@ -1170,6 +1170,14 @@ func _warm_up_begin() -> void:
 		warmup_queue.append("zombie:"+k)
 	for k in ["medkit","armor","helmet","ammo","grenade","flashbang","launcher","fire_round","coin","silver_coin"]:
 		warmup_queue.append("pickup:"+k)
+	# survivor rigs and the held weapons: their skin pipelines used to compile on the first
+	# frame of the run, which is the stutter right after the loading bar disappears
+	for c in (load("res://scripts/lobby_scene_3d.gd") as GDScript).CHARACTERS:
+		warmup_queue.append("actor:"+String(c.asset))
+	for w in ["pistol","makarov","suomi","smg","shotgun","sniper","rifle","launcher","flame"]:
+		warmup_queue.append("weapon:"+w)
+	warmup_queue.append("crate")
+	warmup_queue.append("barrel")
 	warmup_queue.append("effects")
 
 ## Builds one queue item; the viewport keeps drawing it for a frame, which is what
@@ -1200,6 +1208,22 @@ func _warm_up_tick() -> void:
 		n=ZombieScript.new(); warmup_root.add_child(n); n.configure(item.trim_prefix("zombie:"),1.0)
 	elif item.begins_with("pickup:"):
 		n=PickupScript.new(); n.kind=item.trim_prefix("pickup:"); warmup_root.add_child(n)
+	elif item.begins_with("actor:"):
+		var path: String = item.trim_prefix("actor:")
+		if ResourceLoader.exists(path):
+			n = (load(path) as PackedScene).instantiate() as Node3D
+			if n != null: warmup_root.add_child(n)
+	elif item.begins_with("weapon:"):
+		var wid: String = item.trim_prefix("weapon:").to_upper()
+		var wpath := "res://assets/models/weapons/%s.glb" % wid.to_lower()
+		if wid == "RIFLE": wpath = "res://assets/models/rifle.glb"
+		if ResourceLoader.exists(wpath):
+			n = (load(wpath) as PackedScene).instantiate() as Node3D
+			if n != null: warmup_root.add_child(n)
+	elif item == "crate":
+		n = WeaponCrateScript.new(); warmup_root.add_child(n); n.setup("SMG", 3)
+	elif item == "barrel":
+		n = BarrelScript.new(); warmup_root.add_child(n)
 	if n!=null:
 		n.position=Vector3(0.0,0.0,0.0)
 		warmup_nodes.append(n)
