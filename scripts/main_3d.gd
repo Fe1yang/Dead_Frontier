@@ -148,7 +148,9 @@ var owned_vehicle:=""
 ## Lobby loadout switch. false = no vehicle and no pet in the run (testing).
 var equip_menu_index:=-1  # survivor card whose EQUIP dropdown is open
 var loadout_on:=true
-var vehicle_equipped:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
+var vehicle_equipped:=true
+## Whether the owned special weapon (the flamethrower) is carried into a run.
+var weapon_equipped:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
 const VEHICLE_AUTO_RANGE:=1000.0 # bought bike auto-rides every run until this distance (or durability runs out)
 var vehicle_auto_active:=false
 ## Road scroll speed for this frame; barrels and crates ride the same number.
@@ -1275,7 +1277,7 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 	else:
 		set_weather(opening)
 	player.reset(); player.apply_meta(meta_upgrades); player.set_aim(aim_direction)
-	if flame_owned():
+	if flame_owned() and weapon_equipped:
 		player.set_weapon("FLAME")
 	# Bought motorcycle: every run starts already mounted for the first VEHICLE_AUTO_RANGE metres
 	# (it also breaks on durability as usual, whichever comes first).
@@ -5082,6 +5084,12 @@ func _release_touches() -> void:
 ## long if-chain, and editing it has broken the build twice.
 ## Equip switches in the lobby: one per tab, routed through a small standalone handler so the
 ## long pointer chain below stays untouched.
+func toggle_weapon_equip() -> void:
+	weapon_equipped = not weapon_equipped
+	_save()
+	# the ON/OFF ring on the button is the feedback, no toast key needed
+
+
 func _lobby_gear_pointer(pos: Vector2) -> bool:
 	if state != "character_select":
 		return false
@@ -5091,6 +5099,8 @@ func _lobby_gear_pointer(pos: Vector2) -> bool:
 		toggle_pet_equip(); return true
 	if lobby_tab == 3 and LOBBY_GEAR_VEHICLE.has_point(pos):
 		toggle_vehicle_equip(); return true
+	if lobby_tab == 4 and LOBBY_GEAR.has_point(pos):
+		toggle_weapon_equip(); return true
 	return false
 
 

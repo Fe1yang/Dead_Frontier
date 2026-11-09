@@ -698,6 +698,8 @@ func _draw_character_select() -> void:
 		_gear_button(game.LOBBY_GEAR_PET, game.pet_equipped)
 	elif game.lobby_tab==3:
 		_gear_button(game.LOBBY_GEAR_VEHICLE, game.vehicle_equipped)
+	elif game.lobby_tab==4:
+		_gear_button(game.LOBBY_GEAR, game.weapon_equipped)
 	# Perk tag for the selected survivor, right of the tabs (only Darius has one for now).
 	if game.lobby_tab==0 and game.character_choice<game.lobby.CHARACTERS.size():
 		var perk_key: String=String(game.lobby.CHARACTERS[game.character_choice].get("perk",""))
