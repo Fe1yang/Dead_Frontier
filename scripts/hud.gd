@@ -158,6 +158,7 @@ func _draw() -> void:
 	elif game.state=="terms": _draw_terms()
 	elif game.state=="gameover": _draw_hud(); clean_ops.clear(); _draw_gameover()
 	elif game.state=="shop": _draw_shop()
+	elif game.state=="armory": _draw_armory()
 	elif game.state=="lootbox": _draw_lootbox()
 	elif game.state=="map": _draw_map()
 	elif game.state=="language": _draw_languages()
@@ -924,6 +925,41 @@ func _hex_badge(center: Vector2,radius: float,value: String) -> void:
 		var angle:=TAU*i/6.0; points.append(center+Vector2(cos(angle),sin(angle))*radius)
 	draw_colored_polygon(points,Color(0.04,0.05,0.05,0.88)); points.append(points[0]); draw_polyline(points,LINE,1.5,true)
 	_text_center(value,center+Vector2(0,6),17,WHITE)
+
+## Armory overlay: the supply truck dims behind a dark sheet and the weapon card takes the
+## centre of the screen. Step 1: panel, name and the three stat bars.
+func _draw_armory() -> void:
+	_box(Rect2(0, 0, 540, game.ui_h), Color(0, 0, 0, 0.72))
+	_panel(Rect2(30, 90, 480, 700), Color(0.03, 0.034, 0.038, 0.97), Color(LINE, 1.0), 0)
+	_bold_text("军械库" if String(game.language_code).begins_with("zh") else "ARMORY", Vector2(60, 132), 26, WHITE)
+	_text("%d / %d" % [game.armory_index + 1, game.ARMORY_WEAPONS.size()], Vector2(430, 132), 15, MUTED)
+	var id: String = game.armory_weapon_id()
+	var stats: Dictionary = game.ARMORY_STATS.get(id, {})
+	# name
+	_bold_text(id, Vector2(60, 610), 24, WHITE)
+	# bars: damage / rate / magazine, normalised against the strongest weapon
+	var dmg: float = float(stats.get("damage", 0.0))
+	var rate: float = 1.0 / maxf(0.05, float(stats.get("rate", 0.3)))
+	var mag: float = float(stats.get("mag", 1))
+	var rows := [["伤害", dmg / 180.0, str(int(dmg))],
+		["攻速", rate / (1.0 / 0.085), "%.1f/s" % rate],
+		["容量", mag / 100.0, str(int(mag))]]
+	var y: float = 640.0
+	for row in rows:
+		_text(String(row[0]), Vector2(60, y + 4), 15, MUTED)
+		var bar := Rect2(110, y - 12, 280, 16)
+		_box(bar, Color(0.10, 0.11, 0.12, 0.95), Color(0.25, 0.26, 0.27, 1.0), 1.0)
+		var fill: float = clampf(float(row[1]), 0.0, 1.0)
+		if fill > 0.0:
+			_box(Rect2(bar.position.x + 1, bar.position.y + 1, (bar.size.x - 2) * fill, bar.size.y - 2), Color("ffd75e"), Color("ffd75e"), 0.0)
+		_text(String(row[2]), Vector2(404, y + 4), 15, GOLD)
+		y += 34.0
+	# nav
+	_box(Rect2(60, 736, 60, 44), Color(0.10, 0.11, 0.12, 1.0), Color(LINE, 1.0), 0)
+	_text_center("‹", Vector2(90, 764), 22, WHITE)
+	_box(Rect2(420, 736, 60, 44), Color(0.10, 0.11, 0.12, 1.0), Color(LINE, 1.0), 0)
+	_text_center("›", Vector2(450, 764), 22, WHITE)
+	_button(Rect2(24, 24, 100, 48), "‹  " + game.localize("back"), false)
 
 func _draw_shop() -> void:
 	# The 3D window between the panels is a close-up of the gear being upgraded.

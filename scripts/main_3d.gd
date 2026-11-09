@@ -1701,6 +1701,38 @@ func _freeze_world(on: bool) -> void:
 		player.flame_glow.visible = not on
 
 
+## Armory: a browsable 3D catalogue of every weapon, opened from the supply truck.
+const ARMORY_BTN := Rect2(404, 80, 112, 40)
+const ARMORY_WEAPONS := ["PISTOL", "MAKAROV", "SUOMI", "SMG", "SHOTGUN", "SNIPER", "LAUNCHER", "FLAME"]
+var armory_index := 0
+var armory_return := "shop"
+
+## Damage / rate / magazine for every weapon, taken from the same table set_weapon uses.
+const ARMORY_STATS := {
+	"PISTOL":   {"damage": 24.0, "rate": 0.42, "mag": 12},
+	"MAKAROV":  {"damage": 20.0, "rate": 0.36, "mag": 8},
+	"SUOMI":    {"damage": 11.0, "rate": 0.085, "mag": 70},
+	"SMG":      {"damage": 12.0, "rate": 0.095, "mag": 36},
+	"SHOTGUN":  {"damage": 30.0, "rate": 0.72, "mag": 8},
+	"SNIPER":   {"damage": 95.0, "rate": 0.85, "mag": 5},
+	"LAUNCHER": {"damage": 180.0, "rate": 1.0, "mag": 4},
+	"FLAME":    {"damage": 22.0, "rate": 0.12, "mag": 100},
+}
+
+func armory_weapon_id() -> String:
+	return String(ARMORY_WEAPONS[clampi(armory_index, 0, ARMORY_WEAPONS.size() - 1)])
+
+func armory_step(side: int) -> void:
+	armory_index = posmod(armory_index + side, ARMORY_WEAPONS.size())
+
+func open_armory() -> void:
+	armory_return = state
+	armory_index = 0
+	state = "armory"
+
+func close_armory() -> void:
+	state = armory_return if armory_return != "" else "shop"
+
 func close_shop() -> void:
 	shop_truck.visible=false; player.visible=true; camera.fov=52
 	if shop_return_state=="paused":
@@ -4988,6 +5020,7 @@ func _pointer_down(pos: Vector2) -> bool:
 	if state=="gameover" and Rect2(66,758,408,54).has_point(pos): open_shop(); return true
 	if state=="gameover" and SHARE_RECT.has_point(pos): share_result(); return true
 	if state=="shop":
+		if ARMORY_BTN.has_point(pos): open_armory(); return true
 		if _wallet_plus_hit(WALLET_SHOP,pos): return true
 		if SHOP_STORE_BTN.has_point(pos): open_store(); return true
 		if Rect2(24,24,100,44).has_point(pos): close_shop(); return true
