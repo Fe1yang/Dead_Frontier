@@ -961,6 +961,8 @@ func _process(delta: float) -> void:
 	if scene_state=="payfail": scene_state=payfail_return_state
 	if scene_state=="resource_pack": scene_state=resource_pack_return_state
 	if scene_state=="offer": scene_state=offer_return_state
+	# the armory is an overlay on the supply truck, so it uses the truck camera
+	if scene_state=="armory": scene_state="shop"
 	if scene_state in ["cover","language","terms"] or (scene_state=="settings" and settings_return_state!="paused"):
 		camera.fov=52; _set_menu_scene(); return
 	if scene_state=="shop":

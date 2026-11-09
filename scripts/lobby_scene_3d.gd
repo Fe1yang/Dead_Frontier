@@ -568,7 +568,7 @@ func _build_safehouse() -> bool:
 	if is_instance_valid(canvas_node):
 		canvas_node.visible=false
 	# A green sphere-like prop (the ceramic pots) pokes through the door slab; drop the pots.
-	for pot_name in ["Safe_ceramic", "Safe_ceramic_blue"]:
+	for pot_name in ["Safe_ceramic", "Safe_ceramic_blue", "Safe_lamp_glow", "Safe_ember", "Safe_olive"]:
 		var pot := safe.find_child(pot_name, true, false) as MeshInstance3D
 		if is_instance_valid(pot):
 			pot.visible = false
