@@ -698,7 +698,6 @@ func _build_district(i: int) -> void:
 		return
 	road.position=Vector3(0,0,ROAD_BEHIND-i*ROAD_SEGMENT); add_child(road)
 	EnvironmentMaterials.apply(road,i); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
-	_decorate_district(road, i)
 	_apply_cull_range(road)
 	_randomize_zebra(road)
 	_setup_streetlamp(road,i)
@@ -743,7 +742,6 @@ func _decorate_district(road: Node3D, index: int) -> void:
 	var decor_rng := RandomNumberGenerator.new()
 	decor_rng.seed = 0x5EED + index * 977
 	var base_z: float = road.global_position.z
-	_hide_road_lamps(road)
 	# --- lamps: three block styles, so the lighting differs from street to street -------------
 	# Placed near the kerb, in world space, on the pavement (kerb 4.36, buildings ~7.8).
 	var lamp_style: int = index % 3
