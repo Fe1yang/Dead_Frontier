@@ -232,6 +232,8 @@ var pet_path:=""
 ## Resting facing of the current pet model: some assets are authored side-on.
 var pet_base_yaw:=0.0
 var pet_shadow: MeshInstance3D
+## Every animal this scene ever put on stage, so a switch can free all of them.
+var _pet_nodes: Array = []
 var bike_shadow: MeshInstance3D
 
 func show_pet(path: String) -> void:
@@ -249,22 +251,18 @@ func show_pet(path: String) -> void:
 	var length:=1.1
 	for p in PETS:
 		if p.asset==path: length=float(p.get("length",1.1))
-	# queue_free is deferred, so a fast switch left the previous animal standing inside the new
-	# one. Drop EVERY earlier animal reference (meta, name prefix or a pet asset path) before the
-	# new one is added, whatever code path created it.
-	for child in get_children():
-		var is_pet: bool = child.has_meta("lobby_pet") or String(child.name).begins_with("LobbyPet") \
-			or String(child.name).contains("wolfdog") or String(child.name).contains("tiger") \
-			or String(child.name).contains("lion") or String(child.name).contains("mastiff") \
-			or String(child.name).contains("doberman") or String(child.name).contains("shepherd")
-		if not is_pet:
-			continue
-		child.visible = false
-		if child.get_parent() != null:
-			child.get_parent().remove_child(child)
-		child.queue_free()
+	# queue_free is deferred, so a fast switch could leave the previous animal standing inside the
+	# new one. Every animal is registered, and every registered animal is dropped here.
+	for old in _pet_nodes:
+		if is_instance_valid(old):
+			old.visible = false
+			if old.get_parent() != null:
+				old.get_parent().remove_child(old)
+			old.queue_free()
+	_pet_nodes.clear()
 	pet.name = "LobbyPet"
 	add_child(pet); pet.set_meta("lobby_pet", true); ModelFix.double_sided(pet)
+	_pet_nodes.append(pet)
 	# same as in the run: the generated pet GLBs arrive with shadow casting off
 	for mi in pet.find_children("*", "MeshInstance3D", true, false):
 		var m := mi as MeshInstance3D

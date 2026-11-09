@@ -423,7 +423,6 @@ var left_knob:=Vector2(92,820)
 var right_knob:=Vector2(448,820)
 
 func _ready() -> void:
-	_prewarm_districts()
 	BootTrace.mark("main: _ready start")
 	# 60 fps is what the game is drawn for; uncapped, a 120 Hz phone renders twice
 	# the frames for the same picture, which is pure heat and battery.
@@ -635,15 +634,28 @@ func _apply_cull_range(root: Node) -> void:
 var district_cache := {}
 
 
-func _prewarm_districts() -> void:
-	for i in range(24):
-		var path: String = "res://assets/models/environment/city_hd_%02d.glb" % i
-		if not ResourceLoader.exists(path):
-			continue
-		if district_cache.has(path):
-			continue
-		district_cache[path] = load(path)
-	print("DISTRICTS_PREWARMED ", district_cache.size())
+## One district per frame. Loading all 24 in _ready froze the first launch before the first
+## frame could be drawn; the loading screen now stays up until this finishes.
+const DISTRICTS_NEEDED := 7   # ~110 m of street; the rest stream in from the lobby
+var district_prewarm_i := 0
+var districts_ready := false
+
+
+func _prewarm_step() -> void:
+	if districts_ready:
+		return
+	if district_prewarm_i >= 24:
+		districts_ready = true
+		return
+	if district_prewarm_i >= DISTRICTS_NEEDED:
+		districts_ready = true
+	var path: String = "res://assets/models/environment/city_hd_%02d.glb" % district_prewarm_i
+	district_prewarm_i += 1
+	if not ResourceLoader.exists(path):
+		return
+	if district_cache.has(path):
+		return
+	district_cache[path] = load(path)
 
 
 func _district_scene(path: String) -> Resource:
@@ -738,7 +750,9 @@ func _process(delta: float) -> void:
 	lobby_swallow_tap=maxf(0.0,lobby_swallow_tap-delta)
 	# Before the run starts, compile one of everything in the hidden warm-up viewport:
 	# a menu stutter costs nothing, the same compile mid-run costs the player a freeze.
-	if state!="playing": _warm_up_tick()
+	if state!="playing":
+		_warm_up_tick()
+		_prewarm_step()
 	var from_pause: bool=(state=="settings" or state=="controls") and settings_return_state=="paused"
 	if (state=="paused" or from_pause)!=_visuals_frozen: _freeze_visuals(state=="paused" or from_pause)
 	if state=="gameover": gameover_time+=delta
@@ -1020,9 +1034,16 @@ func _finish_loading() -> void:
 
 func _tick_loading(delta: float) -> void:
 	loading_time+=delta
-	loading_progress=minf(1.0,loading_time/maxf(loading_duration,0.01))
+	if loading_target=="run":
+		_prewarm_step()
+		districts_ready = district_prewarm_i>=DISTRICTS_NEEDED
+	else:
+		# the lobby needs no street: never make the player wait for one
+		districts_ready = true
+	var prewarm_part: float = float(mini(district_prewarm_i, DISTRICTS_NEEDED)) / float(DISTRICTS_NEEDED)
+	loading_progress = minf(0.98, maxf(loading_time/maxf(loading_duration,0.01), prewarm_part if loading_target=="run" else 0.0))
 	# same random image from start to finish, no switching
-	if loading_time>=loading_duration:
+	if loading_time>=loading_duration and districts_ready:
 		_finish_loading()
 
 func start_run(free_with_ad:=false,no_cost:=false) -> void:
