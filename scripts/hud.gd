@@ -693,13 +693,13 @@ func _draw_character_select() -> void:
 		_text_center(tlabel,Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
 	# Equip toggle per tab: survivor loadout, pet and vehicle each get their own switch.
 	if game.lobby_tab==0:
-		_gear_button(game.LOBBY_GEAR, game.loadout_on)
+		_lobby_settings_gear(game.LOBBY_GEAR)
 	elif game.lobby_tab==1:
 		_gear_button(game.LOBBY_GEAR_PET, game.pet_equipped)
 	elif game.lobby_tab==3:
 		_gear_button(game.LOBBY_GEAR_VEHICLE, game.vehicle_equipped)
 	elif game.lobby_tab==4:
-		_gear_button(game.LOBBY_GEAR, game.weapon_equipped)
+	
 	# Perk tag for the selected survivor, right of the tabs (only Darius has one for now).
 	if game.lobby_tab==0 and game.character_choice<game.lobby.CHARACTERS.size():
 		var perk_key: String=String(game.lobby.CHARACTERS[game.character_choice].get("perk",""))
@@ -909,6 +909,12 @@ func _locked_slot(rect: Rect2,pet:=false,skin:=false) -> void:
 	_text_center(ShopText.text(game.language_code,"coming"),Vector2(c.x,rect.end.y-10),10,Color(MUTED,0.8))
 
 ## Gear toggle with a visible state: bright ring + "ON" when equipped, dim + "OFF" when not.
+## Settings gear in the lobby's top-right corner: same place and look as the in-run pause area.
+func _lobby_settings_gear(r: Rect2) -> void:
+	_panel(r, Color(0.06,0.07,0.075,0.92), Color(0.55,0.57,0.58,0.9), 1)
+	_gear_icon(r.get_center(), r.size.y * 0.26, Color(0.86,0.87,0.88))
+
+
 func _gear_button(r: Rect2,on: bool) -> void:
 	var tint: Color = Color(1.0,0.86,0.4) if on else Color(0.45,0.46,0.47)
 	_panel(r,Color(0.06,0.065,0.07,0.9) if on else Color(0.03,0.032,0.035,0.75),tint,1)

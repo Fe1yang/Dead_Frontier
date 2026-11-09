@@ -5093,14 +5093,14 @@ func toggle_weapon_equip() -> void:
 func _lobby_gear_pointer(pos: Vector2) -> bool:
 	if state != "character_select":
 		return false
-	if lobby_tab == 0 and LOBBY_GEAR.has_point(pos):
-		toggle_loadout(); return true
+	if LOBBY_GEAR.has_point(pos):
+		# top-right corner is the settings gear, as on every other screen
+		settings_return_state = "character_select"; state = "settings"; return true
 	if lobby_tab == 1 and LOBBY_GEAR_PET.has_point(pos):
 		toggle_pet_equip(); return true
 	if lobby_tab == 3 and LOBBY_GEAR_VEHICLE.has_point(pos):
 		toggle_vehicle_equip(); return true
-	if lobby_tab == 4 and LOBBY_GEAR.has_point(pos):
-		toggle_weapon_equip(); return true
+
 	return false
 
 
