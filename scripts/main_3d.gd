@@ -146,7 +146,8 @@ var owned_characters:={}      # char index -> true
 var owned_skins:={}           # lobby.SKINS index -> true
 var owned_vehicle:=""
 ## Lobby loadout switch. false = no vehicle and no pet in the run (testing).
-var equip_menu_index:=-1  # survivor card whose EQUIP dropdown is open
+var equip_menu_index:=-1  # card whose EQUIP dropdown is open
+var equip_menu_tab:=0     # ...and which tab it belongs to
 var loadout_on:=true
 var vehicle_equipped:=true
 ## Whether the owned special weapon (the flamethrower) is carried into a run.
@@ -2359,7 +2360,7 @@ const OFFER_BADGE:=Rect2(2,246,92,104)    # left column, under the airdrop
 
 ## ---- Check-in and missions ----------------------------------------------------------------
 ## Lobby side buttons.
-const SIDE_MAP:=Rect2(462,118,70,76)    # map select (more maps coming) — right-hand column
+const SIDE_MAP:=Rect2(464,118,70,76)    # map select (more maps coming) — right-hand column
 
 ## ---- Daily airdrop -------------------------------------------------------------------------
 ## Once a day the lobby's airdrop can be opened for free by watching one rewarded ad.
@@ -2416,12 +2417,12 @@ func share_result() -> String:
 			if sh.has_method("shareText"): sh.shareText("Dead Frontier","Dead Frontier",text); return "native"
 	DisplayServer.clipboard_set(text); share_toast=2.2
 	return "clipboard"
-const SIDE_BAG:=Rect2(462,198,70,76)    # backpack
+const SIDE_BAG:=Rect2(464,198,70,76)    # backpack
 const SIDE_SIGNIN:=Rect2(462,278,70,76)
-const SIDE_TASKS:=Rect2(462,358,70,76)
-const SIDE_SHOP:=Rect2(462,438,70,76)   # supply truck (upgrades)
-const SIDE_STORE:=Rect2(462,518,70,76)  # real-money store
-const SIDE_MAIL:=Rect2(462,598,70,76)   # mailbox
+const SIDE_TASKS:=Rect2(464,358,70,76)
+const SIDE_SHOP:=Rect2(464,438,70,76)   # supply truck (upgrades)
+const SIDE_STORE:=Rect2(464,518,70,76)  # real-money store
+const SIDE_MAIL:=Rect2(464,598,70,76)   # mailbox
 
 ## ---- Backpack --------------------------------------------------------------------------------
 ## Everything the player holds. For now coins and vouchers (vouchers only when there are any);
@@ -2854,6 +2855,24 @@ func set_lobby_tab(t: int) -> void:
 	lobby.focus_vehicle=t==3
 
 ## A finger lifted without sliding picks the card under it; a slide only scrolls the list.
+## Wears whatever the open dropdown points at, on whichever tab opened it.
+func _equip_from_menu() -> void:
+	match equip_menu_tab:
+		1:
+			if equip_menu_index < lobby.PETS.size():
+				select_pet(equip_menu_index)
+		2:
+			if equip_menu_index < lobby.SKINS.size():
+				select_skin(equip_menu_index)
+		3:
+			var vkey: String = String(["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN","GOLD_CAR"][clampi(equip_menu_index,0,6)])
+			if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(equip_menu_index,0,6)])):
+				owned_vehicle = vkey
+				_save()
+		_:
+			select_character(equip_menu_index)
+
+
 func _lobby_release(pos: Vector2) -> void:
 	if lobby_press.x<0: return
 	var was_drag:=lobby_dragged; lobby_press=Vector2(-1,-1); lobby_dragged=false
@@ -2862,7 +2881,8 @@ func _lobby_release(pos: Vector2) -> void:
 	# by the guard below and every tap fell through to the card underneath.
 	if equip_menu_index>=0:
 		if equip_menu_rect().has_point(pos):
-			select_character(equip_menu_index); equip_menu_index=-1; sound.play("equip"); return
+			_equip_from_menu()
+			equip_menu_index=-1; sound.play("equip"); return
 		equip_menu_index=-1  # tapping elsewhere just closes the dropdown
 		return              # and the tap goes no further
 	if not lobby_view_rect().has_point(pos): return
@@ -2887,12 +2907,23 @@ func _lobby_release(pos: Vector2) -> void:
 				# so the run used to keep mounting whatever was stored before.
 				var vkey: String=String(["BIKE","SPORT","CRUISER","GOLD","TANK","SEDAN","GOLD_CAR"][clampi(i,0,6)])
 				if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(i,0,6)])):
-					owned_vehicle=vkey; _save(); sound.play("equip")
+					if owned_vehicle == vkey:
+						lobby_toast=1.6; lobby_toast_key="char_equipped"
+					else:
+						equip_menu_index=i; equip_menu_tab=3
 			elif lobby_tab==2:
-				if i<lobby.SKINS.size(): select_skin(i)
+				if i<lobby.SKINS.size():
+					if int(skin_choice.get(character_choice, -1)) == i:
+						lobby_toast=1.6; lobby_toast_key="char_equipped"
+					else:
+						equip_menu_index=i; equip_menu_tab=2
 				else: lobby_toast=1.6; lobby_toast_key="coming"
 			elif lobby_tab==1:
-				if i<lobby.PETS.size(): select_pet(i)
+				if i<lobby.PETS.size():
+					if pet_choice == i and pet_equipped:
+						lobby_toast=1.6; lobby_toast_key="char_equipped"
+					else:
+						equip_menu_index=i; equip_menu_tab=1
 				else: lobby_toast=1.6; lobby_toast_key="coming"
 			elif i<lobby.CHARACTERS.size():
 				# preview the survivor and offer the dropdown; wearing them is a second tap
@@ -2902,7 +2933,7 @@ func _lobby_release(pos: Vector2) -> void:
 						# already worn: no dropdown, just say so
 						lobby_toast=1.6; lobby_toast_key="char_equipped"
 					else:
-						equip_menu_index=i
+						equip_menu_index=i; equip_menu_tab=0
 				else: select_character(i)
 			else: lobby_toast=1.6; lobby_toast_key="coming"
 			return

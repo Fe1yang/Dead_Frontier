@@ -668,10 +668,10 @@ func _loadout_toggle(r: Rect2) -> void:
 
 func _draw_equip_menu() -> void:
 	# dropdown over a survivor card: tap it to wear them
-	if game.lobby_tab==0 and int(game.equip_menu_index)>=0:
+	if int(game.equip_menu_index)>=0:
 		var er: Rect2=game.equip_menu_rect()
 		# Grey while the menu is open; the red edge belongs to the equipped card only.
-		var equipped_now: bool = int(game.equip_menu_index) == game.character_choice
+		var equipped_now: bool = int(game.equip_menu_index) == (game.character_choice if int(game.equip_menu_tab)==0 else -1)
 		_panel(er, Color(0.03,0.034,0.038,1.0), RED if equipped_now else Color(0.72,0.74,0.75,1.0), 2)
 		var etxt: String = ShopText.text(game.language_code, "char_equipped" if equipped_now else "btn_equip")
 		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
@@ -894,7 +894,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 			_box(Rect2(lc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
 	if whole:
 		var label: String=game.pet_name(i) if pets else game.character_name(i)
-		var menu_open: bool = game.lobby_tab==0 and int(game.equip_menu_index)==i
+		var menu_open: bool = int(game.equip_menu_index)==i
 		if not menu_open:
 			_text_center(label,Vector2(card.get_center().x,card.end.y-9),11 if pets else 12,WHITE if on else MUTED)
 		if on: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
@@ -921,16 +921,17 @@ func _locked_slot(rect: Rect2,pet:=false,skin:=false) -> void:
 ## Gear toggle with a visible state: bright ring + "ON" when equipped, dim + "OFF" when not.
 ## Settings gear in the lobby's top-right corner: same place and look as the in-run pause area.
 func _lobby_settings_gear(r: Rect2) -> void:
-	_panel(r, Color(0.06,0.07,0.075,0.92), Color(0.55,0.57,0.58,0.9), 1)
-	_gear_icon(r.get_center(), 0.62, Color(0.86,0.87,0.88))
+	_panel(r, Color(0.06,0.07,0.075,0.92), WHITE, 1)
+	_gear_icon(r.get_center(), 0.62, WHITE)
 
 
 func _gear_button(r: Rect2,on: bool) -> void:
-	var tint: Color = Color(1.0,0.86,0.4) if on else Color(0.45,0.46,0.47)
-	_panel(r,Color(0.06,0.065,0.07,0.9) if on else Color(0.03,0.032,0.035,0.75),tint,1)
-	_gear_icon(r.get_center()+Vector2(0,-5),0.55,tint)
+	# the ring and the gear stay white like the settings button; only the ON/OFF label carries
+	# the equipped state
+	_panel(r,Color(0.06,0.065,0.07,0.9) if on else Color(0.05,0.052,0.055,0.85),WHITE,1)
+	_gear_icon(r.get_center()+Vector2(0,-5),0.55,WHITE)
 	var label: String = "ON" if on else "OFF"
-	_text_center(label,Vector2(r.get_center().x,r.end.y-8),11,tint)
+	_text_center(label,Vector2(r.get_center().x,r.end.y-8),11,Color(1.0,0.86,0.4) if on else Color(0.62,0.63,0.64))
 
 func _gear_icon(c: Vector2,k:=1.0,tint: Color=WHITE) -> void:
 	draw_arc(c,13*k,0,TAU,24,tint,3.0*k)
