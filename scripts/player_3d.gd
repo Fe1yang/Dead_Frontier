@@ -883,23 +883,21 @@ func set_armor(equipped: bool) -> void:
 			var a: AABB = mi.get_aabb()
 			abox = a if afirst else abox.merge(a)
 			afirst = false
+		# Parented to the body, not a bone: the vest model's origin is mid-chest, so a bone
+		# attachment put it around the survivor's head. Measured fit: 0.46 m wide, 1.12 m up.
+		# Put the vest's own centre on the chest: its GLB origin is not centred, which is why a
+		# bare position put it around the survivor's head.
+		var holder := Node3D.new()
+		holder.position = Vector3(0.0, 1.18, 0.0)
+		model.add_child(holder)
 		if not afirst:
 			var widest: float = maxf(abox.size.x, maxf(abox.size.y, abox.size.z))
 			if widest > 0.01:
-				armor_model.scale = Vector3.ONE * (0.56 / widest)
-		# hang it off the chest bone when the rig has one, so it leans with the torso
-		var spine_idx: int = skeleton.find_bone("spine_02") if is_instance_valid(skeleton) else -1
-		if spine_idx < 0 and is_instance_valid(skeleton):
-			spine_idx = skeleton.find_bone("spine_01")
-		if spine_idx >= 0:
-			var anchor := BoneAttachment3D.new()
-			anchor.bone_name = skeleton.get_bone_name(spine_idx)
-			skeleton.add_child(anchor)
-			anchor.add_child(armor_model)
-			armor_model.position = Vector3(0.0, 0.02, 0.0)
-		else:
-			armor_model.position.y = 1.20
-			model.add_child(armor_model)
+				var sc: float = 0.44 / widest
+				armor_model.scale = Vector3.ONE * sc
+				armor_model.position = -abox.get_center() * sc
+		armor_model.rotation.y = 0.0          # the GLB already faces +Z like the body
+		holder.add_child(armor_model)
 
 func set_helmet(equipped: bool) -> void:
 	has_helmet = equipped
