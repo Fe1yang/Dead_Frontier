@@ -727,6 +727,15 @@ func _cull_districts() -> void:
 
 ## One district. Pulled out of _build_road so the run's loading screen can build them one per
 ## frame instead of stalling a single frame with all 24 (~255 ms, several seconds on a phone).
+## Set PERF_TRACE=1 in the environment to log anything that blocks a frame for over 50 ms.
+func _perf_trace(label: String, started_usec: int) -> void:
+	if not OS.has_environment("PERF_TRACE"):
+		return
+	var ms := (Time.get_ticks_usec() - started_usec) / 1000.0
+	if ms > 50.0:
+		print("PERF_SPIKE ", label, " ", snappedf(ms, 0.1), " ms")
+
+
 func _build_district(i: int) -> void:
 	var asset: String="city_hd_%02d"%(i%24)
 	var path: String="res://assets/models/environment/"+asset+".glb"
@@ -738,7 +747,9 @@ func _build_district(i: int) -> void:
 	if packed==null:
 		push_error("no district model available at all, skipping this segment")
 		return
+	var _t0 := Time.get_ticks_usec()
 	var road:=packed.instantiate() as Node3D
+	_perf_trace("district_instantiate", _t0)
 	if road==null:
 		push_error("district instantiate failed: "+path)
 		return
@@ -2954,6 +2965,9 @@ func _equip_from_menu() -> void:
 			if vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(equip_menu_index,0,6)])):
 				owned_vehicle = vkey
 				_save()
+		4:
+			weapon_equipped = true
+			_save()
 		_:
 			select_character(equip_menu_index)
 
@@ -2974,7 +2988,13 @@ func _lobby_release(pos: Vector2) -> void:
 	for i in range(lobby_item_count()):
 		if lobby_card_rect(i).has_point(pos):
 			if lobby_tab==4:
-				open_store()
+				# one card: the flamethrower. Owned ones offer EQUIP, unowned ones just say so.
+				if not flame_owned():
+					lobby_toast=1.8; lobby_toast_key="char_locked"
+				elif weapon_equipped:
+					lobby_toast=1.6; lobby_toast_key="char_equipped"
+				else:
+					equip_menu_index=i; equip_menu_tab=4
 				return
 			if lobby_tab==3:
 				vehicle_choice=i
