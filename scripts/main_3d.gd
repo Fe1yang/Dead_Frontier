@@ -886,10 +886,34 @@ func _process(delta: float) -> void:
 	for dog in companion_pets:
 		if is_instance_valid(dog): dog.tick(delta)
 	_scroll_extra(delta)
-	_tick_bullets(delta); _tick_ordnance(delta); _tick_barrels(delta); _tick_crates(delta); _tick_dying_zombies(delta); _vehicle_smash(); _tick_venom(delta); _tick_blood(delta); _tick_rain(delta); _tick_watchers(delta); _tick_zombies(delta); _resolve_barrel_collision(); _resolve_crater_collision(); _tick_obstacles(delta); _tick_gates(delta); _tick_pickups(delta); _tick_effects(delta); _tick_vehicle(delta)
+	var _t0 := Time.get_ticks_usec(); _tick_bullets(delta); _profile_tick("_tick_bullets(delta)", _t0)
+	var _t1 := Time.get_ticks_usec(); _tick_ordnance(delta); _profile_tick("_tick_ordnance(delta)", _t1)
+	var _t2 := Time.get_ticks_usec(); _tick_barrels(delta); _profile_tick("_tick_barrels(delta)", _t2)
+	var _t3 := Time.get_ticks_usec(); _tick_crates(delta); _profile_tick("_tick_crates(delta)", _t3)
+	var _t4 := Time.get_ticks_usec(); _tick_dying_zombies(delta); _profile_tick("_tick_dying_zombies(delta)", _t4)
+	var _t5 := Time.get_ticks_usec(); _vehicle_smash(); _profile_tick("_vehicle_smash()", _t5)
+	var _t6 := Time.get_ticks_usec(); _tick_venom(delta); _profile_tick("_tick_venom(delta)", _t6)
+	var _t7 := Time.get_ticks_usec(); _tick_blood(delta); _profile_tick("_tick_blood(delta)", _t7)
+	var _t8 := Time.get_ticks_usec(); _tick_rain(delta); _profile_tick("_tick_rain(delta)", _t8)
+	var _t9 := Time.get_ticks_usec(); _tick_watchers(delta); _profile_tick("_tick_watchers(delta)", _t9)
+	var _t10 := Time.get_ticks_usec(); _tick_zombies(delta); _profile_tick("_tick_zombies(delta)", _t10)
+	var _t11 := Time.get_ticks_usec(); _resolve_barrel_collision(); _profile_tick("_resolve_barrel_collision()", _t11)
+	var _t12 := Time.get_ticks_usec(); _resolve_crater_collision(); _profile_tick("_resolve_crater_collision()", _t12)
+	var _t13 := Time.get_ticks_usec(); _tick_obstacles(delta); _profile_tick("_tick_obstacles(delta)", _t13)
+	var _t14 := Time.get_ticks_usec(); _tick_gates(delta); _profile_tick("_tick_gates(delta)", _t14)
+	var _t15 := Time.get_ticks_usec(); _tick_pickups(delta); _profile_tick("_tick_pickups(delta)", _t15)
+	var _t16 := Time.get_ticks_usec(); _tick_effects(delta); _profile_tick("_tick_effects(delta)", _t16)
+	var _t17 := Time.get_ticks_usec(); _tick_vehicle(delta); _profile_tick("_tick_vehicle(delta)", _t17)
 	_tick_buffs(delta)
 	_tick_chase(delta)
 	if player.health<=0: _end_run()
+
+## Temporary hitch hunter (debug builds only): prints any tick slice that blows past 120 ms.
+func _profile_tick(name: String, t0: int) -> void:
+	var ms := float(Time.get_ticks_usec() - t0) / 1000.0
+	if ms > 120.0:
+		print("HITCH ", name, " ", snappedf(ms, 0.1), " ms")
+
 
 func _menu_zombies() -> void:
 	for i in range(3):
