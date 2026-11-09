@@ -136,7 +136,11 @@ func _ready() -> void:
 			push_error("crate: missing model for "+String(weapon_id)+" -> "+path)
 			return
 		weapon_model = packed_model.instantiate() as Node3D
-		weapon_model.scale = Vector3.ONE*float(WEAPON_SCALES.get(weapon_id,0.6))
+		var raw_span := _model_span(weapon_model)
+		if raw_span > 2.0:
+			# authored in centimetres or metres: bring it to ~1 m before the table scale
+			weapon_model.scale = Vector3.ONE * (1.0 / raw_span)
+		weapon_model.scale *= Vector3.ONE*float(WEAPON_SCALES.get(weapon_id,0.6))
 		# Bike/Car models are already upright; no X tilt (that laid them on their side).
 		weapon_pivot.add_child(weapon_model)
 		_center_model(weapon_model)
@@ -150,6 +154,22 @@ func _ready() -> void:
 	light = OmniLight3D.new(); light.light_color = PET_GLOW if is_pet() else GLOW; light.light_energy = 1.6; light.omni_range = 2.6
 	light.position = Vector3(0,0.1,0.35); weapon_pivot.add_child(light)
 	_refresh_counter()
+
+## Largest axis of a freshly instantiated model, before any scaling.
+func _model_span(node: Node3D) -> float:
+	var box := AABB()
+	var first := true
+	for m in node.find_children("*", "MeshInstance3D", true, false):
+		var mi := m as MeshInstance3D
+		if mi == null or mi.mesh == null:
+			continue
+		var a: AABB = mi.get_aabb()
+		box = a if first else box.merge(a)
+		first = false
+	if first:
+		return 0.0
+	return maxf(box.size.x, maxf(box.size.y, box.size.z))
+
 
 func _center_model(m: Node3D) -> void:
 	# Weapon glbs are authored around the grip; shift so the spin axis runs through the middle.
