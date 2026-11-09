@@ -2920,7 +2920,8 @@ func _fire_flame() -> bool:
 		z.ignite(FLAME_BURN_SECONDS, z.max_health * FLAME_BURN_FRACTION)
 		hit += 1
 	player.fire()
-	player.pulse_flame()
+	# The particle jet is parked until it can be tested on device: on screen it covered the
+	# camera in a red wash. Damage and sound are unaffected.
 	sound.play("flame")
 	if hit > 0:
 		_burst(origin + flat_fwd_of(fwd) * 1.2, Color("ff9b35"), 3)

@@ -6,6 +6,7 @@ const AnimLibrary=preload("res://scripts/anim_library.gd")
 ## hands and feet strike the ground like an animal (the raw clip hovers in a crouch).
 const JOCKEY_LEAN_DEG:=27.0
 const JOCKEY_DROP:=-0.12
+const JOCKEY_SCALE:=0.62   # it came in twice the bulk of the walkers
 ## The juggernaut is a hulking brute: scaled up and walking upright instead of the zombie shamble.
 const BRUTE_SCALE:=1.42
 const BRUTE_ARM_BONES:=["clavicle_l","upperarm_l","lowerarm_l","hand_l","clavicle_r","upperarm_r","lowerarm_r","hand_r"]
@@ -107,6 +108,8 @@ func configure(type: String, difficulty: float) -> void:
 			lo=minf(lo,b2.position.y); hi=maxf(hi,b2.end.y)
 		if hi>lo+0.01: model.scale*=1.95/(hi-lo)
 		model.rotation.y=PI
+	if kind=="jockey":
+		model.scale *= JOCKEY_SCALE
 	var clip_name := "Zombie_Walk_Fwd"
 	if kind=="brute" or kind.begins_with("bomber"):
 		# The juggernaut/bomber are hulking heavies: they borrow the upright UAL1 "Walk" instead
@@ -117,7 +120,7 @@ func configure(type: String, difficulty: float) -> void:
 		var borrowed:=AnimLibrary.borrow(animation_player,"Walk","ual1",{},BRUTE_ARM_BONES)
 		AnimLibrary.pin_to_bind_pose(model,BRUTE_ARM_BONES)
 		if borrowed!="": clip_name=borrowed
-	if kind=="jockey": clip_name="Jockey_Quad_Run"
+	if kind=="jockey": clip_name="Dog_Run"  # the asset ships the quadruped dog clips
 	elif kind=="banshee": clip_name="Banshee_Walk"
 	# Mixamo/UAL clips animate the pelvis through space (root motion). The game moves the
 	# zombie itself, so keeping that track made the body slide backwards - most visible on
