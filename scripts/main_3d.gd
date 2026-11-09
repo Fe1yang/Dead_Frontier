@@ -637,6 +637,7 @@ func _apply_cull_range(root: Node) -> void:
 ## District scenes are loaded once at startup: loading them inside _build_road was the single
 ## biggest frame spike of a run (24 models, about 4 MB each, decoded on the first frame).
 var district_cache := {}
+var _district_requests:={}   # path -> ResourceLoader threaded status
 
 
 ## One district per frame. Loading all 24 in _ready froze the first launch before the first
@@ -653,14 +654,54 @@ func _prewarm_step() -> void:
 		districts_ready = true
 		return
 	if district_prewarm_i >= DISTRICTS_NEEDED:
-		districts_ready = true
+		# only declare the world ready once every requested district is actually in memory
+		if _district_requests.is_empty():
+			districts_ready = true
+		return
 	var path: String = "res://assets/models/environment/city_hd_%02d.glb" % district_prewarm_i
 	district_prewarm_i += 1
 	if not ResourceLoader.exists(path):
 		return
 	if district_cache.has(path):
 		return
-	district_cache[path] = load(path)
+	# On a worker thread: parsing a 10 MB district on the main thread is exactly the hitch that
+	# showed up as soon as the bar finished.
+	if not _district_requests.has(path):
+		if ResourceLoader.load_threaded_request(path) == OK:
+			_district_requests[path] = 0
+		else:
+			district_cache[path] = load(path)
+		return
+	if ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_LOADED:
+		var packed: Resource = ResourceLoader.load_threaded_get(path)
+		if packed != null:
+			district_cache[path] = packed
+		_district_requests.erase(path)
+
+
+## Load the next districts on a worker thread while the player is running, so a new block never
+## has to be parsed on the frame it appears (that is the hitching the phone shows).
+func _district_threads() -> void:
+	if player == null:
+		return
+	var want: int = clampi(roads.size() + 1, 0, 23)
+	for k in range(3):
+		var idx: int = (want + k) % 24
+		var path: String = "res://assets/models/environment/city_hd_%02d.glb" % idx
+		if district_cache.has(path) or _district_requests.has(path):
+			continue
+		if ResourceLoader.load_threaded_request(path) == OK:
+			_district_requests[path] = 0
+	# poll whatever is in flight
+	for path in _district_requests.keys():
+		var status: int = ResourceLoader.load_threaded_get_status(path)
+		if status == ResourceLoader.THREAD_LOAD_LOADED:
+			var packed: Resource = ResourceLoader.load_threaded_get(path)
+			if packed != null:
+				district_cache[path] = packed
+			_district_requests.erase(path)
+		elif status == ResourceLoader.THREAD_LOAD_FAILED or status == ResourceLoader.THREAD_LOAD_INVALID_RESOURCE:
+			_district_requests.erase(path)
 
 
 func _district_scene(path: String) -> Resource:
@@ -1058,6 +1099,7 @@ func _process(delta: float) -> void:
 	if gate_timer<=0:
 		if _road_clear(-40.0): _spawn_gate(); gate_timer=lerpf(11.0,7.5,ramp)*rng.randf_range(0.9,1.15)
 		else: gate_timer=1.2
+	_district_threads()
 	barrel_timer-=delta
 	if barrel_timer<=0:
 		if _road_clear(-45.0): _spawn_barrel(); barrel_timer=lerpf(26.0,14.0,ramp)*rng.randf_range(0.85,1.2)

@@ -250,6 +250,16 @@ func _fanfare_finished() -> void:
 	if music_state_name in ["intro","playing","paused","health_ad"]:
 		chase.stream_paused=(music_state_name in ["paused","health_ad"])
 
+## Touch every stream once at loader time: the first real playback then has nothing left to
+## decode, which on iOS used to cost a frame right in the middle of a fight.
+func prime_all() -> void:
+	for id in streams.keys():
+		var st: AudioStream = streams[id]
+		if st == null:
+			continue
+		st.get_length()
+
+
 func play(id: String) -> void:
 	last_id=id
 	if muted or not streams.has(id) or voices.is_empty() or streams[id]==null: return
