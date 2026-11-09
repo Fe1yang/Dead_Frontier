@@ -1707,6 +1707,7 @@ const ARMORY_WEAPONS := ["PISTOL", "MAKAROV", "SUOMI", "SMG", "SHOTGUN", "SNIPER
 const ARMORY_VIEW := Rect2(40, 158, 460, 380)
 const ARMORY_BACK := Rect2(24, 24, 100, 48)
 const ARMORY_PREV := Rect2(60, 736, 60, 44)
+const ARMORY_UPGRADE := Rect2(150, 728, 240, 56)
 const ARMORY_NEXT := Rect2(420, 736, 60, 44)   # the 3D weapon; drag it to spin
 var armory_index := 0
 var armory_return := "shop"
@@ -1798,6 +1799,52 @@ func _armory_show_weapon() -> void:
 	var centre := box.get_center()
 	model.position = -centre * k + Vector3(0, 0.02, 0)
 	model.rotation.y = deg_to_rad(28.0)
+
+
+## The supply-shop item that upgrades this weapon ("" when the gun is not sold there).
+func armory_shop_id() -> String:
+	var id: String = armory_weapon_id().to_lower()
+	var candidate := "w_" + id
+	for item in shop_items:
+		if String(item.id) == candidate:
+			return candidate
+	return ""
+
+
+func armory_level() -> int:
+	var sid := armory_shop_id()
+	if sid == "":
+		return 0
+	return int(meta_upgrades.get(sid, 0))
+
+
+func armory_max_level() -> int:
+	var sid := armory_shop_id()
+	if sid == "":
+		return 0
+	for item in shop_items:
+		if String(item.id) == sid:
+			return int(item.max_level)
+	return 0
+
+
+## Silver cost of the next level of this weapon (0 when maxed or not sold here).
+func armory_price() -> int:
+	var sid := armory_shop_id()
+	if sid == "":
+		return 0
+	for item in shop_items:
+		if String(item.id) == sid:
+			return item_cost(item)
+	return 0
+
+
+func armory_upgrade() -> void:
+	var sid := armory_shop_id()
+	if sid == "":
+		return
+	if buy_item(sid):
+		_armory_show_weapon()
 
 
 func armory_weapon_id() -> String:
@@ -4873,6 +4920,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if armory_drag and is_instance_valid(armory_model):
 		if event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT)):
 			armory_model.rotation.y -= event.relative.x * 0.012
+			# vertical drag tilts it too, so every angle is reachable
+			armory_model.rotation.x = clampf(armory_model.rotation.x - event.relative.y * 0.010, deg_to_rad(-70.0), deg_to_rad(70.0))
 			return
 		if (event is InputEventScreenTouch and not event.pressed) or (event is InputEventMouseButton and not event.pressed):
 			armory_drag = false
@@ -4995,6 +5044,9 @@ func _armory_pointer(pos: Vector2) -> bool:
 		return true
 	if state != "armory":
 		return false
+	if ARMORY_UPGRADE.has_point(pos):
+		armory_upgrade()
+		return true
 	if ARMORY_PREV.has_point(pos):
 		armory_step(-1)
 		return true

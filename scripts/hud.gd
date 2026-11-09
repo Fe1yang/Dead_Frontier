@@ -959,6 +959,12 @@ func _draw_armory() -> void:
 			_box(Rect2(bar.position.x + 1, bar.position.y + 1, (bar.size.x - 2) * fill, bar.size.y - 2), Color("ffd75e"), Color("ffd75e"), 0.0)
 		_text(String(row[2]), Vector2(404, y + 4), 15, GOLD)
 		y += 34.0
+	# upgrade lives here now: level of this weapon plus the buy button
+	var lv: int = game.armory_level()
+	var lv_max: int = game.armory_max_level()
+	if lv_max > 0:
+		_text("升级  LV %d / %d" % [lv, lv_max], Vector2(60, 706), 15, GOLD)
+		_button(game.ARMORY_UPGRADE, ("升级  %d 银币" % game.armory_price()) if lv < lv_max else "已满级", lv < lv_max)
 	# nav
 	_box(Rect2(60, 736, 60, 44), Color(0.10, 0.11, 0.12, 1.0), Color(LINE, 1.0), 0)
 	_text_center("‹", Vector2(90, 764), 22, WHITE)
