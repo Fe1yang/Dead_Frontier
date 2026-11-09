@@ -157,6 +157,7 @@ const GRIP_OFFSETS := {
 const HOLD_DROP := {"MAKAROV":0.10,"SUOMI":0.10,"PISTOL":0.10,"SMG":0.10,"SHOTGUN":0.10,"SNIPER":0.10,"RIFLE":0.10,"LAUNCHER":0.10}
 const SUPPORT_REACH := {"MAKAROV":0.05,"SUOMI":0.16,"PISTOL":0.03,"SMG":0.16,"SHOTGUN":0.22,"SNIPER":0.24,"RIFLE":0.20,"LAUNCHER":0.14}
 const MUZZLE_POINTS := {
+	"FLAME": Vector3(-0.48, 0.02, 0.52),
 	"PISTOL": Vector3(0.0,0.137,0.40),
 	"SMG": Vector3(0.0,0.085,0.90),
 	"SHOTGUN": Vector3(0.0,0.10,1.19),
@@ -1196,6 +1197,25 @@ func can_use_reserve() -> bool:
 	return weapon!="PISTOL" or not stowed.is_empty()
 
 func muzzle_position() -> Vector3:
+	# The steampunk flamethrower's origin sits off-centre, so a fixed local point landed beside the
+	# barrel. Take the point on its own bounding box that faces furthest along the aim instead.
+	if weapon == "FLAME" and is_instance_valid(weapon_model):
+		var box := AABB()
+		var first := true
+		for m in weapon_model.find_children("*", "MeshInstance3D", true, false):
+			var mi := m as MeshInstance3D
+			if mi == null or mi.mesh == null:
+				continue
+			var a: AABB = mi.global_transform * mi.get_aabb()
+			box = a if first else box.merge(a)
+			first = false
+		if not first:
+			var dir := aim_direction.normalized()
+			if dir.length() < 0.01:
+				dir = Vector3.FORWARD
+			var half := box.size * 0.5
+			var reach: float = absf(dir.x) * half.x + absf(dir.y) * half.y + absf(dir.z) * half.z
+			return box.get_center() + dir * reach
 	if is_instance_valid(weapon_model):
 		var pt: Vector3=MUZZLE_POINTS.get(weapon,MUZZLE_POINTS["PISTOL"])
 		if weapon_flipped: pt=Vector3(-pt.x,pt.y,-pt.z)
