@@ -429,7 +429,7 @@ func _ready() -> void:
 	Engine.max_fps=60
 	rng.randomize()
 	stamina=StaminaScript.new(); add_child(stamina); _load_save(); stamina.changed.connect(_save)
-	_setup_world(); _build_road()
+	_setup_world()  # the street is built by the run's loading screen, one district per frame
 	view_cull_end=VIEW_CULL_END_HIGH if quality_high else VIEW_CULL_END_FAST
 	_apply_quality()
 	# Every screen is drawn for a 9:16 portrait rectangle. A tall phone (the iPhone 15
@@ -1023,6 +1023,8 @@ func _warm_up_tick() -> void:
 func _finish_loading() -> void:
 	if state!="loading": return
 	var target:=loading_target
+	if target=="run" and roads.size()<ROAD_COUNT:
+		_build_road()
 	loading_progress=1.0
 	if target=="run":
 		if is_instance_valid(player): player.visible=true
