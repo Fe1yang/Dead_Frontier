@@ -3130,20 +3130,42 @@ func _fire_flame() -> bool:
 	var fwd: Vector3 = aim_direction.normalized()
 	var origin: Vector3 = player.muzzle_position()
 	var hit := 0
+	var flat_fwd: Vector3 = Vector3(fwd.x, 0.0, fwd.z).normalized()
 	for z in zombies:
 		if not is_instance_valid(z) or z.dead: continue
 		var d: Vector3 = z.position - origin
 		d.y = 0.0
 		var dist: float = d.length()
 		if dist > FLAME_RANGE: continue
-		var flat_fwd: Vector3 = Vector3(fwd.x, 0.0, fwd.z).normalized()
 		if dist > 0.4 and flat_fwd.dot(d.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)): continue
 		_hit_zombie(z, FLAME_TICK_DAMAGE, "torso", z.position + Vector3(0, 1.0, 0), Color("ffb14d"))
 		z.ignite(FLAME_BURN_SECONDS, z.max_health * FLAME_BURN_FRACTION)
 		hit += 1
 	player.fire()
-	# The particle jet is parked until it can be tested on device: on screen it covered the
-	# camera in a red wash. Damage and sound are unaffected.
+	player.pulse_flame()
+	# the cone also cooks whatever drop is in it, so auto-fire breaks crates and barrels
+	for crate in crates:
+		if not is_instance_valid(crate) or crate.is_queued_for_deletion():
+			continue
+		var cd: Vector3 = crate.global_position - origin
+		cd.y = 0.0
+		if cd.length() > FLAME_RANGE:
+			continue
+		if cd.length() > 0.4 and flat_fwd.dot(cd.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)):
+			continue
+		crate.take_hit()
+		hit += 1
+	for barrel in barrels:
+		if not is_instance_valid(barrel) or barrel.is_queued_for_deletion():
+			continue
+		var bd: Vector3 = barrel.global_position - origin
+		bd.y = 0.0
+		if bd.length() > FLAME_RANGE:
+			continue
+		if bd.length() > 0.4 and flat_fwd.dot(bd.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)):
+			continue
+		barrel.take_hit()
+		hit += 1
 	sound.play("flame")
 	if hit > 0:
 		_burst(origin + flat_fwd_of(fwd) * 1.2, Color("ff9b35"), 3)

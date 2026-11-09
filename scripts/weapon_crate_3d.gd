@@ -14,7 +14,7 @@ const USE_AMMO_CAN := false
 const USE_FULL_TRUCK := false
 const CRATE_SCALE := 2.9
 ## The item floating over a crate/barrel reads too small on a phone: scale it up.
-const ITEM_BOOST := 2.4
+const ITEM_BOOST := 1.15
 ## Height of the concrete platform the drop stands on (the two platforms the crates
 ## have always been placed on, left and right of the lane).
 const PLATFORM_H := 0.42
