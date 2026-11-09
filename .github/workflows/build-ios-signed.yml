@@ -262,6 +262,23 @@ jobs:
         retention-days: 30
 
     # --- export ---
+    # Apple parks any build without this key in "Missing Compliance" and never hands it to
+    # testers, which is why uploaded builds looked like they vanished.
+    # Apple parks any build without this key in "Missing Compliance" and never hands it to
+    # testers, which is why uploaded builds looked like they vanished.
+    - name: Declare export compliance in the exported plists
+      run: |
+        set -e
+        found=0
+        while IFS= read -r plist; do
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$plist" 2>/dev/null \
+            || /usr/libexec/PlistBuddy -c "Set :ITSAppUsesNonExemptEncryption false" "$plist"
+          echo "patched $plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$plist"
+          found=$((found+1))
+        done < <(find build/ios -name Info.plist -not -path "*/export/*")
+        test "$found" -gt 0
+
     - name: Write App Store export options
       run: |
         cat > ExportOptions.plist <<EOF
