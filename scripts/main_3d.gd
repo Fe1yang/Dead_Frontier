@@ -845,8 +845,8 @@ func _place_street_props(road: Node3D, index: int) -> void:
 		# 10.9 .. 11.3 on whichever pavement this block uses
 		var mx: float = x + side * rng_d.randf_range(-0.1, 0.3)
 		# ring the crater mouth instead of dropping covers on the tarmac
-		for k in range(2):
-			var ang := TAU * float(k) / 2.0 + rng_d.randf_range(-0.25, 0.25)
+		for k in range(1):
+			var ang := rng_d.randf_range(0.0, TAU)
 			_traffic_cone(road, Vector3(CRATER_X + cos(ang) * (CRATER_RADIUS + 0.55), PAVEMENT_Y,
 				base_z + sin(ang) * (CRATER_RADIUS + 0.55)))
 	if rng_d.randf() < 0.14:
@@ -909,7 +909,7 @@ func _decorate_district(road: Node3D, index: int) -> void:
 		if decor_rng.randf() < 0.22:
 			_prop_node("hydrant", road, Vector3(side * 8.70, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
 		# manholes sit along the pavement line, roughly aligned with the street
-		if decor_rng.randf() < 0.038:
+		if decor_rng.randf() < 0.015:
 			_traffic_cone(road, Vector3(side * decor_rng.randf_range(8.45, 12.0), PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)))
 	# --- litter: a couple of cans, not a carpet ---------------------------------------------
 	var cans := decor_rng.randi_range(0, 3)
