@@ -910,7 +910,7 @@ func _decorate_district(road: Node3D, index: int) -> void:
 			_prop_node("hydrant", road, Vector3(side * 8.70, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
 		# manholes sit along the pavement line, roughly aligned with the street
 		if decor_rng.randf() < 0.038:
-			_traffic_cone(road, Vector3(side * 8.45, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)))
+			_traffic_cone(road, Vector3(side * decor_rng.randf_range(8.45, 12.0), PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)))
 	# --- litter: a couple of cans, not a carpet ---------------------------------------------
 	var cans := decor_rng.randi_range(0, 3)
 	for i in range(cans):
