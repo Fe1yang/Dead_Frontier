@@ -191,8 +191,18 @@ func _relative(root: Node3D,child: Node3D) -> Transform3D:
 ## along X (for things hung on the back wall) and resting with its bottom at pos.y when `rest`.
 func _prop(path: String,length: float,pos: Vector3,yaw:=0.0,lay_long_axis_on_x:=false,rest:=true,stand_off:=false) -> Node3D:
 	if not ResourceLoader.exists(path): return null
+	# A stale import (the .glb is on disk but its imported scene is broken) used to crash the
+	# whole shop with "instantiate on a null instance".
+	var packed:=load(path) as PackedScene
+	if packed==null:
+		push_warning("shop prop failed to load: "+path)
+		return null
 	var holder:=Node3D.new(); add_child(holder)
-	var model:=load(path).instantiate() as Node3D; holder.add_child(model)
+	var model:=packed.instantiate() as Node3D
+	if model==null:
+		holder.queue_free()
+		return null
+	holder.add_child(model)
 	var box:=_aabb(model)
 	if lay_long_axis_on_x and box.size.z>box.size.x and box.size.z>=box.size.y:
 		model.rotation.y=PI*0.5; box=_aabb_rotated(model)
@@ -251,7 +261,7 @@ func _build_back_wall() -> void:
 		var is_pistol:=String(item[0]).ends_with("pistol.glb")
 		var held:=_prop(item[0],item[1],item[2],PI if is_pistol else 0.0,true,false,true)
 		var file: String=String(item[0]).get_file()
-		if RACK_KEYS.has(file) and not props.has(RACK_KEYS[file]): _register(RACK_KEYS[file],held)
+		if held!=null and RACK_KEYS.has(file) and not props.has(RACK_KEYS[file]): _register(RACK_KEYS[file],held)
 		# two pegs under each weapon
 		_cyl(0.008,0.06,item[2]+Vector3(-0.12,-0.07,-0.02),Color("9a9a92"),0.4,0.8).rotation.x=PI*0.5
 		_cyl(0.008,0.06,item[2]+Vector3(0.12,-0.07,-0.02),Color("9a9a92"),0.4,0.8).rotation.x=PI*0.5
