@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d2qvupdmn4d3m"
-path="res://.godot/imported/pursuer_abomination_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-f2ff68ccbd0d0de8e6d3f02563b64d6a.ctex"
+path.s3tc="res://.godot/imported/pursuer_abomination_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-f2ff68ccbd0d0de8e6d3f02563b64d6a.s3tc.ctex"
+path.etc2="res://.godot/imported/pursuer_abomination_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-f2ff68ccbd0d0de8e6d3f02563b64d6a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8292a43d8a69c6ddbe07ffc60ac37c25"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/pursuer_abomination_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg"
-dest_files=["res://.godot/imported/pursuer_abomination_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-f2ff68ccbd0d0de8e6d3f02563b64d6a.ctex"]
+dest_files=["res://.godot/imported/pursuer_abomination_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-f2ff68ccbd0d0de8e6d3f02563b64d6a.s3tc.ctex", "res://.godot/imported/pursuer_abomination_Color_e9561010-0afc-4bce-9963-e6d5ffef41e5.jpg-f2ff68ccbd0d0de8e6d3f02563b64d6a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cme2g5g0fldcl"
-path="res://.godot/imported/fractured_concrete.png-27d6e4c7d4ae2a5584b8fa2c6ea5ad8c.ctex"
+path.s3tc="res://.godot/imported/fractured_concrete.png-27d6e4c7d4ae2a5584b8fa2c6ea5ad8c.s3tc.ctex"
+path.etc2="res://.godot/imported/fractured_concrete.png-27d6e4c7d4ae2a5584b8fa2c6ea5ad8c.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/street_debris/fractured_concrete.png"
-dest_files=["res://.godot/imported/fractured_concrete.png-27d6e4c7d4ae2a5584b8fa2c6ea5ad8c.ctex"]
+dest_files=["res://.godot/imported/fractured_concrete.png-27d6e4c7d4ae2a5584b8fa2c6ea5ad8c.s3tc.ctex", "res://.godot/imported/fractured_concrete.png-27d6e4c7d4ae2a5584b8fa2c6ea5ad8c.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -36,5 +38,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

@@ -1,42 +1,41 @@
-"""Downscale the model textures that are far larger than the screen can show.
+"""Shrink every imported texture without touching the source artwork.
 
-Only files under assets/models are touched: UI art and portraits are left alone. Anything above
-2048 px on the long edge becomes 1024, which is still more than a phone screen can resolve at the
-distances these props are seen.
+The iOS package was 2.18 GB because each texture is imported losslessly at full resolution
+(the .godot cache alone is 3.5 GB). Setting a size limit and VRAM compression in the .import
+files makes Godot downscale on import, which is what actually ships.
 """
+import io
 import os
-import sys
+import re
 
-from PIL import Image
+ROOT = r"C:\Users\user\Documents\kimi\tasks\2026-11-06\12-50-12-52283f1e\df-backup\assets"
+SIZE_LIMIT = 1024
 
-ROOT = r"C:\Users\user\Documents\kimi\tasks\2026-11-06\12-50-12-52283f1e\df-backup\assets\models"
-LIMIT = 2048
-TARGET = 1024
-
-saved = 0
-touched = 0
+changed = 0
 for dirpath, _dirnames, filenames in os.walk(ROOT):
-    for fn in filenames:
-        if not fn.lower().endswith((".png", ".jpg", ".jpeg")):
+    for name in filenames:
+        if not name.endswith(".import"):
             continue
-        p = os.path.join(dirpath, fn)
-        before = os.path.getsize(p)
-        try:
-            im = Image.open(p)
-        except Exception:
+        path = os.path.join(dirpath, name)
+        with io.open(path, encoding="utf-8") as fh:
+            text = fh.read()
+        if "importer=\"texture\"" not in text:
             continue
-        w, h = im.size
-        if max(w, h) <= LIMIT:
-            continue
-        k = TARGET / float(max(w, h))
-        im = im.resize((max(1, int(w * k)), max(1, int(h * k))), Image.LANCZOS)
-        out = p
-        if fn.lower().endswith((".jpg", ".jpeg")):
-            im.convert("RGB").save(out, quality=88, optimize=True)
-        else:
-            im.save(out, optimize=True)
-        after = os.path.getsize(p)
-        saved += max(0, before - after)
-        touched += 1
+        orig = text
 
-print("downscaled", touched, "textures, saved", round(saved / 1048576.0, 1), "MB")
+        # VRAM compression (S3TC/ETC2/ASTC depending on platform) instead of lossless RGBA
+        text = re.sub(r"compress/mode=\d+", "compress/mode=2", text)
+        text = re.sub(r"compress/high_quality=\w+", "compress/high_quality=false", text)
+
+        # downscale on import
+        if "process/size_limit" in text:
+            text = re.sub(r"process/size_limit=\d+", "process/size_limit=%d" % SIZE_LIMIT, text)
+        else:
+            text = text.replace("[params]\n", "[params]\n\nprocess/size_limit=%d\n" % SIZE_LIMIT, 1)
+
+        if text != orig:
+            with io.open(path, "w", encoding="utf-8", newline="\n") as fh:
+                fh.write(text)
+            changed += 1
+
+print("texture import files updated:", changed)

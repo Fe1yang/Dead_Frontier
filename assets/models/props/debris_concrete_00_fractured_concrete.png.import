@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b3svsf2uepgu5"
-path="res://.godot/imported/debris_concrete_00_fractured_concrete.png-5071860ab9d1afd4a8282e1cb1b47cc6.ctex"
+path.s3tc="res://.godot/imported/debris_concrete_00_fractured_concrete.png-5071860ab9d1afd4a8282e1cb1b47cc6.s3tc.ctex"
+path.etc2="res://.godot/imported/debris_concrete_00_fractured_concrete.png-5071860ab9d1afd4a8282e1cb1b47cc6.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8025ae90797046c4d8da3c7b7ee06c6b"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/props/debris_concrete_00_fractured_concrete.png"
-dest_files=["res://.godot/imported/debris_concrete_00_fractured_concrete.png-5071860ab9d1afd4a8282e1cb1b47cc6.ctex"]
+dest_files=["res://.godot/imported/debris_concrete_00_fractured_concrete.png-5071860ab9d1afd4a8282e1cb1b47cc6.s3tc.ctex", "res://.godot/imported/debris_concrete_00_fractured_concrete.png-5071860ab9d1afd4a8282e1cb1b47cc6.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

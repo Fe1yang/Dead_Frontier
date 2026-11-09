@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bxfulliak4gt2"
-path="res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.ctex"
+path.s3tc="res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.s3tc.ctex"
+path.etc2="res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/polyhaven/asphalt_01/asphalt_01_ao_2k.jpg"
-dest_files=["res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.ctex"]
+dest_files=["res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.s3tc.ctex", "res://.godot/imported/asphalt_01_ao_2k.jpg-21a980036168d7ecb5f04544e2baa0ab.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -36,5 +38,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

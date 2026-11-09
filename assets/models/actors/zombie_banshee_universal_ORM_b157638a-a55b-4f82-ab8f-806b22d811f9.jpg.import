@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dfrpbrd4bau46"
-path="res://.godot/imported/zombie_banshee_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-dde4173f40b34ee9c8ab24b58623bacd.ctex"
+path.s3tc="res://.godot/imported/zombie_banshee_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-dde4173f40b34ee9c8ab24b58623bacd.s3tc.ctex"
+path.etc2="res://.godot/imported/zombie_banshee_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-dde4173f40b34ee9c8ab24b58623bacd.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9f81d90bd097444bb6b3aedc3535d6d4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/actors/zombie_banshee_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg"
-dest_files=["res://.godot/imported/zombie_banshee_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-dde4173f40b34ee9c8ab24b58623bacd.ctex"]
+dest_files=["res://.godot/imported/zombie_banshee_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-dde4173f40b34ee9c8ab24b58623bacd.s3tc.ctex", "res://.godot/imported/zombie_banshee_universal_ORM_b157638a-a55b-4f82-ab8f-806b22d811f9.jpg-dde4173f40b34ee9c8ab24b58623bacd.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1

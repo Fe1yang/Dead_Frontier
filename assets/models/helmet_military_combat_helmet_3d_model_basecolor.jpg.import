@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dxlp0vcngfy1d"
-path="res://.godot/imported/helmet_military_combat_helmet_3d_model_basecolor.jpg-86d8472834336b179e379bd079ffb0ff.ctex"
+path.s3tc="res://.godot/imported/helmet_military_combat_helmet_3d_model_basecolor.jpg-86d8472834336b179e379bd079ffb0ff.s3tc.ctex"
+path.etc2="res://.godot/imported/helmet_military_combat_helmet_3d_model_basecolor.jpg-86d8472834336b179e379bd079ffb0ff.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "26f6e0df7843c2ea6986aafedea44df3"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/helmet_military_combat_helmet_3d_model_basecolor.jpg"
-dest_files=["res://.godot/imported/helmet_military_combat_helmet_3d_model_basecolor.jpg-86d8472834336b179e379bd079ffb0ff.ctex"]
+dest_files=["res://.godot/imported/helmet_military_combat_helmet_3d_model_basecolor.jpg-86d8472834336b179e379bd079ffb0ff.s3tc.ctex", "res://.godot/imported/helmet_military_combat_helmet_3d_model_basecolor.jpg-86d8472834336b179e379bd079ffb0ff.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -39,5 +41,5 @@ process/premult_alpha=false
 process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
-process/size_limit=0
+process/size_limit=1024
 detect_3d/compress_to=1
