@@ -5083,7 +5083,7 @@ func _release_touches() -> void:
 ## Equip switches in the lobby: one per tab, routed through a small standalone handler so the
 ## long pointer chain below stays untouched.
 func _lobby_gear_pointer(pos: Vector2) -> bool:
-	if state != "lobby":
+	if state != "character_select":
 		return false
 	if lobby_tab == 0 and LOBBY_GEAR.has_point(pos):
 		toggle_loadout(); return true
