@@ -869,7 +869,9 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 			_box(Rect2(lc+Vector2(-2,5),Vector2(4,7)),Color(0,0,0,0.8))
 	if whole:
 		var label: String=game.pet_name(i) if pets else game.character_name(i)
-		_text_center(label,Vector2(card.get_center().x,card.end.y-9),11 if pets else 12,WHITE if on else MUTED)
+		var menu_open: bool = game.lobby_tab==0 and int(game.equip_menu_index)==i
+		if not menu_open:
+			_text_center(label,Vector2(card.get_center().x,card.end.y-9),11 if pets else 12,WHITE if on else MUTED)
 		if on: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 
 func _locked_slot(rect: Rect2,pet:=false,skin:=false) -> void:
