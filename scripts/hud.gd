@@ -935,6 +935,11 @@ func _draw_armory() -> void:
 	_text("%d / %d" % [game.armory_index + 1, game.ARMORY_WEAPONS.size()], Vector2(430, 132), 15, MUTED)
 	var id: String = game.armory_weapon_id()
 	var stats: Dictionary = game.ARMORY_STATS.get(id, {})
+	# the 3D weapon, rendered by main into a SubViewport
+	if is_instance_valid(game.armory_viewport):
+		var tex: Texture2D = game.armory_viewport.get_texture()
+		if tex != null:
+			clean_ops.append(["texture", tex, Rect2(40, 158, 460, 380)])
 	# name
 	_bold_text(id, Vector2(60, 610), 24, WHITE)
 	# bars: damage / rate / magazine, normalised against the strongest weapon
