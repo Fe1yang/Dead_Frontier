@@ -1201,7 +1201,9 @@ func can_use_reserve() -> bool:
 func muzzle_position() -> Vector3:
 	# The steampunk flamethrower's origin sits off-centre, so a fixed local point landed beside the
 	# barrel. Take the point on its own bounding box that faces furthest along the aim instead.
-	if weapon == "FLAME" and is_instance_valid(weapon_model):
+	# Any weapon: the barrel tip is the point of its own bounding box furthest along the aim, so
+	# long guns (the sniper and the rifle put bullets beside the left hand) line up correctly.
+	if is_instance_valid(weapon_model):
 		var box := AABB()
 		var first := true
 		for m in weapon_model.find_children("*", "MeshInstance3D", true, false):

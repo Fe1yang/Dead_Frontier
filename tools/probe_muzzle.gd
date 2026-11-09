@@ -10,18 +10,18 @@ func _run() -> void:
 	await create_timer(1.0).timeout
 	paused = false
 	main.call("enter_lobby")
-	await create_timer(0.6).timeout
-	main.set("loadout_on", false)
+	await create_timer(0.5).timeout
+	main.set("loadout_on", false); main.set("owned_vehicle", "")
 	main.call("start_run", true, true)
-	await create_timer(0.8).timeout
+	await create_timer(1.0).timeout
+	if String(main.get("state")) == "intro":
+		main.call("_finish_intro")
 	var p = main.get("player")
-	for wid in ["FLAME", "PISTOL"]:
-		p.call("set_weapon", wid)
-		await process_frame
-		await process_frame
-		var m: Vector3 = p.call("muzzle_position")
-		var base: Vector3 = p.global_position
-		var rel: Vector3 = m - base
-		print(wid, " muzzle rel=", Vector3(snappedf(rel.x,0.01), snappedf(rel.y,0.01), snappedf(rel.z,0.01)))
-	print("MZ_DONE")
+	for w in ["PISTOL","SMG","SHOTGUN","SNIPER","RIFLE","FLAME"]:
+		p.call("set_weapon", w)
+		await create_timer(0.25).timeout
+		var mz = p.call("muzzle_position")
+		var hand = p.get("hand_position") if p.get("hand_position") != null else Vector3.ZERO
+		print(w, " muzzle=", mz, " dist_from_body=", snappedf(mz.distance_to(p.global_position), 2))
+	print("MUZZLE_DONE")
 	quit()
