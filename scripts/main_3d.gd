@@ -4637,7 +4637,7 @@ func _pointer_down(pos: Vector2) -> bool:
 		if offer_active() and OFFER_BADGE.has_point(pos): open_offer(); return true
 		# Main screen (see hud._draw_character_select): one scrolling column on the left with
 		# 角色 / 宠物 tabs; the survivor and the pet stand together on the platform.
-		for tab_i in [0, 1, 3]:
+		for tab_i in [0, 1, 3, 4]:
 			if lobby_tab_rect(tab_i).has_point(pos): set_lobby_tab(tab_i); return true
 		for side in [-1,1]:
 			if lobby_page_visible(side) and lobby_page_rect(side).has_point(pos): lobby_page(side); return true
