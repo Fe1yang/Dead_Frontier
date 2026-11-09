@@ -189,7 +189,7 @@ func _relative(root: Node3D,child: Node3D) -> Transform3D:
 
 ## Places a model so its longest side is `length` metres, centred at `pos`, with its long axis
 ## along X (for things hung on the back wall) and resting with its bottom at pos.y when `rest`.
-func _prop(path: String,length: float,pos: Vector3,yaw:=0.0,lay_long_axis_on_x:=false,rest:=true) -> Node3D:
+func _prop(path: String,length: float,pos: Vector3,yaw:=0.0,lay_long_axis_on_x:=false,rest:=true,stand_off:=false) -> Node3D:
 	if not ResourceLoader.exists(path): return null
 	var holder:=Node3D.new(); add_child(holder)
 	var model:=load(path).instantiate() as Node3D; holder.add_child(model)
@@ -203,6 +203,9 @@ func _prop(path: String,length: float,pos: Vector3,yaw:=0.0,lay_long_axis_on_x:=
 	var offset:=-box.get_center()
 	if rest: offset.y=-box.position.y
 	model.position+=offset
+	if stand_off:
+		# hung on the wall: keep the whole body in front of the pegboard
+		model.position.z += box.size.z * 0.5 + 0.02
 	holder.position=pos; holder.rotation.y=yaw
 	return holder
 
@@ -246,7 +249,7 @@ func _build_back_wall() -> void:
 		# Same lay-flat as every other gun, then half a turn so the pistol presents the face
 		# the player reads instead of the mirror of the rest of the rack.
 		var is_pistol:=String(item[0]).ends_with("pistol.glb")
-		var held:=_prop(item[0],item[1],item[2],PI if is_pistol else 0.0,true,false)
+		var held:=_prop(item[0],item[1],item[2],PI if is_pistol else 0.0,true,false,true)
 		var file: String=String(item[0]).get_file()
 		if RACK_KEYS.has(file) and not props.has(RACK_KEYS[file]): _register(RACK_KEYS[file],held)
 		# two pegs under each weapon
