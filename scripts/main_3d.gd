@@ -2474,11 +2474,14 @@ func set_lobby_tab(t: int) -> void:
 func _lobby_release(pos: Vector2) -> void:
 	if lobby_press.x<0: return
 	var was_drag:=lobby_dragged; lobby_press=Vector2(-1,-1); lobby_dragged=false
-	if was_drag or not lobby_view_rect().has_point(pos): return
+	if was_drag: return
+	# The dropdown sits above the card strip, outside lobby_view_rect(), so it used to be rejected
+	# by the guard below and every tap fell through to the card underneath.
 	if equip_menu_index>=0:
 		if equip_menu_rect().has_point(pos):
 			select_character(equip_menu_index); equip_menu_index=-1; return
 		equip_menu_index=-1  # tapping elsewhere closes the dropdown
+	if not lobby_view_rect().has_point(pos): return
 	for i in range(lobby_item_count()):
 		if lobby_card_rect(i).has_point(pos):
 			if lobby_tab==4:
@@ -2584,15 +2587,18 @@ func pet_name(i: int) -> String:
 	return RunText.text("dog_%d"%i,language_code)
 
 func pet_owned(index: int) -> bool:
+	if all_access: return true
 	return owned_pets.has(index) or owned_pets.has(str(index))
 
 ## Mason (0) and Riley (1) are free forever; everyone else is bought once in the store.
 func character_owned(index: int) -> bool:
+	if all_access: return true
 	if is_instance_valid(lobby) and (index<0 or index>=lobby.CHARACTERS.size()): return false
 	return index<=0 or owned_characters.has(index) or owned_characters.has(str(index))
 
 ## A character's default look comes with the character; only the extra outfits cost money.
 func skin_owned(index: int) -> bool:
+	if all_access: return true
 	if index<0 or index>=lobby.SKINS.size(): return false
 	if index==default_skin_index(int(lobby.SKINS[index].get("char",-1))): return true
 	return owned_skins.has(index) or owned_skins.has(str(index))
@@ -2611,6 +2617,7 @@ func flame_owned() -> bool:
 	return bool(store_owned.get("weapon_flame", false))
 
 func vehicle_is_owned(id: String) -> bool:
+	if all_access: return true
 	if store_owned.has(id): return true
 	var name_of: Dictionary={"vehicle_bike":"BIKE","vehicle_sport":"SPORT","vehicle_cruiser":"CRUISER","vehicle_gold":"GOLD","vehicle_tank":"TANK","vehicle_sedan":"SEDAN"}
 	var vname: String=String(name_of.get(id,""))
@@ -4680,7 +4687,10 @@ func _pointer_down(pos: Vector2) -> bool:
 			if lobby_tab_rect(tab_i).has_point(pos): set_lobby_tab(tab_i); return true
 		for side in [-1,1]:
 			if lobby_page_visible(side) and lobby_page_rect(side).has_point(pos): lobby_page(side); return true
-		if lobby_view_rect().has_point(pos): lobby_press=pos; lobby_dragged=false; return true
+		# The equip dropdown lives above the card strip, outside lobby_view_rect(): without this
+		# the press was never registered and the popup could not be tapped at all.
+		if lobby_view_rect().has_point(pos) or (equip_menu_index>=0 and equip_menu_rect().has_point(pos)):
+			lobby_press=pos; lobby_dragged=false; return true
 		if LOBBY_AD_RUN.grow(8).has_point(pos) and not ad_run_used and stamina.value<stamina.RUN_COST:
 			request_reward_ad("free_run"); return true
 		if false and LOBBY_LOADOUT.has_point(pos):  # GEAR toggle retired: equip lives on the cards
