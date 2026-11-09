@@ -876,7 +876,6 @@ func _decorate_district(road: Node3D, index: int) -> void:
 			_prop_node("bench", road, Vector3(side * 8.80, PAVEMENT_Y, base_z + decor_rng.randf_range(-5.5, 5.5)), side * PI * 0.5)
 		if decor_rng.randf() < 0.22:
 			_prop_node("hydrant", road, Vector3(side * 8.70, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
-		# manholes sit along the pavement line, roughly aligned with the street
 		# --- litter: a couple of cans, not a carpet ---------------------------------------------
 	var cans := decor_rng.randi_range(0, 3)
 	for i in range(cans):
