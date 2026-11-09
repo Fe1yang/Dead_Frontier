@@ -92,48 +92,15 @@ func _ready() -> void:
 			s = 1.0
 	if can_used:
 		pass
-	elif USE_FULL_TRUCK and ResourceLoader.exists(TRUCK_PATH):
-		# The truck is the pedestal: it is what the green crates rode in on. Normalise it by its
-		# own bounds so it stays road-sized no matter how the GLB was authored.
-		var truck := (load(TRUCK_PATH) as PackedScene).instantiate() as Node3D
-		if truck != null:
-			body.add_child(truck)
-			var tspan := _bounds_of(truck)
-			var tk := 3.10 / maxf(tspan.size.z, 0.01)
-			truck.scale = Vector3.ONE * tk
-			truck.position = Vector3(-tspan.get_center().x * tk, -tspan.position.y * tk, -tspan.get_center().z * tk)
 	elif crate_mesh:
-		# Size the case from its own bounds: the old fixed 2.9 multiplier only looked right
-		# while the ammo can was the body. The truck is authored much larger, so at 2.9 it
-		# turned into a wall of green across the road.
-		var c := MeshInstance3D.new()
-		c.mesh = crate_mesh
-		var span := c.get_aabb()
-		var longest: float = maxf(span.size.x, maxf(span.size.y, span.size.z))
-		var k: float = 1.70 / maxf(longest, 0.01)
-		c.scale = Vector3.ONE * k
-		c.position = Vector3(-span.get_center().x * k, -span.position.y * k, -span.get_center().z * k)
-		body.add_child(c)
+		# Exactly the build-3 rig: the green case itself is the platform, at CRATE_SCALE.
+		var c := MeshInstance3D.new(); c.mesh = crate_mesh; c.scale = Vector3.ONE*s
+		c.position = Vector3(0,0.15*s,0); body.add_child(c)
 		if latch_mesh:
 			var l := MeshInstance3D.new(); l.mesh = latch_mesh; l.scale = Vector3.ONE*s
 			l.position = Vector3(0,0.15*s,0.22*s); body.add_child(l)
 	else:
 		var can_height := 0.78
-		if ResourceLoader.exists(AMMO_CAN_PATH):
-			var can := (load(AMMO_CAN_PATH) as PackedScene).instantiate() as Node3D
-			if can != null:
-				body.add_child(can)
-				var span := _bounds_of(can)
-				var k := 1.26 / maxf(span.size.x, maxf(span.size.y, span.size.z))
-				can.scale = Vector3.ONE * k
-				can.position = Vector3(-span.get_center().x * k, -span.position.y * k, -span.get_center().z * k)
-				can_height = span.size.y * k
-		if can_height <= 0.01:
-			var fallback := MeshInstance3D.new(); var box := BoxMesh.new(); box.size = Vector3(1.22,0.76,1.07)
-			fallback.mesh = box; fallback.position = Vector3(0,0.38,0); body.add_child(fallback)
-		# the can is low: bring the band and the counter down onto its lid
-		s = 1.0 if can_height > 0.5 else 0.55
-	# Red danger band so the crate reads as "shoot me" from the chase camera.
 	var band := MeshInstance3D.new(); var band_mesh := BoxMesh.new()
 	band_mesh.size = Vector3(0.48*s+0.02,0.075*s,0.42*s+0.02); band.mesh = band_mesh
 	var band_mat := StandardMaterial3D.new(); band_mat.albedo_color = Color("b3241c"); band_mat.roughness = 0.7
@@ -148,30 +115,7 @@ func _ready() -> void:
 	counter.no_depth_test = true; counter.render_priority = 10; counter.outline_render_priority = 9
 	body.add_child(counter)
 	# Weapon on display above the crate, lit blue like a loot drop.
-	# The drop stands on a platform, not on the road: a concrete slab with a steel edge.
-	var plat := MeshInstance3D.new()
-	var pbox := BoxMesh.new()
-	pbox.size = Vector3(2.30, PLATFORM_H, 2.10)
-	plat.mesh = pbox
-	var pmat := StandardMaterial3D.new()
-	pmat.albedo_color = Color("6d6f68")
-	pmat.roughness = 0.92
-	plat.material_override = pmat
-	plat.position = Vector3(0, PLATFORM_H * 0.5, 0)
-	add_child(plat)
-	var trim := MeshInstance3D.new()
-	var tbox := BoxMesh.new()
-	tbox.size = Vector3(2.42, 0.07, 2.22)
-	trim.mesh = tbox
-	var tmat := StandardMaterial3D.new()
-	tmat.albedo_color = Color("2f3335")
-	tmat.roughness = 0.65
-	trim.material_override = tmat
-	trim.position = Vector3(0, PLATFORM_H, 0)
-	add_child(trim)
-	body.position.y = PLATFORM_H
-
-	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85 + PLATFORM_H,0); add_child(weapon_pivot)
+	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85,0); add_child(weapon_pivot)
 	if weapon_pivot: weapon_pivot.rotation.y = PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0
 	var path := "res://assets/models/rifle.glb" if weapon_id=="RIFLE" else "res://assets/models/weapons/"+weapon_id.to_lower()+".glb"
 	if weapon_id in ["ARMOR","HELMET"]: path = "res://assets/models/"+weapon_id.to_lower()+".glb"
