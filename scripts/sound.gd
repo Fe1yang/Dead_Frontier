@@ -225,6 +225,15 @@ func night_fell() -> void:
 	if night_stream is AudioStreamMP3: (night_stream as AudioStreamMP3).loop=false
 	chase.stream=night_stream; chase_index=-1; chase.stream_paused=state_paused(); chase.play()
 
+## Freeze / unfreeze every one-shot voice so a paused run is a still frame, sound included.
+func freeze_voices(on: bool) -> void:
+	for v in voices:
+		if is_instance_valid(v):
+			v.stream_paused = on
+	if is_instance_valid(music):
+		music.stream_paused = on
+
+
 func state_paused() -> bool:
 	return music_state_name=="paused"
 

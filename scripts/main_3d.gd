@@ -151,6 +151,8 @@ var loadout_on:=true
 var vehicle_equipped:=true         # "" = none, "BIKE" = bought motorcycle (auto-rides every run's first 1000m)
 const VEHICLE_AUTO_RANGE:=1000.0 # bought bike auto-rides every run until this distance (or durability runs out)
 var vehicle_auto_active:=false
+## Road scroll speed for this frame; barrels and crates ride the same number.
+var world_speed:=3.5
 ## Distance at which the bought bike gives out; a fuel can pushes it out again.
 var vehicle_range_end:=VEHICLE_AUTO_RANGE
 var lobby_toast_key:="coming" # ShopText key the lobby toast shows
@@ -716,6 +718,39 @@ const PROP_DIR := "res://assets/models/props/"
 const PAVEMENT_Y := 0.14
 
 
+## Orange traffic cone: replaces the manhole covers, which were spawning three deep on the
+## tarmac. Cones ring the missile crater instead of trying to fence it perfectly.
+func _traffic_cone(parent: Node3D, world_pos: Vector3) -> Node3D:
+	var root := Node3D.new()
+	parent.add_child(root)
+	root.global_position = Vector3(world_pos.x, PAVEMENT_Y, world_pos.z)
+	var cone := MeshInstance3D.new()
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = 0.02
+	mesh.bottom_radius = 0.20
+	mesh.height = 0.62
+	mesh.radial_segments = 10
+	mesh.rings = 0
+	cone.mesh = mesh
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color("e8631b")
+	mat.roughness = 0.75
+	cone.material_override = mat
+	cone.position.y = 0.31
+	root.add_child(cone)
+	var base := MeshInstance3D.new()
+	var base_mesh := BoxMesh.new()
+	base_mesh.size = Vector3(0.46, 0.06, 0.46)
+	base.mesh = base_mesh
+	var base_mat := StandardMaterial3D.new()
+	base_mat.albedo_color = Color("d2551a")
+	base_mat.roughness = 0.8
+	base.material_override = base_mat
+	base.position.y = 0.03
+	root.add_child(base)
+	return root
+
+
 func _prop_node(name: String, parent: Node3D, world_pos: Vector3, yaw: float = 0.0) -> Node3D:
 	var path := PROP_DIR + name + ".glb"
 	if not ResourceLoader.exists(path):
@@ -809,7 +844,11 @@ func _place_street_props(road: Node3D, index: int) -> void:
 	if rng_d.randf() < 0.40:
 		# 10.9 .. 11.3 on whichever pavement this block uses
 		var mx: float = x + side * rng_d.randf_range(-0.1, 0.3)
-		_prop_node("manhole", road, Vector3(mx, PAVEMENT_Y + 0.01, base_z + rng_d.randf_range(-6.5, 6.5)), 0.0)
+		# ring the crater mouth instead of dropping covers on the tarmac
+		for k in range(3):
+			var ang := TAU * float(k) / 3.0 + rng_d.randf_range(-0.25, 0.25)
+			_traffic_cone(road, Vector3(CRATER_X + cos(ang) * (CRATER_RADIUS + 0.55), PAVEMENT_Y,
+				base_z + sin(ang) * (CRATER_RADIUS + 0.55)))
 	if rng_d.randf() < 0.14:
 		_prop_node("hydrant", road, Vector3(x, PAVEMENT_Y, base_z + rng_d.randf_range(-6.5, 6.5)), 0.0)
 
@@ -871,7 +910,7 @@ func _decorate_district(road: Node3D, index: int) -> void:
 			_prop_node("hydrant", road, Vector3(side * 8.70, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.5, 6.5)), 0.0)
 		# manholes sit along the pavement line, roughly aligned with the street
 		if decor_rng.randf() < 0.30:
-			_prop_node("manhole", road, Vector3(side * 8.85 + decor_rng.randf_range(-0.15, 0.15), PAVEMENT_Y + 0.01, base_z + decor_rng.randf_range(-6.0, 6.0)), 0.0)
+			_traffic_cone(road, Vector3(side * 8.45, PAVEMENT_Y, base_z + decor_rng.randf_range(-6.0, 6.0)))
 	# --- litter: a couple of cans, not a carpet ---------------------------------------------
 	var cans := decor_rng.randi_range(0, 3)
 	for i in range(cans):
@@ -937,7 +976,7 @@ func _process(delta: float) -> void:
 	sound.music_state(payfail_return_state if state=="payfail" else (map_return_state if state=="map" else state))  # popups keep the music underneath
 	damage_flash=maxf(0,damage_flash-delta); shake=maxf(0,shake-delta*3.0)
 	banshee_warning=maxf(0,banshee_warning-delta)
-	var world_speed: float=(3.5*(player.effective_move_mult() if state=="playing" else 1.0)) if state in ["playing","intro"] else (0.25 if state=="cover" else 0.0)
+	world_speed=(3.5*(player.effective_move_mult() if state=="playing" else 1.0)) if state in ["playing","intro"] else (0.25 if state=="cover" else 0.0)
 	for road in roads:
 		road.position.z+=world_speed*delta
 		if road.position.z>ROAD_BEHIND+ROAD_SEGMENT:
@@ -1684,6 +1723,17 @@ func open_shop() -> void:
 	shop_index=clampi(shop_index,0,maxi(0,shop_items.size()-1))
 	shop_truck.reset_view(String(shop_items[shop_index].id) if not shop_items.is_empty() else "")
 	camera.fov=shop_truck.camera_fov(); camera.position=shop_truck.camera_position(); camera.look_at(shop_truck.camera_target())
+
+## A paused run is a still frame: stop emitting, freeze the particles mid-flight and hold the
+## sound. Called from every path that enters or leaves "paused".
+func _freeze_world(on: bool) -> void:
+	if is_instance_valid(sound):
+		sound.freeze_voices(on)
+	if is_instance_valid(player) and is_instance_valid(player.flame_jet):
+		player.flame_jet.process_mode = Node.PROCESS_MODE_DISABLED if on else Node.PROCESS_MODE_INHERIT
+	if is_instance_valid(player) and is_instance_valid(player.flame_glow):
+		player.flame_glow.visible = not on
+
 
 func close_shop() -> void:
 	shop_truck.visible=false; player.visible=true; camera.fov=52
@@ -4292,6 +4342,7 @@ func _tick_barrels(delta: float) -> void:
 	for i in range(barrels.size()-1,-1,-1):
 		var b=barrels[i]
 		if b.dead: barrels.remove_at(i); b.queue_free(); continue
+		b.position.z += world_speed * delta
 		b.tick(delta)
 		if b.position.z>13: barrels.remove_at(i); b.queue_free()
 
@@ -4744,8 +4795,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			else: start_run()
 		elif event.keycode in [KEY_ENTER,KEY_SPACE] and state=="gameover": start_run()
 		elif event.keycode in [KEY_ESCAPE,KEY_P]:
-			if state=="playing": state="paused"; _release_touches()
-			elif state=="paused": state="playing"
+			if state=="playing":
+				state="paused"; _release_touches(); _freeze_world(true)
+			elif state=="paused":
+				state="playing"; _freeze_world(false)
 		elif event.keycode==KEY_R and state=="playing": request_reload()
 		elif event.keycode==KEY_O and state=="character_select" and OS.has_feature("editor"): maybe_show_offer(true)  # test the offer popup from the editor
 		elif event.keycode in [KEY_E,KEY_TAB] and state=="playing": swap_weapon()
@@ -4989,7 +5042,8 @@ func _pointer_down(pos: Vector2) -> bool:
 			if rect.has_point(pos): language_code=Localization.LANGUAGES[i].code; _save(); return true
 		if Rect2(66,840,408,60).has_point(pos): state="settings"; return true
 	elif state=="playing":
-		if PAUSE_BUTTON.has_point(pos): state="paused"; _release_touches(); return true
+		if PAUSE_BUTTON.has_point(pos):
+			state="paused"; _release_touches(); _freeze_world(true); return true
 		if health_plus_rect.grow(8).has_point(pos): _tap_health_plus(); return true
 		if touch_controls and pos.distance_to(control_pos("btn_swap"))<BTN_RADIUS+4: swap_weapon(); return true
 		if touch_controls and pos.distance_to(control_pos("btn_reload"))<BTN_RADIUS+6: request_reload(); return true

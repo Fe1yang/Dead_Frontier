@@ -14,7 +14,8 @@ func _ready() -> void:
 	add_child(model)
 
 func tick(delta: float) -> void:
-	position.z += 3.5*delta
+	# main advances barrels with world_speed instead; scrolling here fought it
+	pass
 
 func take_hit(amount: float) -> bool:
 	health-=amount
