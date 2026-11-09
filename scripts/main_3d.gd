@@ -2418,9 +2418,8 @@ func lobby_max_scroll() -> float:
 ## The EQUIP dropdown sits just above the survivor card it belongs to.
 func equip_menu_rect() -> Rect2:
 	var c:=lobby_card_rect(clampi(equip_menu_index,0,maxi(0,lobby_item_count()-1)))
-	# Below the card, never above it: above the card sits the tab row, and the popup used to
-	# cover the tab labels.
-	return Rect2(c.position.x-6.0,c.position.y+c.size.y+8.0,c.size.x+12.0,54.0)
+	# Above the card. Below it the popup landed on the start button and was unclickable.
+	return Rect2(c.position.x-6.0,c.position.y-58.0,c.size.x+12.0,50.0)
 
 func lobby_card_rect(i: int) -> Rect2:
 	return Rect2(LOBBY_LEFT_X+i*LOBBY_STEP-lobby_scroll,LOBBY_STRIP_Y,LOBBY_CARD.x,LOBBY_CARD.y)

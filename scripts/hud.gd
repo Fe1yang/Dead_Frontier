@@ -513,13 +513,17 @@ func _draw_cover() -> void:
 	# top-right corner opens settings; any other tap continues to the main menu.
 	if menu_art: draw_texture_rect(menu_art,Rect2(0,0,540,game.ui_h),false)
 	else: draw_rect(Rect2(0,0,540,game.ui_h),INK)
-	# The poster art carries no prompt, so the cover draws its own: pulsing, bottom centre.
+	# The prompt is part of the cover: a bordered pill sitting on the poster, pulsing so it reads
+	# as the thing to tap rather than as a caption.
 	var pulse: float=0.55+0.45*sin(float(Time.get_ticks_msec())*0.0032)
 	var hint: String="点击任意处开始" if String(game.language_code).begins_with("zh") else "TOUCH ANYWHERE TO START"
-	var hy: float=game.ui_h-64.0
-	var hw: float=bold.get_string_size(hint,HORIZONTAL_ALIGNMENT_LEFT,-1,19).x
-	draw_rect(Rect2(270.0-hw*0.5-16.0,hy-24.0,hw+32.0,38.0),Color(0,0,0,0.45))
-	draw_string(bold,Vector2(270.0-hw*0.5,hy),hint,HORIZONTAL_ALIGNMENT_LEFT,-1,19,Color(1.0,0.94,0.72,pulse))
+	var hy: float=game.ui_h-86.0
+	var hw: float=bold.get_string_size(hint,HORIZONTAL_ALIGNMENT_LEFT,-1,18).x
+	var pill:=Rect2(270.0-hw*0.5-26.0,hy-30.0,hw+52.0,46.0)
+	draw_rect(pill,Color(0.02,0.03,0.05,0.62))
+	draw_rect(pill,Color(0.95,0.72,0.32,pulse),false,2.0)
+	draw_string(bold,Vector2(pill.position.x+(pill.size.x-hw)*0.5,hy),hint,HORIZONTAL_ALIGNMENT_LEFT,-1,18,Color(1.0,0.95,0.78,pulse))
+
 
 func _draw_loading() -> void:
 	# ONE loading art per run, full-screen, randomly picked at _begin_loading and kept
@@ -667,7 +671,7 @@ func _draw_character_select() -> void:
 		var er: Rect2=game.equip_menu_rect()
 		# Grey while the menu is open; the red edge belongs to the equipped card only.
 		var equipped_now: bool = int(game.equip_menu_index) == game.character_choice
-		_panel(er, Color(0.03,0.034,0.038,0.97), RED if equipped_now else Color(0.55,0.57,0.58,0.9), 1)
+		_panel(er, Color(0.03,0.034,0.038,1.0), RED if equipped_now else Color(0.72,0.74,0.75,1.0), 2)
 		var etxt: String="装备" if String(game.language_code).begins_with("zh") else "EQUIP"
 		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the

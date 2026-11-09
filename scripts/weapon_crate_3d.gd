@@ -11,8 +11,11 @@ const AMMO_CAN_PATH := "res://assets/models/ammo_pickup.glb"
 const USE_AMMO_CAN := false
 ## true = the whole supply truck stands on the road as the pedestal and the crate body
 ## sits on it, which is how the green boxes used to arrive.
-const USE_FULL_TRUCK := true
+const USE_FULL_TRUCK := false
 const CRATE_SCALE := 2.9
+## Height of the concrete platform the drop stands on (the two platforms the crates
+## have always been placed on, left and right of the lane).
+const PLATFORM_H := 0.42
 const FLIGHT_TIME := 0.55
 const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.62,"CRUISER":0.62,"FUEL":1.15}
 const WEAPON_NAMES := {"ARMOR":"ARMOR: SHIELD +50","HELMET":"HELMET: +20% PROTECTION","PISTOL":"PISTOL","SMG":"SMG","SHOTGUN":"SHOTGUN","SNIPER":"SNIPER","LAUNCHER":"GRENADE LAUNCHER","RIFLE":"RIFLE","FUEL":"FUEL: REFILL"}
@@ -145,7 +148,30 @@ func _ready() -> void:
 	counter.no_depth_test = true; counter.render_priority = 10; counter.outline_render_priority = 9
 	body.add_child(counter)
 	# Weapon on display above the crate, lit blue like a loot drop.
-	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85,0); add_child(weapon_pivot)
+	# The drop stands on a platform, not on the road: a concrete slab with a steel edge.
+	var plat := MeshInstance3D.new()
+	var pbox := BoxMesh.new()
+	pbox.size = Vector3(2.30, PLATFORM_H, 2.10)
+	plat.mesh = pbox
+	var pmat := StandardMaterial3D.new()
+	pmat.albedo_color = Color("6d6f68")
+	pmat.roughness = 0.92
+	plat.material_override = pmat
+	plat.position = Vector3(0, PLATFORM_H * 0.5, 0)
+	add_child(plat)
+	var trim := MeshInstance3D.new()
+	var tbox := BoxMesh.new()
+	tbox.size = Vector3(2.42, 0.07, 2.22)
+	trim.mesh = tbox
+	var tmat := StandardMaterial3D.new()
+	tmat.albedo_color = Color("2f3335")
+	tmat.roughness = 0.65
+	trim.material_override = tmat
+	trim.position = Vector3(0, PLATFORM_H, 0)
+	add_child(trim)
+	body.position.y = PLATFORM_H
+
+	weapon_pivot = Node3D.new(); weapon_pivot.position = Vector3(0,1.85 + PLATFORM_H,0); add_child(weapon_pivot)
 	if weapon_pivot: weapon_pivot.rotation.y = PI*0.5 if weapon_id in ["BIKE","SPORT","CRUISER"] else 0.0
 	var path := "res://assets/models/rifle.glb" if weapon_id=="RIFLE" else "res://assets/models/weapons/"+weapon_id.to_lower()+".glb"
 	if weapon_id in ["ARMOR","HELMET"]: path = "res://assets/models/"+weapon_id.to_lower()+".glb"
