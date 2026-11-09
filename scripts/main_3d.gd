@@ -1154,7 +1154,8 @@ func _tick_intro(delta: float) -> void:
 		var z=zombies[i]
 		if not is_instance_valid(z): continue
 		var offset: Vector3=intro_horde_offsets[i]
-		z.position=Vector3(offset.x+sin(intro_time*3.0+i)*0.07,0,player.position.z+offset.z-intro_time*0.16)
+		# no backward drift: the horde keeps pace with the survivor instead of sliding behind him
+		z.position=Vector3(offset.x+sin(intro_time*3.0+i)*0.07,0,player.position.z+offset.z)
 	var chaser_pos:=player.position+CHASER_OFFSET-Vector3(0,0,intro_time*0.22)
 	if is_instance_valid(chaser):
 		chaser.position=chaser_pos
