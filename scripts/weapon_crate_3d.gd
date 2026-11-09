@@ -9,6 +9,9 @@ const AMMO_CAN_PATH := "res://assets/models/ammo_pickup.glb"
 ## false = the crate sits on the green supply-truck pedestal again; the ammo can used to
 ## replace that pedestal and the user wants the green base back.
 const USE_AMMO_CAN := false
+## true = the whole supply truck stands on the road as the pedestal and the crate body
+## sits on it, which is how the green boxes used to arrive.
+const USE_FULL_TRUCK := true
 const CRATE_SCALE := 2.9
 const FLIGHT_TIME := 0.55
 const WEAPON_SCALES := {"ARMOR":0.6,"HELMET":1.8,"PISTOL":1.25,"SMG":1.05,"SHOTGUN":0.95,"SNIPER":0.85,"LAUNCHER":0.95,"RIFLE":0.95,"BIKE":0.62,"SPORT":0.62,"CRUISER":0.62,"FUEL":1.15}
@@ -86,6 +89,16 @@ func _ready() -> void:
 			s = 1.0
 	if can_used:
 		pass
+	elif USE_FULL_TRUCK and ResourceLoader.exists(TRUCK_PATH):
+		# The truck is the pedestal: it is what the green crates rode in on. Normalise it by its
+		# own bounds so it stays road-sized no matter how the GLB was authored.
+		var truck := (load(TRUCK_PATH) as PackedScene).instantiate() as Node3D
+		if truck != null:
+			body.add_child(truck)
+			var tspan := _bounds_of(truck)
+			var tk := 3.10 / maxf(tspan.size.z, 0.01)
+			truck.scale = Vector3.ONE * tk
+			truck.position = Vector3(-tspan.get_center().x * tk, -tspan.position.y * tk, -tspan.get_center().z * tk)
 	elif crate_mesh:
 		# Size the case from its own bounds: the old fixed 2.9 multiplier only looked right
 		# while the ammo can was the body. The truck is authored much larger, so at 2.9 it
