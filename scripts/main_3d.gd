@@ -1260,7 +1260,7 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 	surge=false; phase_timer=4.5; wave_quota=0; wave_timeout=0.0; wave_clear_banner=0.0  # a calm opening before the first 尸潮
 	aim_direction=Vector3.FORWARD; aim_target=null; left_stick=Vector2.ZERO; right_stick=Vector2.ZERO; _release_touches()
 	shop_truck.visible=false; player.visible=true; camera.fov=52; camera.position=Vector3(0,6.4,13.5)
-	runs_this_launch+=1; run_start_best=best_distance; new_record=false; record_banner=0.0
+	runs_this_launch+=1; runs_total+=1; run_start_best=best_distance; new_record=false; record_banner=0.0
 	# Opening hour: daytime almost always, dusk or dawn only now and then.
 	#   85% day · 10% dusk · 5% dawn (first run of a session is always day)
 	var opening:="clear"
@@ -2363,11 +2363,20 @@ const SIDE_MAP:=Rect2(462,118,70,76)    # map select (more maps coming) — righ
 ## Once a day the lobby's airdrop can be opened for free by watching one rewarded ad.
 const AIRDROP_RECT:=Rect2(16,118,90,118)   # slightly left, while keeping a visible screen-edge margin
 var airdrop_day:=""
+## Supply crates: three a day, and only every fifth run.
+var airdrop_count_today:=0
+var runs_total:=0
+var airdrop_at_run:=-5
 var airdrop_reward:={}   # what the last drop held, shown on the reveal screen
 var airdrop_return_state:="character_select"
 
 func airdrop_available() -> bool:
-	return airdrop_day!=today()
+	if airdrop_day!=today():
+		airdrop_day=today()
+		airdrop_count_today=0
+	if airdrop_count_today>=3:
+		return false
+	return runs_total-airdrop_at_run>=5
 
 func _roll_airdrop() -> Dictionary:
 	var r:=rng.randf()
@@ -2377,6 +2386,7 @@ func _roll_airdrop() -> Dictionary:
 
 func _open_airdrop() -> void:
 	airdrop_day=today(); airdrop_reward=_roll_airdrop()
+	airdrop_count_today+=1; airdrop_at_run=runs_total
 	_grant(int(airdrop_reward.coins),int(airdrop_reward.vouchers)); _save()
 	airdrop_return_state=state if state!="airdrop" else airdrop_return_state; state="airdrop"; _release_touches()
 
@@ -5290,6 +5300,10 @@ func _load_save() -> void:
 		if owned_vehicle=="CAR": owned_vehicle="CRUISER" # old save name for the third bike
 		owned_characters=c.get_value("chars","owned",{}); owned_skins=c.get_value("chars","skins",{})
 		terms_accepted=bool(c.get_value("legal","terms_v1",false))
+		airdrop_day=String(c.get_value("crates","day",""))
+		airdrop_count_today=int(c.get_value("crates","count",0))
+		runs_total=int(c.get_value("crates","runs",0))
+		airdrop_at_run=int(c.get_value("crates","at_run",-5))
 		# A locked survivor can never stay selected (e.g. an old save from before the store).
 		if not character_owned(character_choice): character_choice=0
 		if is_instance_valid(player): player.set_character(character_choice,character_asset(character_choice))
@@ -5335,6 +5349,8 @@ func _save() -> void:
 	var c:=ConfigFile.new(); c.set_value("run","best",best_distance); c.set_value("run","character",character_choice); c.set_value("run","skins",skin_choice); c.set_value("run","pet",pet_choice); c.set_value("run","pet_equipped",pet_equipped); c.set_value("pets","owned",owned_pets); c.set_value("pets","rules",2); c.set_value("chars","owned",owned_characters); c.set_value("chars","skins",owned_skins); c.set_value("vehicles","owned",owned_vehicle); c.set_value("run","loadout_on",loadout_on); c.set_value("puzzle","pieces",puzzle_pieces); c.set_value("pass","owned",passes); c.set_value("pass","days",pass_days); c.set_value("pass","all_access",all_access); c.set_value("mail","claimed",mail_claimed); c.set_value("airdrop","day",airdrop_day); c.set_value("run","intro_seen",intro_seen); c.set_value("run","ad_run_used",ad_run_used); c.set_value("gameplay","auto_reload_v3",auto_reload); c.set_value("display","text_size",text_size); c.set_value("display","quality_high",quality_high); c.set_value("audio","music_volume",sound.music_volume if is_instance_valid(sound) else 0.8); c.set_value("audio","sfx_volume",sound.sfx_volume if is_instance_valid(sound) else 1.0)
 	c.set_value("ui","language",language_code); c.set_value("wallet","coins",bank_coins); c.set_value("wallet","silver",bank_silver); c.set_value("wallet","vouchers",bank_vouchers); c.set_value("store","owned",store_owned.keys()); c.set_value("store","remove_ads",remove_ads); c.set_value("store","ads_offer_shows",ads_offer_shows); c.set_value("store","iap_ledger",iap_ledger.keys()); c.set_value("legal","terms_v1",terms_accepted)
 	c.set_value("can_ads","day",can_ad_day); c.set_value("can_ads","count",can_ad_count)
+	c.set_value("crates","day",airdrop_day); c.set_value("crates","count",airdrop_count_today);
+	c.set_value("crates","runs",runs_total); c.set_value("crates","at_run",airdrop_at_run)
 	c.set_value("offer","id",offer_id); c.set_value("offer","expires",offer_expires); c.set_value("offer","next",next_offer_at); c.set_value("offer","play_day",play_day); c.set_value("offer","play_seconds",play_seconds_today)
 	c.set_value("signin","last",signin_last); c.set_value("signin","index",signin_index); c.set_value("signin","shown",signin_shown_day)
 	c.set_value("missions","day",daily_day); c.set_value("missions","stats",daily_stats); c.set_value("missions","claimed",daily_claimed); c.set_value("missions","swaps",daily_swaps)
