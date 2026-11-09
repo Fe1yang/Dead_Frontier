@@ -512,7 +512,13 @@ func _draw_cover() -> void:
 	# The original start screen, restored: the full-screen title poster does all the talking
 	# (title, skull, TAP ANYWHERE TO START, version are painted into the art). The gear in its
 	# top-right corner opens settings; any other tap continues to the main menu.
-	if menu_art: draw_texture_rect(menu_art,Rect2(0,0,540,game.ui_h),false)
+	if menu_art:
+		# cover fit: the poster always fills the height, and any extra width is cropped away
+		var tw := float(menu_art.get_width())
+		var th := float(menu_art.get_height())
+		var k := maxf(game.ui_h / th, 540.0 / tw)
+		var sz := Vector2(tw * k, th * k)
+		draw_texture_rect(menu_art, Rect2(Vector2((540.0 - sz.x) * 0.5, (game.ui_h - sz.y) * 0.5), sz), false)
 	else: draw_rect(Rect2(0,0,540,game.ui_h),INK)
 	# The Dreadline poster has no prompt painted on it, so draw it here.
 	var lang_t: String = game.language_code
