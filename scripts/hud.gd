@@ -120,7 +120,7 @@ func _ready() -> void:
 	var grad:=Gradient.new(); grad.set_color(0,Color(1,1,1,1)); grad.set_color(1,Color(1,1,1,0)); grad.add_point(0.45,Color(1,1,1,0.45))
 	glow_tex=GradientTexture2D.new(); glow_tex.gradient=grad; glow_tex.fill=GradientTexture2D.FILL_RADIAL; glow_tex.fill_from=Vector2(0.5,0.5); glow_tex.fill_to=Vector2(1.0,0.5); glow_tex.width=128; glow_tex.height=128
 	hud_portraits=[load("res://assets/ui/male_hud_gray.png"),load("res://assets/ui/riley_hud_gray.png"),load("res://assets/ui/medic_hud_gray.png"),load("res://assets/ui/maya_hud_gray.png")]
-	menu_art=load("res://assets/ui/cover.png")
+	menu_art=load("res://assets/ui/title_screen.png")
 	loading_art=[load("res://assets/ui/loading/loading_1_corn.png"),load("res://assets/ui/loading/loading_2_snowroad.png"),load("res://assets/ui/loading/loading_3_graveyard.png"),load("res://assets/ui/loading/loading_4_city.png")]
 	for i in range(3):
 		brush_button.append(load("res://assets/ui/brush_button_%d.png"%i))
@@ -514,6 +514,12 @@ func _draw_cover() -> void:
 	# top-right corner opens settings; any other tap continues to the main menu.
 	if menu_art: draw_texture_rect(menu_art,Rect2(0,0,540,game.ui_h),false)
 	else: draw_rect(Rect2(0,0,540,game.ui_h),INK)
+	# The Dreadline poster has no prompt painted on it, so draw it here.
+	var lang_t: String = game.language_code
+	var prompt: String = "点任意处开始" if String(lang_t).begins_with("zh") else "TAP ANYWHERE TO START"
+	var pulse: float = 0.55 + 0.45 * sin(Time.get_ticks_msec() * 0.003)
+	_clean_center(bold, Vector2(270.0, game.ui_h - 150.0), prompt, 22, Color(1, 1, 1, pulse))
+	_clean_center(bold, Vector2(270.0, game.ui_h - 96.0), "v1.0.0", 12, Color(1, 1, 1, 0.45))
 func _draw_loading() -> void:
 	# ONE loading art per run, full-screen, randomly picked at _begin_loading and kept
 	# unchanged until progress reaches 100%. No switching, no black panel.
