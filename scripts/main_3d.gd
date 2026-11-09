@@ -1051,12 +1051,14 @@ func start_run(free_with_ad:=false,no_cost:=false) -> void:
 	# Opening hour: daytime almost always, dusk or dawn only now and then.
 	#   85% day · 10% dusk · 5% dawn (first run of a session is always day)
 	var opening:="clear"
-	if runs_this_launch>1:
+	# A brand new player (no best distance yet) always gets a daylight tutorial run.
+	var rookie: bool = best_distance <= 0.0 and runs_this_launch <= 2
+	if runs_this_launch>1 and not rookie:
 		var hour_roll:=rng.randf()
 		if hour_roll<0.10: opening="dusk"
 		elif hour_roll<0.15: opening="dawn"
 	if opening=="clear":
-		set_weather("clear" if runs_this_launch==1 else _roll_weather())
+		set_weather("clear" if (runs_this_launch==1 or rookie) else _roll_weather())
 	else:
 		set_weather(opening)
 	player.reset(); player.apply_meta(meta_upgrades); player.set_aim(aim_direction)
