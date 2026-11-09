@@ -38,8 +38,13 @@ func refresh(notify:=true) -> int:
 	return value-before
 
 ## Spend exactly one run's energy. A failed check leaves both the balance and timer untouched.
+var infinite := false   # set by main when the player owns "unlock all"
+
+
 func consume() -> bool:
 	refresh(false)
+	if infinite:
+		return true
 	if value<RUN_COST: return false
 	var was_full:=value>=CAP
 	value-=RUN_COST

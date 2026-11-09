@@ -2032,6 +2032,7 @@ func _iap_grant(id: String,_tx: String) -> bool:
 		if p.has("vehicle"): owned_vehicle=String(p.vehicle)
 		if id=="unlock_all":
 			all_access=true; remove_ads=true
+			stamina.infinite=true
 			for q in StoreCatalog.PACKS:
 				if bool(q.get("once",false)): store_owned[String(q.id)]=true
 				if q.has("char"): owned_characters[int(q.char)]=true
@@ -2437,6 +2438,11 @@ func missions_ready_count() -> int:
 	for m in daily_missions(): if mission_ready(m,true): n+=1
 	for m in event_missions(): if mission_ready(m,false): n+=1
 	return n
+
+## Bought "unlock all": coins, silver, vouchers and cans are endless, shown as the infinity mark.
+func infinite_resources() -> bool:
+	return all_access
+
 
 func _grant(coins: int,vouchers: int) -> void:
 	bank_coins+=coins; bank_vouchers+=vouchers
