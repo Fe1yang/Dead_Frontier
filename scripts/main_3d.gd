@@ -782,7 +782,8 @@ func _place_phone_booth(road: Node3D) -> void:
 	# Fixed outer line requested by the user: 10 m from the centre line, well past the kerb.
 	var x: float = side * 11.0
 	var z: float = shel.end.z + 1.5 if side < 0.0 else shel.position.z - 1.5
-	_prop_node("phone_booth", road, Vector3(x, PAVEMENT_Y, z), side * PI * 0.5)
+	# side-on, glass towards the road
+	_prop_node("phone_booth", road, Vector3(x, PAVEMENT_Y, z), -side * PI * 0.5)
 
 
 func _decorate_district(road: Node3D, index: int) -> void:

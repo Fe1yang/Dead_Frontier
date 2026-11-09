@@ -696,6 +696,10 @@ func normalise_weapon_model() -> void:
 	# Every weapon came out facing the survivor's own chest: the auto-solve picks the wrong
 	# end of the model. One half turn fixes the whole set (user-reported).
 	weapon_model.rotate_y(PI)
+	# The steampunk flamethrower has its tank behind the receiver, so the muzzle-end heuristic
+	# already points the right way and the global half turn puts the nozzle at the shooter.
+	if weapon == "FLAME":
+		weapon_model.rotate_y(PI)
 	weapon_flipped = true
 	weapon_model.force_update_transform()
 	print("WEAPON_ORIENT ", weapon, " yaw_deg=", snappedf(rad_to_deg(weapon_model.rotation.y), 0.1), " align_err=", snappedf(rad_to_deg(err), 0.1))
