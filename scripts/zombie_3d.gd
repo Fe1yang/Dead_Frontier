@@ -270,7 +270,13 @@ func collision_height() -> float:
 		_: return 2.02
 
 func tick(delta: float) -> void:
-	if dead: return
+	if dead:
+		# the death clip pushes the pelvis below the model origin: keep the body on the surface
+		if death_played and is_instance_valid(model):
+			var low := _body_low_y()
+			if low < 0.0:
+				model.position.y -= low
+		return
 	age += delta
 	stun_timer = maxf(0.0, stun_timer-delta)
 	burn_timer = maxf(0.0, burn_timer-delta)
@@ -366,6 +372,18 @@ func consume_burn_damage_number() -> float:
 
 ## Play the model's own death clip. The caller keeps the node around for a moment so
 ## the body is seen falling instead of vanishing in a puff.
+## Lowest point of the rendered body, in world space. Used to keep a falling body on the road.
+func _body_low_y() -> float:
+	var low := 1.0e9
+	for mi in find_children("*", "MeshInstance3D", true, false):
+		var m := mi as MeshInstance3D
+		if m == null or m.mesh == null:
+			continue
+		var box: AABB = m.global_transform * m.get_aabb()
+		low = minf(low, box.position.y)
+	return low
+
+
 func die() -> void:
 	# take_hit() already sets `dead`, so gate on our own flag: the first call plays the fall.
 	if death_played: return
