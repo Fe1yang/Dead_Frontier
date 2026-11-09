@@ -637,8 +637,7 @@ var district_cache := {}
 
 func _prewarm_districts() -> void:
 	for i in range(24):
-		var path: String = "res://assets/models/environment/atlas/city_hd_%02d.glb" % i
-		if not ResourceLoader.exists(path): path = "res://assets/models/environment/city_hd_%02d.glb" % i
+		var path: String = "res://assets/models/environment/city_hd_%02d.glb" % i
 		if not ResourceLoader.exists(path):
 			continue
 		if district_cache.has(path):
