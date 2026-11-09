@@ -679,33 +679,37 @@ func _cull_districts() -> void:
 		r.visible = absf(r.position.z) < DISTRICT_CULL
 
 
+## One district. Pulled out of _build_road so the run's loading screen can build them one per
+## frame instead of stalling a single frame with all 24 (~255 ms, several seconds on a phone).
+func _build_district(i: int) -> void:
+	var asset: String="city_hd_%02d"%(i%24)
+	var path: String="res://assets/models/environment/"+asset+".glb"
+	if not ResourceLoader.exists(path): path="res://assets/models/environment/city_hd_00.glb"
+	var packed: Resource=_district_scene(path)
+	if packed==null:
+		push_warning("district failed to load: "+path+" -- falling back to city_hd_00")
+		packed=load("res://assets/models/environment/city_hd_00.glb")
+	if packed==null:
+		push_error("no district model available at all, skipping this segment")
+		return
+	var road:=packed.instantiate() as Node3D
+	if road==null:
+		push_error("district instantiate failed: "+path)
+		return
+	road.position=Vector3(0,0,ROAD_BEHIND-i*ROAD_SEGMENT); add_child(road)
+	EnvironmentMaterials.apply(road,i); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
+	_apply_cull_range(road)
+	_randomize_zebra(road)
+	_setup_streetlamp(road,i)
+	if road.has_meta("watcher"): watchers.append(road.get_meta("watcher"))
+
+
+## Builds whatever is still missing. Called once at startup; a run normally arrives here with the
+## street already standing.
 func _build_road() -> void:
-	# A 384 m city loop using all 24 authored districts; palette and architecture both vary.
-	for i in range(ROAD_COUNT):
-		var asset: String="city_hd_%02d"%(i%24)
-		# Original authored districts: the atlas build flattened the road into a grey slab,
-		# and the ground is the surface the player stares at for the whole run.
-		# Authored districts. Every atlas build flattened the road into a grey slab, and the
-		# ground is what the player looks at for the whole run, so the speed is not worth it.
-		var path: String="res://assets/models/environment/"+asset+".glb"
-		if not ResourceLoader.exists(path): path="res://assets/models/environment/city_hd_00.glb"
-		var packed: Resource=_district_scene(path)
-		if packed==null:
-			push_warning("district failed to load: "+path+" -- falling back to city_hd_00")
-			packed=load("res://assets/models/environment/city_hd_00.glb")
-		if packed==null:
-			push_error("no district model available at all, skipping this segment")
-			continue
-		var road:=packed.instantiate() as Node3D
-		if road==null:
-			push_error("district instantiate failed: "+path)
-			continue
-		road.position=Vector3(0,0,ROAD_BEHIND-i*ROAD_SEGMENT); add_child(road)
-		EnvironmentMaterials.apply(road,i); DisasterDressing.apply(road,i,ZombieScript); roads.append(road)
-		_apply_cull_range(road)
-		_randomize_zebra(road)
-		_setup_streetlamp(road,i)
-		if road.has_meta("watcher"): watchers.append(road.get_meta("watcher"))
+	for i in range(roads.size(), ROAD_COUNT):
+		_build_district(i)
+
 
 func _setup_streetlamp(road: Node3D,variant: int) -> void:
 	# These are the exact positions of the modelled lamps in build_city_districts.py.
@@ -1036,12 +1040,17 @@ func _tick_loading(delta: float) -> void:
 	loading_time+=delta
 	if loading_target=="run":
 		_prewarm_step()
-		districts_ready = district_prewarm_i>=DISTRICTS_NEEDED
+		if roads.size()<ROAD_COUNT:
+			_build_district(roads.size())
+		districts_ready = district_prewarm_i>=DISTRICTS_NEEDED and roads.size()>=ROAD_COUNT
 	else:
 		# the lobby needs no street: never make the player wait for one
 		districts_ready = true
+	if loading_target=="run":
+		_warm_up_tick()
 	var prewarm_part: float = float(mini(district_prewarm_i, DISTRICTS_NEEDED)) / float(DISTRICTS_NEEDED)
-	loading_progress = minf(0.98, maxf(loading_time/maxf(loading_duration,0.01), prewarm_part if loading_target=="run" else 0.0))
+	var road_part: float = float(roads.size()) / float(ROAD_COUNT) if loading_target=="run" else 0.0
+	loading_progress = minf(0.98, maxf(maxf(loading_time/maxf(loading_duration,0.01), prewarm_part if loading_target=="run" else 0.0), road_part))
 	# same random image from start to finish, no switching
 	if loading_time>=loading_duration and districts_ready:
 		_finish_loading()
