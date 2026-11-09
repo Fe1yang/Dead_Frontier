@@ -1228,8 +1228,27 @@ func _warm_up_tick() -> void:
 		n.position=Vector3(0.0,0.0,0.0)
 		warmup_nodes.append(n)
 
+func _teardown_warmup() -> void:
+	## The warm-up viewport holds throwaway zombies, pickups and crates. If the queue had not
+	## drained by the time loading finished, they stayed alive at the origin and showed up as a
+	## pile of zombies marching in place.
+	warmup_queue.clear()
+	for n in warmup_nodes:
+		if is_instance_valid(n):
+			if n.get_parent() != null:
+				n.get_parent().remove_child(n)
+			n.queue_free()
+	warmup_nodes.clear()
+	if is_instance_valid(warmup_view):
+		warmup_view.queue_free()
+	warmup_view = null
+	warmup_root = null
+	warmup_done = true
+
+
 func _finish_loading() -> void:
 	if state!="loading": return
+	_teardown_warmup()
 	var target:=loading_target
 	if target=="run" and roads.size()<ROAD_COUNT:
 		_build_road()
@@ -1262,7 +1281,7 @@ func _tick_loading(delta: float) -> void:
 	var road_part: float = float(roads.size()) / float(ROAD_COUNT) if loading_target=="run" else 0.0
 	loading_progress = minf(0.98, maxf(maxf(loading_time/maxf(loading_duration,0.01), prewarm_part if loading_target=="run" else 0.0), road_part))
 	# same random image from start to finish, no switching
-	if loading_time>=loading_duration and districts_ready:
+	if loading_time>=loading_duration and districts_ready and (loading_target!="run" or warmup_done or warmup_queue.is_empty()):
 		_finish_loading()
 
 func start_run(free_with_ad:=false,no_cost:=false) -> void:
