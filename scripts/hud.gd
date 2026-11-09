@@ -654,7 +654,7 @@ func _loadout_toggle(r: Rect2) -> void:
 	if not on:
 		clean_ops.append(["line",PackedVector2Array([r.position+Vector2(11,15),r.end-Vector2(11,15)]),Color("e0453d"),2.5])
 
-func _draw_character_select() -> void:
+func _draw_equip_menu() -> void:
 	# dropdown over a survivor card: tap it to wear them
 	if game.lobby_tab==0 and int(game.equip_menu_index)>=0:
 		var er: Rect2=game.equip_menu_rect()
@@ -663,6 +663,9 @@ func _draw_character_select() -> void:
 		_panel(er, Color(0.03,0.034,0.038,1.0), RED if equipped_now else Color(0.72,0.74,0.75,1.0), 2)
 		var etxt: String = ShopText.text(game.language_code, "char_equipped" if equipped_now else "btn_equip")
 		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
+
+
+func _draw_character_select() -> void:
 	# Main screen. The 3D survivor and pet stand in the middle (lobby_scene_3d.gd); this draws the
 	# frame: one column on the left with 角色 / 宠物 tabs over a vertically scrolling list.
 	var lang: String=game.language_code
@@ -763,6 +766,8 @@ func _draw_character_select() -> void:
 	_toast(536.0)
 
 ## One card of the scrolling list, cut off cleanly where it leaves the visible area.
+	_draw_equip_menu()
+
 func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	var vis:=card.intersection(view)
 	if vis.size.y<4.0 or vis.size.x<4.0: return
@@ -941,7 +946,7 @@ func _draw_armory() -> void:
 		if tex != null:
 			clean_ops.append(["texture", tex, Rect2(40, 158, 460, 380)])
 	# name
-	_bold_text(id, Vector2(60, 610), 24, WHITE)
+	_bold_text(id, Vector2(60, 552), 24, WHITE)
 	# bars: damage / rate / magazine, normalised against the strongest weapon
 	var dmg: float = float(stats.get("damage", 0.0))
 	var rate: float = 1.0 / maxf(0.05, float(stats.get("rate", 0.3)))
@@ -949,7 +954,7 @@ func _draw_armory() -> void:
 	var rows := [["伤害", dmg / 180.0, str(int(dmg))],
 		["攻速", rate / (1.0 / 0.085), "%.1f/s" % rate],
 		["容量", mag / 100.0, str(int(mag))]]
-	var y: float = 640.0
+	var y: float = 596.0
 	for row in rows:
 		_text(String(row[0]), Vector2(60, y + 4), 15, MUTED)
 		var bar := Rect2(110, y - 12, 280, 16)
@@ -965,6 +970,9 @@ func _draw_armory() -> void:
 	if lv_max > 0:
 		_text("升级  LV %d / %d" % [lv, lv_max], Vector2(60, 706), 15, GOLD)
 		_button(game.ARMORY_UPGRADE, ("升级  %d 银币" % game.armory_price()) if lv < lv_max else "已满级", lv < lv_max)
+	else:
+		_text("升级  此枪不可升级", Vector2(60, 706), 15, MUTED)
+		_button(game.ARMORY_UPGRADE, "不可升级", false)
 	# nav
 	_box(Rect2(60, 736, 60, 44), Color(0.10, 0.11, 0.12, 1.0), Color(LINE, 1.0), 0)
 	_text_center("‹", Vector2(90, 764), 22, WHITE)

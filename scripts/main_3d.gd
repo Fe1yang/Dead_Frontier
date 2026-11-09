@@ -1705,14 +1705,18 @@ func _freeze_world(on: bool) -> void:
 const ARMORY_BTN := Rect2(404, 80, 112, 40)
 const ARMORY_WEAPONS := ["PISTOL", "MAKAROV", "SUOMI", "SMG", "SHOTGUN", "SNIPER", "LAUNCHER", "FLAME"]
 const ARMORY_VIEW := Rect2(40, 158, 460, 380)
+## Per-weapon size multiplier for the armory stage (compact guns would fill the frame).
+const ARMORY_SIZE := {"MAKAROV": 0.66, "PISTOL": 0.86, "SUOMI": 1.0, "SMG": 1.0,
+	"SHOTGUN": 1.0, "SNIPER": 1.0, "LAUNCHER": 1.0, "FLAME": 1.0}
 const ARMORY_BACK := Rect2(24, 24, 100, 48)
-const ARMORY_PREV := Rect2(60, 736, 60, 44)
-const ARMORY_UPGRADE := Rect2(150, 728, 240, 56)
-const ARMORY_NEXT := Rect2(420, 736, 60, 44)   # the 3D weapon; drag it to spin
+const ARMORY_PREV := Rect2(60, 722, 60, 44)
+const ARMORY_UPGRADE := Rect2(150, 716, 240, 52)
+const ARMORY_NEXT := Rect2(420, 722, 60, 44)   # the 3D weapon; drag it to spin
 var armory_index := 0
 var armory_return := "shop"
 var armory_viewport: SubViewport
 var armory_stage: Node3D
+var armory_pivot: Node3D
 var armory_model: Node3D
 var armory_spin := 0.0
 var armory_drag := false
@@ -1779,7 +1783,11 @@ func _armory_show_weapon() -> void:
 	if not ResourceLoader.exists(path):
 		return
 	var model := (load(path) as PackedScene).instantiate() as Node3D
-	armory_stage.add_child(model)
+	if not is_instance_valid(armory_pivot):
+		armory_pivot = Node3D.new()
+		armory_stage.add_child(armory_pivot)
+	armory_pivot.add_child(model)
+	armory_pivot.rotation = Vector3.ZERO
 	armory_model = model
 	# normalise: centre it and scale the longest side to a fixed length on screen
 	var box := AABB()
@@ -1794,7 +1802,7 @@ func _armory_show_weapon() -> void:
 	if first:
 		return
 	var span := maxf(box.size.x, maxf(box.size.y, box.size.z))
-	var k := 0.62 / maxf(0.001, span)
+	var k := 0.62 * float(ARMORY_SIZE.get(id, 1.0)) / maxf(0.001, span)
 	model.scale = Vector3.ONE * k
 	var centre := box.get_center()
 	model.position = -centre * k + Vector3(0, 0.02, 0)
@@ -2838,7 +2846,8 @@ func _lobby_release(pos: Vector2) -> void:
 	if equip_menu_index>=0:
 		if equip_menu_rect().has_point(pos):
 			select_character(equip_menu_index); equip_menu_index=-1; sound.play("equip"); return
-		equip_menu_index=-1  # tapping elsewhere closes the dropdown
+		equip_menu_index=-1  # tapping elsewhere just closes the dropdown
+		return              # and the tap goes no further
 	if not lobby_view_rect().has_point(pos): return
 	for i in range(lobby_item_count()):
 		if lobby_card_rect(i).has_point(pos):
@@ -4919,9 +4928,10 @@ func _update_touch_aim() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if armory_drag and is_instance_valid(armory_model):
 		if event is InputEventScreenDrag or (event is InputEventMouseMotion and (event.button_mask & MOUSE_BUTTON_MASK_LEFT)):
-			armory_model.rotation.y -= event.relative.x * 0.012
-			# vertical drag tilts it too, so every angle is reachable
-			armory_model.rotation.x = clampf(armory_model.rotation.x - event.relative.y * 0.010, deg_to_rad(-70.0), deg_to_rad(70.0))
+			# spin around a pivot so horizontal drag is a yaw and vertical drag a pitch,
+			# which lets every angle be reached
+			armory_pivot.rotation.y -= event.relative.x * 0.012
+			armory_pivot.rotation.x = clampf(armory_pivot.rotation.x - event.relative.y * 0.010, deg_to_rad(-85.0), deg_to_rad(85.0))
 			return
 		if (event is InputEventScreenTouch and not event.pressed) or (event is InputEventMouseButton and not event.pressed):
 			armory_drag = false
