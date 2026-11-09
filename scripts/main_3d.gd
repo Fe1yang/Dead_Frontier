@@ -1704,7 +1704,10 @@ func _freeze_world(on: bool) -> void:
 ## Armory: a browsable 3D catalogue of every weapon, opened from the supply truck.
 const ARMORY_BTN := Rect2(404, 80, 112, 40)
 const ARMORY_WEAPONS := ["PISTOL", "MAKAROV", "SUOMI", "SMG", "SHOTGUN", "SNIPER", "LAUNCHER", "FLAME"]
-const ARMORY_VIEW := Rect2(40, 158, 460, 380)   # the 3D weapon; drag it to spin
+const ARMORY_VIEW := Rect2(40, 158, 460, 380)
+const ARMORY_BACK := Rect2(24, 24, 100, 48)
+const ARMORY_PREV := Rect2(60, 736, 60, 44)
+const ARMORY_NEXT := Rect2(420, 736, 60, 44)   # the 3D weapon; drag it to spin
 var armory_index := 0
 var armory_return := "shop"
 var armory_viewport: SubViewport
@@ -4984,8 +4987,20 @@ func _release_touches() -> void:
 ## Armory taps are handled here and nowhere else: the shop/pause branches below share one
 ## long if-chain, and editing it has broken the build twice.
 func _armory_pointer(pos: Vector2) -> bool:
+	if state == "shop" and ARMORY_BTN.has_point(pos):
+		open_armory()
+		return true
+	if state == "armory" and ARMORY_BACK.has_point(pos):
+		close_armory()
+		return true
 	if state != "armory":
 		return false
+	if ARMORY_PREV.has_point(pos):
+		armory_step(-1)
+		return true
+	if ARMORY_NEXT.has_point(pos):
+		armory_step(1)
+		return true
 	if ARMORY_VIEW.has_point(pos):
 		armory_drag = true
 		return true

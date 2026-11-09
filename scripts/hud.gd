@@ -974,6 +974,9 @@ func _draw_shop() -> void:
 	var lang: String=game.language_code
 	_text(ShopText.text(lang,"pick"),Vector2(151,91),13,MUTED)
 	_button(Rect2(404,24,112,48),ShopText.text(lang,"cases"),true)
+	# armory entry: a second button under the case button
+	_box(game.ARMORY_BTN, Color(0.10, 0.11, 0.12, 0.95), Color(LINE, 1.0), 0)
+	_text_center("军械库" if String(lang).begins_with("zh") else "ARMORY", game.ARMORY_BTN.get_center() + Vector2(0, 6), 16, WHITE)
 	_wallet_shop_only(game.WALLET_SHOP)
 	# plain entry into the store, next to the balance
 	var sb: Rect2=game.SHOP_STORE_BTN
