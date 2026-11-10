@@ -3636,13 +3636,13 @@ const FLAME_RANGE := 10.5
 const FLAME_HALF_ANGLE := 11.0
 const FLAME_BURN_SECONDS := 3.0
 const FLAME_BURN_FRACTION := 0.09
-const FLAME_TICK_DAMAGE := 22.0   # per 0.12 s tick: it is a paid gold weapon
+const FLAME_TICK_DAMAGE := 34.0   # per 0.12 s tick: it is a paid gold weapon
 ## Crates and barrels count hits, not health; the flame takes several per tick.
 const FLAME_STRUCTURE_HITS := 60   # flame melts a case: one burst is enough
 ## A jet loses heat with distance: point blank burns hard, the far end of the cone only singes.
 func _flame_falloff(dist: float) -> float:
 	var t: float = clampf(1.0 - dist / maxf(0.1, FLAME_RANGE), 0.0, 1.0)
-	return lerpf(0.22, 1.0, pow(t, 1.4))
+	return lerpf(0.34, 1.0, pow(t, 1.15))
 
 
 func _fire_flame() -> bool:
