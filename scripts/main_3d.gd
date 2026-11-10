@@ -1477,6 +1477,28 @@ func _warm_gates() -> void:
 
 ## The first zombie of each kind costs a couple of hundred ms (script compile, meshes, materials).
 ## Pay it during the loading screen instead of when the horde appears.
+## Crates, barrels, sparks and shockwaves each pay a first-use cost. Build one of each behind the
+## loading screen so the road never stutters when they first appear.
+func _warm_props() -> void:
+	var warm: Array = []
+	var c = WeaponCrateScript.new()
+	c.position = Vector3(0.0, -80.0, -600.0)
+	add_child(c); c.setup("SMG", 3); warm.append(c)
+	var b = BarrelScript.new()
+	b.position = Vector3(0.0, -80.0, -600.0)
+	add_child(b); warm.append(b)
+	var spark = EffectScript.new()
+	spark.position = Vector3(0.0, -80.0, -600.0)
+	add_child(spark); spark.make_spark(Color("ffb14d"), 0.05); warm.append(spark)
+	var blast = EffectScript.new()
+	blast.position = Vector3(0.0, -80.0, -600.0)
+	add_child(blast); blast.make_blast(Color("8a7f68"), 0.08, true); warm.append(blast)
+	await get_tree().process_frame
+	for n in warm:
+		if is_instance_valid(n):
+			n.queue_free()
+
+
 func _warm_zombie() -> void:
 	var warm: Array = []
 	for kind in ["walker", "runner", "jockey", "brute", "banshee", "bomber", "spitter"]:
@@ -1499,6 +1521,7 @@ func _finish_loading() -> void:
 	if state!="loading": return
 	_teardown_warmup()
 	_warm_zombie()
+	_warm_props()
 	var target:=loading_target
 	if target=="run" and roads.size()<ROAD_COUNT:
 		_build_road()
