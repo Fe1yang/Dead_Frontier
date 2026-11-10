@@ -22,22 +22,36 @@ func make_text(text: String,color: Color) -> void:
 	label.text=text; label.font_size=52; label.pixel_size=0.009; label.outline_size=10
 	label.modulate=color; visual=label
 
+## Shared materials for sparks and droplets, keyed by mode and colour: these modes only change
+## scale after setup, so one material per colour is safe and saves a shader compile each.
+static var _static_cache:={}
+
+
+func _shared_material(mode_key: String, color: Color) -> StandardMaterial3D:
+	var key: String = "%s|%d" % [mode_key, color.to_rgba32()]
+	var mat: StandardMaterial3D = _static_cache.get(key, null) as StandardMaterial3D
+	if mat == null:
+		mat = StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.albedo_color = color
+		_static_cache[key] = mat
+	return mat
+
+
 func make_spark(color: Color,size: float) -> void:
 	mode="spark"
 	if visual==null:
 		var n:=MeshInstance3D.new(); var mesh:=SphereMesh.new(); mesh.radius=size; mesh.height=size*2; n.mesh=mesh
-		effect_material=StandardMaterial3D.new(); effect_material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+		effect_material=_shared_material("spark", color)
 		n.material_override=effect_material; add_child(n); visual=n
-	effect_material.albedo_color=color
 
 func make_drop(color: Color,size: float) -> void:
 	mode="drop"
 	if visual==null:
 		var n:=MeshInstance3D.new(); var mesh:=SphereMesh.new(); mesh.radius=size; mesh.height=size*2.4
 		mesh.radial_segments=8; mesh.rings=4; n.mesh=mesh
-		effect_material=StandardMaterial3D.new(); effect_material.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
+		effect_material=_shared_material("drop", color)
 		n.material_override=effect_material; add_child(n); visual=n
-	effect_material.albedo_color=color
 	if velocity.length()>0.01: visual.look_at(global_position+velocity.normalized(),Vector3.UP)
 
 func make_shockwave(color: Color,size: float) -> void:

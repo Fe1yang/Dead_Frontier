@@ -1288,6 +1288,7 @@ func _warm_up_begin() -> void:
 	warmup_queue.append("crate")
 	warmup_queue.append("barrel")
 	warmup_queue.append("effects")
+	warmup_queue.append("gate")
 
 ## Builds one queue item; the viewport keeps drawing it for a frame, which is what
 ## compiles the pipeline. Freed as soon as the queue is empty.
@@ -1311,6 +1312,22 @@ func _warm_up_tick() -> void:
 				3: fx.make_shockwave(Color("ffd27a"),0.4)
 				_: fx.make_text("0",Color.WHITE)
 			fx.position=Vector3(-1.2+0.6*float(k),0.6,0.0)
+		return
+	if item=="gate":
+		var gids: Array = []
+		for id in BuffCatalog.BUFFS.keys():
+			gids.append(id)
+		var k2 := 0
+		while k2 < gids.size():
+			var opts: Array = []
+			for id2 in gids.slice(k2, mini(k2 + 3, gids.size())):
+				opts.append(_gate_option(String(id2), 3))
+			var gw: Node3D = GateScript.new()
+			gw.position = Vector3(0, 0, -2.0 - 0.5 * float(k2))
+			warmup_root.add_child(gw)
+			if gw.has_method("setup"):
+				gw.setup(opts, language_code)
+			k2 += 3
 		return
 	var n: Node3D=null
 	if item.begins_with("zombie:"):
@@ -1384,9 +1401,40 @@ func _warm_chaser() -> void:
 	chaser_pooled.position = Vector3(0, -80, 0)
 
 
+## Gates are built from scratch every time one appears: meshes, Label3D and the font atlas all
+## cost their first-use work on that frame. Build a few during loading, covering every rarity the
+## gate can show, then throw them away. The real gates find warm caches.
+## Gates are assembled on the frame they appear, and the expensive part turned out to be the
+## Label3D text: every new string grows the font atlas and re-uploads it. Build two gates here
+## using the REAL buff ids and texts for the current language, so every glyph is already baked.
+func _warm_gates() -> void:
+	var ids: Array = []
+	for id in BuffCatalog.BUFFS.keys():
+		ids.append(id)
+	if ids.is_empty():
+		return
+	var chunks: Array = []
+	var i := 0
+	while i < ids.size():
+		chunks.append(ids.slice(i, mini(i + 3, ids.size())))
+		i += 3
+	for chunk in chunks:
+		var opts: Array = []
+		for id in chunk:
+			opts.append(_gate_option(String(id), 3))
+		var g: Node3D = GateScript.new()
+		g.position = Vector3(0, -60, 0)
+		add_child(g)
+		if g.has_method("setup"):
+			g.setup(opts, language_code)
+		g.visible = false
+		g.queue_free()
+
+
 func _finish_loading() -> void:
 	_warm_drop_pool()
 	_warm_chaser()
+	_warm_gates()
 	if state!="loading": return
 	_teardown_warmup()
 	var target:=loading_target

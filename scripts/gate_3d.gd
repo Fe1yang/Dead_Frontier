@@ -66,26 +66,70 @@ func setup(opts: Array,language_code:="en") -> void:
 		_make_option(opts[i],-ROAD_HALF+width*(i+0.5),i,width,n)
 	for i in range(n+1): _post(-ROAD_HALF+width*i)
 
+## Materials are shared by colour and blend: the gate's look never changes at runtime.
+static var _shared:={}
+## Shared mesh resources. Building a gate used to allocate ~17 new meshes, and every new mesh is
+## uploaded to the GPU on first use, which is what the gate frame cost.
+static var _mesh_cache:={}
+
+
+static func _box_mesh(size: Vector3) -> BoxMesh:
+	var key := "b|%.2f|%.2f|%.2f" % [size.x, size.y, size.z]
+	var m: BoxMesh = _mesh_cache.get(key, null) as BoxMesh
+	if m == null:
+		m = BoxMesh.new(); m.size = size; _mesh_cache[key] = m
+	return m
+
+
+static func _cyl_mesh(top_r: float, bottom_r: float, h: float) -> CylinderMesh:
+	var key := "c|%.2f|%.2f|%.2f" % [top_r, bottom_r, h]
+	var m: CylinderMesh = _mesh_cache.get(key, null) as CylinderMesh
+	if m == null:
+		m = CylinderMesh.new(); m.top_radius = top_r; m.bottom_radius = bottom_r; m.height = h
+		_mesh_cache[key] = m
+	return m
+
+
+static func _sphere_mesh(r: float, h: float, segs := 0, rings := 0) -> SphereMesh:
+	var key := "s|%.2f|%.2f|%d|%d" % [r, h, segs, rings]
+	var m: SphereMesh = _mesh_cache.get(key, null) as SphereMesh
+	if m == null:
+		m = SphereMesh.new(); m.radius = r; m.height = h
+		if segs > 0: m.radial_segments = segs
+		if rings > 0: m.rings = rings
+		_mesh_cache[key] = m
+	return m
+
+
 func _unshaded(color: Color,add:=false) -> StandardMaterial3D:
+	var key := "u|%d|%s" % [color.to_rgba32(), str(add)]
+	var cached: StandardMaterial3D = _shared.get(key, null) as StandardMaterial3D
+	if cached != null:
+		return cached
 	var m:=StandardMaterial3D.new(); m.albedo_color=color
 	m.shading_mode=BaseMaterial3D.SHADING_MODE_UNSHADED
 	m.transparency=BaseMaterial3D.TRANSPARENCY_ALPHA
 	m.cull_mode=BaseMaterial3D.CULL_DISABLED
 	if add: m.blend_mode=BaseMaterial3D.BLEND_MODE_ADD
+	_shared[key] = m
 	return m
 
 func _box(parent: Node3D,pos:Vector3,size:Vector3,mat: Material) -> MeshInstance3D:
-	var n:=MeshInstance3D.new(); var mesh:=BoxMesh.new(); mesh.size=size; n.mesh=mesh
+	var n:=MeshInstance3D.new(); n.mesh=_box_mesh(size)
 	n.position=pos; n.material_override=mat; parent.add_child(n); return n
 
 func _post(x: float) -> void:
-	var post_mat:=StandardMaterial3D.new(); post_mat.albedo_color=Color("2f3436"); post_mat.roughness=0.5; post_mat.metallic=0.5
-	var n:=MeshInstance3D.new(); var c:=CylinderMesh.new(); c.top_radius=0.09; c.bottom_radius=0.11; c.height=POST_HEIGHT
-	n.mesh=c; n.position=Vector3(x,POST_HEIGHT*0.5,0); n.material_override=post_mat; add_child(n)
-	var cap:=MeshInstance3D.new(); var s:=SphereMesh.new(); s.radius=0.13; s.height=0.26; cap.mesh=s
+	var post_mat: StandardMaterial3D = _shared.get("post", null) as StandardMaterial3D
+	if post_mat == null:
+		post_mat = StandardMaterial3D.new()
+		post_mat.albedo_color = Color("2f3436"); post_mat.roughness = 0.5; post_mat.metallic = 0.5
+		_shared["post"] = post_mat
+	var n:=MeshInstance3D.new(); n.mesh=_cyl_mesh(0.09, 0.11, POST_HEIGHT)
+	n.position=Vector3(x,POST_HEIGHT*0.5,0); n.material_override=post_mat; add_child(n)
+	var cap:=MeshInstance3D.new(); cap.mesh=_sphere_mesh(0.13, 0.26)
 	cap.position=Vector3(x,POST_HEIGHT,0); cap.material_override=post_mat; add_child(cap)
-	var foot:=MeshInstance3D.new(); var f:=CylinderMesh.new(); f.top_radius=0.16; f.bottom_radius=0.2; f.height=0.1
-	foot.mesh=f; foot.position=Vector3(x,0.05,0); foot.material_override=post_mat; add_child(foot)
+	var foot:=MeshInstance3D.new(); foot.mesh=_cyl_mesh(0.16, 0.2, 0.1)
+	foot.position=Vector3(x,0.05,0); foot.material_override=post_mat; add_child(foot)
 
 func _label(parent: Node3D,text: String,pos: Vector3,size: int,pixel: float,max_w: float,col: Color,outline: Color) -> Label3D:
 	var l:=Label3D.new(); l.text=text; l.font=_font()
@@ -124,7 +168,7 @@ func _make_option(option: Dictionary,x: float,index: int,slot: float,count: int)
 		sparks.emission_shape=CPUParticles3D.EMISSION_SHAPE_BOX; sparks.emission_box_extents=Vector3(width*0.45,0.1,0.1)
 		sparks.direction=Vector3.UP; sparks.spread=12.0; sparks.initial_velocity_min=0.8; sparks.initial_velocity_max=1.6
 		sparks.gravity=Vector3.ZERO; sparks.scale_amount_min=0.04; sparks.scale_amount_max=0.08
-		var spark_mesh:=SphereMesh.new(); spark_mesh.radius=0.5; spark_mesh.height=1.0; spark_mesh.radial_segments=6; spark_mesh.rings=3
+		var spark_mesh := _sphere_mesh(0.5, 1.0, 6, 3)
 		spark_mesh.material=_unshaded(Color(1.0,0.92,0.6,0.95),true); sparks.mesh=spark_mesh
 		sparks.position=Vector3(0,PANEL_BOTTOM+0.1,0.1); half.add_child(sparks)
 	# Lettering: the effect huge, the name smaller above it; rarity tag on top of the frame.
