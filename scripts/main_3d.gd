@@ -1475,12 +1475,30 @@ func _warm_gates() -> void:
 		g.queue_free()
 
 
+## The first zombie of each kind costs a couple of hundred ms (script compile, meshes, materials).
+## Pay it during the loading screen instead of when the horde appears.
+func _warm_zombie() -> void:
+	var warm: Array = []
+	for kind in ["walker", "runner", "jockey", "brute", "banshee", "bomber", "spitter"]:
+		for i in 2:
+			var z = ZombieScript.new()
+			z.position = Vector3(0.0, -60.0, -600.0)
+			add_child(z)
+			z.configure(kind, 1.0)
+			warm.append(z)
+	await get_tree().process_frame
+	for z in warm:
+		if is_instance_valid(z):
+			z.queue_free()
+
+
 func _finish_loading() -> void:
 	_warm_drop_pool()
 	_warm_chaser()
 	_warm_gates()
 	if state!="loading": return
 	_teardown_warmup()
+	_warm_zombie()
 	var target:=loading_target
 	if target=="run" and roads.size()<ROAD_COUNT:
 		_build_road()
