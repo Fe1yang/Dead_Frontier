@@ -109,7 +109,12 @@ func _ready() -> void:
 	clean.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(clean); clean.draw.connect(_draw_clean)
 	portraits=[load("res://assets/ui/male_hd_portrait.png"),load("res://assets/ui/riley_hd_portrait.png"),load("res://assets/ui/medic_hd_portrait.png"),load("res://assets/ui/maya_hd_portrait.png")]
-	pet_portraits=[load("res://assets/ui/pets/doberman.png"),load("res://assets/ui/pets/german_shepherd.png"),load("res://assets/ui/pets/czech_wolfdog.png"),load("res://assets/ui/pets/tibetan_mastiff.png"),load("res://assets/ui/pets/white_tiger.png"),load("res://assets/ui/pets/lion.png")]
+	# Built from the pet table so adding a breed cannot leave the portraits one slot behind.
+	pet_portraits=[]
+	for _p in preload("res://scripts/lobby_scene_3d.gd").PETS:
+		var _file: String = String(_p.asset).get_file().get_basename()
+		var _path: String = "res://assets/ui/pets/%s.png" % _file
+		pet_portraits.append(load(_path) if ResourceLoader.exists(_path) else null)
 	airdrop_tex=load("res://assets/ui/airdrop.png") if ResourceLoader.exists("res://assets/ui/airdrop.png") else null
 	can_tex=load("res://assets/ui/currency/can.png")
 	coin_tex=load("res://assets/ui/currency/coin.png"); voucher_tex=load("res://assets/ui/currency/voucher.png")
@@ -584,11 +589,21 @@ func _draw_lootbox() -> void:
 	elif game.lootbox_scene.opening:
 		_text_center(ShopText.text(lang,"case_opening"),Vector2(270,756),21,WHITE)
 	else:
-		_text_center(ShopText.text(lang,"case_hint"),Vector2(270,752),16,MUTED)
+		_text_center(ShopText.text(lang,"case_hint"),Vector2(270,722),15,MUTED)
 	if not game.lootbox_message.is_empty(): _text_center(game.lootbox_message,Vector2(270,786),14,Color("ef9b82"))
 	var action: String=ShopText.text(lang,"case_again" if game.lootbox_scene.revealed else "case_open")
-	_button(game.LOOTBOX_GOLD_RECT,action+"  ·  %d %s"%[game.LOOTBOX_COST,ShopText.text(lang,"coins")],game.bank_coins>=game.LOOTBOX_COST)
+	_button(game.LOOTBOX_GOLD_RECT,action+"  ·  %d %s"%[game.LOOTBOX_COST,StoreCatalog.text(lang,"silver")],game.bank_silver>=game.LOOTBOX_COST)
 	_button(game.LOOTBOX_VOUCHER_RECT,action+"  ·  1 %s"%ShopText.text(lang,"voucher"),game.bank_vouchers>=1)
+	# free open by ad: five a day
+	# free open by ad: five a day, painted in the ad yellow
+	var left: int = game.lootbox_ads_left()
+	var ar: Rect2 = game.LOOTBOX_AD_RECT
+	var on: bool = left > 0
+	_box(ar, Color(0.98, 0.78, 0.10) if on else Color(0.16, 0.15, 0.11, 0.95))
+	_box(Rect2(ar.position, Vector2(64.0, ar.size.y)), Color(0.86, 0.62, 0.04) if on else Color(0.24, 0.21, 0.14))
+	_bold_text("AD", Vector2(ar.position.x + 22.0, ar.get_center().y + 7.0), 19, Color(0.12, 0.10, 0.06) if on else Color(0.55, 0.52, 0.45))
+	var lbl: String = ("\u770b\u5e7f\u544a\u5f00\u7bb1  %d/%d" % [left, game.LOOTBOX_AD_DAILY]) if String(lang).begins_with("zh") else ("AD OPEN  %d/%d" % [left, game.LOOTBOX_AD_DAILY])
+	_bold_text(lbl, Vector2(ar.position.x + 78.0, ar.get_center().y + 8.0), 19, Color(0.10, 0.08, 0.04) if on else Color(0.58, 0.55, 0.48))
 	_text_center("%s: %s  ·  %s: %d" % [ShopText.text(lang,"case_balance"),str(game.bank_coins),ShopText.text(lang,"voucher"),game.bank_vouchers],Vector2(270,889),16,GOLD)
 
 func _draw_map() -> void:
@@ -676,7 +691,11 @@ func _draw_equip_menu() -> void:
 		var equipped_now: bool = int(game.equip_menu_index) == (game.character_choice if int(game.equip_menu_tab)==0 else -1)
 		_panel(er, Color(0.03,0.034,0.038,1.0), RED if equipped_now else Color(0.72,0.74,0.75,1.0), 2)
 		var etxt: String = ShopText.text(game.language_code, "char_equipped" if equipped_now else "btn_equip")
-		_clean_center(bold,Vector2(er.get_center().x,er.position.y+34),etxt,20,WHITE)
+		_clean_center(bold,Vector2(er.get_center().x,er.position.y+26),etxt,18,WHITE)
+		# second row: take it off entirely
+		var ur: Rect2 = game.equip_menu_unequip_rect()
+		_panel(ur, Color(0.10,0.10,0.11,1.0), Color(0.55,0.55,0.58,0.9), 1)
+		_clean_center(bold, Vector2(ur.get_center().x, ur.position.y + 24), "卸下" if String(game.language_code).begins_with("zh") else "REMOVE", 16, Color(0.88,0.88,0.9))
 
 
 ## F3 overlay: frames per second, the worst frame of the last second, and the live object counts.
@@ -705,27 +724,27 @@ func _draw_character_select() -> void:
 	draw_rect(Rect2(0,game.LOBBY_BAND_TOP,540,game.ui_h-game.LOBBY_BAND_TOP),Color(0.015,0.018,0.019,0.82))
 	_wallet(game.WALLET_LOBBY,true,game.LOBBY_WALLET_SCALE)
 	_energy_refill_timer(game.WALLET_LOBBY,game.LOBBY_WALLET_SCALE)
-	if game.offer_active() and game.state=="character_select": _offer_badge(game.OFFER_BADGE)
+	if game.offer_active() and game.state=="character_select" and not game.premium_build(): _offer_badge(game.OFFER_BADGE)
 	if game.state=="character_select":
 		_side_button(game.SIDE_SIGNIN,"signin",ProgressCatalog.text(lang,"signin"),game.signin_available())
 		_side_button(game.SIDE_TASKS,"tasks",ProgressCatalog.text(lang,"tasks"),game.missions_ready_count()>0)
 		_side_button(game.SIDE_SHOP,"shop",game.localize("shop"),false)
-		_side_button(game.SIDE_STORE,"store",StoreCatalog.text(lang,"store"),false)
-		_side_button(game.SIDE_MAIL,"mail",ExtraText.text(lang,"mail"),game.mail_unclaimed()>0)
+		if not game.premium_build():
+			_side_button(game.SIDE_STORE,"store",StoreCatalog.text(lang,"store"),false)
+		# no store in this build: the mail button takes its place in the rail
+		_side_button(game.SIDE_STORE if game.premium_build() else game.SIDE_MAIL,"mail",ExtraText.text(lang,"mail"),game.mail_unclaimed()>0)
 		_side_button(game.SIDE_BAG,"bag",ExtraText.text(lang,"bag"),false)
 		_side_button(game.SIDE_MAP,"map",ExtraText.text(lang,"map"),false)
-		_airdrop_button(lang)
+		if not game.premium_build():
+			_airdrop_button(lang)
 	for t in [0, 1, 3, 4]:
 		var tab: Rect2=game.lobby_tab_rect(t); var tab_on: bool=game.lobby_tab==t
+		if tab_on: _blood_banner(tab)
 		var tlabel: String = "载具" if t==3 else ("武器" if t==4 else ShopText.text(lang,"chars" if t==0 else "pets"))
-		_text_center(tlabel,Vector2(tab.get_center().x,tab.end.y-12),14,WHITE if tab_on else MUTED)
-	# Equip toggle per tab: survivor loadout, pet and vehicle each get their own switch.
-	if game.lobby_tab==0:
-		_lobby_settings_gear(game.LOBBY_GEAR)
-	elif game.lobby_tab==1:
-		_gear_button(game.LOBBY_GEAR_PET, game.pet_equipped)
-	elif game.lobby_tab==3:
-		_gear_button(game.LOBBY_GEAR_VEHICLE, game.vehicle_equipped)
+		_text_center(tlabel,Vector2(tab.get_center().x,tab.end.y-12),15,C_BONE if tab_on else MUTED)
+	# The settings gear lives in the same corner on every tab, always white. Equipping happens
+	# on the cards themselves, so the per-tab gear toggles are gone.
+	_lobby_settings_gear(game.LOBBY_GEAR)
 	# Perk tag for the selected survivor, right of the tabs (only Darius has one for now).
 	if game.lobby_tab==0 and game.character_choice<game.lobby.CHARACTERS.size():
 		var perk_key: String=String(game.lobby.CHARACTERS[game.character_choice].get("perk",""))
@@ -758,12 +777,21 @@ func _draw_character_select() -> void:
 					_info_tip(mpl,RunText.text(String(sk4.get("name","")),lang),game.character_name(int(sk4.get("char",-1))),
 						ExtraText.text(lang,"skin_locked"))
 				elif game.lobby_tab==1 and ci<game.lobby.PETS.size():
-					_info_tip(mpl,game.pet_name(ci),ShopText.text(lang,"pets"),ExtraText.text(lang,"pet_locked"))
+					var psub := ExtraText.text(lang,"pet_locked")
+					if game.premium_build():
+						psub = ("已拥有" if String(lang).begins_with("zh") else "OWNED") if game.pet_owned(ci) else ("%d %s" % [int(game.pack_by_id("pet_%d" % ci).get("coins",0)), "金币" if String(lang).begins_with("zh") else "coins"])
+					_info_tip(mpl,game.pet_name(ci),ShopText.text(lang,"pets"), psub)
 				elif game.lobby_tab==0 and ci<game.lobby.CHARACTERS.size():
 					var ch: Dictionary=game.lobby.CHARACTERS[ci]
 					var perk2: String=String(ch.get("perk",""))
-					_info_tip(mpl,game.character_name(ci),ShopText.text(lang,"chars"),
-						RunText.text(perk2,lang) if perk2!="" else ExtraText.text(lang,"char_locked"))
+					var sub: String = RunText.text(perk2 if perk2!="" else "perk_mason", lang)
+					if game.premium_build():
+						# ability first, then what it costs (or that you own it)
+						if game.character_owned(ci):
+							sub += "   ·   " + ("已拥有" if String(lang).begins_with("zh") else "OWNED")
+						else:
+							sub += "   ·   " + game.card_price_text(0, ci)
+					_info_tip(mpl,game.character_name(ci),ShopText.text(lang,"chars"), sub)
 				break
 	for side in [-1,1]:
 		if not game.lobby_page_visible(side): continue
@@ -782,15 +810,16 @@ func _draw_character_select() -> void:
 		_text_center(tt,Vector2(270,630),16,Color(1,1,1,a))
 	var can_start: bool=game.stamina.value>=game.stamina.RUN_COST
 	_button(game.LOBBY_START,game.localize("start")+"   ›",can_start)
-	# Cost ON the red START button (right side, same size as wallet can above): can-icon + "-10".
-	var cost_txt: String="-%d"%game.stamina.RUN_COST
-	var ctw: float=bold.get_string_size(cost_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(19)).x
-	var icon_sz: float=34.0*game.LOBBY_WALLET_SCALE
-	var total_w: float=icon_sz+6+ctw
-	var cx0: float=game.LOBBY_START.end.x-14-total_w
-	var cy: float=game.LOBBY_START.get_center().y-icon_sz*0.5
-	clean_ops.append(["texture",can_tex,Rect2(cx0,cy,icon_sz,icon_sz)])
-	_clean_text(bold,Vector2(cx0+icon_sz+6,cy+icon_sz-5),cost_txt,19,WHITE)
+	# No cans in the buy-once build, so the start button carries no cost badge.
+	if not game.premium_build():
+		var cost_txt: String="-%d"%game.stamina.RUN_COST
+		var ctw: float=bold.get_string_size(cost_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(19)).x
+		var icon_sz: float=34.0*game.LOBBY_WALLET_SCALE
+		var total_w: float=icon_sz+6+ctw
+		var cx0: float=game.LOBBY_START.end.x-14-total_w
+		var cy: float=game.LOBBY_START.get_center().y-icon_sz*0.5
+		clean_ops.append(["texture",can_tex,Rect2(cx0,cy,icon_sz,icon_sz)])
+		_clean_text(bold,Vector2(cx0+icon_sz+6,cy+icon_sz-5),cost_txt,19,WHITE)
 	if not can_start and not game.ad_run_used:
 		var ad: Rect2=game.LOBBY_AD_RUN
 		_box(ad,Color("292316",0.98)); _frame(ad,Color(BRASS_LIGHT,0.85),1.0)
@@ -804,10 +833,35 @@ func _draw_character_select() -> void:
 	_draw_equip_menu()
 	_debug_fps()
 
+## The little status row under a card: the price while it is locked, "owned" once bought.
+func _card_buy_row(card: Rect2, tab: int, index: int, lang: String) -> void:
+	if not game.premium_build():
+		return
+	var row := Rect2(card.position.x - 4.0, card.end.y + 2.0, card.size.x + 8.0, 16.0)
+	if tab == 4:
+		row = Rect2(card.position.x - 4.0, card.end.y - 22.0, card.size.x + 8.0, 16.0)
+	var owned_now := false
+	match tab:
+		0: owned_now = game.character_owned(index)
+		1: owned_now = game.pet_owned(index)
+		3: owned_now = game.vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(index,0,6)]))
+		4: owned_now = game.flame_owned()
+	if owned_now:
+		_box(row, Color(0.03,0.032,0.035,0.92))
+		_text_center("已拥有" if String(lang).begins_with("zh") else "OWNED", row.get_center()+Vector2(0,4), 10, Color(C_BONE.r,C_BONE.g,C_BONE.b,0.55))
+	else:
+		var price: String = String(game.card_price_text(tab, index))
+		if price == "":
+			return
+		_box(row, Color(0.03,0.032,0.035,0.92)); _box(Rect2(row.position,Vector2(3,row.size.y)),C_BLOOD)
+		_text_center(price, row.get_center()+Vector2(0,4), 10, C_ACID)
+
+
 func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 	var vis:=card.intersection(view)
 	if vis.size.y<4.0 or vis.size.x<4.0: return
 	var whole: bool=vis.size.y>=card.size.y-0.5 and vis.size.x>=card.size.x-0.5
+	if whole: _brackets(card.grow(-1.0), 9.0, C_BONE, 2.0)
 	if game.lobby_tab==4:
 		# Flamethrower: a gold-framed card, because it is the one high-value weapon in the game.
 		var owned: bool=game.flame_owned()
@@ -822,9 +876,10 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 		if not owned and wvis.size.y>1.0:
 			_box(wvis,Color(0,0,0,0.55))
 		if whole:
-			_text_center("火焰喷射器" if String(lang).begins_with("zh") else "FLAMETHROWER",Vector2(card.get_center().x,card.end.y-9),13,gold)
+			_text_center("火焰喷射器" if String(lang).begins_with("zh") else "FLAMETHROWER",Vector2(card.get_center().x,card.end.y-34),13,gold)
 			if owned:
 				draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),gold)
+		_card_buy_row(card, 4, i, lang)
 		return
 
 	if game.lobby_tab==3:
@@ -854,6 +909,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 		if whole:
 			_text_center(StoreCatalog.text(lang,String(["bike","sport","cruiser","gold","tank","sedan","gold_car"][vi])),Vector2(card.get_center().x,card.end.y-9),12,WHITE if von else MUTED)
 			if von: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
+		_card_buy_row(card, 3, i, lang)
 		return
 	var pets: bool=game.lobby_tab==1
 	if game.lobby_tab==2:
@@ -914,6 +970,22 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 		var menu_open: bool = int(game.equip_menu_index)==i
 		if not menu_open:
 			_text_center(label,Vector2(card.get_center().x,card.end.y-9),11 if pets else 12,WHITE if on else MUTED)
+		if game.premium_build():
+			# a buy row under the name: "已拥有" when owned, price otherwise
+			var row := Rect2(card.position.x - 4.0, card.end.y + 2.0, card.size.x + 8.0, 22.0)
+			var owned_now := false
+			match game.lobby_tab:
+				0: owned_now = game.character_owned(i)
+				1: owned_now = game.pet_owned(i)
+				2: owned_now = game.skin_owned(i)
+				3: owned_now = game.vehicle_is_owned(String(["vehicle_bike","vehicle_sport","vehicle_car","vehicle_gold","vehicle_tank","vehicle_sedan","vehicle_gold_car"][clampi(i,0,6)]))
+				4: owned_now = game.flame_owned()
+			if owned_now:
+				_box(row, Color(0.03,0.032,0.035,0.92))
+				_text_center("已拥有" if String(lang).begins_with("zh") else "OWNED", row.get_center()+Vector2(0,5), 11, Color(C_BONE.r,C_BONE.g,C_BONE.b,0.55))
+			else:
+				_box(row, Color(0.03,0.032,0.035,0.92)); _box(Rect2(row.position,Vector2(3,row.size.y)),C_BLOOD)
+				_text_center(game.card_price_text(game.lobby_tab, i), row.get_center()+Vector2(0,5), 11, C_ACID)
 		if on: draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),Color("b94a43"))
 
 func _locked_slot(rect: Rect2,pet:=false,skin:=false) -> void:
@@ -1217,7 +1289,8 @@ func _ad_x2_button(r: Rect2,mode:="ready") -> void:
 	_clean_text(bold,Vector2(r.position.x+52,r.get_center().y+_scaled(size)*0.36),label,size,BRASS_LIGHT if not busy else MUTED,false)
 	var tag:=Rect2(r.end.x-30,r.position.y-9,34,20)
 	_box(tag,INK_DARK)
-	_clean_center(bold,Vector2(tag.get_center().x,tag.get_center().y+5),"AD",13,BRASS_LIGHT)
+	var aw3: float = bold.get_string_size("AD",HORIZONTAL_ALIGNMENT_LEFT,-1,13).x
+	_clean_text(bold,Vector2(tag.get_center().x-aw3*0.5,tag.get_center().y+4),"AD",13,BRASS_LIGHT,false)
 
 func _swap_ad_button(r: Rect2,busy:=false) -> void:
 	_box(r,Color(1,1,1,0.10) if not busy else Color(1,1,1,0.04))
@@ -1233,7 +1306,9 @@ func _swap_ad_button(r: Rect2,busy:=false) -> void:
 	clean_ops.append(["poly",PackedVector2Array([tip+Vector2(-1,-7),tip+Vector2(8,1),tip+Vector2(-3,6)]),col])
 	var tag:=Rect2(r.end.x-22,r.position.y-8,26,16)
 	_box(tag,HILITE)
-	_clean_center(bold,Vector2(tag.get_center().x,tag.get_center().y+5),"AD",11,INK_DARK)
+	# plain text, no shadow: at 11 px the offset copy read as a double "AD"
+	var aw2: float = bold.get_string_size("AD",HORIZONTAL_ALIGNMENT_LEFT,-1,11).x
+	_clean_text(bold,Vector2(tag.get_center().x-aw2*0.5,tag.get_center().y+4),"AD",11,INK_DARK,false)
 
 ## Quiet secondary button: dark fill, thin light top edge, white label.
 func _plain_button(r: Rect2,label: String) -> void:
@@ -1286,14 +1361,20 @@ func _brush_underline(rect: Rect2,color:=PAINT_RED) -> void:
 
 func _panel(rect: Rect2,bg: Color,border: Color,radius: int) -> void:
 	# Clean charcoal plates with hairline separators. No repeated brush texture on every panel.
-	_box(rect,bg)
+	_box(rect,C_PLATE if bg.a>0.5 else bg)
 	var edge: Color=Color(1,1,1,0.12)
 	if border.is_equal_approx(RED) or border.is_equal_approx(PAINT_RED):
 		edge=Color("b84a43",0.85)
 	elif border.a>0.05 and not border.is_equal_approx(LINE):
 		edge=Color(border,0.48)
 	_frame(rect,edge,1.0)
-	_box(Rect2(rect.position,Vector2(rect.size.x,1)),Color(1,1,1,0.08))
+	# Dead Island 2 plate dressing: a bone hairline along the top and a short red rule at the
+	# left corner, so every panel reads as the same piece of kit.
+	_box(Rect2(rect.position,Vector2(rect.size.x,1)),Color(C_BONE,0.10))
+	if rect.size.x >= 320.0:
+		# corner rules only on dialogs: on a card they read as stubby half lines
+		_box(Rect2(rect.position,Vector2(64,3)),C_BLOOD)
+		_box(Rect2(rect.position+Vector2(rect.size.x-64,0),Vector2(64,3)),C_ACID)
 
 func _text(value: String,pos: Vector2,size: int,color: Color) -> void:
 	size=maxi(size,12); _string(font,pos,value,size,color)
@@ -1353,6 +1434,26 @@ func _clean_center(f: Font,center: Vector2,value: String,size: int,color: Color,
 	_clean_text(f,Vector2(center.x-w/2,center.y),value,size,color,shadow)
 
 ## Flat fill (only for full-screen dimming and scroll masks).
+## Dead Island 2 style palette: bone white text, blood red for the selection, acid yellow for
+## currency, near-black plates with a hairline edge.
+const C_BONE := Color(0.96, 0.94, 0.88)
+const C_BLOOD := Color(0.72, 0.10, 0.12)
+const C_ACID := Color(0.95, 0.72, 0.02)
+const C_TEAL := Color(0.36, 0.62, 0.64)
+const C_PLATE := Color(0.028, 0.030, 0.033, 0.88)
+
+
+## A red painted banner behind the selected row, with a skewed end so it reads as a brush stroke.
+func _blood_banner(r: Rect2) -> void:
+	# A flat red slab with one square cut on the left: the skewed polygon version came out as a
+	# hard-edged, jagged diamond.
+	var slab := Rect2(r.position.x - 10.0, r.position.y + 2.0, r.size.x + 18.0, r.size.y - 4.0)
+	_box(slab, C_BLOOD)
+	# a slightly darker wedge on the left edge so it does not read as a plain rectangle
+	_box(Rect2(slab.position.x, slab.position.y, 5.0, slab.size.y), Color(0.48, 0.05, 0.06))
+	# crisp bottom rule
+	_box(Rect2(slab.position.x, slab.end.y - 2.0, slab.size.x, 2.0), Color(0.95, 0.24, 0.22))
+
 func _box(rect: Rect2,bg: Color,border:=Color(0,0,0,0),width:=0,radius:=0) -> void:
 	var sb:=StyleBoxFlat.new(); sb.bg_color=bg; sb.set_corner_radius_all(radius)
 	if width>0: sb.border_color=border; sb.set_border_width_all(width)
@@ -1382,12 +1483,48 @@ func _tag(pos: Vector2,label: String,bg:=PAINT_RED,fg:=WHITE,size:=15) -> Rect2:
 	_clean_text(bold,r.position+Vector2(12,r.size.y-7),label,size,fg,false)
 	return r
 
+## Four L-shaped corner ticks. The cheapest way to make a plain rectangle read as game UI.
+func _brackets(r: Rect2, arm := 10.0, col := C_BONE, w := 2.0) -> void:
+	var a := arm
+	var c := Color(col.r, col.g, col.b, 0.85)
+	clean_ops.append(["line", PackedVector2Array([r.position, r.position + Vector2(a, 0)]), c, w])
+	clean_ops.append(["line", PackedVector2Array([r.position, r.position + Vector2(0, a)]), c, w])
+	clean_ops.append(["line", PackedVector2Array([Vector2(r.end.x, r.position.y), Vector2(r.end.x - a, r.position.y)]), c, w])
+	clean_ops.append(["line", PackedVector2Array([Vector2(r.end.x, r.position.y), Vector2(r.end.x, r.position.y + a)]), c, w])
+	clean_ops.append(["line", PackedVector2Array([Vector2(r.position.x, r.end.y), Vector2(r.position.x + a, r.end.y)]), c, w])
+	clean_ops.append(["line", PackedVector2Array([Vector2(r.position.x, r.end.y), Vector2(r.position.x, r.end.y - a)]), c, w])
+	clean_ops.append(["line", PackedVector2Array([r.end, r.end - Vector2(a, 0)]), c, w])
+	clean_ops.append(["line", PackedVector2Array([r.end, r.end - Vector2(0, a)]), c, w])
+
+
+## Draws a label with extra letter spacing. Godot has no tracking property, so each glyph is
+## placed by hand: that wide condensed look is most of the reference UI's character.
+func _tracked_text(fnt: Font, pos: Vector2, text: String, size: int, col: Color, spacing := 1.0) -> void:
+	var x := pos.x
+	var sc := _scaled(size)
+	for i in range(text.length()):
+		var ch := text.substr(i, 1)
+		clean_ops.append(["text", fnt, Vector2(x, pos.y), ch, sc, col])
+		x += fnt.get_string_size(ch, HORIZONTAL_ALIGNMENT_LEFT, -1, sc).x + spacing
+
+
+func _tracked_width(fnt: Font, text: String, size: int, spacing := 1.0) -> float:
+	var w := 0.0
+	var sc := _scaled(size)
+	for i in range(text.length()):
+		w += fnt.get_string_size(text.substr(i, 1), HORIZONTAL_ALIGNMENT_LEFT, -1, sc).x + spacing
+	return w
+
+
 func _section(pos: Vector2,label: String,size:=22) -> void:
 	var t:=label.to_upper()
-	var w:=bold.get_string_size(t,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(size)).x
+	var spacing:=1.2
+	var w:=_tracked_width(bold,t,size,spacing)
 	if pos.x<0: pos.x=270.0-w/2.0
-	_clean_text(bold,pos,t,size,WHITE,false)
-	_box(Rect2(pos.x,pos.y+8,w,3),PAINT_RED)
+	# Title sits inside the panel, bone white with a short red underline. The red plate version
+	# spilled past the panel edge and read as a label glued on top.
+	_tracked_text(bold,pos,t,size,C_BONE,spacing)
+	_box(Rect2(pos.x, pos.y + 7.0, w, 3.0), C_BLOOD)
 
 func _ghost_button(rect: Rect2,label: String,col:=WHITE) -> void:
 	_box(rect,Color("111516",0.82))
@@ -1428,15 +1565,20 @@ func _wallet(origin: Vector2,plus:=true,k:=1.0) -> void:
 	var ts:=int(round(24*k))
 	game.wallet_text_w=Vector4(bold.get_string_size(cans,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(coins,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(silver,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(vouchers,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x)
 	var w: Dictionary=game.wallet_layout(origin,k)
-	clean_ops.append(["texture",can_tex,w.can_icon])
-	_clean_text(bold,w.can_text,cans,ts,WHITE)
+	if w.has("can_icon"):
+		clean_ops.append(["texture",can_tex,w.can_icon])
+		_clean_text(bold,w.can_text,cans,ts,WHITE)
 	clean_ops.append(["texture",silver_tex,w.coin_icon])
-	_clean_text(bold,w.coin_text,silver,ts,Color(0.85,0.90,1.0))
+	_clean_text(bold,w.coin_text,silver,ts,Color(0.66,0.70,0.74))
 	clean_ops.append(["texture",coin_tex,w.silver_icon])
 	_clean_text(bold,w.silver_text,coins,ts,GOLD)
 	clean_ops.append(["texture",voucher_tex,w.v_icon])
 	_clean_text(bold,w.v_text,vouchers,ts,VOUCHER_COL)
-	if plus: _plus_button(w.can_plus); _plus_button(w.coin_plus); _plus_button(w.silver_plus); _plus_button(w.v_plus)
+	if plus:
+		if w.has("can_plus"): _plus_button(w.can_plus)
+		if w.has("coin_plus"): _plus_button(w.coin_plus)
+		if w.has("silver_plus"): _plus_button(w.silver_plus)
+		if w.has("v_plus"): _plus_button(w.v_plus)
 
 ## Shop ONLY: silver + gold (fits left of the shop button, nothing clips).
 func _wallet_shop_only(origin: Vector2,plus:=true,k:=1.0) -> void:
@@ -1446,7 +1588,7 @@ func _wallet_shop_only(origin: Vector2,plus:=true,k:=1.0) -> void:
 	game.wallet_text_w=Vector4(bold.get_string_size(silver,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,bold.get_string_size(coins,HORIZONTAL_ALIGNMENT_LEFT,-1,_scaled(ts)).x,0,0)
 	var w: Dictionary=game.wallet_layout_shop(origin,k)
 	clean_ops.append(["texture",silver_tex,w.coin_icon])
-	_clean_text(bold,w.coin_text,silver,ts,Color(0.85,0.90,1.0))
+	_clean_text(bold,w.coin_text,silver,ts,Color(0.66,0.70,0.74))
 	clean_ops.append(["texture",coin_tex,w.silver_icon])
 	_clean_text(bold,w.silver_text,coins,ts,GOLD)
 	if plus: _plus_button(w.coin_plus); _plus_button(w.silver_plus)
@@ -1950,6 +2092,11 @@ func _red_dot(pos: Vector2) -> void:
 
 ## Lobby side buttons: just a white line icon and a small label, no frame, no shadow.
 func _side_button(r: Rect2,icon: String,label: String,dot: bool) -> void:
+	# Dark chip behind every rail button: on the pale safehouse wall the white line icons were
+	# unreadable, and the reference UI always sits icons on a plate.
+	_box(r.grow(-1), Color(0.020, 0.022, 0.025, 0.72))
+	_frame(r.grow(-1), Color(C_BONE, 0.12), 1.0)
+	_box(Rect2(r.position.x, r.position.y, r.size.x, 2), C_BLOOD)
 	var c:=r.position+Vector2(r.size.x/2,30)
 	var ic: Color=WHITE
 	var ac: Color=HILITE if dot else WHITE
@@ -2193,44 +2340,99 @@ func _draw_signin() -> void:
 	var t: float=Time.get_ticks_msec()/1000.0
 	_box(Rect2(0,0,540,game.ui_h),Color(0,0,0,0.60))
 	var p: Rect2=game.SIGNIN_PANEL
-	# A military supply drop, not a casino card: one dark plate, stencil day numbers, and a
-	# brass frame on the day-7 crate — the only tile allowed to look special.
 	_box(p,Color(0.045,0.05,0.052,0.95))
 	_frame(p,Color(1,1,1,0.12),1.0)
 	_section(Vector2(-1,p.position.y+16),ProgressCatalog.text(lang,"signin"),24)
-	_clean_center(font,Vector2(270,p.position.y+66),"SUPPLY CACHE · 7 DAYS",11,MUTED)
+	# week / month switch, centred under the title
+	for ti in range(2):
+		var tr: Rect2 = game.signin_tab_rect(ti)
+		var on: bool = (game.signin_monthly == (ti == 1))
+		if on: _box(tr, Color(0.55,0.10,0.10,0.95))
+		else: _frame(tr.grow(-2), Color(1,1,1,0.22), 1.0)
+		var tab_label: String = ("月签到" if ti==1 else "周签到") if String(lang).begins_with("zh") else ("MONTHLY" if ti==1 else "WEEKLY")
+		_clean_center(bold, tr.get_center()+Vector2(0,7), tab_label, 16, WHITE if on else MUTED)
 	var c: Vector2=game.SIGNIN_CLOSE.get_center()
 	clean_ops.append(["line",PackedVector2Array([c+Vector2(-11,-11),c+Vector2(11,11)]),WHITE,4.0])
 	clean_ops.append(["line",PackedVector2Array([c+Vector2(11,-11),c+Vector2(-11,11)]),WHITE,4.0])
-	var avail: bool=game.signin_available()
-	for i in range(ProgressCatalog.SIGNIN.size()):
-		var r: Rect2=game.signin_tile(i)
-		var reward: Dictionary=ProgressCatalog.SIGNIN[i]
-		var done: bool=i<game.signin_index
-		var current: bool=avail and i==game.signin_index
-		var jackpot: bool=i==6
-		_box(r.grow(-4),Color(0.085,0.09,0.092,0.96) if not done else Color(0.05,0.052,0.055,0.92))
-		_frame(r.grow(-4),Color(BRASS,0.9) if jackpot else Color(1,1,1,0.14),1.5 if jackpot else 1.0)
-		_clean_text(bold,r.position+Vector2(10,24),ProgressCatalog.text(lang,"day").replace("%d",str(i+1)).to_upper(),13,WHITE if current else MUTED,false)
-		if jackpot:
-			clean_ops.append(["texture",coin_tex,Rect2(r.get_center()+Vector2(-82,-26),Vector2(52,52))])
-			clean_ops.append(["texture",voucher_tex,Rect2(r.get_center()+Vector2(4,-20),Vector2(70,42))])
-			_clean_center(bold,Vector2(r.get_center().x,r.end.y-14),"%d  +  ×%d"%[int(reward.coins),int(reward.vouchers)],20,BRASS_LIGHT)
+
+	var avail: bool = game.signin_available()
+	var track: Array = game.signin_rewards()
+	var day_idx: int = game.signin_day_index()
+	var compact: bool = game.signin_monthly
+
+	for i in range(track.size()):
+		var r: Rect2 = game.signin_tile(i)
+		var reward: Dictionary = track[i]
+		var done: bool = i < day_idx
+		var current: bool = avail and i == day_idx
+		var jackpot: bool = (i == 6 and not compact)
+		_box(r.grow(-3),Color(0.085,0.09,0.092,0.96) if not done else Color(0.05,0.052,0.055,0.92))
+		_frame(r.grow(-3),Color(BRASS,0.9) if jackpot else Color(1,1,1,0.14),1.5 if jackpot else 1.0)
+		if compact:
+			# 30 tiles on one screen: the day, then whatever that day actually pays
+			_clean_text(font,r.position+Vector2(5,13),str(i+1),11,MUTED)
+			var sv: int = int(reward.get("silver", 0))
+			var cv: int = int(reward.get("coins", 0))
+			var vv: int = int(reward.get("vouchers", 0))
+			var icx: float = r.position.x + 20.0
+			# the biggest thing that day pays is the icon; the rest ride as small badges
+			if cv >= sv and cv > 0:
+				clean_ops.append(["texture",coin_tex,Rect2(Vector2(icx, r.position.y+14),Vector2(28,28))])
+				_clean_center(bold,Vector2(r.get_center().x,r.end.y-7),str(cv),12,GOLD)
+				if sv > 0:
+					_clean_text(font,r.position+Vector2(43,13),"+%ds"%sv,9,Color(0.85,0.90,1.0))
+			elif sv > 0:
+				clean_ops.append(["texture",silver_tex,Rect2(Vector2(icx, r.position.y+14),Vector2(28,28))])
+				_clean_center(bold,Vector2(r.get_center().x,r.end.y-7),str(sv),12,Color(0.85,0.90,1.0))
+				if cv > 0:
+					_clean_text(font,r.position+Vector2(43,13),"+"+str(cv),9,GOLD)
+			elif vv > 0:
+				clean_ops.append(["texture",voucher_tex,Rect2(Vector2(icx, r.position.y+16),Vector2(28,24))])
+				_clean_center(bold,Vector2(r.get_center().x,r.end.y-7),"×%d"%vv,12,VOUCHER_COL)
+			if vv > 0 and (sv > 0 or cv > 0):
+				clean_ops.append(["texture",voucher_tex,Rect2(r.position+Vector2(42,2),Vector2(22,18))])
 		else:
-			clean_ops.append(["texture",coin_tex,Rect2(r.get_center()+Vector2(-26,-28),Vector2(52,52))])
-			_clean_center(bold,Vector2(r.get_center().x,r.end.y-14),_grouped(int(reward.coins)),20,WHITE)
+			_clean_text(bold,r.position+Vector2(10,24),ProgressCatalog.text(lang,"day").replace("%d",str(i+1)).to_upper(),13,WHITE if current else MUTED)
+			if jackpot:
+				var half: float = r.size.x * 0.5
+				var cy2: float = r.get_center().y - 4.0
+				var js: int = int(reward.get("silver", 0))
+				var jc: int = int(reward.get("coins", 0))
+				var jv: int = int(reward.get("vouchers", 0))
+				clean_ops.append(["texture",silver_tex,Rect2(Vector2(r.position.x+half*0.5-26,cy2-26),Vector2(52,52))])
+				_clean_center(bold,Vector2(r.position.x+half*0.5,r.end.y-14),_grouped(js),17,BRASS_LIGHT)
+				if jc > 0:
+					clean_ops.append(["texture",coin_tex,Rect2(Vector2(r.position.x+half*1.5-26,cy2-26),Vector2(52,52))])
+					_clean_center(bold,Vector2(r.position.x+half*1.5,r.end.y-14),_grouped(jc),17,BRASS_LIGHT)
+				elif jv > 0:
+					clean_ops.append(["texture",voucher_tex,Rect2(Vector2(r.position.x+half*1.5-26,cy2-22),Vector2(52,44))])
+					_clean_center(bold,Vector2(r.position.x+half*1.5,r.end.y-14),"×%d"%jv,17,BRASS_LIGHT)
+			else:
+				var s2: int = int(reward.get("silver", 0))
+				var c2: int = int(reward.get("coins", 0))
+				var v2: int = int(reward.get("vouchers", 0))
+				if s2 > 0:
+					clean_ops.append(["texture",silver_tex,Rect2(r.get_center()+Vector2(-26,-28),Vector2(52,52))])
+					_clean_center(bold,Vector2(r.get_center().x,r.end.y-14),_grouped(s2),20,Color(0.85,0.90,1.0))
+				elif c2 > 0:
+					clean_ops.append(["texture",coin_tex,Rect2(r.get_center()+Vector2(-26,-28),Vector2(52,52))])
+					_clean_center(bold,Vector2(r.get_center().x,r.end.y-14),_grouped(c2),20,GOLD)
+				elif v2 > 0:
+					clean_ops.append(["texture",voucher_tex,Rect2(r.get_center()+Vector2(-26,-20),Vector2(52,44))])
+					_clean_center(bold,Vector2(r.get_center().x,r.end.y-14),"×%d"%v2,20,VOUCHER_COL)
 		if current:
 			var pulse:=0.5+0.5*sin(t*4.0)
 			_frame(r,Color(1,1,1,0.7+0.3*pulse),2.0)
-			_box(Rect2(r.end.x-18,r.position.y+2,14,5),PAINT_RED) # small red issue-mark, no casino glow
+			if not compact: _box(Rect2(r.end.x-18,r.position.y+2,14,5),PAINT_RED)
 		if done:
-			_box(r.grow(-4),Color(0,0,0,0.55))
+			_box(r.grow(-3),Color(0,0,0,0.55))
 			var cc:=r.get_center()
 			clean_ops.append(["line",PackedVector2Array([cc+Vector2(-18,0),cc+Vector2(-5,13),cc+Vector2(20,-14)]),WHITE,6.0])
+
 	if avail:
 		_plain_button(game.SIGNIN_CLAIM,ProgressCatalog.text(lang,"claim"))
 		_ad_x2_button(game.SIGNIN_DOUBLE,"busy" if game.ad_pending=="signin_double" else "ready")
-	else: _ghost_button(Rect2(game.SIGNIN_CLAIM.position,Vector2(game.SIGNIN_DOUBLE.end.x-game.SIGNIN_CLAIM.position.x,game.SIGNIN_CLAIM.size.y)),ProgressCatalog.text(lang,"come_back"),MUTED)
+	else: _ghost_button(Rect2(game.SIGNIN_CLAIM.position,Vector2(game.SIGNIN_DOUBLE.end.x-game.SIGNIN_CLAIM.position.x,game.SIGNIN_CLAIM.size.y)),ProgressCatalog.text(lang,"claim"))
 	_toast(712)
 
 func _draw_tasks() -> void:
