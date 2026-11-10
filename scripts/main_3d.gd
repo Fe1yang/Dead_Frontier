@@ -1289,6 +1289,8 @@ func _warm_up_begin() -> void:
 	warmup_queue.append("barrel")
 	warmup_queue.append("effects")
 	warmup_queue.append("gate")
+	warmup_queue.append("barrel_roll")
+	warmup_queue.append("bike")
 
 ## Builds one queue item; the viewport keeps drawing it for a frame, which is what
 ## compiles the pipeline. Freed as soon as the queue is empty.
@@ -1312,6 +1314,24 @@ func _warm_up_tick() -> void:
 				3: fx.make_shockwave(Color("ffd27a"),0.4)
 				_: fx.make_text("0",Color.WHITE)
 			fx.position=Vector3(-1.2+0.6*float(k),0.6,0.0)
+		return
+	if item=="bike":
+		# the three rideable bikes: their GLBs are what has to be uploaded before a bike crate
+		for k3 in range(3):
+			var bpath := "res://assets/models/vehicles/bike_paid%s.glb" % ("" if k3 == 0 else str(k3 + 1))
+			if not ResourceLoader.exists(bpath):
+				continue
+			var bk: Node3D = (load(bpath) as PackedScene).instantiate() as Node3D
+			if bk == null:
+				continue
+			bk.position = Vector3(-1.6 + 1.6 * float(k3), 0, -2.0)
+			warmup_root.add_child(bk)
+		return
+	if item=="barrel_roll":
+		var br: Node3D = BarrelRollScript.new()
+		br.setup("SHOTGUN", 3)
+		br.position = Vector3(1.6, 0, -2.0)
+		warmup_root.add_child(br)
 		return
 	if item=="gate":
 		var gids: Array = []
