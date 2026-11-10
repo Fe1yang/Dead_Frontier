@@ -752,11 +752,16 @@ func _perf_trace(label: String, started_usec: int) -> void:
 func _stage_district_reveal(road: Node3D) -> void:
 	var items: Array = []
 	for child in road.get_children():
+		if not (child is Node3D):
+			continue
+		var tagged: bool = child.has_meta("street_prop")
 		var nm := String(child.name)
-		if nm.begins_with("phone_booth") or nm.begins_with("bench") or nm.begins_with("trash_") 			or nm.begins_with("manhole") or nm.begins_with("hydrant") or nm.begins_with("can_") 			or nm.begins_with("lamp"):
-			if child is Node3D and (child as Node3D).visible:
-				(child as Node3D).visible = false
-				items.append(child)
+		var by_name := nm.begins_with("phone_booth") or nm.begins_with("bench") or nm.begins_with("trash_") \
+			or nm.begins_with("manhole") or nm.begins_with("hydrant") or nm.begins_with("can_") \
+			or nm.begins_with("lamp")
+		if (tagged or by_name) and (child as Node3D).visible:
+			(child as Node3D).visible = false
+			items.append(child)
 	if items.is_empty():
 		return
 	road.set_meta("reveal_items", items)
@@ -830,6 +835,9 @@ func _prop_node(name: String, parent: Node3D, world_pos: Vector3, yaw: float = 0
 		pos.y = 0.01
 	node.global_position = pos
 	node.global_rotation = Vector3(0.0, yaw, 0.0)
+	# Tagged at creation: these nodes get auto-generated names, so the reveal queue could never
+	# recognise them by name.
+	node.set_meta("street_prop", true)
 	return node
 
 

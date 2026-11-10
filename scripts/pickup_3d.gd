@@ -27,6 +27,9 @@ func _model(kind_id: String) -> PackedScene:
 	return packed
 # One coin mesh, two metals: gold stays gold, silver reuses the same pile tinted.
 const GOLD_ALBEDO:=Color(1.0,0.80,0.32)
+## One material per coin colour, shared by every pickup: duplicating per instance
+## created hundreds of materials, and each new material compiles a shader.
+static var _coin_mat_cache:={}
 const SILVER_ALBEDO:=Color(0.52,0.58,0.66)
 const DISPLAY_SCALES := {"medkit": 1.35, "armor": 0.55, "helmet": 0.33, "ammo": 1.25, "grenade": 2.0, "flashbang": 2.0, "launcher": 0.9, "fire_round": 2.4, "coin": 0.55, "silver_coin": 0.55}
 const GROUND_OFFSETS := {"medkit": 0.0, "armor": -0.535, "helmet": 0.0, "ammo": 0.0, "grenade": 0.02, "flashbang": 0.02, "launcher": 0.12, "fire_round": 0.03, "coin": 0.0, "silver_coin": 0.0}
@@ -100,8 +103,12 @@ func _tint_coin_metal(albedo: Color) -> void:
 		var src: Material=mesh_inst.material_override
 		if src==null: src=mesh_inst.mesh.surface_get_material(0)
 		if not (src is StandardMaterial3D): continue
-		var mat: StandardMaterial3D=(src as StandardMaterial3D).duplicate() as StandardMaterial3D
-		mat.albedo_color=albedo
+		var key: int = albedo.to_rgba32()
+		var mat: StandardMaterial3D = _coin_mat_cache.get(key, null) as StandardMaterial3D
+		if mat == null:
+			mat = (src as StandardMaterial3D).duplicate() as StandardMaterial3D
+			mat.albedo_color = albedo
+			_coin_mat_cache[key] = mat
 		mat.metallic=0.9
 		mat.metallic_specular=1.0
 		mat.roughness=0.48 if kind=="silver_coin" else 0.24
