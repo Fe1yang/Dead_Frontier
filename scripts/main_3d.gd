@@ -58,6 +58,11 @@ const SKY_PRESETS:={
 	"fog":{"sky":Color("8f9ea8"),"horizon":Color("d3dade"),"cloud":Color("e1e6e9"),"density":1.3,"depth":2.0,"wind":Vector2(0.2,0.1),"mix":1.0,"energy":1.1,"tiling":0.8}}
 const EnvironmentMaterials=preload("res://scripts/environment_materials.gd")
 const ROAD_SEGMENT:=16.0
+## Street props pop in over a few frames instead of appearing all at once: one district entering
+## view used to add 300 draw calls in a single frame, which is what the 180-260 ms spikes were.
+const REVEAL_BAND_NEAR := -68.0
+const REVEAL_BAND_FAR := -60.0
+const REVEAL_PER_FRAME := 10
 const ROAD_COUNT:=24
 const ROAD_LOOP:=ROAD_SEGMENT*ROAD_COUNT
 const ROAD_BEHIND:=56.0 # city blocks kept behind the player for intro/chase shots
@@ -641,6 +646,8 @@ func _apply_cull_range(root: Node) -> void:
 ## District scenes are loaded once at startup: loading them inside _build_road was the single
 ## biggest frame spike of a run (24 models, about 4 MB each, decoded on the first frame).
 var district_cache := {}
+var reveal_jobs: Array=[]
+var seen_reveal:=0
 var _district_requests:={}   # path -> ResourceLoader threaded status
 
 
@@ -738,6 +745,38 @@ func _perf_trace(label: String, started_usec: int) -> void:
 	var ms := (Time.get_ticks_usec() - started_usec) / 1000.0
 	if ms > 50.0:
 		print("PERF_SPIKE ", label, " ", snappedf(ms, 0.1), " ms")
+
+
+## Hide the optional props of a district that is about to enter the view; they are shown again
+## a few at a time by _tick_district_reveal().
+func _stage_district_reveal(road: Node3D) -> void:
+	var items: Array = []
+	for child in road.get_children():
+		var nm := String(child.name)
+		if nm.begins_with("phone_booth") or nm.begins_with("bench") or nm.begins_with("trash_") 			or nm.begins_with("manhole") or nm.begins_with("hydrant") or nm.begins_with("can_") 			or nm.begins_with("lamp"):
+			if child is Node3D and (child as Node3D).visible:
+				(child as Node3D).visible = false
+				items.append(child)
+	if items.is_empty():
+		return
+	road.set_meta("reveal_items", items)
+	reveal_jobs.append(road)
+
+
+## Called once per frame: bring back a handful of props on each district that is still revealing.
+func _tick_district_reveal() -> void:
+	for road in reveal_jobs.duplicate():
+		var items: Array = road.get_meta("reveal_items", [])
+		var shown := 0
+		while seen_reveal < REVEAL_PER_FRAME and not items.is_empty():
+			var node = items.pop_back()
+			if is_instance_valid(node):
+				(node as Node3D).visible = true
+			seen_reveal += 1
+			shown += 1
+		if items.is_empty():
+			reveal_jobs.erase(road)
+			road.remove_meta("reveal_items")
 
 
 func _build_district(i: int) -> void:
@@ -1004,10 +1043,15 @@ func _process(delta: float) -> void:
 	world_speed=(3.5*(player.effective_move_mult() if state=="playing" else 1.0)) if state in ["playing","intro"] else (0.25 if state=="cover" else 0.0)
 	for road in roads:
 		road.position.z+=world_speed*delta
+		var rz: float = road.position.z
+		if rz > REVEAL_BAND_NEAR and rz <= REVEAL_BAND_FAR + 0.01 and not road.has_meta("reveal_items"):
+			_stage_district_reveal(road)
 		if road.position.z>ROAD_BEHIND+ROAD_SEGMENT:
 			road.position.z-=ROAD_LOOP
 			_refresh_watcher(road)
 			_randomize_zebra(road)
+	seen_reveal = 0
+	_tick_district_reveal()
 	_tick_lightning(delta)
 	_apply_day_night()
 	if state=="loading":
