@@ -594,6 +594,15 @@ func _draw_lootbox() -> void:
 	var action: String=ShopText.text(lang,"case_again" if game.lootbox_scene.revealed else "case_open")
 	_button(game.LOOTBOX_GOLD_RECT,action+"  ·  %d %s"%[game.LOOTBOX_COST,StoreCatalog.text(lang,"silver")],game.bank_silver>=game.LOOTBOX_COST)
 	_button(game.LOOTBOX_VOUCHER_RECT,action+"  ·  1 %s"%ShopText.text(lang,"voucher"),game.bank_vouchers>=1)
+	# free open by ad: five a day, painted in the ad yellow
+	var left: int = game.lootbox_ads_left()
+	var ar: Rect2 = game.LOOTBOX_AD_RECT
+	var on: bool = left > 0
+	_box(ar, Color(0.98, 0.78, 0.10) if on else Color(0.16, 0.15, 0.11, 0.95))
+	_box(Rect2(ar.position, Vector2(64.0, ar.size.y)), Color(0.86, 0.62, 0.04) if on else Color(0.24, 0.21, 0.14))
+	_bold_text("AD", Vector2(ar.position.x + 22.0, ar.get_center().y + 7.0), 19, Color(0.12, 0.10, 0.06) if on else Color(0.55, 0.52, 0.45))
+	var lbl: String = ("\u770b\u5e7f\u544a\u5f00\u7bb1  %d/%d" % [left, game.LOOTBOX_AD_DAILY]) if String(lang).begins_with("zh") else ("AD OPEN  %d/%d" % [left, game.LOOTBOX_AD_DAILY])
+	_bold_text(lbl, Vector2(ar.position.x + 78.0, ar.get_center().y + 8.0), 19, Color(0.10, 0.08, 0.04) if on else Color(0.58, 0.55, 0.48))
 	# free open by ad: five a day
 	# free open by ad: five a day, painted in the ad yellow
 	var left: int = game.lootbox_ads_left()
