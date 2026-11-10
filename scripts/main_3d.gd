@@ -108,6 +108,7 @@ var skin_choice:={} # char index -> index into lobby.SKINS (outfit override, sta
 var pet_choice:=0
 var language_code:="zh_CN"
 var player: Node3D
+var debug_show_fps := false   # F3: on-screen frame time counter
 var companion_pet: Node3D  # first dog; kept as an alias of companion_pets[0] for HUD/tests
 var companion_pets: Array=[]  # up to MAX_COMPANION_PETS dogs, duplicates allowed
 var sound: Node
