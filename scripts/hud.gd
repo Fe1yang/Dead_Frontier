@@ -876,7 +876,7 @@ func _lobby_card(card: Rect2,i: int,view: Rect2,lang: String) -> void:
 		if not owned and wvis.size.y>1.0:
 			_box(wvis,Color(0,0,0,0.55))
 		if whole:
-			_text_center("火焰喷射器" if String(lang).begins_with("zh") else "FLAMETHROWER",Vector2(card.get_center().x,card.end.y-34),13,gold)
+			_text_center("火焰喷射器" if String(lang).begins_with("zh") else "FLAMETHROWER",Vector2(card.get_center().x,card.end.y-9),13,gold)
 			if owned:
 				draw_rect(Rect2(card.position.x+6,card.end.y-5,card.size.x-12,2),gold)
 		_card_buy_row(card, 4, i, lang)
