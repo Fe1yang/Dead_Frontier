@@ -318,6 +318,9 @@ var bullets: Array=[]
 var ordnance: Array=[]
 var gates: Array=[]
 var barrels: Array=[]
+## Reused drop props: instantiating the 5 MB crate during a run cost ~150 ms a time.
+var crate_pool: Array=[]
+var barrel_pool: Array=[]
 var crates: Array=[]
 var blood_pools: Array=[]
 var foot_timer:=0.0
@@ -1299,7 +1302,26 @@ func _teardown_warmup() -> void:
 	warmup_done = true
 
 
+## Build the drop props once, during loading, and keep them for reuse: creating the crate model
+## mid-run was the last 150 ms stall in the frame trace.
+func _warm_drop_pool() -> void:
+	for i in range(3):
+		var c := WeaponCrateScript.new()
+		add_child(c)
+		c.setup("SMG", 3)
+		c.visible = false
+		c.position = Vector3(0, -50, 0)
+		crate_pool.append(c)
+	for i in range(3):
+		var b := BarrelScript.new()
+		add_child(b)
+		b.visible = false
+		b.position = Vector3(0, -50, 0)
+		barrel_pool.append(b)
+
+
 func _finish_loading() -> void:
+	_warm_drop_pool()
 	if state!="loading": return
 	_teardown_warmup()
 	var target:=loading_target
@@ -4373,7 +4395,15 @@ func _spawn_barrel() -> void:
 		if not _x_blocked_by_banshee(x,0.45): break
 		x=rng.randf_range(-2.7,2.7)
 	if _x_blocked_by_banshee(x,0.45): return # no room this time; skip rather than overlap her
-	var barrel:=BarrelScript.new(); barrel.position=Vector3(x,0,-45); add_child(barrel); barrels.append(barrel)
+	var barrel: Node3D
+	if barrel_pool.is_empty():
+		barrel = BarrelScript.new(); add_child(barrel)
+	else:
+		barrel = barrel_pool.pop_back()
+	barrel.position = Vector3(x, 0, -45)
+	barrel.visible = true
+	if barrel.has_method("setup"): barrel.setup()
+	barrels.append(barrel)
 
 ## Crate health, shown on the crate. Each bullet takes off its real damage, so the number reads
 ## like a health bar: 105 with 33-damage bullets breaks in 4 shots. Sized from the current gun so
@@ -4421,7 +4451,13 @@ func _spawn_crates() -> void:
 	for si in range(spots.size()):
 		var x: float=spots[si]
 		if not _crate_spot_clear(x,z): continue
-		var crate:=WeaponCrateScript.new(); var id: String=choices[used%choices.size()]; used+=1
+		var crate: Node3D
+		if crate_pool.is_empty():
+			crate = WeaponCrateScript.new(); add_child(crate)
+		else:
+			crate = crate_pool.pop_back()
+			crate.visible = true
+		var id: String=choices[used%choices.size()]; used+=1
 		if si==dog_spot: id="PET_%d"%rng.randi_range(0,lobby.PETS.size()-1)
 		elif (player.vehicle!="" or player.weapon=="FLAME") and rng.randf()<FUEL_CRATE_CHANCE:
 			id="FUEL"
