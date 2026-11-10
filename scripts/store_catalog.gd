@@ -14,9 +14,9 @@ const TIERS:=[0.99,1.99,4.99,9.99,19.99,49.99,99.99,10.0]
 ## coins, vouchers, price tier index, bonus %, kind, glow colour and number of light rays.
 ## One voucher opens one supply case, so vouchers are kept scarce.
 const PACKS:=[
-	{"id":"pass_weekly","kind":"pass","name":"pass_weekly","coins":200,"cans":30,"vouchers":0,"tier":2,"usd":3.99,"bonus":0,"glow":"violet","rays":12},
+	{"id":"pass_weekly","kind":"pass","name":"pass_weekly","coins":200,"cans":30,"vouchers":0,"tier":2,"bonus":0,"glow":"violet","rays":12},
 	{"id":"pass_monthly","kind":"pass","name":"pass_monthly","coins":500,"cans":100,"vouchers":0,"tier":3,"bonus":0,"glow":"gold","rays":16},
-	{"id":"unlock_all","kind":"unlock","name":"unlock_all","coins":0,"vouchers":0,"silver":0,"cans":0,"tier":7,"usd":299.99,"once":true,"glow":"gold","rays":24},
+	{"id":"unlock_all","kind":"unlock","name":"unlock_all","coins":0,"vouchers":0,"silver":0,"cans":0,"tier":7,"once":true,"glow":"gold","rays":24},
 	{"id":"bundle_starter","kind":"bundle","name":"starter","coins":1000,"vouchers":1,"tier":1,"bonus":0,"once":true,"glow":"gold","rays":8},
 	{"id":"bundle_supply","kind":"bundle","name":"supply","coins":4000,"vouchers":3,"tier":3,"bonus":0,"once":false,"glow":"amber","rays":12},
 	{"id":"bundle_legend","kind":"bundle","name":"legend","coins":22000,"vouchers":12,"tier":5,"bonus":0,"once":false,"glow":"violet","rays":16},
@@ -51,23 +51,24 @@ const PACKS:=[
 	{"id":"vouchers_6","kind":"vouchers","coins":0,"vouchers":100,"tier":6,"bonus":0,"glow":"violet","rays":16},
 	# Unlockable survivors and outfits: Mason and Riley are free; everyone else is a
 	# one-time App Store purchase. `char` indexes lobby.CHARACTERS, `skin` indexes lobby.SKINS.
-	{"id":"char_darius","kind":"character","name":"char_darius","char":2,"perk":"perk_darius","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"gold","rays":8},
-	{"id":"char_maya","kind":"character","name":"char_maya","char":3,"perk":"perk_maya","coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"violet","rays":10},
-	{"id":"char_riley","kind":"character","name":"char_riley","char":1,"coins":0,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"teal","rays":8},
-	{"id":"pet_0","kind":"pet","name":"pets","pet":0,"coins":0,"vouchers":0,"tier":2,"usd":4.99,"bonus":0,"once":true,"glow":"gold","rays":8},
-	{"id":"pet_1","kind":"pet","name":"pets","pet":1,"coins":0,"vouchers":0,"tier":2,"usd":5.99,"bonus":0,"once":true,"glow":"amber","rays":8},
-	{"id":"pet_2","kind":"pet","name":"pets","pet":2,"coins":0,"vouchers":0,"tier":2,"usd":6.99,"bonus":0,"once":true,"glow":"violet","rays":10},
-	{"id":"pet_3","kind":"pet","name":"pets","pet":3,"coins":0,"vouchers":0,"tier":2,"usd":7.99,"bonus":0,"once":true,"glow":"red","rays":10},
-	{"id":"pet_4","kind":"pet","name":"pets","pet":4,"coins":0,"vouchers":0,"tier":5,"usd":24.99,"bonus":0,"once":true,"glow":"gold","rays":20},
-{"id":"pet_5","kind":"pet","name":"pets","pet":5,"coins":0,"vouchers":0,"tier":5,"usd":24.99,"bonus":0,"once":true,"glow":"gold","rays":20},
-	{"id":"vehicle_bike","kind":"vehicle","vehicle":"BIKE","name":"bike","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"teal","rays":12,"art":"vehicle_bike"},
-	{"id":"vehicle_sport","kind":"vehicle","vehicle":"SPORT","name":"sport","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"amber","rays":12,"art":"vehicle_sport"},
-	{"id":"vehicle_car","kind":"vehicle","vehicle":"CRUISER","name":"cruiser","coins":0,"vouchers":0,"tier":4,"bonus":0,"once":true,"glow":"red","rays":16,"art":"vehicle_cruiser"},
-	{"id":"vehicle_gold","kind":"vehicle","vehicle":"GOLD","name":"gold","coins":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":20,"art":"vehicle_gold"},
-	{"id":"vehicle_tank","kind":"vehicle","vehicle":"TANK","name":"tank","coins":0,"vouchers":0,"tier":6,"bonus":0,"once":true,"glow":"silver","rays":24,"art":"vehicle_tank"},
-{"id":"weapon_flame","kind":"special","weapon":"FLAME","name":"flame","coins":0,"vouchers":0,"tier":5,"usd":4.99,"bonus":0,"once":true,"glow":"gold","rays":14},
-	{"id":"vehicle_sedan","kind":"vehicle","vehicle":"SEDAN","name":"sedan","coins":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"silver","rays":18,"art":"vehicle_sedan"},
-{"id":"vehicle_gold_car","kind":"vehicle","vehicle":"GOLD_CAR","name":"gold_car","coins":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":22,"art":"vehicle_gold_car"},
+	{"id":"char_darius","kind":"character","name":"char_darius","char":2,"perk":"perk_darius","coins":1200,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"gold","rays":8},
+	{"id":"char_maya","kind":"character","name":"char_maya","char":3,"perk":"perk_maya","coins":1600,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"violet","rays":10},
+	{"id":"char_riley","kind":"character","name":"char_riley","char":1,"coins":5000,"vouchers":0,"tier":7,"bonus":0,"once":true,"glow":"teal","rays":8},
+	{"id":"pet_0","kind":"pet","name":"pets","pet":0,"coins":2500,"silver":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"gold","rays":8},
+	{"id":"pet_1","kind":"pet","name":"pets","pet":1,"silver":12000,"coins":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"amber","rays":8},
+	{"id":"pet_2","kind":"pet","name":"pets","pet":2,"coins":3000,"silver":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"violet","rays":10},
+	{"id":"pet_3","kind":"pet","name":"pets","pet":3,"coins":4000,"silver":0,"vouchers":0,"tier":2,"bonus":0,"once":true,"glow":"red","rays":10},
+	{"id":"pet_4","kind":"pet","name":"pets","pet":4,"coins":6000,"silver":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"amber","rays":12},
+	{"id":"pet_6","kind":"pet","name":"pets","pet":6,"coins":12000,"silver":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":20},
+{"id":"pet_5","kind":"pet","name":"pets","pet":5,"coins":10000,"silver":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":20},
+	{"id":"vehicle_bike","kind":"vehicle","vehicle":"BIKE","name":"bike","coins":0,"silver":6000,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"teal","rays":12,"art":"vehicle_bike"},
+	{"id":"vehicle_sport","kind":"vehicle","vehicle":"SPORT","name":"sport","coins":4000,"silver":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"amber","rays":12,"art":"vehicle_sport"},
+	{"id":"vehicle_car","kind":"vehicle","vehicle":"CRUISER","name":"cruiser","coins":7000,"silver":0,"vouchers":0,"tier":4,"bonus":0,"once":true,"glow":"red","rays":16,"art":"vehicle_cruiser"},
+	{"id":"vehicle_gold","kind":"vehicle","vehicle":"GOLD","name":"gold","coins":10000,"silver":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":20,"art":"vehicle_gold"},
+	{"id":"vehicle_tank","kind":"vehicle","vehicle":"TANK","name":"tank","coins":20000,"silver":0,"vouchers":0,"tier":6,"bonus":0,"once":true,"glow":"silver","rays":24,"art":"vehicle_tank"},
+{"id":"weapon_flame","kind":"special","weapon":"FLAME","name":"flame","coins":10000,"silver":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":14},
+	{"id":"vehicle_sedan","kind":"vehicle","vehicle":"SEDAN","name":"sedan","coins":5000,"silver":0,"vouchers":0,"tier":3,"bonus":0,"once":true,"glow":"silver","rays":18,"art":"vehicle_sedan"},
+{"id":"vehicle_gold_car","kind":"vehicle","vehicle":"GOLD_CAR","name":"gold_car","coins":30000,"silver":0,"vouchers":0,"tier":5,"bonus":0,"once":true,"glow":"gold","rays":22,"art":"vehicle_gold_car"},
 ]
 
 ## Limited-time offers: one pops up every two to three days (see main_3d.maybe_show_offer) and
@@ -76,17 +77,6 @@ const PACKS:=[
 const OFFER_HOURS:=6
 const GLOW:={"gold":Color(1.0,0.72,0.25),"amber":Color(1.0,0.48,0.15),"red":Color(0.95,0.2,0.15),"violet":Color(0.62,0.32,1.0),"silver":Color(0.85,0.90,1.0),"teal":Color(0.15,0.78,0.72)}
 const OFFERS:=[
-	{"id":"offer_supply","kind":"offer","name":"offer_supply","art":"bundle_supply","coins":8000,"vouchers":2,"tier":2,"was":4,"bonus":0,"glow":"violet","rays":12},
-	{"id":"offer_arms","kind":"offer","name":"offer_arms","art":"bundle_starter","coins":2000,"vouchers":8,"tier":3,"was":4,"bonus":0,"glow":"violet","rays":10},
-	{"id":"offer_hoard","kind":"offer","name":"offer_hoard","art":"bundle_legend","coins":30000,"vouchers":10,"tier":4,"was":5,"bonus":0,"glow":"violet","rays":16},
-	{"id":"offer_cans","kind":"offer","name":"can_packs","art":"cans_4","cans":150,"coins":0,"vouchers":0,"tier":2,"was":3,"bonus":0,"glow":"amber","rays":12},
-	{"id":"offer_legend_high","kind":"offer","name":"offer_hoard","art":"bundle_legend","coins":60000,"vouchers":20,"tier":5,"was":6,"bonus":0,"glow":"violet","rays":16},
-	{"id":"offer_cans_high","kind":"offer","name":"can_packs","art":"cans_6","cans":600,"coins":0,"vouchers":0,"tier":5,"was":6,"bonus":0,"glow":"violet","rays":16},
-	{"id":"offer_gold_bike","kind":"offer","name":"offer_gold_bike","art":"vehicle_gold","vehicle":"GOLD","coins":3000,"vouchers":0,"tier":4,"usd":29.99,"desc_key":"gold_desc","was":5,"bonus":0,"glow":"gold","rays":20},
-	{"id":"offer_tank","kind":"offer","name":"offer_tank","art":"vehicle_tank","vehicle":"TANK","coins":6000,"vouchers":2,"tier":5,"usd":49.99,"desc_key":"tank_desc","was":6,"bonus":0,"glow":"silver","rays":24},
-	{"id":"offer_sport_bike","kind":"offer","name":"offer_sport_bike","art":"vehicle_sport","vehicle":"SPORT","coins":2000,"vouchers":0,"tier":3,"usd":14.99,"desc_key":"sport_desc","was":4,"bonus":0,"glow":"amber","rays":12},
-	{"id":"offer_unlock_all","kind":"offer","name":"offer_unlock_all","art":"bundle_legend","coins":0,"vouchers":0,"tier":6,"usd":99.99,"was_usd":299.99,"desc_key":"unlock_all_desc","bonus":0,"glow":"gold","rays":24},
-	{"id":"offer_darius_bundle","kind":"offer","name":"offer_darius_bundle","art":"char_darius","char":2,"perk":"perk_darius","coins":5000,"vouchers":3,"tier":4,"was":5,"bonus":0,"glow":"violet","rays":10},
 ]
 static func offer(id: String) -> Dictionary:
 	for o in OFFERS:

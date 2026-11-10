@@ -19,6 +19,7 @@ const PETS:=[
 	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.16},
 	{"asset":"res://assets/models/pets/czech_wolfdog.glb","name":"捷克狼犬","length":0.98},
 	{"asset":"res://assets/models/pets/tibetan_mastiff.glb","name":"藏獒","length":1.10},
+	{"asset":"res://assets/models/pets/labrador.glb","name":"拉布拉多","length":1.15},
 	{"asset":"res://assets/models/pets/white_tiger.glb","name":"白虎","length":1.70},
 	{"asset":"res://assets/models/pets/lion.glb","name":"狮子","length":1.55}]
 ## Outfit skins: same survivor, different body. `char` indexes CHARACTERS; the first entry
@@ -274,6 +275,7 @@ func show_pet(path: String) -> void:
 		if p.asset==path: yaw=float(p.get("yaw",0.0))
 	pet_base_yaw=yaw
 	pet.rotation.y=yaw
+	# full size on the lobby stage: only the in-run crate display draws it smaller
 	pet.position=STAND+Vector3(0,ModelFix.fit_pet(pet,length*ACTOR_SCALE),0)
 	var pet_span := length * ACTOR_SCALE
 	pet_shadow = _blob_shadow(Vector2(pet_span * 0.92, pet_span * 0.62), STAND + Vector3(0, 0.021, 0.02))
