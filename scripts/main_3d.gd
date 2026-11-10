@@ -78,6 +78,7 @@ var loading_idx:=0
 var loading_switch:=0.0
 var intro_time:=0.0
 var intro_horde_offsets: Array[Vector3]=[]
+var chaser_pooled: Node3D
 var chaser: Node3D # the giant Chaser that leads the opening pursuit
 const CHASER_OFFSET:=Vector3(0,0,8.2)
 ## Mid-run chase segments: every few hundred metres the Abomination bursts out of the horde
@@ -1320,8 +1321,20 @@ func _warm_drop_pool() -> void:
 		barrel_pool.append(b)
 
 
+## The intro chaser is a 13 MB skinned model; building it on the intro frame was a visible
+## stall. Make one during loading and just move it into shot when the intro starts.
+func _warm_chaser() -> void:
+	if chaser_pooled != null or not ResourceLoader.exists(BossChaserScript.MODEL_PATH):
+		return
+	chaser_pooled = BossChaserScript.new()
+	add_child(chaser_pooled)
+	chaser_pooled.visible = false
+	chaser_pooled.position = Vector3(0, -80, 0)
+
+
 func _finish_loading() -> void:
 	_warm_drop_pool()
+	_warm_chaser()
 	if state!="loading": return
 	_teardown_warmup()
 	var target:=loading_target
@@ -1450,7 +1463,12 @@ func _begin_intro() -> void:
 	chaser=null
 	# The chaser model is supplied separately; if it isn't in the project the intro still plays
 	# with the horde instead of crashing.
-	if ResourceLoader.exists(BossChaserScript.MODEL_PATH):
+	if chaser_pooled != null:
+		chaser = chaser_pooled
+		chaser_pooled = null
+		chaser.visible = true
+		chaser.position = player.position + CHASER_OFFSET
+	elif ResourceLoader.exists(BossChaserScript.MODEL_PATH):
 		chaser=BossChaserScript.new(); add_child(chaser); chaser.position=player.position+CHASER_OFFSET
 	var horde:= [
 		["walker",Vector3(1.6,0,6.4)],
