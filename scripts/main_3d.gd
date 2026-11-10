@@ -3639,6 +3639,12 @@ const FLAME_BURN_FRACTION := 0.09
 const FLAME_TICK_DAMAGE := 22.0   # per 0.12 s tick: it is a paid gold weapon
 ## Crates and barrels count hits, not health; the flame takes several per tick.
 const FLAME_STRUCTURE_HITS := 60   # flame melts a case: one burst is enough
+## A jet loses heat with distance: point blank burns hard, the far end of the cone only singes.
+func _flame_falloff(dist: float) -> float:
+	var t: float = clampf(1.0 - dist / maxf(0.1, FLAME_RANGE), 0.0, 1.0)
+	return lerpf(0.22, 1.0, pow(t, 1.4))
+
+
 func _fire_flame() -> bool:
 	var fwd: Vector3 = aim_direction.normalized()
 	var origin: Vector3 = player.muzzle_position()
@@ -3651,8 +3657,9 @@ func _fire_flame() -> bool:
 		var dist: float = d.length()
 		if dist > FLAME_RANGE: continue
 		if dist > 0.4 and flat_fwd.dot(d.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)): continue
-		_hit_zombie(z, FLAME_TICK_DAMAGE, "torso", z.position + Vector3(0, 1.0, 0), Color("ffb14d"))
-		z.ignite(FLAME_BURN_SECONDS, z.max_health * FLAME_BURN_FRACTION)
+		var heat: float = _flame_falloff(dist)
+		_hit_zombie(z, FLAME_TICK_DAMAGE * heat, "torso", z.position + Vector3(0, 1.0, 0), Color("ffb14d"))
+		z.ignite(FLAME_BURN_SECONDS * lerpf(0.5, 1.0, heat), z.max_health * FLAME_BURN_FRACTION * heat)
 		hit += 1
 	player.fire()
 	player.pulse_flame()
@@ -3666,7 +3673,7 @@ func _fire_flame() -> bool:
 			continue
 		if cd.length() > 0.4 and flat_fwd.dot(cd.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)):
 			continue
-		if crate.take_hit(FLAME_STRUCTURE_HITS):
+		if crate.take_hit(maxf(1.0, FLAME_STRUCTURE_HITS * _flame_falloff(cd.length()))):
 			_break_crate(crate)
 		hit += 1
 	for barrel in barrels:
@@ -3678,7 +3685,7 @@ func _fire_flame() -> bool:
 			continue
 		if bd.length() > 0.4 and flat_fwd.dot(bd.normalized()) < cos(deg_to_rad(FLAME_HALF_ANGLE)):
 			continue
-		if barrel.take_hit(400.0):
+		if barrel.take_hit(400.0 * _flame_falloff(bd.length())):
 			_explode(barrel)
 		hit += 1
 	sound.play("flame")
