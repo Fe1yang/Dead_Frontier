@@ -61,12 +61,33 @@ const LOG_PATH := "user://missing_models.log"
 
 
 ## Loads a scene and returns null instead of crashing when the asset is missing.
+## Scanned skin carries very high-frequency normal detail. Under a night-time point light that
+## detail throws isolated white specks that stick to the silhouette, which reads as dirt on the
+## model. Kill the specular lobe and flatten the normal slightly; the diffuse shading is untouched.
+static func kill_sparkle(root: Node) -> void:
+	if root==null or not is_instance_valid(root): return
+	for node in root.find_children("*","MeshInstance3D",true,false):
+		var mesh_node:=node as MeshInstance3D
+		if mesh_node.mesh==null: continue
+		for s in range(mesh_node.mesh.get_surface_count()):
+			var mat: Material=mesh_node.get_surface_override_material(s)
+			if mat==null: mat=mesh_node.mesh.surface_get_material(s)
+			if mat is BaseMaterial3D:
+				var b:=mat as BaseMaterial3D
+				b.specular_mode=BaseMaterial3D.SPECULAR_DISABLED
+				b.roughness=maxf(b.roughness,0.92)
+				b.metallic=0.0
+				if b.normal_enabled:
+					b.normal_scale=0.35
+
+
 static func spawn(path: String) -> Node3D:
 	var packed: Resource = load(path)
 	if packed == null:
 		note_missing(path)
 		return null
 	var node: Node3D = packed.instantiate() as Node3D
+	kill_sparkle(node)
 	if node == null:
 		note_missing(path)
 	return node
