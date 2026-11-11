@@ -129,7 +129,8 @@ func _ready() -> void:
 		var pi := pet_index()
 		weapon_model = (load(LobbyScene.PETS[pi].asset) as PackedScene).instantiate() as Node3D
 		weapon_pivot.add_child(weapon_model)
-		var lift := ModelFix.fit_pet(weapon_model,float(LobbyScene.PETS[pi].get("length",1.1))*1.3*ITEM_BOOST)
+		var lion_fix := 0.8 if String(LobbyScene.PETS[pi].asset).contains("lion") else 1.0
+		var lift := ModelFix.fit_pet(weapon_model,float(LobbyScene.PETS[pi].get("length",1.1))*1.3*ITEM_BOOST*lion_fix)
 		weapon_model.position.y = lift-0.75
 		ModelFix.play_animation(weapon_model,"Dog_Idle")
 		path = ""
@@ -240,6 +241,40 @@ func _relative(n: Node3D,ancestor: Node) -> Transform3D:
 		if cur is Node3D: t = (cur as Node3D).transform*t
 		cur = cur.get_parent()
 	return t
+
+
+## Pool support. A crate builds its body and its floating item in _ready(), which measured ~66 ms
+## per instance, so crates are parked per weapon id and reused with the same id only.
+func park() -> void:
+	visible = false
+	process_mode = Node.PROCESS_MODE_DISABLED
+	broken = true
+	dead = true
+	arrived = false
+
+func reuse(id: String, hits: int) -> void:
+	visible = true
+	process_mode = Node.PROCESS_MODE_INHERIT
+	weapon_id = id
+	hits_left = maxi(1, hits)
+	max_hits = hits_left
+	broken = false
+	dead = false
+	arrived = false
+	flight = 0.0
+	punch = 0.0
+	spin = 0.0
+	if body != null:
+		body.visible = true
+		body.scale = Vector3.ONE
+	if weapon_pivot != null:
+		weapon_pivot.top_level = false
+		weapon_pivot.scale = Vector3.ONE
+		weapon_pivot.rotation = Vector3.ZERO
+		weapon_pivot.position = Vector3(0.0, 1.85, 0.0)
+	if light != null:
+		light.light_energy = 1.4
+	_refresh_counter()
 
 func _refresh_counter() -> void:
 	if counter: counter.text = str(hits_left)
