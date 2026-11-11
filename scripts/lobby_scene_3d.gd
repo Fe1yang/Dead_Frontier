@@ -15,11 +15,11 @@ const CHARACTERS:=[
 	{"asset":"res://assets/models/actors/survivor_maya_universal.glb","name":"MAYA","palm_twist":90.0,"lobby_palm_twist":25.0,"lobby_out":0.06,"lobby_fwd":0.03,"lobby_clavicle":5.0,"lobby_bend":14.0,"perk":"perk_maya"}
 ]
 const PETS:=[
-	{"asset":"res://assets/models/pets/doberman.glb","name":"杜宾犬","length":1.10},
-	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.16},
-	{"asset":"res://assets/models/pets/czech_wolfdog.glb","name":"捷克狼犬","length":0.98},
-	{"asset":"res://assets/models/pets/tibetan_mastiff.glb","name":"藏獒","length":1.10},
-	{"asset":"res://assets/models/pets/labrador.glb","name":"拉布拉多","length":1.15},
+	{"asset":"res://assets/models/pets/doberman.glb","name":"杜宾犬","length":1.34},
+	{"asset":"res://assets/models/pets/german_shepherd.glb","name":"德国牧羊犬","length":1.52},
+	{"asset":"res://assets/models/pets/czech_wolfdog.glb","name":"捷克狼犬","length":1.12},
+	{"asset":"res://assets/models/pets/tibetan_mastiff.glb","name":"藏獒","length":1.34,"flip":true},
+	{"asset":"res://assets/models/pets/labrador.glb","name":"拉布拉多","length":1.50},
 	{"asset":"res://assets/models/pets/white_tiger.glb","name":"白虎","length":1.70},
 	{"asset":"res://assets/models/pets/lion.glb","name":"狮子","length":1.55}]
 ## Outfit skins: same survivor, different body. `char` indexes CHARACTERS; the first entry
@@ -273,8 +273,23 @@ func show_pet(path: String) -> void:
 	var yaw:=0.0
 	for p in PETS:
 		if p.asset==path: yaw=float(p.get("yaw",0.0))
-	pet_base_yaw=yaw
-	pet.rotation.y=yaw
+	# Face the camera the same way for every breed: some of these scans are authored with the
+	# nose along X, which left the wolfdog standing sideways on the pedestal.
+	var facing := 0.0
+	var sk := pet.find_child("Skeleton3D", true, false) as Skeleton3D
+	if sk != null:
+		var hb := sk.find_bone("head")
+		var bb := sk.find_bone("body")
+		if hb >= 0 and bb >= 0:
+			var d := sk.get_bone_global_rest(hb).origin - sk.get_bone_global_rest(bb).origin
+			if absf(d.x) > 0.02 or absf(d.z) > 0.02:
+				facing = atan2(d.x, d.z)
+				# its head-body vector points tail-ward, so it needs the extra half turn to
+				# stand nose-to-camera like the rest of the kennel
+				if String(path).contains("czech_wolfdog"):
+					facing += PI
+	pet_base_yaw=yaw + facing
+	pet.rotation.y=pet_base_yaw
 	# full size on the lobby stage: only the in-run crate display draws it smaller
 	pet.position=STAND+Vector3(0,ModelFix.fit_pet(pet,length*ACTOR_SCALE),0)
 	var pet_span := length * ACTOR_SCALE
