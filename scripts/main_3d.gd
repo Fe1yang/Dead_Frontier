@@ -1516,18 +1516,27 @@ func _warm_props() -> void:
 
 
 func _warm_zombie() -> void:
-	var warm: Array = []
-	for kind in ["walker", "runner", "jockey", "brute", "banshee", "bomber", "spitter"]:
-		for i in 2:
+	# Three parked bodies of every pooled kind: the first wave then reuses them and nothing is
+	# built mid-run. The special kinds are built and freed only to pay their resource cost.
+	for kind in ["walker", "walker_b", "walker_c", "runner", "runner_b"]:
+		for i in 3:
 			var z = ZombieScript.new()
 			z.position = Vector3(0.0, -60.0, -600.0)
 			add_child(z)
 			z.configure(kind, 1.0)
-			warm.append(z)
+			z.park()
+			zombie_pool.append(z)
+	var throwaway: Array = []
+	for kind in ["jockey", "brute", "banshee", "bomber", "spitter"]:
+		var z2 = ZombieScript.new()
+		z2.position = Vector3(0.0, -60.0, -600.0)
+		add_child(z2)
+		z2.configure(kind, 1.0)
+		throwaway.append(z2)
 	await get_tree().process_frame
-	for z in warm:
-		if is_instance_valid(z):
-			z.queue_free()
+	for z3 in throwaway:
+		if is_instance_valid(z3):
+			z3.queue_free()
 
 
 func _finish_loading() -> void:
