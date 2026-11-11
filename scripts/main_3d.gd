@@ -4693,7 +4693,7 @@ func _on_bullet_hit(z: Node3D,b: Node3D,at: Vector3) -> void:
 ## Movement-speed buff: everything on the road also slides toward the survivor faster, by the
 ## amount the run speed exceeds the normal 3.5 m/s (zombies included, so they keep pace).
 func _scroll_extra(delta: float) -> void:
-	var extra: float=(player.effective_move_mult()-1.0)*3.5*delta
+	var extra: float=(player.effective_move_mult()-1.0)*world_speed*delta
 	if extra<=0.0: return
 	for list in [zombies,barrels,crates,gates,pickups,obstacles,blood_pools]:
 		for n in list:
@@ -4972,7 +4972,7 @@ func _tick_dying_zombies(delta: float) -> void:
 func _tick_crates(delta: float) -> void:
 	var hand: Vector3=player.position+Vector3(0,1.25,0.1)
 	for i in range(crates.size()-1,-1,-1):
-		var c=crates[i]; c.tick(delta,hand)
+		var c=crates[i]; c.scroll_speed=world_speed; c.tick(delta,hand)
 		# A rolling barrel is solid: it hurts like a wreck or a crater, then rolls on.
 		if c.has_method("is_roller") and not c.broken:
 			c.contact_tick(delta)
