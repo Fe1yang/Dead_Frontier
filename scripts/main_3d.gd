@@ -82,6 +82,8 @@ var loading_order: Array[int] = []
 var loading_idx:=0
 var loading_switch:=0.0
 var intro_time:=0.0
+## Grace period after the intro starts: the tap that began the run must not skip it.
+var intro_swallow:=0.0
 var intro_horde_offsets: Array[Vector3]=[]
 var chaser_pooled: Node3D
 var chaser: Node3D # the giant Chaser that leads the opening pursuit
@@ -1725,7 +1727,7 @@ func _recruit_pet(index: int,at: Vector3) -> bool:
 	return true
 
 func _begin_intro() -> void:
-	_clear_world(); intro_horde_offsets.clear(); intro_time=0.0; state="intro"
+	_clear_world(); intro_horde_offsets.clear(); intro_time=0.0; intro_swallow=0.55; state="intro"
 	player.position=Vector3(0,0,4.5); player.target_x=0.0; player.visible=true
 	player.set_aim(Vector3.FORWARD); player._play_run()
 	# The Chaser leads; a pack of smaller zombies runs around and ahead of it.
@@ -1769,6 +1771,7 @@ const INTRO_PET_OFFSET:=Vector3(-1.15,0,0.15)
 
 func _tick_intro(delta: float) -> void:
 	intro_time+=delta
+	intro_swallow=maxf(0.0, intro_swallow-delta)
 	player.set_aim(Vector3.FORWARD); player.tick(delta)
 	for dog in companion_pets:
 		if is_instance_valid(dog): dog.run_beside(player.position+INTRO_PET_OFFSET+Vector3(float(dog.slot_index)*0.35,0,0),delta)
@@ -5721,7 +5724,8 @@ func _pointer_down(pos: Vector2) -> bool:
 		_finish_loading()
 		return true
 	if state=="intro":
-		_finish_intro()
+		# the tap that started the run often arrives twice (iOS sends an emulated click)
+		if intro_swallow<=0.0: _finish_intro()
 		return true
 	# The cover (original title poster): the painted gear opens settings, any other tap
 	# goes through the loading screen (random art) — the classic login page flow.
