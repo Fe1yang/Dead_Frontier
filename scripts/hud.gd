@@ -282,12 +282,12 @@ func _draw_hud() -> void:
 	var rx: float=270.0-(38.0+kw)*0.5
 	_draw_skull(Vector2(rx+14,118),16)
 	draw_string(bold,Vector2(rx+38,133),kill_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,34,WHITE)
-	var gold_txt:="金币 x %d" % game.run_coins if String(game.language_code).begins_with("zh") else "GOLD x %d" % game.run_coins
-	var silver_txt:="银币 x %d" % game.run_silver if String(game.language_code).begins_with("zh") else "SILVER x %d" % game.run_silver
+	var gold_txt:="金币x%d" % game.run_coins if String(game.language_code).begins_with("zh") else "GOLD x %d" % game.run_coins
+	var silver_txt:="银币x%d" % game.run_silver if String(game.language_code).begins_with("zh") else "SILVER x %d" % game.run_silver
 	# right aligned, small, both currencies always visible so the player can read the stock
 	var gold_w: float=bold.get_string_size(gold_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15).x
 	var silver_w: float=bold.get_string_size(silver_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15).x
-	var coin_total: float=gold_w+14.0+silver_w
+	var coin_total: float=gold_w+9.0+silver_w
 	draw_string(bold,Vector2(534.000000-coin_total,150.0),gold_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color("f2c14e"))
 	draw_string(bold,Vector2(534.000000-silver_w,150.0),silver_txt,HORIZONTAL_ALIGNMENT_LEFT,-1,15,Color("cfd6dd"))
 	var pause_pos: Vector2=game.control_pos("pause")
