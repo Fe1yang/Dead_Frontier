@@ -5517,6 +5517,7 @@ func _update_mouse_aim() -> void:
 	var flat:=point-player.global_position; flat.y=0
 	if flat.length()>0.15: aim_direction=flat.normalized()
 
+var aim_on_banshee:=false
 func _update_touch_aim() -> void:
 	aim_target=null; aim_on_banshee=false
 	# No stick input means no aiming: the shot simply goes where the survivor faces. Snapping
