@@ -5425,12 +5425,14 @@ func _fx_drop_at(pos: Vector3,color: Color,size: float,vel: Vector3,grav: float,
 	e.position=pos; e.velocity=vel; e.gravity=grav; e.arm(seconds)
 	effects.append(e)
 
-func _fx_label_at(pos: Vector3,text: String,color: Color,vel: Vector3,seconds: float,big: bool) -> void:
+func _fx_label_at(pos: Vector3,text: String,color: Color,vel: Vector3,seconds: float,big: bool,rainbow:=false) -> void:
 	var e
 	if fx_labels.is_empty(): e=EffectScript.new(); add_child(e)
 	else: e=fx_labels.pop_back()
 	e.make_text(text,color)
 	e.set_meta("fx_kind","label")
+	if rainbow: e.set_meta("fx_rainbow",true)
+	elif e.has_meta("fx_rainbow"): e.remove_meta("fx_rainbow")
 	if big: e.label.font_size=64; e.label.pixel_size=0.0085; e.label.outline_size=12
 	e.position=pos; e.velocity=vel; e.gravity=0.0; e.arm(seconds)
 	effects.append(e)
@@ -5456,8 +5458,8 @@ func _burst(pos: Vector3,color: Color,count: int) -> void:
 	for i in range(count):
 		_fx_spark_at(pos,color,rng.randf_range(0.035,0.075),Vector3(rng.randf_range(-2,2),rng.randf_range(0.5,3),rng.randf_range(-2,2)),-5.0,rng.randf_range(0.35,0.65))
 
-func _popup(pos: Vector3,text: String,color: Color) -> void:
-	_fx_label_at(pos,text,color,Vector3(0,0.8,0),0.85,false)
+func _popup(pos: Vector3,text: String,color: Color,rainbow:=false) -> void:
+	_fx_label_at(pos,text,color,Vector3(0,0.8,0),0.85,false,rainbow)
 
 func _tick_effects(delta: float) -> void:
 	for i in range(effects.size()-1,-1,-1):
