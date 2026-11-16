@@ -5518,7 +5518,12 @@ func _update_mouse_aim() -> void:
 	if flat.length()>0.15: aim_direction=flat.normalized()
 
 func _update_touch_aim() -> void:
-	aim_target=null; var best_score:=0.94
+	aim_target=null; aim_on_banshee=false
+	# No stick input means no aiming: the shot simply goes where the survivor faces. Snapping
+	# onto barrels and platforms while the stick was idle is what made the gun shoot the scenery.
+	if right_stick.length()<=0.16:
+		return
+	var best_score:=0.995
 	for z in zombies+watchers:
 		if not is_instance_valid(z) or z.dead: continue
 		if watchers.has(z) and z.global_position.z>player.global_position.z-1.5: continue # behind: ignore
